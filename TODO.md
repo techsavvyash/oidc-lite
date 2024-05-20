@@ -4,3 +4,6 @@
 - [ ] Build and test logic
 - [ ] package as a npm-package -- exports and all
 - [ ] test and publish
+
+## Architecture
+[Architecture](./arch.png)
