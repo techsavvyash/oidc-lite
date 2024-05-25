@@ -16,6 +16,13 @@ const configuration: Configuration = {
     /* To extract out the info in the tokens generated, default has to be modified to allow introspection from authentic sources only (features.introspection.allowedPolicy)*/
     introspection: {
       enabled: true,
+      // this is default function, change it
+      // allowedPolicy(ctx, client, token) {
+      //   if (client.clientAuthMethod === 'none' && token.clientId !== ctx.oidc.client.clientId) {
+      //     return false;
+      //   }
+      //   return true;
+      // },
     },
     /* resourceIndicators: {
        enabled: true,
@@ -149,7 +156,7 @@ async function getProvider(): Promise<any> {
     typeof import('oidc-provider')
   >);
   Provider = mod.default;
-  console.log(Provider);
+  // console.log(Provider);
   return mod;
 }
 getProvider().then(() => {
@@ -160,4 +167,4 @@ async function getCallbackFunction() {
 }
 
 export default getCallbackFunction;
-export { Provider, oidc };
+// export { Provider, oidc };

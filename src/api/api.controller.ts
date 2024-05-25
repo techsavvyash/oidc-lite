@@ -69,7 +69,7 @@ export class ApiController {
     let response = await axios.request(reqOptions);
     //console.log(response.data);
 
-    const val = await this.userService.insertToken(
+    await this.userService.insertToken(
       user.id,
       response.data.access_token,
     );
