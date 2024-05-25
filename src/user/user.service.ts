@@ -1,32 +1,45 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { user, Prisma } from '@prisma/client';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService){}
 
-  async user(
-    userWhereUniqueInput: Prisma.userWhereUniqueInput,
-  ): Promise<user | null> {
-    return this.prisma.user.findUnique({
-      where: userWhereUniqueInput,
-    });
-  }
+    async allUsers(){
+        return this.prisma.user.findMany();
+    }
 
-  async createUser(data: Prisma.userCreateInput): Promise<user> {
-    return this.prisma.user.create({
-      data,
-    });
-  }
+    async createUser(data: Prisma.UserCreateInput): Promise<User | null>{
+        return this.prisma.user.create({data});
+    }
+    
+    async getUserByEmail(userWhereUniqueInput: Prisma.UserWhereUniqueInput): Promise<User | null>{
+        return this.prisma.user.findUnique({
+            where: userWhereUniqueInput
+        })
+    }
 
-  async deleteUser(where: Prisma.userWhereUniqueInput): Promise<user> {
-    return this.prisma.user.delete({
-      where,
-    });
-  }
+    async getUserByName(userWhereUniqueInput: Prisma.UserWhereUniqueInput): Promise<User | null>{
+        return this.prisma.user.findUnique({
+            where: userWhereUniqueInput
+        })
+    }
 
-  async allUsersInDB(): Promise<user[]> {
-    return this.prisma.user.findMany({});
-  }
+    async insertToken(id: number,token: string): Promise<User | null>{
+        const user = await this.prisma.user.findUnique({
+            where: {id: id}
+        });
+
+        if(!user){
+            throw new Error("User not found");
+        }
+
+        const updatedToken = user.tokens ? `${user.tokens} ${token}`: token;
+
+        return await this.prisma.user.update({
+            where: {id},
+            data: {tokens: updatedToken}
+        })
+    }
 }

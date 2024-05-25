@@ -13,12 +13,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user {
-  id            Int             @id @default(autoincrement())
-  username      String          @unique
-  password      String
-  is_superuser  Boolean
+model User {
+  id        Int    @id @default(autoincrement())
+  birthdate String
+  gender    String
+  username  String @unique
+  email     String @unique
+  password  String
+  tokens    String?
 }
-
-// permission_id 0 for user
-// 1 for admin

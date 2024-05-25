@@ -1,28 +1,25 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import {urlencoded} from "body-parser";
+import { resolve } from 'path';
+import * as bodyParser from 'body-parser';
+
 import * as cookieParser from 'cookie-parser';
-import * as session from 'express-session';
-import * as passport from 'passport';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  
+  app.useStaticAssets(resolve('./src/public'));
+  app.setBaseViewsDir(resolve('./src/views'));
+  app.setViewEngine('ejs');
+  app.enableCors();
   app.use(cookieParser());
-  app.enableCors({ credentials: true });
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET, // to sign session id
-      resave: false, // will default to false in near future: https://github.com/expressjs/session#resave
-      saveUninitialized: false, // will default to false in near future: https://github.com/expressjs/session#saveuninitialized
-      rolling: true, // keep session alive
-      cookie: {
-        maxAge: 30 * 60 * 1000, // session expires in 1hr, refreshed by `rolling: true` option.
-        httpOnly: true, // so that cookie can't be accessed via client-side script
-      },
-    }),
-  );
-  app.use(passport.initialize());
-  app.use(passport.session());
+  app.use(bodyParser.json());
+
+  app.use('/interaction', urlencoded({ extended: false }));
+
+
   await app.listen(3000);
 }
 bootstrap();
