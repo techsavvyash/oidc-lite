@@ -20,7 +20,6 @@ export class ApiController {
     @Body('password') password: string,
     @Body('scopes') scopes: string,
   ) {
-    //console.log('1');
     const jwtToken = req.cookies?.jwt;
     if (!jwtToken && (!username || !password)) {
       res.status(400).send({
@@ -80,7 +79,7 @@ export class ApiController {
           id: user.id,
           sub: response.data.access_token,
         },
-        { secret: 'secret' },
+        { secret: process.env.JWT_SECRET },
       );
       res.cookie('jwt', token);
     } else {

@@ -59,8 +59,8 @@ const configuration: Configuration = {
 
   clients: [
     {
-      client_id: 'app',
-      client_secret: 'a_secret',
+      client_id: process.env.CLIENT_ID,
+      client_secret: process.env.CLIENT_SECRET,
       redirect_uris: ['http://localhost:3000/callback'],
       // + other client properties
       grant_types: ['authorization_code', 'client_credentials'],

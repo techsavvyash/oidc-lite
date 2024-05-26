@@ -12,6 +12,7 @@ import axios from 'axios';
 import { Request, Response } from 'express';
 import * as qs from 'query-string';
 import { UserService } from './user/user.service';
+import { env } from 'process';
 
 @Controller()
 export class AppController {
@@ -29,7 +30,7 @@ export class AppController {
       query: { error, error_description },
       accountId: null,
       scopes: null,
-      origin: 'http://localhost:3000',
+      origin: process.env.LOCALHOST_URL
     };
 
     return result;
@@ -59,7 +60,7 @@ export class AppController {
       const result = await axios.post(
         'http://localhost:3000/oidc/token',
         qs.stringify({
-          client_id: 'app',
+          client_id: process.env.CLIENT_ID,
           grant_type: 'authorization_code',
           redirect_uris: 'http://localhost:3000/callback',
           code,
@@ -67,11 +68,11 @@ export class AppController {
         {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: 'Basic YXBwOmFfc2VjcmV0',
+            Authorization: 'Basic' + process.env.AUTHORIZATION_TOKEN,
           },
         },
       );
-      console.log('THis is result data', result.data);
+      console.log('THis is result data', result.data);  // use by default nest logger instead   
       const refresh_token =  result.data.access_token
       const user = req.cookies?.user; //user will exist since code is generated
       console.log("Hello user",user?.username);
