@@ -156,7 +156,6 @@ async function getProvider(): Promise<any> {
     typeof import('oidc-provider')
   >);
   Provider = mod.default;
-  // console.log(Provider);
   return mod;
 }
 getProvider().then(() => {

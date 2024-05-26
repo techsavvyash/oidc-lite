@@ -6,11 +6,10 @@ import { UserModule } from './user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserService } from './user/user.service';
 import { PrismaService } from './prisma/prisma.service';
-import { ApiModule } from './api/api.module';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [OidcModule, UserModule, PrismaModule, ApiModule,JwtModule.register({
+  imports: [OidcModule, UserModule, PrismaModule,JwtModule.register({
     global: true,
     secret: "secret",
     signOptions: { expiresIn: '1hs' },
