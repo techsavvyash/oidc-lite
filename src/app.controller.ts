@@ -70,11 +70,11 @@ export class AppController {
     }
     try {
       const result = await axios.post(
-        'http://localhost:3000/oidc/token',
+        `${process.env.HOST_NAME}:${process.env.HOST_PORT}/oidc/token`,
         qs.stringify({
           client_id: process.env.CLIENT_ID,
           grant_type: 'authorization_code',
-          redirect_uris: 'http://localhost:3000/callback',
+          redirect_uris: `${process.env.HOST_NAME}:${process.env.HOST_PORT}/callback`,
           code,
         }),
         {
@@ -136,13 +136,13 @@ export class AppController {
     let headersList = {
       Accept: '*/*',
       'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: 'Basic YXBwOmFfc2VjcmV0',
+      Authorization: `Basic ${process.env.AUTHORIZATION_TOKEN}`,
     };
 
     let bodyContent = `grant_type=client_credentials&scope=${finalScope}`;
 
     let reqOptions = {
-      url: 'http://localhost:3000/oidc/token',
+      url: `${process.env.HOST_NAME}:${process.env.HOST_PORT}/oidc/token`,
       method: 'POST',
       headers: headersList,
       data: bodyContent,
@@ -194,13 +194,13 @@ export class AppController {
     let headersList = {
       Accept: '*/*',
       'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: 'Basic YXBwOmFfc2VjcmV0',
+      Authorization: `Basic ${process.env.AUTHORIZATION_TOKEN}`,
     };
 
     let bodyContent = `token=${token}`;
 
     let reqOptions = {
-      url: 'http://localhost:3000/oidc/token/introspection',
+      url: `${process.env.HOST_NAME}:${process.env.HOST_PORT}/oidc/token/introspection`,
       method: 'POST',
       headers: headersList,
       data: bodyContent,

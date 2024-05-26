@@ -61,7 +61,7 @@ const configuration: Configuration = {
     {
       client_id: process.env.CLIENT_ID,
       client_secret: process.env.CLIENT_SECRET,
-      redirect_uris: ['http://localhost:3000/callback'],
+      redirect_uris: [`${process.env.HOST_NAME}:${process.env.HOST_PORT}/${process.env.OIDC_CALLBACK_ROUTE}`],
       // + other client properties
       grant_types: ['authorization_code', 'client_credentials'],
       //   redirect_uris: [],
@@ -159,7 +159,7 @@ async function getProvider(): Promise<any> {
   return mod;
 }
 getProvider().then(() => {
-  oidc = new Provider('http://localhost:3000', configuration);
+  oidc = new Provider(`${process.env.HOST_NAME}:${process.env.HOST_PORT}`, configuration);
 });
 async function getCallbackFunction() {
   return oidc.callback();
