@@ -8,7 +8,7 @@ import {
   Req,
   Logger,
   Body,
-  Post
+  Post,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import axios from 'axios';
@@ -18,45 +18,37 @@ import * as qs from 'query-string';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { env } from 'process';
-import { CreateApiDto, LoginDTO } from './dto/api.dto';
+import { CreateUserDto, LoginDTO } from './dto/user.dto';
 
 @Controller()
 export class AppController {
   private readonly logger = new Logger(AppController.name);
   constructor(
-    private readonly appService: AppService,private readonly userService: UserService,
+    private readonly appService: AppService,
+    private readonly userService: UserService,
     private readonly prismaService: PrismaService,
     private readonly jwtService: JwtService,
   ) {}
-  
-  @Get('/')
-  @Render('index')
-  async getLoginPage(
-    @Req() req: Request,
-    @Res() res: Response,
-    @Query('error') error: string,
-    @Query('error_description') error_description: string,
-  ) {
-    const result: Record<string, any> = {
-      query: { error, error_description },
-      accountId: null,
-      scopes: null,
-      origin: process.env.LOCALHOST_URL
-    };
 
-    return result;
+  @Get('/')
+  async getLoginPage() {
+    return {
+      error: 'Nothing on this route',
+      error_description:
+        'Nothing on this route, go to /login, /jwt-verify, /signup instead',
+    };
   }
 
+  // might not be needed. will be rechecked and removed
   @Get('/callback')
   async test(
     @Query('code') code: string,
     @Query('error') error: string,
     @Query('error_description') error_description: string,
     @Res() res: Response,
-    @Req() req: Request
+    @Req() req: Request,
   ) {
-    this.logger.log("first ", code);
+    this.logger.log('first ', code);
     if (error) {
       return res.redirect(
         `/?error=${error}&error_description=${error_description}`,
@@ -84,14 +76,14 @@ export class AppController {
           },
         },
       );
-      this.logger.log('This is result data', result.data) //using nestJS by deafult logger
-      const refresh_token =  result.data.access_token
+      this.logger.log('This is result data', result.data); //using nestJS by deafult logger
+      const refresh_token = result.data.access_token;
       const user = req.cookies?.user; //user will exist since code is generated
-      this.logger.log('Hello User ', user?.username) 
-      await this.userService.insertToken(user.id,refresh_token); // token getting appended
-      this.logger.log("Token appended")
+      this.logger.log('Hello User ', user?.username);
+      await this.userService.insertToken(user.id, refresh_token); // token getting appended
+      this.logger.log('Token appended');
     } catch (error) {
-      this.logger.log("Axios error happened")
+      this.logger.log('Axios error happened');
       res
         .status(error.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR)
         .json(error.response?.data ?? error);
@@ -104,7 +96,7 @@ export class AppController {
   async loginRoute(
     @Req() req: Request,
     @Res() res: Response,
-    @Body() body : LoginDTO
+    @Body() body: LoginDTO,
   ) {
     const { username, password, scopes } = body;
     const jwtToken = req.cookies?.jwt;
@@ -116,7 +108,9 @@ export class AppController {
       return;
     }
     const user = jwtToken
-      ? await this.jwtService.verifyAsync(jwtToken, { secret: 'secret' })
+      ? await this.jwtService.verifyAsync(jwtToken, {
+          secret: `${process.env.JWT_SECRET}`,
+        })
       : await this.prismaService.user.findUnique({
           where: {
             username,
@@ -150,10 +144,7 @@ export class AppController {
 
     let response = await axios.request(reqOptions);
 
-    await this.userService.insertToken(
-      user.id,
-      response.data.access_token,
-    );
+    await this.userService.insertToken(user.id, response.data.access_token);
 
     if (!jwtToken) {
       const token = await this.jwtService.signAsync(
@@ -167,6 +158,8 @@ export class AppController {
     } else {
       res.cookie('jwt', jwtToken);
     }
+
+    this.logger.log("A user just login!",user.id);
     return res.send(response.data);
   }
 
@@ -176,18 +169,10 @@ export class AppController {
     @Res() res: Response,
     @Body('token') token: string,
   ) {
-    const jwtToken = req.cookies?.jwt;
-
-    const user = jwtToken
-      ? await this.jwtService.verifyAsync(jwtToken, { secret: 'secret' })
-      : null;
-    token = token ? token : user?.sub;
-
     if (!token) {
       res.status(401).send({
         error: 'No token given',
-        error_description:
-          "User with the given username and password doesn't exist",
+        error_description: 'No token were given while calling the endpoint',
       });
       return;
     }
@@ -215,7 +200,7 @@ export class AppController {
     @Req() req: Request,
     @Res() res: Response,
     @Body()
-    body: CreateApiDto
+    body: CreateUserDto,
   ) {
     const { username, password, gender, birthdate, email } = body;
     if (!username || !password || !gender || !birthdate || !email) {
@@ -240,12 +225,10 @@ export class AppController {
       return;
     }
     const newUser = await this.prismaService.user.create({ data: body });
-
+    this.logger.log("New user registered!",newUser);
     res.status(201).send({
-        message: "user created successfully",
-        newUser
-    })
-    
+      message: 'user created successfully',
+      newUser,
+    });
   }
 }
-
