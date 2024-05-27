@@ -12,7 +12,19 @@ const configuration: Configuration = {
     clientCredentials: {
       enabled: true,
     },
-
+    resourceIndicators:{
+      enabled: true,
+      getResourceServerInfo(ctx,resourceIndicator,client){
+        if(resourceIndicator)
+          return {
+            scope: 'openid email profile phone offline_access address',
+            audience: resourceIndicator,
+            accessTokenTTL: 1*60*60,
+            accessTokenFormat: 'jwt'
+          }
+        throw new Error("LOL")
+      }
+    },
     /* To extract out the info in the tokens generated, default has to be modified to allow introspection from authentic sources only (features.introspection.allowedPolicy)*/
     introspection: {
       enabled: true,
@@ -49,9 +61,9 @@ const configuration: Configuration = {
       return `/interaction/${interaction.uid}`;
     },
   },
- clientBasedCORS(ctx, origin, client) {
-     return false
- },
+  clientBasedCORS(ctx, origin, client) {
+    return false;
+  },
 
   //   claims:{
   //     profile: ['username','gender','birthdate','email'],
@@ -61,9 +73,15 @@ const configuration: Configuration = {
     {
       client_id: process.env.CLIENT_ID,
       client_secret: process.env.CLIENT_SECRET,
-      redirect_uris: [`${process.env.HOST_NAME}:${process.env.HOST_PORT}/${process.env.OIDC_CALLBACK_ROUTE}`],
+      redirect_uris: [
+        `${process.env.HOST_NAME}:${process.env.HOST_PORT}/${process.env.OIDC_CALLBACK_ROUTE}`,
+      ],
       // + other client properties
-      grant_types: ['authorization_code', 'client_credentials'],
+      grant_types: [
+        'authorization_code',
+        'client_credentials',
+        'refresh_token',
+      ],
       //   redirect_uris: [],
       response_types: ['code'],
     },
@@ -159,7 +177,10 @@ async function getProvider(): Promise<any> {
   return mod;
 }
 getProvider().then(() => {
-  oidc = new Provider(`${process.env.HOST_NAME}:${process.env.HOST_PORT}`, configuration);
+  oidc = new Provider(
+    `${process.env.HOST_NAME}:${process.env.HOST_PORT}`,
+    configuration,
+  );
 });
 async function getCallbackFunction() {
   return oidc.callback();

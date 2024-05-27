@@ -1,14 +1,18 @@
+import { ApiProperty } from "@nestjs/swagger";
+
 export class CreateUserDto {
-  readonly birthdate: string;
-  readonly gender: string;
-  readonly username: string;
-  readonly email: string;
-  readonly password: string;
-  readonly tokens?: string;
+  @ApiProperty() birthdate: string;
+  @ApiProperty() gender: string;
+  @ApiProperty() username: string;
+  @ApiProperty() email: string;
+  @ApiProperty() password: string;
+  @ApiProperty() tokens?: string;
 }
 
 export class LoginDTO {
-  readonly username: string;
-  readonly password: string;
-  readonly scopes?: string;
+  @ApiProperty() username: string;
+  @ApiProperty() password: string;
+  @ApiProperty() scopes?: string;
+  @ApiProperty() resource?: string;
+  @ApiProperty() grant_type?: string;
 }
