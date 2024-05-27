@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import {urlencoded} from "body-parser";
 import { resolve } from 'path';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 
 import * as cookieParser from 'cookie-parser';
@@ -19,6 +20,14 @@ async function bootstrap() {
 
   app.use('/interaction', urlencoded({ extended: false }));
 
+
+  const config = new DocumentBuilder()
+    .setTitle('OIDC Protocol setup')
+    .setDescription('This is the project to implement OIDC protocol in nestjs')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(3000);
 }

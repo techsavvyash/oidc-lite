@@ -12,7 +12,7 @@ import { JwtModule } from '@nestjs/jwt';
   imports: [OidcModule, UserModule, PrismaModule,JwtModule.register({
     global: true,
     secret: "secret",
-    signOptions: { expiresIn: '1hs' },
+    signOptions: { expiresIn: '1hr' },
   }),],
   controllers: [AppController],
   providers: [AppService,UserService,PrismaService],
