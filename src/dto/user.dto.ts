@@ -11,4 +11,6 @@ export class LoginDTO {
   readonly username: string;
   readonly password: string;
   readonly scopes?: string;
+  readonly resource?: string;
+  readonly grant_type?: string;
 }
