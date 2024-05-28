@@ -22,7 +22,7 @@ const configuration: Configuration = {
             accessTokenTTL: 1*60*60,
             accessTokenFormat: 'jwt'
           }
-        throw new Error("LOL")
+        throw new Error("Resource indicator not given!")
       }
     },
     /* To extract out the info in the tokens generated, default has to be modified to allow introspection from authentic sources only (features.introspection.allowedPolicy)*/
@@ -104,13 +104,7 @@ const configuration: Configuration = {
   //   }, */
 
   // own cookies.key needed rather than default
-  cookies: {
-    keys: [
-      'some secret key',
-      'and also the old rotated away some time ago',
-      'and one more',
-    ],
-  },
+  
 
   /*   claims: {
   //     address: ['address'],
