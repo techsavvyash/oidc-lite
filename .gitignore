@@ -2,9 +2,6 @@
 /dist
 /node_modules
 
-.env 
-package-lock.json
-Zolo.todo
 # Logs
 logs
 *.log
