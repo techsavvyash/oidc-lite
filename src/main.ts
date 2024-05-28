@@ -5,7 +5,7 @@ import {urlencoded} from "body-parser";
 import { resolve } from 'path';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
-
+import * as fs from 'fs';
 import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
@@ -28,6 +28,8 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+  // saving the swagger file 
+  fs.writeFileSync('./swagger-spec.json', JSON.stringify(document, null, 2), { encoding: 'utf8' });
 
   await app.listen(3000);
 }
