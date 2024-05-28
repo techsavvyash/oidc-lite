@@ -2,13 +2,8 @@ import { Configuration } from 'oidc-provider';
 
 let Provider, oidc;
 const configuration: Configuration = {
-  // ... see the available options in Configuration options section
   features: {
-    // claimsParameter:{
-    //     enabled: false
-    // },
-
-    /* enables grant_type=client_credentials to be used on token endpoint */
+    /** enables grant_type=client_credentials to be used on token endpoint */
     clientCredentials: {
       enabled: true,
     },
@@ -22,53 +17,22 @@ const configuration: Configuration = {
             accessTokenTTL: 1*60*60,
             accessTokenFormat: 'jwt'
           }
-        throw new Error("LOL")
+        throw new Error("Resource indicator not given!")
       }
     },
-    /* To extract out the info in the tokens generated, default has to be modified to allow introspection from authentic sources only (features.introspection.allowedPolicy)*/
+    /** To extract out the info in the tokens generated; default has to be modified to allow introspection from authentic sources only (features.introspection.allowedPolicy)*/
     introspection: {
       enabled: true,
-      // this is default function, change it
-      // allowedPolicy(ctx, client, token) {
-      //   if (client.clientAuthMethod === 'none' && token.clientId !== ctx.oidc.client.clientId) {
-      //     return false;
-      //   }
-      //   return true;
-      // },
     },
-    /* resourceIndicators: {
-       enabled: true,
-        getResourceServerInfo(ctx, resourceIndicator) {
-        if (resourceIndicator === 'urn:api') {
-           return {
-             scope: 'read',
-             audience: 'urn:api',
-             accessTokenTTL: 1 * 60 * 60, // 1 hour
-             accessTokenFormat: 'jwt',
-           };
-         }
 
-         throw new Error('Invalid target');
-       },
-     }, */
-    /* To turn off default pages and routes */
+    /** To turn off default pages and routes */
     devInteractions: {
       enabled: false,
-    },
-  },
-  interactions: {
-    url(_, interaction) {
-      return `/interaction/${interaction.uid}`;
     },
   },
   clientBasedCORS(ctx, origin, client) {
     return false;
   },
-
-  //   claims:{
-  //     profile: ['username','gender','birthdate','email'],
-  //   },
-
   clients: [
     {
       client_id: process.env.CLIENT_ID,
@@ -76,13 +40,11 @@ const configuration: Configuration = {
       redirect_uris: [
         `${process.env.HOST_NAME}:${process.env.HOST_PORT}/${process.env.OIDC_CALLBACK_ROUTE}`,
       ],
-      // + other client properties
       grant_types: [
-        'authorization_code',
         'client_credentials',
         'refresh_token',
+        'authorization_code'
       ],
-      //   redirect_uris: [],
       response_types: ['code'],
     },
   ],
@@ -91,56 +53,6 @@ const configuration: Configuration = {
     required: () => false,
   },
   scopes: ['openid', 'offline_access', 'profile', 'email', 'phone', 'address'],
-
-  /*   findAccount: async function findAccount(ctx,sub,token){
-
-  //   }
-
-  //   interactions: {
-  //     url(ctx, interaction) {
-  //       // eslint-disable-line no-unused-vars
-  //       return `/interaction/${interaction.uid}`;
-  //     },
-  //   }, */
-
-  // own cookies.key needed rather than default
-  cookies: {
-    keys: [
-      'some secret key',
-      'and also the old rotated away some time ago',
-      'and one more',
-    ],
-  },
-
-  /*   claims: {
-  //     address: ['address'],
-  //     email: ['email', 'email_verified'],
-  //     phone: ['phone_number', 'phone_number_verified'],
-  //     profile: [
-  //       'birthdate',
-  //       'family_name',
-  //       'gender',
-  //       'given_name',
-  //       'locale',
-  //       'middle_name',
-  //       'name',
-  //       'nickname',
-  //       'picture',
-  //       'preferred_username',
-  //       'profile',
-  //       'updated_at',
-  //       'website',
-  //       'zoneinfo',
-  //     ],
-  //   },
-  //   features: {
-  //     devInteractions: { enabled: false }, // defaults to true
-
-  //     deviceFlow: { enabled: true }, // defaults to false
-  //     revocation: { enabled: true }, // defaults to false
-  //   }, */
-
-  // own jwks needed rather than default
   jwks: {
     keys: [
       {
@@ -187,4 +99,3 @@ async function getCallbackFunction() {
 }
 
 export default getCallbackFunction;
-// export { Provider, oidc };

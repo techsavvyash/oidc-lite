@@ -11,8 +11,8 @@ import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [OidcModule, UserModule, PrismaModule,JwtModule.register({
     global: true,
-    secret: "secret",
-    signOptions: { expiresIn: '1hr' },
+    secret: process.env.JWT_SECRET,
+    signOptions: { expiresIn: process.env.JWT_SECRET_EXPIRATION },
   }),],
   controllers: [AppController],
   providers: [AppService,UserService,PrismaService],

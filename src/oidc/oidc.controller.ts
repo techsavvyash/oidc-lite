@@ -2,8 +2,6 @@ import { All, Controller, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import getCallbackFunction from './oidc.util';
 
-// const Provider = getProvider();
-
 @Controller('oidc')
 export class OidcController {
   @All('/*')

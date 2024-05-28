@@ -12,7 +12,7 @@
           }
         },
         "tags": [
-          "user-OIDC"
+          "User-OIDC"
         ]
       }
     },
@@ -63,7 +63,7 @@
           }
         },
         "tags": [
-          "user-OIDC"
+          "User-OIDC"
         ]
       }
     },
@@ -101,7 +101,7 @@
           }
         },
         "tags": [
-          "user-OIDC"
+          "User-OIDC"
         ]
       }
     },
@@ -139,7 +139,7 @@
           }
         },
         "tags": [
-          "user-OIDC"
+          "User-OIDC"
         ]
       }
     },
@@ -200,7 +200,7 @@
           }
         },
         "tags": [
-          "user-OIDC"
+          "User-OIDC"
         ]
       }
     },
