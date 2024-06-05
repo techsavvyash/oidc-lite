@@ -102,4 +102,17 @@ export class ApplicationController {
   ) {
     return await this.applicationScopeService.createScope(data, id, scopeId);
   }
+
+  @Delete('/:id/role/:roleId')
+  async deleteRole(@Param('id') id: string, @Param('roleId') roleId: string) {
+    return await this.applicationRoleService.deleteRole(id, roleId);
+  }
+
+  @Delete('/:id/scope/:scopeId')
+  async deleteScope(
+    @Param('id') id: string,
+    @Param('scopeId') scopeId: string,
+  ) {
+    return await this.applicationScopeService.deleteScope(id, scopeId);
+  }
 }

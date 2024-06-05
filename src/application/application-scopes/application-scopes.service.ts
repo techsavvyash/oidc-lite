@@ -21,7 +21,7 @@ export class ApplicationScopesService {
       );
     }
 
-    const id = data.id ? data.id : (scopeId ? scopeId : randomUUID());
+    const id = data.id ? data.id : scopeId ? scopeId : randomUUID();
     const { defaultConsentDetail, defaultConsentMessage, name, required } =
       data;
     const description = JSON.stringify({
@@ -34,15 +34,15 @@ export class ApplicationScopesService {
           id,
           description,
           name,
-          applicationsId
+          applicationsId,
         },
       });
-      this.logger.log("New scope added!",newScope);
+      this.logger.log('New scope added!', newScope);
       return {
-        message: "successfully created a new scope",
+        message: 'successfully created a new scope',
         scope: newScope,
-        applicationsId
-      }
+        applicationsId,
+      };
     } catch (error) {
       this.logger.log('Error creating a new Scope', error);
       return {
@@ -55,4 +55,10 @@ export class ApplicationScopesService {
   async getScope() {}
 
   async updateScope() {}
+
+  async deleteScope(id: string, scopeId: string) {
+    return await this.prismaService.applicationOauthScope.delete({
+      where: { id: scopeId, applicationsId: id },
+    });
+  }
 }

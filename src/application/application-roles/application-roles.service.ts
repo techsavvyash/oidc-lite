@@ -21,7 +21,7 @@ export class ApplicationRolesService {
       );
     }
     const { description, name, isDefault, isSuperRole } = data;
-    const id = data.id ? data.id : (roleId ? roleId : randomUUID());
+    const id = data.id ? data.id : roleId ? roleId : randomUUID();
     try {
       const newRole = await this.prismaService.applicationRole.create({
         data: {
@@ -51,4 +51,13 @@ export class ApplicationRolesService {
   async getRole() {}
 
   async updateRole() {}
+
+  async deleteRole(id: string, roleId: string) {
+    return await this.prismaService.applicationRole.delete({
+      where: {
+        id: roleId,
+        applicationsId: id,
+      },
+    });
+  }
 }
