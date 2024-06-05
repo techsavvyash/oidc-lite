@@ -1,8 +1,7 @@
 # compiled output
 /dist
 /node_modules
-zolo.todo
-swagger-spec.json
+
 # Logs
 logs
 *.log
@@ -38,3 +37,5 @@ lerna-debug.log*
 
 
 .env
+zolo.todo
+swagger-spec.json

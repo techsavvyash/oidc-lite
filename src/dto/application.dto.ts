@@ -22,6 +22,13 @@ export class RoleDto {
   @ApiProperty() name: string;
   @ApiProperty() id?: string;
 }
+export class UpdateRoleDto {
+  @ApiProperty() description?: string;
+  @ApiProperty() isDefault?: boolean;
+  @ApiProperty() isSuperRole?: boolean;
+  @ApiProperty() name?: string;
+  @ApiProperty() id?: string;
+}
 
 export class ScopeDto {
   @ApiProperty() defaultConsentDetail: string;
@@ -29,6 +36,13 @@ export class ScopeDto {
   @ApiProperty() id?: string;
   @ApiProperty() name: string;
   @ApiProperty() required: boolean;
+}
+export class UpdateScopeDto {
+  @ApiProperty() defaultConsentDetail?: string;
+  @ApiProperty() defaultConsentMessage?: string;
+  @ApiProperty() id?: string;
+  @ApiProperty() name?: string;
+  @ApiProperty() required?: boolean;
 }
 
 export class CreateApplicationDto {
