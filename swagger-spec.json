@@ -696,12 +696,21 @@
         ]
       }
     },
-    "/application/all": {
+    "/application": {
       "get": {
         "operationId": "ApplicationController_allApplications",
         "parameters": [],
         "responses": {
           "200": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "operationId": "ApplicationController_insertAnApplicationWithRandomUUID",
+        "parameters": [],
+        "responses": {
+          "201": {
             "description": ""
           }
         }
@@ -726,6 +735,24 @@
           }
         }
       },
+      "post": {
+        "operationId": "ApplicationController_insertAnApplication",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
       "patch": {
         "operationId": "ApplicationController_updateApplication",
         "parameters": [
@@ -740,17 +767,6 @@
         ],
         "responses": {
           "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/application/new": {
-      "post": {
-        "operationId": "ApplicationController_insertAnApplication",
-        "parameters": [],
-        "responses": {
-          "201": {
             "description": ""
           }
         }

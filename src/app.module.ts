@@ -8,15 +8,17 @@ import { UserService } from './user/user.service';
 import { PrismaService } from './prisma/prisma.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ApplicationModule } from './application/application.module';
-import { GroupsModule } from './groups/groups.module';
+import { ApplicationRolesService } from './application/application-roles/application-roles.service';
+import { ApplicationScopesService } from './application/application-scopes/application-scopes.service';
+import { TenantService } from './tenant/tenant.service';
 
 @Module({
   imports: [OidcModule, UserModule, PrismaModule,JwtModule.register({
     global: true,
     secret: process.env.JWT_SECRET,
     signOptions: { expiresIn: process.env.JWT_SECRET_EXPIRATION },
-  }), ApplicationModule, GroupsModule,],
+  }), ApplicationModule],
   controllers: [AppController],
-  providers: [AppService,UserService,PrismaService],
+  providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService],
 })
 export class AppModule {}
