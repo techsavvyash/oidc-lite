@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { ScopeDto } from 'src/dto/application.dto';
+import { ScopeDto, UpdateScopeDto } from 'src/dto/application.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -54,7 +54,57 @@ export class ApplicationScopesService {
 
   async getScope() {}
 
-  async updateScope() {}
+  async updateScope(id: string, scopeId: string, data: UpdateScopeDto) {
+    if (!data) {
+      throw new HttpException('No updation data given', HttpStatus.BAD_REQUEST);
+    }
+    const application = await this.prismaService.application.findUnique({
+      where: { id },
+    });
+    if (!application) {
+      throw new HttpException(
+        "Application with given id don't exist",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    try {
+      const oldScope =
+        await this.prismaService.applicationOauthScope.findUnique({
+          where: { id: scopeId },
+        });
+      const name = data.name ? data.name : oldScope.name;
+
+      const oldDesc = JSON.parse(oldScope.description);
+      const defaultConsentDetail = data.defaultConsentDetail
+        ? data.defaultConsentDetail
+        : oldDesc.defaultConsentDetail;
+      const defaultConsentMessage = data.defaultConsentMessage
+        ? data.defaultConsentMessage
+        : oldDesc.defaultConsentMessage;
+      const description = JSON.stringify({
+        defaultConsentDetail,
+        defaultConsentMessage,
+      });
+      const scope = await this.prismaService.applicationOauthScope.update({
+        where: { id: scopeId },
+        data: {
+          description,
+          name,
+        },
+      });
+      this.logger.log('scope updated', scope);
+      return {
+        message: 'scope updated successfully',
+        scope,
+      };
+    } catch (error) {
+      console.log('Error occured while updating scope', error);
+      throw new HttpException(
+        'Error while updating scope',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   async deleteScope(id: string, scopeId: string) {
     return await this.prismaService.applicationOauthScope.delete({

@@ -31,12 +31,6 @@ export class ApplicationController {
   async allApplications() {
     return await this.applicationService.returnAllApplications();
   }
-
-  @Get('/:id')
-  async getAnApplication(@Param('id') id: string) {
-    return await this.applicationService.returnAnApplication(id);
-  }
-
   @Post('/')
   async createAnApplicationWithRandomUUID(
     @Body('data') data: CreateApplicationDto,
@@ -45,6 +39,10 @@ export class ApplicationController {
     return await this.applicationService.createApplication(uuid, data);
   }
 
+  @Get('/:id')
+  async getAnApplication(@Param('id') id: string) {
+    return await this.applicationService.returnAnApplication(id);
+  }
   @Post('/:id')
   async createAnApplication(
     @Body('data') data: CreateApplicationDto,
@@ -52,7 +50,6 @@ export class ApplicationController {
   ) {
     return await this.applicationService.createApplication(id, data);
   }
-
   @Patch('/:id')
   async updateApplication(
     @Param('id') id: string,
@@ -60,7 +57,6 @@ export class ApplicationController {
   ) {
     return await this.applicationService.patchApplication(id, data);
   }
-
   @Delete('/:id')
   async deleteApplication(
     @Param('id') id: string,
@@ -76,7 +72,6 @@ export class ApplicationController {
   ) {
     return await this.applicationRoleService.createRole(data, id);
   }
-
   @Post('/:id/role/:roleId')
   async createRole(
     @Param('id') id: string,
@@ -84,6 +79,18 @@ export class ApplicationController {
     @Body('data') data: RoleDto,
   ) {
     return await this.applicationRoleService.createRole(data, id, roleId);
+  }
+  @Delete('/:id/role/:roleId')
+  async deleteRole(@Param('id') id: string, @Param('roleId') roleId: string) {
+    return await this.applicationRoleService.deleteRole(id, roleId);
+  }
+  @Patch('/:id/role/:roleId')
+  async updateRole(
+    @Param('id') id: string,
+    @Param('roleId') roleId: string,
+    @Body('data') data: RoleDto,
+  ) {
+    return await this.applicationRoleService.updateRole(id, roleId, data);
   }
 
   @Post('/:id/scope')
@@ -93,7 +100,6 @@ export class ApplicationController {
   ) {
     return await this.applicationScopeService.createScope(data, id);
   }
-
   @Post('/:id/scope/:scopeId')
   async createScope(
     @Param('id') id: string,
@@ -102,17 +108,24 @@ export class ApplicationController {
   ) {
     return await this.applicationScopeService.createScope(data, id, scopeId);
   }
-
-  @Delete('/:id/role/:roleId')
-  async deleteRole(@Param('id') id: string, @Param('roleId') roleId: string) {
-    return await this.applicationRoleService.deleteRole(id, roleId);
-  }
-
   @Delete('/:id/scope/:scopeId')
   async deleteScope(
     @Param('id') id: string,
     @Param('scopeId') scopeId: string,
   ) {
     return await this.applicationScopeService.deleteScope(id, scopeId);
+  }
+  @Patch('/:id/scope/:scopeId')
+  async updateScope(
+    @Param('id') id: string,
+    @Param('scopeId') scopeId: string,
+    @Body('data') data: ScopeDto,
+  ) {
+    return await this.applicationScopeService.updateScope(id, scopeId, data);
+  }
+
+  @Get('/:id/oauth-configuration')
+  async returnOauthConfiguration(@Param('id') id: string) {
+    return await this.applicationService.returnOauthConfiguration(id);
   }
 }

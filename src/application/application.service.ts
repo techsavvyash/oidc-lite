@@ -103,6 +103,9 @@ export class ApplicationService {
   }
 
   async patchApplication(id: string, newData: UpdateApplicationDto) {
+    if (!newData) {
+      throw new HttpException('No updation data given', HttpStatus.BAD_REQUEST);
+    }
     const application = await this.prismaService.application.findUnique({
       where: { id },
     });
@@ -115,14 +118,28 @@ export class ApplicationService {
 
     const name = newData.name ? newData.name : application.name;
 
-    const tenantId = newData.tenant_id ? newData.tenant_id : application.tenantId;
-    const jwtConfiguration = newData.jwtConfiguration ? newData.jwtConfiguration: null;
-    const accessTokenKeyID = jwtConfiguration ? jwtConfiguration.accessTokenKeyID: application.accessTokenSigningKeysId;
-    const idTokenKeyID = jwtConfiguration ? jwtConfiguration.idTokenKeyID: application.idTokenSigningKeysId;
-    await this.tenantService.findTenantElseCreate(accessTokenKeyID,idTokenKeyID,tenantId);
+    const tenantId = newData.tenant_id
+      ? newData.tenant_id
+      : application.tenantId;
+    const jwtConfiguration = newData.jwtConfiguration
+      ? newData.jwtConfiguration
+      : null;
+    const accessTokenKeyID = jwtConfiguration
+      ? jwtConfiguration.accessTokenKeyID
+      : application.accessTokenSigningKeysId;
+    const idTokenKeyID = jwtConfiguration
+      ? jwtConfiguration.idTokenKeyID
+      : application.idTokenSigningKeysId;
+    await this.tenantService.findTenantElseCreate(
+      accessTokenKeyID,
+      idTokenKeyID,
+      tenantId,
+    );
 
     const active = newData.active ? newData.active : application.active;
-    const data = newData.oauthConfiguration ? JSON.stringify(newData.oauthConfiguration): application.data;
+    const data = newData.oauthConfiguration
+      ? JSON.stringify(newData.oauthConfiguration)
+      : application.data;
 
     try {
       const application = await this.prismaService.application.update({
@@ -165,5 +182,20 @@ export class ApplicationService {
     } else {
       return await this.patchApplication(id, { active: false });
     }
+  }
+
+  async returnOauthConfiguration(id: string) {
+    const application = await this.prismaService.application.findUnique({
+      where: { id },
+    });
+    if (!application) {
+      throw new HttpException(
+        'No application with such id exists',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return {
+      configurations: application.data,
+    };
   }
 }

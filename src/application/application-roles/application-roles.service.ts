@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { RoleDto } from 'src/dto/application.dto';
+import { RoleDto, UpdateRoleDto } from 'src/dto/application.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -50,7 +50,39 @@ export class ApplicationRolesService {
 
   async getRole() {}
 
-  async updateRole() {}
+  async updateRole(id: string, roleId: string, data: UpdateRoleDto) {
+    if (!data) {
+      throw new HttpException('No updation data given', HttpStatus.BAD_REQUEST);
+    }
+    const application = await this.prismaService.application.findUnique({
+      where: { id },
+    });
+    if (!application) {
+      throw new HttpException(
+        "Application with given id don't exist",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    try {
+      const role = await this.prismaService.applicationRole.update({
+        where: { id: roleId },
+        data: {
+          ...data,
+        },
+      });
+      this.logger.log('Role updated', role);
+      return {
+        message: 'role updated successfully',
+        role,
+      };
+    } catch (error) {
+      console.log('Error occured while updating role', error);
+      throw new HttpException(
+        'Error while updating role',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   async deleteRole(id: string, roleId: string) {
     return await this.prismaService.applicationRole.delete({
