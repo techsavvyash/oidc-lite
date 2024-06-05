@@ -7,7 +7,10 @@ import {
 } from '@nestjs/common';
 import { ApplicationRolesService } from 'src/application/application-roles/application-roles.service';
 import { ApplicationScopesService } from 'src/application/application-scopes/application-scopes.service';
-import { CreateApplicationDto } from 'src/dto/application.dto';
+import {
+  CreateApplicationDto,
+  UpdateApplicationDto,
+} from 'src/dto/application.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TenantService } from 'src/tenant/tenant.service';
 
@@ -18,7 +21,7 @@ export class ApplicationService {
     private readonly prismaService: PrismaService,
     private readonly applicationRoles: ApplicationRolesService,
     private readonly applicationScopes: ApplicationScopesService,
-    private readonly tenantService: TenantService
+    private readonly tenantService: TenantService,
   ) {
     this.logger = new Logger();
   }
@@ -35,7 +38,13 @@ export class ApplicationService {
       const accessTokenKeyID = jwtConfiguration.accessTokenKeyID;
       const idTokenKeyID = jwtConfiguration.idTokenKeyID;
       // using the above two we will create a new tenant or find it.
-      const tenantId = (await (await this.tenantService.findTenantElseCreate(accessTokenKeyID,idTokenKeyID)).tenant).id;
+      const tenantId = (
+        await this.tenantService.findTenantElseCreate(
+          accessTokenKeyID,
+          idTokenKeyID,
+          data.tenant_id,
+        )
+      ).tenant.id;
 
       const active = data.active ? data.active : true;
       const name = data.name;
@@ -74,7 +83,10 @@ export class ApplicationService {
 
         this.logger.log('New application registred!', application);
 
-
+        return {
+          message: 'Application created successfully!',
+          application,
+        };
       } catch (error) {
         throw new HttpException(
           'Error making new application',
@@ -85,12 +97,55 @@ export class ApplicationService {
       console.log('Error from createApplication: ', error);
       throw new HttpException(
         'Some unknown error happened',
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
 
-  async patchApplication(id: string, newData: any) {}
+  async patchApplication(id: string, newData: UpdateApplicationDto) {
+    const application = await this.prismaService.application.findUnique({
+      where: { id },
+    });
+    if (!application) {
+      throw new HttpException(
+        'Application with the provided id dont exist',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const name = newData.name ? newData.name : application.name;
+
+    const tenantId = newData.tenant_id ? newData.tenant_id : application.tenantId;
+    const jwtConfiguration = newData.jwtConfiguration ? newData.jwtConfiguration: null;
+    const accessTokenKeyID = jwtConfiguration ? jwtConfiguration.accessTokenKeyID: application.accessTokenSigningKeysId;
+    const idTokenKeyID = jwtConfiguration ? jwtConfiguration.idTokenKeyID: application.idTokenSigningKeysId;
+    await this.tenantService.findTenantElseCreate(accessTokenKeyID,idTokenKeyID,tenantId);
+
+    const active = newData.active ? newData.active : application.active;
+    const data = newData.oauthConfiguration ? JSON.stringify(newData.oauthConfiguration): application.data;
+
+    try {
+      const application = await this.prismaService.application.update({
+        where: { id },
+        data: {
+          name,
+          tenantId,
+          active,
+          data,
+        },
+      });
+      return {
+        message: 'Application updated successfully!',
+        application,
+      };
+    } catch (error) {
+      console.log('Error from patchApplication', error);
+      throw new HttpException(
+        'Some unkown error happened!',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   async returnAllApplications() {
     return await this.prismaService.application.findMany();
@@ -102,5 +157,13 @@ export class ApplicationService {
         id,
       },
     });
+  }
+
+  async deleteApplication(id: string, hardDelete: boolean) {
+    if (hardDelete) {
+      return await this.prismaService.application.delete({ where: { id } });
+    } else {
+      return await this.patchApplication(id, { active: false });
+    }
   }
 }

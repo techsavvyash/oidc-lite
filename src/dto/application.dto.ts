@@ -40,3 +40,11 @@ export class CreateApplicationDto {
   @ApiProperty() jwtConfiguration: JwtConfiguration;
   @ApiProperty() oauthConfiguration: OauthConfiguration;
 }
+
+export class UpdateApplicationDto {
+  @ApiProperty() active?: boolean;
+  @ApiProperty() tenant_id?: string;
+  @ApiProperty() jwtConfiguration?: JwtConfiguration;
+  @ApiProperty() oauthConfiguration?: OauthConfiguration;
+  @ApiProperty() name?: string;
+}

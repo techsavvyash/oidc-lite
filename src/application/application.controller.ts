@@ -1,7 +1,18 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Delete,
+} from '@nestjs/common';
 import { ApplicationService } from './application.service';
-import { CreateApplicationDto } from 'src/dto/application.dto';
+import {
+  CreateApplicationDto,
+  UpdateApplicationDto,
+} from 'src/dto/application.dto';
 import { randomUUID } from 'crypto';
 
 @Controller('application')
@@ -34,9 +45,19 @@ export class ApplicationController {
     return await this.applicationService.createApplication(id, data);
   }
 
-  // update later
   @Patch('/:id')
-  async updateApplication(@Param('id') id: string) {
-    return await this.applicationService.patchApplication(id, 'FOR NOW!');
+  async updateApplication(
+    @Param('id') id: string,
+    @Body('data') data: UpdateApplicationDto,
+  ) {
+    return await this.applicationService.patchApplication(id, data);
+  }
+
+  @Delete('/:id')
+  async deleteApplication(
+    @Param('id') id: string,
+    @Query('hardDelete') hardDelete: boolean,
+  ) {
+    return await this.applicationService.deleteApplication(id,hardDelete);
   }
 }
