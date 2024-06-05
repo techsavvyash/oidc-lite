@@ -10,7 +10,7 @@ export class ApplicationRolesService {
     this.logger = new Logger();
   }
 
-  async createRole(data: RoleDto, applicationsId: string) {
+  async createRole(data: RoleDto, applicationsId: string, roleId?: string) {
     const application = await this.prismaService.application.findUnique({
       where: { id: applicationsId },
     });
@@ -21,7 +21,7 @@ export class ApplicationRolesService {
       );
     }
     const { description, name, isDefault, isSuperRole } = data;
-    const id = data.id ? data.id : randomUUID();
+    const id = data.id ? data.id : (roleId ? roleId : randomUUID());
     try {
       const newRole = await this.prismaService.applicationRole.create({
         data: {
@@ -35,10 +35,10 @@ export class ApplicationRolesService {
       });
       this.logger.log('New role added!', newRole);
       return {
-        message: "successfully created a new role",
+        message: 'successfully created a new role',
         role: newRole,
-        applicationsId
-      }
+        applicationsId,
+      };
     } catch (error) {
       this.logger.log('Error creating a new Role', error);
       return {

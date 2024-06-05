@@ -11,13 +11,21 @@ import {
 import { ApplicationService } from './application.service';
 import {
   CreateApplicationDto,
+  RoleDto,
+  ScopeDto,
   UpdateApplicationDto,
 } from 'src/dto/application.dto';
 import { randomUUID } from 'crypto';
+import { ApplicationRolesService } from './application-roles/application-roles.service';
+import { ApplicationScopesService } from './application-scopes/application-scopes.service';
 
 @Controller('application')
 export class ApplicationController {
-  constructor(private readonly applicationService: ApplicationService) {}
+  constructor(
+    private readonly applicationService: ApplicationService,
+    private readonly applicationRoleService: ApplicationRolesService,
+    private readonly applicationScopeService: ApplicationScopesService,
+  ) {}
 
   @Get('/')
   async allApplications() {
@@ -30,7 +38,7 @@ export class ApplicationController {
   }
 
   @Post('/')
-  async insertAnApplicationWithRandomUUID(
+  async createAnApplicationWithRandomUUID(
     @Body('data') data: CreateApplicationDto,
   ) {
     const uuid = randomUUID();
@@ -38,7 +46,7 @@ export class ApplicationController {
   }
 
   @Post('/:id')
-  async insertAnApplication(
+  async createAnApplication(
     @Body('data') data: CreateApplicationDto,
     @Param('id') id: string,
   ) {
@@ -58,6 +66,40 @@ export class ApplicationController {
     @Param('id') id: string,
     @Query('hardDelete') hardDelete: boolean,
   ) {
-    return await this.applicationService.deleteApplication(id,hardDelete);
+    return await this.applicationService.deleteApplication(id, hardDelete);
+  }
+
+  @Post('/:id/role')
+  async createRoleWithRandomUUID(
+    @Param('id') id: string,
+    @Body('data') data: RoleDto,
+  ) {
+    return await this.applicationRoleService.createRole(data, id);
+  }
+
+  @Post('/:id/role/:roleId')
+  async createRole(
+    @Param('id') id: string,
+    @Param('roleId') roleId: string,
+    @Body('data') data: RoleDto,
+  ) {
+    return await this.applicationRoleService.createRole(data, id, roleId);
+  }
+
+  @Post('/:id/scope')
+  async createScopeWithRandomUUID(
+    @Param('id') id: string,
+    @Body('data') data: ScopeDto,
+  ) {
+    return await this.applicationScopeService.createScope(data, id);
+  }
+
+  @Post('/:id/scope/:scopeId')
+  async createScope(
+    @Param('id') id: string,
+    @Param('scopeId') scopeId: string,
+    @Body('data') data: ScopeDto,
+  ) {
+    return await this.applicationScopeService.createScope(data, id, scopeId);
   }
 }

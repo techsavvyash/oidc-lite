@@ -10,7 +10,7 @@ export class ApplicationScopesService {
     this.logger = new Logger();
   }
 
-  async createScope(data: ScopeDto, applicationsId: string) {
+  async createScope(data: ScopeDto, applicationsId: string, scopeId?: string) {
     const application = await this.prismaService.application.findUnique({
       where: { id: applicationsId },
     });
@@ -21,7 +21,7 @@ export class ApplicationScopesService {
       );
     }
 
-    const id = data.id ? data.id : randomUUID();
+    const id = data.id ? data.id : (scopeId ? scopeId : randomUUID());
     const { defaultConsentDetail, defaultConsentMessage, name, required } =
       data;
     const description = JSON.stringify({
