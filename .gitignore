@@ -39,3 +39,6 @@ lerna-debug.log*
 .env
 zolo.todo
 swagger-spec.json
+configurations.md
+tenants_data.md
+samples
