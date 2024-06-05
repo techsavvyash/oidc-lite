@@ -3,7 +3,6 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,12 +12,191 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model ApplicationOauthScope {
+  id             String @id @default(uuid())
+  applicationsId String
+  createdAt      BigInt
+  updatedAt      BigInt
+  name           String
+
+  applications Application @relation(fields: [applicationsId], references: [id])
+
+  @@unique([applicationsId, name], name: "application_oauth_scopes_uk_1")
+}
+
+model ApplicationRole {
+  id             String  @id @default(uuid())
+  applicationsId String
+  description    String?
+  createdAt      BigInt
+  isDefault      Boolean
+  isSuperRole    Boolean
+  updatedAt      BigInt
+  name           String
+
+  applications         Application            @relation(fields: [applicationsId], references: [id])
+  GroupApplicationRole GroupApplicationRole[]
+
+  @@unique([name, applicationsId], name: "application_roles_uk_1")
+}
+
+model Application {
+  id                       String  @id @default(uuid())
+  accessTokenSigningKeysId String?
+  active                   Boolean
+  data                     String
+  idTokenSigningKeysId     String?
+  createdAt                BigInt
+  updatedAt                BigInt
+  name                     String
+  tenantId                 String
+
+  tenant                Tenant                  @relation(fields: [tenantId], references: [id])
+  accessTokenSigningKey Key?                    @relation("ApplicationAccessTokenSigningKey", fields: [accessTokenSigningKeysId], references: [id])
+  idTokenSigningKey     Key?                    @relation("ApplicationIdTokenSigningKey", fields: [idTokenSigningKeysId], references: [id])
+  oauthScopes           ApplicationOauthScope[]
+  roles                 ApplicationRole[]
+  refreshTokens         RefreshToken[]
+  userRegistrations     UserRegistration[]
+
+  @@unique([name, tenantId], name: "applications_uk_1")
+  @@index([tenantId], name: "applications_i_1")
+}
+
+model GroupApplicationRole {
+  applicationRolesId String
+  groupsId           String
+
+  applicationRole ApplicationRole @relation(fields: [applicationRolesId], references: [id])
+  group           Group           @relation(fields: [groupsId], references: [id])
+
+  @@unique([groupsId, applicationRolesId], name: "group_application_roles_uk_1")
+}
+
+model GroupMember {
+  id        String @id @default(uuid())
+  groupId   String
+  createdAt BigInt
+  userId    String
+
+  group Group @relation(fields: [groupId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@unique([groupId, userId], name: "group_members_uk_1")
+  @@index([userId], name: "group_members_i_1")
+}
+
+model Group {
+  id          String  @id @default(uuid())
+  createdAt   BigInt
+  updatedAt   BigInt
+  name        String
+  tenantId    String
+  permissions String?
+  settings    String?
+
+  tenant           Tenant                 @relation(fields: [tenantId], references: [id])
+  members          GroupMember[]
+  applicationRoles GroupApplicationRole[]
+  users            User[]
+
+  @@unique([name, tenantId], name: "groups_uk_1")
+}
+
+model Key {
+  id          String  @id @default(uuid())
+  algorithm   String?
+  certificate String?
+  expiry      BigInt?
+  createdAt   BigInt
+  issuer      String?
+  kid         String  @unique
+  updatedAt   BigInt
+  name        String  @unique
+  privateKey  String?
+  publicKey   String?
+  secret      String?
+  type        String
+
+  applicationsAccessTokenSigningKeys Application[] @relation("ApplicationAccessTokenSigningKey")
+  applicationsIdTokenSigningKeys     Application[] @relation("ApplicationIdTokenSigningKey")
+  tenantsAccessTokenSigningKeys      Tenant[]      @relation("TenantAccessTokenSigningKey")
+  tenantsIdTokenSigningKeys          Tenant[]      @relation("TenantIdTokenSigningKey")
+}
+
+model RefreshToken {
+  id             String  @id @default(uuid())
+  applicationsId String?
+  expiry         BigInt
+  data           String
+  createdAt      BigInt
+  startInstant   BigInt
+  tenantId       String?
+  token          String? @unique
+  tokenHash      String? @unique
+  tokenText      String?
+  usersId        String
+
+  application Application? @relation(fields: [applicationsId], references: [id])
+  tenant      Tenant?      @relation(fields: [tenantId], references: [id])
+  user        User         @relation(fields: [usersId], references: [id])
+
+  @@index([startInstant], name: "refresh_tokens_i_1")
+  @@index([applicationsId], name: "refresh_tokens_i_2")
+  @@index([usersId], name: "refresh_tokens_i_3")
+  @@index([tenantId], name: "refresh_tokens_i_4")
+}
+
+model Tenant {
+  id                       String  @id @default(uuid())
+  accessTokenSigningKeysId String
+  data                     String?
+  idTokenSigningKeysId     String
+  createdAt                BigInt
+  updatedAt                BigInt
+  name                     String  @unique
+
+  accessTokenSigningKey Key            @relation("TenantAccessTokenSigningKey", fields: [accessTokenSigningKeysId], references: [id])
+  idTokenSigningKey     Key            @relation("TenantIdTokenSigningKey", fields: [idTokenSigningKeysId], references: [id])
+  applications          Application[]
+  groups                Group[]
+  refreshTokens         RefreshToken[]
+  users                 User[]
+}
+
+model UserRegistration {
+  id                  String  @id @default(uuid())
+  applicationsId      String
+  authenticationToken String?
+  password            String
+  data                String?
+  createdAt           BigInt
+  lastLoginInstant    BigInt?
+  updatedAt           BigInt
+  usersId             String
+  verified            Boolean
+  verifiedInstant     BigInt?
+
+  application Application @relation(fields: [applicationsId], references: [id])
+  user        User        @relation(fields: [usersId], references: [id])
+
+  @@unique([applicationsId, usersId], name: "user_registrations_uk_1")
+  @@index([usersId], name: "user_registrations_i_2")
+}
+
 model User {
-  id        Int    @id @default(autoincrement())
-  birthdate String
-  gender    String
-  username  String @unique
-  email     String @unique
-  password  String
-  tokens    String?
+  id                String             @id @default(uuid())
+  active            Boolean
+  data              String?
+  expiry            BigInt?
+  createdAt         BigInt
+  updatedAt         BigInt
+  tenantId          String
+  groupId           String? // Change from array to single reference
+  group             Group?             @relation(fields: [groupId], references: [id]) // Add the relation
+  
+  tenant            Tenant             @relation(fields: [tenantId], references: [id])
+  groupMembers      GroupMember[]
+  refreshTokens     RefreshToken[]
+  userRegistrations UserRegistration[]
 }

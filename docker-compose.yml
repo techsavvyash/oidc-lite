@@ -17,6 +17,8 @@ services:
     restart: always
     volumes:
       - db_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
 
   search:
     image: opensearchproject/opensearch:2.11.0

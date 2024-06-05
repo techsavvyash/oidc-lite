@@ -695,6 +695,66 @@
           "User"
         ]
       }
+    },
+    "/application/all": {
+      "get": {
+        "operationId": "ApplicationController_allApplications",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/application/{id}": {
+      "get": {
+        "operationId": "ApplicationController_getAnApplication",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "patch": {
+        "operationId": "ApplicationController_updateApplication",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/application/new": {
+      "post": {
+        "operationId": "ApplicationController_insertAnApplication",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "info": {

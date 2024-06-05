@@ -38,16 +38,17 @@ export class AppService {
       });
     }
 
-    const user = jwtToken
-      ? await this.jwtService.verifyAsync(jwtToken, {
-          secret: `${process.env.JWT_SECRET}`,
-        })
-      : await this.prismaService.user.findUnique({
-          where: {
-            username,
-            password,
-          },
-        });
+    // const user = jwtToken
+    //   ? await this.jwtService.verifyAsync(jwtToken, {
+    //       secret: `${process.env.JWT_SECRET}`,
+    //     })
+    //   : await this.prismaService.user.findUnique({
+    //       where: {
+    //         username,
+    //         password,
+    //       },
+    //     });
+    const user = null;
     if (!user) {
       throw new UnauthorizedException({
         error: 'Invalid Credentials',
@@ -72,7 +73,7 @@ export class AppService {
     };
     const response = await axios.request(reqOptions);
 
-    await this.userService.insertToken(user.id, response.data.access_token);
+    // await this.userService.insertToken(user.id, response.data.access_token);
 
     if (!jwtToken) {
       const token = await this.jwtService.signAsync(
@@ -98,13 +99,13 @@ export class AppService {
     if (!token) {
       throw new BadRequestException({
         error: 'No token given',
-        error_description: 'No token were given while calling the endpoint',
+        error_description: 'No token was given while calling the endpoint',
       });
     }
 
     const val = await this.jwtService.decode(token, { complete: true });
 
-    return val;
+      return val;
   }
 
   async opaqueTokenVerifyService(token: string) {
@@ -141,19 +142,21 @@ export class AppService {
           'username, password, gender, birthdate, email all in string format required',
       });
     }
-    const user = await this.prismaService.user.findUnique({
-      where: {
-        username: username,
-        email: email,
-      },
-    });
+    // const user = await this.prismaService.user.findUnique({
+    //   where: {
+    //     username: username,
+    //     email: email,
+    //   },
+    // });
+    const user = null;
     if (user) {
       throw new ConflictException({
         error: 'Duplicate entry',
         error_description: 'User already exists',
       });
     }
-    const newUser = await this.prismaService.user.create({ data: body });
+    // const newUser = await this.prismaService.user.create({ data: body });
+    const newUser = null;
     this.logger.log('New user registered!', newUser);
     return {
       message: 'user created successfully',

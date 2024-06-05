@@ -29,10 +29,13 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.3.1",
     "@prisma/client": "^5.14.0",
+    "@types/jwk-to-pem": "^2.0.3",
     "@types/oidc-provider": "^8.4.4",
     "axios": "^1.7.2",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
+    "crypto": "^1.0.1",
+    "jwk-to-pem": "^2.0.5",
     "oidc-provider": "^8.4.6",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
