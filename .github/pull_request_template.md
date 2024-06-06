@@ -1,3 +1,8 @@
+## Checklist
+Make sure you have
+- [ ] Added relevant `@nestjs/swagger` decorators wherever required 
+- [ ] Added test cases (unit and integration) wherever required
+
 ## Description
 *Describe the aim/objective of this PR*
 
