@@ -65,7 +65,7 @@ export class ApplicationRolesService {
     }
     try {
       const role = await this.prismaService.applicationRole.update({
-        where: { id: roleId },
+        where: { id: roleId, applicationsId: id },
         data: {
           ...data,
         },

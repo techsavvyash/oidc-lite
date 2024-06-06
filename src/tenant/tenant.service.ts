@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
+import { CreateTenantDto } from 'src/dto/tenant.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -7,6 +8,25 @@ export class TenantService {
   private readonly logger: Logger;
   constructor(private readonly prismaService: PrismaService) {
     this.logger = new Logger();
+  }
+
+  async createATenant(id: string, data: CreateTenantDto) {}
+  async updateATenant(id: string, data: CreateTenantDto) {}
+
+  async deleteATenant(id: string) {
+    const tenant = await this.prismaService.tenant.delete({ where: { id } });
+    return {
+      message: 'Tenant deleted successfully!',
+      tenant,
+    };
+  }
+
+  async returnATenant(id: string) {
+    return await this.prismaService.tenant.findUnique({ where: { id } });
+  }
+
+  async returnAllTenants() {
+    return await this.prismaService.tenant.findMany();
   }
 
   // search for a tenant with given ids else creates a new tenant with given ids
@@ -44,7 +64,7 @@ export class TenantService {
       ? idTokenSigningKeysId
       : randomUUID();
     // find if keys exist for the given ids. else create keys using keysService
-
+    // will fail since can't create keys till now
     try {
       const tenant = await this.prismaService.tenant.create({
         data: {
@@ -61,11 +81,11 @@ export class TenantService {
         tenant,
       };
     } catch (error) {
+      console.log('Error creating tenant', error);
       throw new HttpException(
         'Error creating a new tenant!',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
-
 }

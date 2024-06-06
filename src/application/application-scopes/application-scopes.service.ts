@@ -70,7 +70,7 @@ export class ApplicationScopesService {
     try {
       const oldScope =
         await this.prismaService.applicationOauthScope.findUnique({
-          where: { id: scopeId },
+          where: { id: scopeId, applicationsId: id },
         });
       const name = data.name ? data.name : oldScope.name;
 

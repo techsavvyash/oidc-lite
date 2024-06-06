@@ -27,77 +27,74 @@ export class ApplicationService {
   }
 
   async createApplication(uuid: string, data: CreateApplicationDto) {
+    if (!data) {
+      throw new BadRequestException({
+        message: 'No data given',
+      });
+    }
+    if (!data.jwtConfiguration) {
+      throw new BadRequestException({
+        message:
+          'jwt Configuration not provided. for now provide it in future will have a default field',
+      });
+    }
+    const jwtConfiguration = data.jwtConfiguration;
+    const accessTokenKeyID = jwtConfiguration.accessTokenKeyID;
+    const idTokenKeyID = jwtConfiguration.idTokenKeyID;
+    // using the above two we will create a new tenant or find it.
+    const tenantId = (
+      await this.tenantService.findTenantElseCreate(
+        accessTokenKeyID,
+        idTokenKeyID,
+        data.tenant_id,
+      )
+    ).tenant.id;
+
+    const active = data.active ? data.active : true;
+    const name = data.name;
+    const roles = data.roles;
+    const scopes = data.scopes;
+
+    const configurations = JSON.stringify(data.oauthConfiguration);
+
     try {
-      if (!data.jwtConfiguration) {
-        throw new BadRequestException({
-          message:
-            'jwt Configuration not provided. for now provide it in future will have a default field',
-        });
-      }
-      const jwtConfiguration = data.jwtConfiguration;
-      const accessTokenKeyID = jwtConfiguration.accessTokenKeyID;
-      const idTokenKeyID = jwtConfiguration.idTokenKeyID;
-      // using the above two we will create a new tenant or find it.
-      const tenantId = (
-        await this.tenantService.findTenantElseCreate(
-          accessTokenKeyID,
-          idTokenKeyID,
-          data.tenant_id,
-        )
-      ).tenant.id;
-
-      const active = data.active ? data.active : true;
-      const name = data.name;
-      const roles = data.roles;
-      const scopes = data.scopes;
-
-      const configurations = JSON.stringify(data.oauthConfiguration);
+      const application = await this.prismaService.application.create({
+        data: {
+          id: uuid,
+          active,
+          accessTokenSigningKeysId: accessTokenKeyID,
+          idTokenSigningKeysId: idTokenKeyID,
+          name,
+          tenantId,
+          data: configurations,
+        },
+      });
 
       try {
-        const application = await this.prismaService.application.create({
-          data: {
-            id: uuid,
-            active,
-            accessTokenSigningKeysId: accessTokenKeyID,
-            idTokenSigningKeysId: idTokenKeyID,
-            name,
-            tenantId,
-            data: configurations,
-          },
-        });
-
-        try {
-          roles.forEach((value) =>
-            this.applicationRoles.createRole(value, application.id),
-          );
-          scopes.forEach((value) =>
-            this.applicationScopes.createScope(value, application.id),
-          );
-        } catch (error) {
-          console.log('This is error while creating scopes/roles: ', error);
-          throw new HttpException(
-            'Error making new roles/scopes',
-            HttpStatus.BAD_REQUEST,
-          );
-        }
-
-        this.logger.log('New application registred!', application);
-
-        return {
-          message: 'Application created successfully!',
-          application,
-        };
+        roles.forEach((value) =>
+          this.applicationRoles.createRole(value, application.id),
+        );
+        scopes.forEach((value) =>
+          this.applicationScopes.createScope(value, application.id),
+        );
       } catch (error) {
+        console.log('This is error while creating scopes/roles: ', error);
         throw new HttpException(
-          'Error making new application',
+          'Error making new roles/scopes',
           HttpStatus.BAD_REQUEST,
         );
       }
+
+      this.logger.log('New application registred!', application);
+
+      return {
+        message: 'Application created successfully!',
+        application,
+      };
     } catch (error) {
-      console.log('Error from createApplication: ', error);
       throw new HttpException(
-        'Some unknown error happened',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Error making new application',
+        HttpStatus.BAD_REQUEST,
       );
     }
   }
@@ -178,9 +175,17 @@ export class ApplicationService {
 
   async deleteApplication(id: string, hardDelete: boolean) {
     if (hardDelete) {
-      return await this.prismaService.application.delete({ where: { id } });
+      const application = await this.prismaService.application.delete({ where: { id } });
+      return {
+        message: "Application deleted Successfully!",
+        application
+      }
     } else {
-      return await this.patchApplication(id, { active: false });
+      const application = await this.patchApplication(id, { active: false });
+      return {
+        message: "Application soft deleted/inactive",
+        application
+      }
     }
   }
 

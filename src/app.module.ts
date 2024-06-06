@@ -11,14 +11,17 @@ import { ApplicationModule } from './application/application.module';
 import { ApplicationRolesService } from './application/application-roles/application-roles.service';
 import { ApplicationScopesService } from './application/application-scopes/application-scopes.service';
 import { TenantService } from './tenant/tenant.service';
+import { MemoryMonitorService } from './memory-monitor/memory-monitor.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TenantController } from './tenant/tenant.controller';
 
 @Module({
   imports: [OidcModule, UserModule, PrismaModule,JwtModule.register({
     global: true,
     secret: process.env.JWT_SECRET,
     signOptions: { expiresIn: process.env.JWT_SECRET_EXPIRATION },
-  }), ApplicationModule],
-  controllers: [AppController],
-  providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService],
+  }), ApplicationModule,ScheduleModule.forRoot()],
+  controllers: [AppController, TenantController],
+  providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService, MemoryMonitorService],
 })
 export class AppModule {}
