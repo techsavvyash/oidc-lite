@@ -1,108 +1,131 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
   Param,
   Patch,
   Post,
+  Query,
+  Delete,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { ApplicationService } from './application.service';
+import {
+  CreateApplicationDto,
+  RoleDto,
+  ScopeDto,
+  UpdateApplicationDto,
+} from 'src/dto/application.dto';
+import { randomUUID } from 'crypto';
+import { ApplicationRolesService } from './application-roles/application-roles.service';
+import { ApplicationScopesService } from './application-scopes/application-scopes.service';
 
 @Controller('application')
 export class ApplicationController {
-  constructor(private readonly prismaService: PrismaService) {}
-  @Get('/all')
+  constructor(
+    private readonly applicationService: ApplicationService,
+    private readonly applicationRoleService: ApplicationRolesService,
+    private readonly applicationScopeService: ApplicationScopesService,
+  ) {}
+
+  @Get('/')
   async allApplications() {
-    return await this.prismaService.application.findMany();
+    return await this.applicationService.returnAllApplications();
+  }
+  @Post('/')
+  async createAnApplicationWithRandomUUID(
+    @Body('data') data: CreateApplicationDto,
+  ) {
+    const uuid = randomUUID();
+    return await this.applicationService.createApplication(uuid, data);
   }
 
   @Get('/:id')
   async getAnApplication(@Param('id') id: string) {
-    return await this.prismaService.application.findUnique({
-      where: {
-        id,
-      },
-    });
+    return await this.applicationService.returnAnApplication(id);
   }
-
-  @Post('/new')
-  async insertAnApplication(
-    @Body('data') data: string,
-    @Body('tenant_id') tenant_name: string,
-    @Body('name') name: string,
-  ) {
-    const active = true;
-    data = data ? data : 'configurations';
-    const tenant = tenant_name
-      ? await this.prismaService.tenant.findUnique({
-          where: { name: tenant_name },
-        })
-      : null;
-    if (!tenant) {
-      throw new BadRequestException({
-        error: 'tenant_name not given or tenant dont exist',
-      });
-    }
-    const date = new Date().getSeconds();
-    return await this.prismaService.application.create({
-      data: {
-        active,
-        data,
-        createdAt: date,
-        updatedAt: date,
-        name,
-        accessTokenSigningKeysId: tenant.accessTokenSigningKeysId,
-        idTokenSigningKeysId: tenant.idTokenSigningKeysId,
-        tenantId: tenant.id,
-      },
-    });
-  }
-
-  @Patch('/:id')
-  async updateApplication(
-    @Body('data') data: string,
-    @Body('tenant_id') tenant_name: string,
-    @Body('name') name: string,
-    @Body('active') active: boolean,
+  @Post('/:id')
+  async createAnApplication(
+    @Body('data') data: CreateApplicationDto,
     @Param('id') id: string,
   ) {
-    const tenant = tenant_name
-      ? await this.prismaService.tenant.findUnique({
-          where: {
-            name: tenant_name,
-          },
-        })
-      : null;
-    const application = id
-      ? await this.prismaService.application.findUnique({ where: { id } })
-      : null;
-    if (!application) {
-      throw new BadRequestException({
-        error: 'application_id not given or application dont exist',
-      });
-    }
-    const tenantId = tenant ? tenant.id : application.tenantId;
-    const accessTokenSigningKeysId = tenant ? tenant.accessTokenSigningKeysId: application.accessTokenSigningKeysId;
-    const idTokenSigningKeysId = tenant ? tenant.idTokenSigningKeysId: application.idTokenSigningKeysId;
-    data = data ? data : application.data;
-    active = active ? active : application.active;
-    name = name ? name: application.name;
-    const date = (new Date()).getSeconds();
+    return await this.applicationService.createApplication(id, data);
+  }
+  @Patch('/:id')
+  async updateApplication(
+    @Param('id') id: string,
+    @Body('data') data: UpdateApplicationDto,
+  ) {
+    return await this.applicationService.patchApplication(id, data);
+  }
+  @Delete('/:id')
+  async deleteApplication(
+    @Param('id') id: string,
+    @Query('hardDelete') hardDelete: boolean,
+  ) {
+    return await this.applicationService.deleteApplication(id, hardDelete);
+  }
 
-    return await this.prismaService.application.update({
-      where: {
-        id,
-      },
-      data: {
-        data,
-        tenantId,
-        accessTokenSigningKeysId,
-        idTokenSigningKeysId,
-        name,
-        active,
-        updatedAt: date
-      },
-    });
+  @Post('/:id/role')
+  async createRoleWithRandomUUID(
+    @Param('id') id: string,
+    @Body('data') data: RoleDto,
+  ) {
+    return await this.applicationRoleService.createRole(data, id);
+  }
+  @Post('/:id/role/:roleId')
+  async createRole(
+    @Param('id') id: string,
+    @Param('roleId') roleId: string,
+    @Body('data') data: RoleDto,
+  ) {
+    return await this.applicationRoleService.createRole(data, id, roleId);
+  }
+  @Delete('/:id/role/:roleId')
+  async deleteRole(@Param('id') id: string, @Param('roleId') roleId: string) {
+    return await this.applicationRoleService.deleteRole(id, roleId);
+  }
+  @Patch('/:id/role/:roleId')
+  async updateRole(
+    @Param('id') id: string,
+    @Param('roleId') roleId: string,
+    @Body('data') data: RoleDto,
+  ) {
+    return await this.applicationRoleService.updateRole(id, roleId, data);
+  }
+
+  @Post('/:id/scope')
+  async createScopeWithRandomUUID(
+    @Param('id') id: string,
+    @Body('data') data: ScopeDto,
+  ) {
+    return await this.applicationScopeService.createScope(data, id);
+  }
+  @Post('/:id/scope/:scopeId')
+  async createScope(
+    @Param('id') id: string,
+    @Param('scopeId') scopeId: string,
+    @Body('data') data: ScopeDto,
+  ) {
+    return await this.applicationScopeService.createScope(data, id, scopeId);
+  }
+  @Delete('/:id/scope/:scopeId')
+  async deleteScope(
+    @Param('id') id: string,
+    @Param('scopeId') scopeId: string,
+  ) {
+    return await this.applicationScopeService.deleteScope(id, scopeId);
+  }
+  @Patch('/:id/scope/:scopeId')
+  async updateScope(
+    @Param('id') id: string,
+    @Param('scopeId') scopeId: string,
+    @Body('data') data: ScopeDto,
+  ) {
+    return await this.applicationScopeService.updateScope(id, scopeId, data);
+  }
+
+  @Get('/:id/oauth-configuration')
+  async returnOauthConfiguration(@Param('id') id: string) {
+    return await this.applicationService.returnOauthConfiguration(id);
   }
 }

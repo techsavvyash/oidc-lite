@@ -25,22 +25,4 @@ export class UserService {
             where: userWhereUniqueInput
         })
     }
-
-    // used for appending newly generated token into the token attribute of user
-    // async insertToken(id: number,token: string): Promise<User | null>{
-    //     const user = await this.prisma.user.findUnique({
-    //         where: {id: id}
-    //     });
-
-    //     if(!user){
-    //         throw new Error("User not found");
-    //     }
-
-    //     const updatedToken = user.tokens ? `${user.tokens} ${token}`: token;
-
-    //     return await this.prisma.user.update({
-    //         where: {id},
-    //         data: {tokens: updatedToken}
-    //     })
-    // }
 }

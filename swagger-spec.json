@@ -601,9 +601,24 @@
         ]
       }
     },
+<<<<<<< HEAD
     "/key": {
       "get": {
         "operationId": "KeyController_retrieveAllKey",
+=======
+    "/tenant": {
+      "post": {
+        "operationId": "TenantController_createATenantWithRandomUUID",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
+      "get": {
+        "operationId": "TenantController_returnAllTenants",
+>>>>>>> 842c6e6da6bc8e17e231327232c0339697f8145e
         "parameters": [],
         "responses": {
           "200": {
@@ -612,9 +627,51 @@
         }
       }
     },
+<<<<<<< HEAD
     "/key/{id}": {
       "put": {
         "operationId": "KeyController_udpatingKey",
+=======
+    "/tenant/{id}": {
+      "get": {
+        "operationId": "TenantController_returnATenant",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "operationId": "TenantController_createATenant",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
+      "patch": {
+        "operationId": "TenantController_updateATenant",
+>>>>>>> 842c6e6da6bc8e17e231327232c0339697f8145e
         "parameters": [
           {
             "name": "id",
@@ -632,7 +689,11 @@
         }
       },
       "delete": {
+<<<<<<< HEAD
         "operationId": "KeyController_deletingKey",
+=======
+        "operationId": "TenantController_deleteATenant",
+>>>>>>> 842c6e6da6bc8e17e231327232c0339697f8145e
         "parameters": [
           {
             "name": "id",
@@ -745,12 +806,21 @@
         ]
       }
     },
-    "/application/all": {
+    "/application": {
       "get": {
         "operationId": "ApplicationController_allApplications",
         "parameters": [],
         "responses": {
           "200": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "operationId": "ApplicationController_createAnApplicationWithRandomUUID",
+        "parameters": [],
+        "responses": {
+          "201": {
             "description": ""
           }
         }
@@ -775,6 +845,24 @@
           }
         }
       },
+      "post": {
+        "operationId": "ApplicationController_createAnApplication",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
       "patch": {
         "operationId": "ApplicationController_updateApplication",
         "parameters": [
@@ -792,14 +880,249 @@
             "description": ""
           }
         }
+      },
+      "delete": {
+        "operationId": "ApplicationController_deleteApplication",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hardDelete",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
       }
     },
-    "/application/new": {
+    "/application/{id}/role": {
       "post": {
-        "operationId": "ApplicationController_insertAnApplication",
-        "parameters": [],
+        "operationId": "ApplicationController_createRoleWithRandomUUID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/application/{id}/role/{roleId}": {
+      "post": {
+        "operationId": "ApplicationController_createRole",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "ApplicationController_deleteRole",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "patch": {
+        "operationId": "ApplicationController_updateRole",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/application/{id}/scope": {
+      "post": {
+        "operationId": "ApplicationController_createScopeWithRandomUUID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/application/{id}/scope/{scopeId}": {
+      "post": {
+        "operationId": "ApplicationController_createScope",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scopeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "ApplicationController_deleteScope",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scopeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "patch": {
+        "operationId": "ApplicationController_updateScope",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scopeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/application/{id}/oauth-configuration": {
+      "get": {
+        "operationId": "ApplicationController_returnOauthConfiguration",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
             "description": ""
           }
         }
