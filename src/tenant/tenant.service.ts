@@ -1,4 +1,11 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { CreateTenantDto } from 'src/dto/tenant.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -10,8 +17,118 @@ export class TenantService {
     this.logger = new Logger();
   }
 
-  async createATenant(id: string, data: CreateTenantDto) {}
-  async updateATenant(id: string, data: CreateTenantDto) {}
+  async createATenant(id: string, data: CreateTenantDto) {
+    const oldTenant = await this.prismaService.tenant.findUnique({
+      where: { id },
+    });
+    if (oldTenant) {
+      throw new BadRequestException({
+        message: 'Tenant with the given id already exists',
+      });
+    }
+
+    if (!data || !data.jwtConfiguration || !data.name) {
+      throw new BadRequestException({
+        message:
+          'Either no data given or data missing name and jwtConfiguration',
+      });
+    }
+    const jwtConfiguration = data.jwtConfiguration;
+    if (
+      !jwtConfiguration ||
+      !jwtConfiguration.accessTokenKeyID ||
+      !jwtConfiguration.idTokenKeyID ||
+      !jwtConfiguration.refreshTokenTimeToLiveInMinutes ||
+      !jwtConfiguration.timeToLiveInSeconds
+    ) {
+      throw new BadRequestException({
+        message: 'incomplete jwtConfiguration sent',
+      });
+    }
+    const accessTokenSigningKeysId = jwtConfiguration.accessTokenKeyID;
+    const idTokenSigningKeysId = jwtConfiguration.idTokenKeyID;
+    const name = data.name;
+    const additionalData = data.data ? JSON.stringify(data.data) : '';
+    try {
+      const tenant = await this.prismaService.tenant.create({
+        data: {
+          id,
+          accessTokenSigningKeysId,
+          idTokenSigningKeysId,
+          name,
+          data: additionalData,
+        },
+      });
+      this.logger.log('New tenant created!', tenant);
+      return {
+        message: 'Tenant created successfully!',
+        tenant,
+      };
+    } catch (error) {
+      console.log('Error from createATenant', error);
+      throw new InternalServerErrorException({
+        message: 'Error creating new tenant',
+      });
+    }
+  }
+
+  async updateATenant(id: string, data: CreateTenantDto) {
+    if (!id) {
+      throw new BadRequestException({
+        message: 'tenant id not given',
+      });
+    }
+    if (!data) {
+      throw new BadRequestException({
+        message: 'No data given to update the tenant',
+      });
+    }
+    const oldTenant = await this.prismaService.tenant.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!oldTenant) {
+      throw new BadRequestException({
+        message: 'tenant with the given id dont exists',
+      });
+    }
+
+    const name = data.name ? data.name : oldTenant.name;
+    const jwtConfiguration = data.jwtConfiguration
+      ? data.jwtConfiguration
+      : null;
+    const accessTokenSigningKeysId = jwtConfiguration?.accessTokenKeyID
+      ? jwtConfiguration.accessTokenKeyID
+      : oldTenant.accessTokenSigningKeysId;
+    const idTokenSigningKeysId = jwtConfiguration?.idTokenKeyID
+      ? jwtConfiguration.idTokenKeyID
+      : oldTenant.idTokenSigningKeysId;
+    const additionalData = data.data
+      ? JSON.stringify(data.data)
+      : oldTenant.data;
+
+    try {
+      const tenant = await this.prismaService.tenant.update({
+        where: { id },
+        data: {
+          name,
+          accessTokenSigningKeysId,
+          idTokenSigningKeysId,
+          data: additionalData,
+        },
+      });
+      return {
+        message: 'Tenant updated successfully!',
+        tenant,
+      };
+    } catch (error) {
+      console.log('Error happend in updateATenant', this.updateATenant);
+      throw new InternalServerErrorException({
+        message: 'Error occured while updating the tenant',
+      });
+    }
+  }
 
   async deleteATenant(id: string) {
     const tenant = await this.prismaService.tenant.delete({ where: { id } });
