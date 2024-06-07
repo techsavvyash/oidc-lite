@@ -1,12 +1,13 @@
-import { Body, Controller, Delete, Get, Headers, Param, Patch, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Put } from "@nestjs/common";
 import { KeyService } from "./key.service";
-import { updateDTO } from "src/dto/key.dto";
+import { generateKeyDTO, updateDTO } from "src/dto/key.dto";
 
 @Controller('key')
 export class KeyController{
     constructor(
         private readonly keyservice : KeyService,
-        private readonly udpateData : updateDTO
+        private readonly udpateData : updateDTO,
+        private readonly generateData : generateKeyDTO
     ){}
 
     @Get('/:id')
@@ -22,5 +23,9 @@ export class KeyController{
     @Delete('/:id')
     async deletingKey(@Param('id') uuid : string){
         return this.keyservice.deleteKey(uuid)
+    }
+    @Post('/generate')
+    async generateKey(uuid : string, data : generateKeyDTO){
+        return this.keyservice.generateKey(uuid, data);
     }
 }

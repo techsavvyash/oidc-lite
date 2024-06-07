@@ -93,5 +93,82 @@ export class KeyService{
             })
         }
     }
-     
+    async generateKey(uuid :string, data : generateKeyDTO){
+        if(!uuid){
+            throw new BadGatewayException({
+                STATUS_CODES : 400,
+                message : 'uuid is either not given or is invalid'
+            })
+        }
+        const {algorithm, name, length, issuer, kid } = data ;
+        const keystore = jose.JWK.createKeyStore();
+
+        const date = new Date();
+        const insertinstant = date.getTime();
+        
+        try{
+            if(algorithm === 'RSA'){
+                await keystore.generate('RSA', length, {
+                    alg: 'RS256', 
+                    use: 'sig' 
+                });
+                const jwks = keystore.toJSON(true); 
+                jwks.keys.forEach(key => {
+                    key.insertinstant = insertinstant ;
+                    key.id = uuid;
+                    key.issuer = issuer;
+                    key.length = length ;
+                    key.userName = name ;
+                    key.type = 'RSA'
+                  });
+                return {
+                    message : 'key generated successfully',
+                    jwks
+                }
+            }else if(algorithm === "EC") {
+                await keystore.generate('EC', 'P-256', {
+                    alg: 'ES256', 
+                    use: 'sig'
+                  });
+                  const jwks = keystore.toJSON(true); 
+                  jwks.keys.forEach(key => {
+                    key.insertinstant = insertinstant ;
+                    key.id = uuid;
+                    key.issuer = issuer;
+                    key.length = length ;
+                    key.userName = name ;
+                    key.type = 'RSA'
+                  });
+                return {
+                    message : 'key generated successfully',
+                    jwks
+                }
+            }else{
+                await keystore.generate('oct', 256, {
+                    alg: 'HS256', 
+                    use: 'sig' 
+                  });
+                  const jwks = keystore.toJSON(true); 
+                  jwks.keys.forEach(key => {
+                    key.insertinstant = insertinstant ;
+                    key.id = uuid;
+                    key.userName = name ;
+                    key.kid = kid;
+                    key.type = 'HMAC'
+                  });
+                return {
+                    message : 'key generated successfully',
+                    jwks
+                }
+            }
+        }catch(error){
+            throw new BadGatewayException({
+                message : 'error while generating key',
+                STATUS_CODES : 404
+        })
+        }
+
+        
+
+    } 
 }

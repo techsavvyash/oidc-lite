@@ -1158,6 +1158,17 @@
           }
         }
       }
+    },
+    "/key/generate": {
+      "post": {
+        "operationId": "KeyController_generateKey",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "info": {
