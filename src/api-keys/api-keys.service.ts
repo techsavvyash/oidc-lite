@@ -83,6 +83,7 @@ export class ApiKeysService {
       });
     }
   }
+
   async returnAnApiKey(id: string, headers: object) {
     const token = headers['authorization'];
     if (!token) {
@@ -124,9 +125,11 @@ export class ApiKeysService {
       });
     }
     return {
+      message: 'Found the requested key',
       apiKey,
     };
   }
+
   async updateAnApiKey(id: string, data: UpdateApiKeyDto, headers: object) {
     const token = headers['authorization'];
     if (!token) {
@@ -201,6 +204,7 @@ export class ApiKeysService {
       });
     }
   }
+
   async deleteAnApiKey(id: string, headers: object) {
     const token = headers['authorization'];
     if (!token) {

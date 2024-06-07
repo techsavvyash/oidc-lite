@@ -23,11 +23,25 @@ export class CreateApiKeyDto {
   @ApiProperty() permissions?: Permissions;
   @ApiProperty() metaData?: string | JSON;
 }
-class UpdataPermissionsDto{
+class UpdataPermissionsDto {
   @ApiProperty() endpoints?: Endpoints[];
 }
 export class UpdateApiKeyDto {
   @ApiProperty() key?: string;
   @ApiProperty() permissions?: UpdataPermissionsDto;
   @ApiProperty() metaData?: string | JSON;
+}
+
+class ApiKey {
+  @ApiProperty() id: string;
+  @ApiProperty() createdAt: Date;
+  @ApiProperty() updatedAt: Date;
+  @ApiProperty() keyManager: boolean;
+  @ApiProperty() permissions: Permissions;
+  @ApiProperty() metaData: string;
+  @ApiProperty() tenantsId: string;
+}
+export class ApiKeyResponseDto {
+  @ApiProperty() message: string;
+  @ApiProperty() apiKey?: ApiKey;
 }
