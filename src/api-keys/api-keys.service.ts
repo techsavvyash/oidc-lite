@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { CreateApiKeyDto, UpdateApiKeyDto } from 'src/dto/apiKey.dto';
@@ -16,7 +17,23 @@ export class ApiKeysService {
     this.logger = new Logger();
   }
 
-  async createAnApiKey(id: string, data: CreateApiKeyDto) {
+  async createAnApiKey(id: string, data: CreateApiKeyDto, headers: object) {
+    const token = headers['authorization'];
+    if (!token) {
+      throw new BadRequestException({
+        message: 'Authorization header required',
+      });
+    }
+    const headerKey = await this.prismaService.authenticationKey.findUnique({
+      where: {
+        keyValue: token,
+      },
+    });
+    if (!headerKey || !headerKey.keyManager) {
+      throw new UnauthorizedException({
+        message: 'You are not authorized enough',
+      });
+    }
     if (!id) {
       throw new BadRequestException({
         message: 'No id give to create an api key',
@@ -46,6 +63,7 @@ export class ApiKeysService {
     try {
       const apiKey = await this.prismaService.authenticationKey.create({
         data: {
+          id,
           keyValue,
           keyManager,
           permissions,
@@ -65,7 +83,23 @@ export class ApiKeysService {
       });
     }
   }
-  async returnAnApiKey(id: string) {
+  async returnAnApiKey(id: string, headers: object) {
+    const token = headers['authorization'];
+    if (!token) {
+      throw new BadRequestException({
+        message: 'Authorization header required',
+      });
+    }
+    const headerKey = await this.prismaService.authenticationKey.findUnique({
+      where: {
+        keyValue: token,
+      },
+    });
+    if (!headerKey) {
+      throw new UnauthorizedException({
+        message: 'You are not authorized enough',
+      });
+    }
     if (!id) {
       throw new BadRequestException({
         message: 'No id given',
@@ -79,11 +113,37 @@ export class ApiKeysService {
         message: 'No apiKey exists for the given id',
       });
     }
+    if (
+      !headerKey.keyManager &&
+      headerKey.tenantsId !== apiKey.tenantsId &&
+      !headerKey.tenantsId !== null
+    ) {
+      // key should be level equal or higher
+      throw new UnauthorizedException({
+        message: 'You are not authorized enough',
+      });
+    }
     return {
       apiKey,
     };
   }
-  async updateAnApiKey(id: string, data: UpdateApiKeyDto) {
+  async updateAnApiKey(id: string, data: UpdateApiKeyDto, headers: object) {
+    const token = headers['authorization'];
+    if (!token) {
+      throw new BadRequestException({
+        message: 'Authorization header required',
+      });
+    }
+    const headerKey = await this.prismaService.authenticationKey.findUnique({
+      where: {
+        keyValue: token,
+      },
+    });
+    if (!headerKey) {
+      throw new UnauthorizedException({
+        message: 'You are not authorized enough',
+      });
+    }
     if (!id) {
       throw new BadRequestException({
         message: 'No id give to update the api key',
@@ -100,6 +160,16 @@ export class ApiKeysService {
     if (!oldApiKey) {
       throw new BadRequestException({
         message: 'Api key with the given id dont exist',
+      });
+    }
+    if (
+      !headerKey.keyManager &&
+      headerKey.tenantsId !== oldApiKey.tenantsId &&
+      !headerKey.tenantsId !== null
+    ) {
+      // key should be level equal or higher
+      throw new UnauthorizedException({
+        message: 'You are not authorized enough',
       });
     }
     const permissions = data.permissions
@@ -131,27 +201,49 @@ export class ApiKeysService {
       });
     }
   }
-  async deleteAnApiKey(id: string) {
+  async deleteAnApiKey(id: string, headers: object) {
+    const token = headers['authorization'];
+    if (!token) {
+      throw new BadRequestException({
+        message: 'Authorization header required',
+      });
+    }
+    const headerKey = await this.prismaService.authenticationKey.findUnique({
+      where: {
+        keyValue: token,
+      },
+    });
+    if (!headerKey) {
+      throw new UnauthorizedException({
+        message: 'You are not authorized enough',
+      });
+    }
     if (!id) {
       throw new BadRequestException({
         message: 'No apiKey exists for the given id',
       });
     }
-    try {
-      const apiKey = await this.prismaService.authenticationKey.delete({
+    const apiKeyBeforeDel =
+      await this.prismaService.authenticationKey.findUnique({
         where: { id },
       });
-      this.logger.log('An api key is deleted!', apiKey);
-      return {
-        message: 'successfully deleted apiKey',
-        apiKey,
-      };
-    } catch (error) {
-      console.log('Error from deleteAnApiKey', error);
-      throw new InternalServerErrorException({
-        message:
-          'Some unexpected internal server error occured while deleting the key',
+    if (
+      !headerKey.keyManager &&
+      headerKey.tenantsId !== apiKeyBeforeDel.tenantsId &&
+      !headerKey.tenantsId !== null
+    ) {
+      // key should be level equal or higher
+      throw new UnauthorizedException({
+        message: 'You are not authorized enough',
       });
     }
+    const apiKey = await this.prismaService.authenticationKey.delete({
+      where: { id },
+    });
+    this.logger.log('An api key is deleted!', apiKey);
+    return {
+      message: 'successfully deleted apiKey',
+      apiKey,
+    };
   }
 }

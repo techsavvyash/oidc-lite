@@ -147,6 +147,19 @@ CREATE TABLE "User" (
     CONSTRAINT "User_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
+-- CreateTable
+CREATE TABLE "AuthenticationKey" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "keyManager" BOOLEAN NOT NULL,
+    "keyValue" TEXT NOT NULL,
+    "permissions" TEXT,
+    "metaData" TEXT,
+    "tenantsId" TEXT,
+    CONSTRAINT "AuthenticationKey_tenantsId_fkey" FOREIGN KEY ("tenantsId") REFERENCES "Tenant" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "ApplicationOauthScope_applicationsId_name_key" ON "ApplicationOauthScope"("applicationsId", "name");
 
@@ -203,3 +216,6 @@ CREATE INDEX "user_registrations_i_2" ON "UserRegistration"("usersId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserRegistration_applicationsId_usersId_key" ON "UserRegistration"("applicationsId", "usersId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AuthenticationKey_keyValue_key" ON "AuthenticationKey"("keyValue");
