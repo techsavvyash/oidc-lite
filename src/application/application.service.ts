@@ -3,6 +3,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { ApplicationRolesService } from 'src/application/application-roles/application-roles.service';
@@ -183,13 +184,20 @@ export class ApplicationService {
 
   async deleteApplication(id: string, hardDelete: boolean) {
     if (hardDelete) {
-      const application = await this.prismaService.application.delete({
-        where: { id },
-      });
-      return {
-        message: 'Application deleted Successfully!',
-        application,
-      };
+      try {
+        const application = await this.prismaService.application.delete({
+          where: { id },
+        });
+        return {
+          message: 'Application deleted Successfully!',
+          application,
+        };
+      } catch (error) {
+        console.log('Error from deleteApplication', error);
+        throw new InternalServerErrorException({
+          message: 'Some error occured while hard deleting the application',
+        });
+      }
     } else {
       const application = await this.patchApplication(id, { active: false });
       return {

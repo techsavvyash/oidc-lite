@@ -1,4 +1,11 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { RoleDto, UpdateRoleDto } from 'src/dto/application.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -85,11 +92,29 @@ export class ApplicationRolesService {
   }
 
   async deleteRole(id: string, roleId: string) {
-    return await this.prismaService.applicationRole.delete({
-      where: {
-        id: roleId,
-        applicationsId: id,
-      },
-    });
+    if (!id) {
+      throw new BadRequestException({
+        message: 'No application id provided',
+      });
+    }
+    if (!roleId) {
+      throw new BadRequestException({
+        message: 'No role id provided',
+      });
+    }
+    try {
+      const role = await this.prismaService.applicationRole.delete({
+        where: { id: roleId, applicationsId: id },
+      });
+      return {
+        message: 'role deleted successfully',
+        role,
+      };
+    } catch (error) {
+      console.log('Error from deleteRole', error);
+      throw new InternalServerErrorException({
+        message: 'Some error occured while deleting the role',
+      });
+    }
   }
 }

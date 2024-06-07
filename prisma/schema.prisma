@@ -157,12 +157,13 @@ model Tenant {
   updatedAt                DateTime @updatedAt
   name                     String   @unique
 
-  accessTokenSigningKey Key            @relation("TenantAccessTokenSigningKey", fields: [accessTokenSigningKeysId], references: [id])
-  idTokenSigningKey     Key            @relation("TenantIdTokenSigningKey", fields: [idTokenSigningKeysId], references: [id])
+  accessTokenSigningKey Key                 @relation("TenantAccessTokenSigningKey", fields: [accessTokenSigningKeysId], references: [id])
+  idTokenSigningKey     Key                 @relation("TenantIdTokenSigningKey", fields: [idTokenSigningKeysId], references: [id])
   applications          Application[]
   groups                Group[]
   refreshTokens         RefreshToken[]
   users                 User[]
+  AuthenticationKey     AuthenticationKey[]
 }
 
 model UserRegistration {
@@ -200,4 +201,17 @@ model User {
   groupMembers      GroupMember[]
   refreshTokens     RefreshToken[]
   userRegistrations UserRegistration[]
+}
+
+model AuthenticationKey {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  keyManager  Boolean
+  keyValue    String   @unique
+  permissions String?
+  metaData    String?
+  tenantsId   String?
+
+  tenant Tenant? @relation(fields: [tenantsId], references: [id])
 }

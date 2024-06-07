@@ -1,4 +1,11 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { ScopeDto, UpdateScopeDto } from 'src/dto/application.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -107,8 +114,29 @@ export class ApplicationScopesService {
   }
 
   async deleteScope(id: string, scopeId: string) {
-    return await this.prismaService.applicationOauthScope.delete({
-      where: { id: scopeId, applicationsId: id },
-    });
+    if (!id) {
+      throw new BadRequestException({
+        message: 'No application id provided',
+      });
+    }
+    if (!scopeId) {
+      throw new BadRequestException({
+        message: 'No scope id provided',
+      });
+    }
+    try {
+      const scope = await this.prismaService.applicationOauthScope.delete({
+        where: { id: scopeId, applicationsId: id },
+      });
+      return {
+        message: 'Scope deleted successfully',
+        scope,
+      };
+    } catch (error) {
+      console.log('Error from deleteScope', error);
+      throw new InternalServerErrorException({
+        message: 'Some error occured while deleting the scope',
+      });
+    }
   }
 }
