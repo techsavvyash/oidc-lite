@@ -48,7 +48,6 @@ export class ApplicationScopesService {
       return {
         message: 'successfully created a new scope',
         scope: newScope,
-        applicationsId,
       };
     } catch (error) {
       this.logger.log('Error creating a new Scope', error);
