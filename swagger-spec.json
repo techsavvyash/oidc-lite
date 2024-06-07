@@ -601,11 +601,6 @@
         ]
       }
     },
-<<<<<<< HEAD
-    "/key": {
-      "get": {
-        "operationId": "KeyController_retrieveAllKey",
-=======
     "/tenant": {
       "post": {
         "operationId": "TenantController_createATenantWithRandomUUID",
@@ -618,7 +613,6 @@
       },
       "get": {
         "operationId": "TenantController_returnAllTenants",
->>>>>>> 842c6e6da6bc8e17e231327232c0339697f8145e
         "parameters": [],
         "responses": {
           "200": {
@@ -627,11 +621,6 @@
         }
       }
     },
-<<<<<<< HEAD
-    "/key/{id}": {
-      "put": {
-        "operationId": "KeyController_udpatingKey",
-=======
     "/tenant/{id}": {
       "get": {
         "operationId": "TenantController_returnATenant",
@@ -671,7 +660,6 @@
       },
       "patch": {
         "operationId": "TenantController_updateATenant",
->>>>>>> 842c6e6da6bc8e17e231327232c0339697f8145e
         "parameters": [
           {
             "name": "id",
@@ -689,11 +677,7 @@
         }
       },
       "delete": {
-<<<<<<< HEAD
-        "operationId": "KeyController_deletingKey",
-=======
         "operationId": "TenantController_deleteATenant",
->>>>>>> 842c6e6da6bc8e17e231327232c0339697f8145e
         "parameters": [
           {
             "name": "id",
@@ -1111,6 +1095,53 @@
     "/application/{id}/oauth-configuration": {
       "get": {
         "operationId": "ApplicationController_returnOauthConfiguration",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/key/{id}": {
+      "get": {
+        "operationId": "KeyController_retrieveAllKey",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "operationId": "KeyController_udpatingKey",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "KeyController_deletingKey",
         "parameters": [
           {
             "name": "id",

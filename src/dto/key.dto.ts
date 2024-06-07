@@ -1,12 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger"
 
 
-export class retrieveDTO{
-    @ApiProperty() algorithm ?: string
-    @ApiProperty() id ?: string
-    @ApiProperty() kid ?: string
-    @ApiProperty() name ?: string
-    @ApiProperty() type ?: string
-    @ApiProperty() createdAt ?:string
+export class updateDTO{
+    @ApiProperty() name : string
 }
 
+
+export class generateKeyDTO{
+    @ApiProperty() algorithm : string
+    @ApiProperty() issuer : string
+    @ApiProperty() name : string
+    @ApiProperty() length : string
+}

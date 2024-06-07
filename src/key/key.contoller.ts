@@ -1,26 +1,26 @@
 import { Body, Controller, Delete, Get, Headers, Param, Patch, Put } from "@nestjs/common";
 import { KeyService } from "./key.service";
-import { retrieveDTO } from "src/dto/key.dto";
+import { updateDTO } from "src/dto/key.dto";
 
 @Controller('key')
 export class KeyController{
     constructor(
         private readonly keyservice : KeyService,
-        private readonly retrieveData : retrieveDTO
+        private readonly udpateData : updateDTO
     ){}
 
-    @Get('/')
-    async retrieveAllKey( uuid : string, data : retrieveDTO){
-        return this.keyservice.retrieveKey(uuid, data)
+    @Get('/:id')
+    async retrieveAllKey( uuid : string){
+        return this.keyservice.retrieveKey(uuid )
     }
 
     @Put('/:id')
-    async udpatingKey(@Param('id') uuid : string, name : string, data : retrieveDTO){
-        return this.keyservice.updateKey(uuid, name , data);
+    async udpatingKey(@Param('id') uuid : string, data : updateDTO){
+        return this.keyservice.updateKey(uuid , data);
     }
 
     @Delete('/:id')
-    async deletingKey(@Param('id') uuid : string, data : retrieveDTO){
-        return this.keyservice.deleteKey(uuid, data)
+    async deletingKey(@Param('id') uuid : string){
+        return this.keyservice.deleteKey(uuid)
     }
 }
