@@ -41,6 +41,7 @@
     "node-jose": "^2.2.0",
     "oidc-provider": "^8.4.6",
     "reflect-metadata": "^0.2.0",
+    "string-width": "^7.1.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
