@@ -1,13 +1,32 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateUserDto {
-  @ApiProperty() birthdate: string;
-  @ApiProperty() gender: string;
+class Membership {
+  @ApiProperty() groupId: string;
+}
+export class UserData{
   @ApiProperty() username: string;
+  @ApiProperty() firstname?: string;
+  @ApiProperty() lastname?: string;
   @ApiProperty() email: string;
   @ApiProperty() password: string;
-  @ApiProperty() tokens?: string;
 }
+
+export class CreateUserDto {
+  @ApiProperty() active: boolean;
+  @ApiProperty() additionalData?: object | string;
+  @ApiProperty() applicationId: string;
+  @ApiProperty() tenantId: string;
+  @ApiProperty() membership: Membership[];
+  @ApiProperty() userData: UserData;
+}
+export class UpdateUserDto {
+  @ApiProperty() active?: boolean;
+  @ApiProperty() additionalData?: object | string;
+  @ApiProperty() applicationId: string;
+  @ApiProperty() membership?: Membership[];
+  @ApiProperty() userData?: UserData;
+}
+
 
 export class LoginDTO {
   @ApiProperty() username: string;

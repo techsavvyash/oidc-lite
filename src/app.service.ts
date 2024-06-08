@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
-import { CreateUserDto, LoginDTO } from './dto/user.dto';
+// import { CreateUserDto, LoginDTO } from './dto/user.dto';
 import { PrismaService } from './prisma/prisma.service';
 import { UserService } from './user/user.service';
 
@@ -22,7 +22,7 @@ export class AppService {
     this.logger = new Logger();
   }
 
-  async loginService(headers: any, body: LoginDTO) {
+  async loginService(headers: any, body: any) {
     const { username, password, scopes, resource, grant_type } = body;
     const jwtToken = headers.cookies?.jwt;
     if (!jwtToken && (!username || !password)) {
@@ -133,7 +133,7 @@ export class AppService {
     return response.data;
   }
 
-  async signupService(body: CreateUserDto) {
+  async signupService(body: any) {
     const { username, password, gender, birthdate, email } = body;
     if (!username || !password || !gender || !birthdate || !email) {
       throw new BadRequestException({
