@@ -1,7 +1,5 @@
 import {
   BadRequestException,
-  HttpException,
-  HttpStatus,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -12,6 +10,7 @@ import {
   CreateApplicationDto,
   UpdateApplicationDto,
 } from 'src/dto/application.dto';
+import { ResponseDto } from 'src/dto/response.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TenantService } from 'src/tenant/tenant.service';
 
@@ -27,22 +26,28 @@ export class ApplicationService {
     this.logger = new Logger();
   }
 
-  async createApplication(uuid: string, data: CreateApplicationDto) {
+  async createApplication(
+    uuid: string,
+    data: CreateApplicationDto,
+  ): Promise<ResponseDto> {
     const application = await this.prismaService.application.findUnique({
       where: { id: uuid },
     });
     if (application) {
       throw new BadRequestException({
+        success: false,
         message: 'Application with the provided id already exists',
       });
     }
     if (!data) {
       throw new BadRequestException({
+        success: false,
         message: 'No data given',
       });
     }
     if (!data.jwtConfiguration) {
       throw new BadRequestException({
+        success: false,
         message:
           'jwt Configuration not provided. for now provide it in future will have a default field',
       });
@@ -87,39 +92,46 @@ export class ApplicationService {
           this.applicationScopes.createScope(value, application.id),
         );
       } catch (error) {
-        console.log('This is error while creating scopes/roles: ', error);
-        throw new HttpException(
-          'Error making new roles/scopes',
-          HttpStatus.BAD_REQUEST,
-        );
+        this.logger.log('This is error while creating scopes/roles: ', error);
+        throw new InternalServerErrorException({
+          success: false,
+          message: 'Error while creating new scop/roles',
+        });
       }
 
       this.logger.log('New application registred!', application);
 
       return {
+        success: true,
         message: 'Application created successfully!',
-        application,
+        data: application,
       };
     } catch (error) {
-      throw new HttpException(
-        'Error making new application',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new InternalServerErrorException({
+        success: false,
+        message: 'Error while creating new application',
+      });
     }
   }
 
-  async patchApplication(id: string, newData: UpdateApplicationDto) {
+  async patchApplication(
+    id: string,
+    newData: UpdateApplicationDto,
+  ): Promise<ResponseDto> {
     if (!newData) {
-      throw new HttpException('No updation data given', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException({
+        success: false,
+        message: 'No data given for updation',
+      });
     }
     const application = await this.prismaService.application.findUnique({
       where: { id },
     });
     if (!application) {
-      throw new HttpException(
-        'Application with the provided id dont exist',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException({
+        success: false,
+        message: 'Application with the given id dont exist',
+      });
     }
 
     const name = newData.name ? newData.name : application.name;
@@ -158,67 +170,98 @@ export class ApplicationService {
         },
       });
       return {
+        success: true,
         message: 'Application updated successfully!',
-        application,
+        data: application,
       };
     } catch (error) {
-      console.log('Error from patchApplication', error);
-      throw new HttpException(
-        'Some unkown error happened!',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      this.logger.log('Error from patchApplication', error);
+      throw new InternalServerErrorException({
+        success: false,
+        message: 'Error while updating the application',
+      });
     }
   }
 
-  async returnAllApplications() {
-    return await this.prismaService.application.findMany();
+  async returnAllApplications(): Promise<ResponseDto> {
+    const allApplications = await this.prismaService.application.findMany();
+    return {
+      success: true,
+      message: 'All applications found',
+      data: allApplications,
+    };
   }
 
-  async returnAnApplication(id: string) {
-    return await this.prismaService.application.findUnique({
+  async returnAnApplication(id: string): Promise<ResponseDto> {
+    if (!id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No id given',
+      });
+    }
+    const application = await this.prismaService.application.findUnique({
       where: {
         id,
       },
     });
+    if (!application) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Application with the given id dont exist',
+      });
+    }
+    return {
+      success: true,
+      message: 'Application found successfully',
+      data: application,
+    };
   }
 
-  async deleteApplication(id: string, hardDelete: boolean) {
+  async deleteApplication(
+    id: string,
+    hardDelete: boolean,
+  ): Promise<ResponseDto> {
     if (hardDelete) {
       try {
         const application = await this.prismaService.application.delete({
           where: { id },
         });
         return {
+          success: true,
           message: 'Application deleted Successfully!',
-          application,
+          data: application,
         };
       } catch (error) {
-        console.log('Error from deleteApplication', error);
+        this.logger.log('Error from deleteApplication', error);
         throw new InternalServerErrorException({
+          success: false,
           message: 'Some error occured while hard deleting the application',
         });
       }
     } else {
       const application = await this.patchApplication(id, { active: false });
       return {
+        success: true,
         message: 'Application soft deleted/inactive',
-        application,
+        data: application,
       };
     }
   }
 
-  async returnOauthConfiguration(id: string) {
+  async returnOauthConfiguration(id: string): Promise<ResponseDto> {
     const application = await this.prismaService.application.findUnique({
       where: { id },
     });
     if (!application) {
-      throw new HttpException(
-        'No application with such id exists',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException({
+        success: false,
+        message: 'No application with the given id exists',
+      });
     }
     return {
-      configurations: application.data,
+      success: true,
+      message: "Application's configurations are as follows",
+      data: JSON.parse(application.data),
     };
   }
 }

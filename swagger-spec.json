@@ -695,91 +695,6 @@
         }
       }
     },
-    "/api-keys": {
-      "post": {
-        "operationId": "ApiKeysController_createAnApiKeyWithRandomUUID",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/api-keys/{id}": {
-      "post": {
-        "operationId": "ApiKeysController_createAnApiKey",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      },
-      "get": {
-        "operationId": "ApiKeysController_returnAnApiKey",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "patch": {
-        "operationId": "ApiKeysController_updateAnApiKey",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "operationId": "ApiKeysController_deleteAnApiKey",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
     "/oidc/*": {
       "get": {
         "operationId": "OidcController_mountedOidc_get",
@@ -878,31 +793,74 @@
     "/application": {
       "get": {
         "operationId": "ApplicationController_allApplications",
+        "summary": "Get all applications",
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "All applications found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "tags": [
+          "Applications"
+        ]
       },
       "post": {
         "operationId": "ApplicationController_createAnApplicationWithRandomUUID",
+        "summary": "Create an Application with a random UUID",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateApplicationDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Application created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "tags": [
+          "Applications"
+        ]
       }
     },
     "/application/{id}": {
       "get": {
         "operationId": "ApplicationController_getAnApplication",
+        "summary": "Get an application by ID",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -910,12 +868,29 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Application found successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "tags": [
+          "Applications"
+        ]
       },
       "post": {
         "operationId": "ApplicationController_createAnApplication",
+        "summary": "Create an Application with given id",
         "parameters": [
           {
             "name": "id",
@@ -926,45 +901,102 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateApplicationDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Application created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "tags": [
+          "Applications"
+        ]
       },
       "patch": {
         "operationId": "ApplicationController_updateApplication",
+        "summary": "Update an existing application",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Application ID",
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateApplicationDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": ""
+            "description": "Application updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "tags": [
+          "Applications"
+        ]
       },
       "delete": {
         "operationId": "ApplicationController_deleteApplication",
+        "summary": "Delete an application by ID",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Application ID",
             "schema": {
               "type": "string"
             }
           },
           {
             "name": "hardDelete",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Hard delete flag",
             "schema": {
               "type": "boolean"
             }
@@ -972,39 +1004,85 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Application deleted Successfully!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "tags": [
+          "Applications"
+        ]
       }
     },
     "/application/{id}/role": {
       "post": {
         "operationId": "ApplicationController_createRoleWithRandomUUID",
+        "summary": "Create a new role for an application with a random uuid",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Application ID",
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Role created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "tags": [
+          "Applications"
+        ]
       }
     },
     "/application/{id}/role/{roleId}": {
       "post": {
         "operationId": "ApplicationController_createRole",
+        "summary": "Create a new role for an application with given id",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1013,24 +1091,53 @@
             "name": "roleId",
             "required": true,
             "in": "path",
+            "description": "Role ID",
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Role created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "tags": [
+          "Applications"
+        ]
       },
       "delete": {
         "operationId": "ApplicationController_deleteRole",
+        "summary": "Delete a role from an application",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1039,6 +1146,7 @@
             "name": "roleId",
             "required": true,
             "in": "path",
+            "description": "Role ID",
             "schema": {
               "type": "string"
             }
@@ -1046,17 +1154,35 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Role deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "tags": [
+          "Applications"
+        ]
       },
       "patch": {
         "operationId": "ApplicationController_updateRole",
+        "summary": "Update a role for an application",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1065,46 +1191,104 @@
             "name": "roleId",
             "required": true,
             "in": "path",
+            "description": "Role ID",
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "description": "Role data to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": ""
+            "description": "Role updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "tags": [
+          "Applications"
+        ]
       }
     },
     "/application/{id}/scope": {
       "post": {
         "operationId": "ApplicationController_createScopeWithRandomUUID",
+        "summary": "Create a new Scope for an application with random uuid",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Application ID",
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScopeDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Scope created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "tags": [
+          "Applications"
+        ]
       }
     },
     "/application/{id}/scope/{scopeId}": {
       "post": {
         "operationId": "ApplicationController_createScope",
+        "summary": "Create a new Scope for an application with given id",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1118,19 +1302,47 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScopeDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Scope created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "tags": [
+          "Applications"
+        ]
       },
       "delete": {
         "operationId": "ApplicationController_deleteScope",
+        "summary": "Delete a scope from an application",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1139,6 +1351,7 @@
             "name": "scopeId",
             "required": true,
             "in": "path",
+            "description": "scope ID",
             "schema": {
               "type": "string"
             }
@@ -1146,17 +1359,35 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "scope deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "tags": [
+          "Applications"
+        ]
       },
       "patch": {
         "operationId": "ApplicationController_updateScope",
+        "summary": "Update a Scope for an application",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1168,23 +1399,59 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "scopeID",
+            "required": true,
+            "in": "path",
+            "description": "Scope ID",
+            "schema": {}
           }
         ],
+        "requestBody": {
+          "required": true,
+          "description": "Scope data to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateScopeDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": ""
+            "description": "Scope updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "tags": [
+          "Applications"
+        ]
       }
     },
     "/application/{id}/oauth-configuration": {
       "get": {
         "operationId": "ApplicationController_returnOauthConfiguration",
+        "summary": "Get OAuth configuration for an application by ID",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1192,9 +1459,25 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Application's configurations are as follows",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
-        }
+        },
+        "tags": [
+          "Applications"
+        ]
       }
     }
   },
@@ -1207,6 +1490,261 @@
   "tags": [],
   "servers": [],
   "components": {
-    "schemas": {}
+    "schemas": {
+      "ResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "data"
+        ]
+      },
+      "JwtConfiguration": {
+        "type": "object",
+        "properties": {
+          "accessTokenKeyID": {
+            "type": "string"
+          },
+          "refreshTokenTimeToLiveInMinutes": {
+            "type": "number"
+          },
+          "timeToLiveInSeconds": {
+            "type": "number"
+          },
+          "idTokenKeyID": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accessTokenKeyID",
+          "refreshTokenTimeToLiveInMinutes",
+          "timeToLiveInSeconds",
+          "idTokenKeyID"
+        ]
+      },
+      "OauthConfiguration": {
+        "type": "object",
+        "properties": {
+          "authorizedOriginURLs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "authorizedRedirectURLs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "clientSecret": {
+            "type": "string"
+          },
+          "enabledGrants": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "logoutURL": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "authorizedOriginURLs",
+          "authorizedRedirectURLs",
+          "clientSecret",
+          "enabledGrants",
+          "logoutURL"
+        ]
+      },
+      "CreateApplicationDto": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "jwtConfiguration": {
+            "$ref": "#/components/schemas/JwtConfiguration"
+          },
+          "oauthConfiguration": {
+            "$ref": "#/components/schemas/OauthConfiguration"
+          }
+        },
+        "required": [
+          "active",
+          "name",
+          "scopes",
+          "roles",
+          "tenant_id",
+          "jwtConfiguration",
+          "oauthConfiguration"
+        ]
+      },
+      "UpdateApplicationDto": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "jwtConfiguration": {
+            "$ref": "#/components/schemas/JwtConfiguration"
+          },
+          "oauthConfiguration": {
+            "$ref": "#/components/schemas/OauthConfiguration"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "active",
+          "tenant_id",
+          "jwtConfiguration",
+          "oauthConfiguration",
+          "name"
+        ]
+      },
+      "RoleDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "isSuperRole": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "description",
+          "isDefault",
+          "isSuperRole",
+          "name",
+          "id"
+        ]
+      },
+      "UpdateRoleDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "isSuperRole": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "description",
+          "isDefault",
+          "isSuperRole",
+          "name",
+          "id"
+        ]
+      },
+      "ScopeDto": {
+        "type": "object",
+        "properties": {
+          "defaultConsentDetail": {
+            "type": "string"
+          },
+          "defaultConsentMessage": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "defaultConsentDetail",
+          "defaultConsentMessage",
+          "id",
+          "name",
+          "required"
+        ]
+      },
+      "UpdateScopeDto": {
+        "type": "object",
+        "properties": {
+          "defaultConsentDetail": {
+            "type": "string"
+          },
+          "defaultConsentMessage": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "defaultConsentDetail",
+          "defaultConsentMessage",
+          "id",
+          "name",
+          "required"
+        ]
+      }
+    }
   }
 }
