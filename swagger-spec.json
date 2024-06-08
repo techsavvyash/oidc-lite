@@ -604,31 +604,101 @@
     "/tenant": {
       "post": {
         "operationId": "TenantController_createATenantWithRandomUUID",
-        "parameters": [],
+        "summary": "Create a tenant with random UUID",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Tenant data to create",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Tenant created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
-        }
+        },
+        "tags": [
+          "Tenant"
+        ]
       },
       "get": {
         "operationId": "TenantController_returnAllTenants",
-        "parameters": [],
+        "summary": "Get all tenants",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Tenants found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
-        }
+        },
+        "tags": [
+          "Tenant"
+        ]
       }
     },
     "/tenant/{id}": {
       "get": {
         "operationId": "TenantController_returnATenant",
+        "summary": "Get a tenant by ID",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Tenant ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -636,53 +706,147 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Tenant found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
-        }
+        },
+        "tags": [
+          "Tenant"
+        ]
       },
       "post": {
         "operationId": "TenantController_createATenant",
+        "summary": "Create a tenant with specified ID",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Tenant ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "description": "Tenant data to create",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Tenant created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
-        }
+        },
+        "tags": [
+          "Tenant"
+        ]
       },
       "patch": {
         "operationId": "TenantController_updateATenant",
+        "summary": "Update a tenant",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Tenant ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "description": "Tenant data to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": ""
+            "description": "Tenant updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
-        }
+        },
+        "tags": [
+          "Tenant"
+        ]
       },
       "delete": {
         "operationId": "TenantController_deleteATenant",
+        "summary": "Delete a tenant",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Tenant ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -690,9 +854,22 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Tenant deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
-        }
+        },
+        "tags": [
+          "Tenant"
+        ]
       }
     },
     "/oidc/*": {
@@ -1122,6 +1299,68 @@
   "tags": [],
   "servers": [],
   "components": {
-    "schemas": {}
+    "schemas": {
+      "JwtConfiguration": {
+        "type": "object",
+        "properties": {
+          "accessTokenKeyID": {
+            "type": "string"
+          },
+          "refreshTokenTimeToLiveInMinutes": {
+            "type": "number"
+          },
+          "timeToLiveInSeconds": {
+            "type": "number"
+          },
+          "idTokenKeyID": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accessTokenKeyID",
+          "refreshTokenTimeToLiveInMinutes",
+          "timeToLiveInSeconds",
+          "idTokenKeyID"
+        ]
+      },
+      "CreateTenantDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "jwtConfiguration": {
+            "$ref": "#/components/schemas/JwtConfiguration"
+          },
+          "data": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "name",
+          "jwtConfiguration",
+          "data"
+        ]
+      },
+      "ResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "data"
+        ]
+      }
+    }
   }
 }

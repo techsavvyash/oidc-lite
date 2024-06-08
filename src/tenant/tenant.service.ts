@@ -5,8 +5,11 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
+import { Permissions } from 'src/dto/apiKey.dto';
+import { ResponseDto } from 'src/dto/response.dto';
 import { CreateTenantDto } from 'src/dto/tenant.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -17,7 +20,58 @@ export class TenantService {
     this.logger = new Logger();
   }
 
-  async createATenant(id: string, data: CreateTenantDto) {
+  async authorizationHeaderVerifier(headers: object, id: string, requestedUrl: string, requestedMethod: string) {
+    const token = headers['authorization'];
+    if (!token) {
+      throw new BadRequestException({
+        message: 'Authorization header required',
+      });
+    }
+    const headerKey = await this.prismaService.authenticationKey.findUnique({
+      where: {
+        keyValue: token,
+      },
+    });
+    if (!headerKey) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized',
+      });
+    }
+    const permissions: Permissions = JSON.parse(headerKey.permissions);
+    let allowed = false;
+    permissions.endpoints.forEach((val) => {
+      allowed = (val.url === requestedUrl && val.methods === requestedMethod) || allowed;
+    });
+    allowed =
+      allowed && (permissions.tenantId === id || permissions.tenantId === null); // allowed only if tenant scoped or same tenantid
+    if (!allowed) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are unauthorized!',
+      });
+    }
+    return true;
+  }
+
+  async createATenant(
+    id: string,
+    data: CreateTenantDto,
+    headers: object,
+  ): Promise<ResponseDto> {
+    const valid = this.authorizationHeaderVerifier(headers, id, "/tenant","POST");
+    if(!valid){
+      throw new UnauthorizedException({
+        success: false,
+        message: "You are not authorized"
+      })
+    }
+    if (!id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Id not provided',
+      });
+    }
     const oldTenant = await this.prismaService.tenant.findUnique({
       where: { id },
     });
@@ -42,6 +96,7 @@ export class TenantService {
       !jwtConfiguration.timeToLiveInSeconds
     ) {
       throw new BadRequestException({
+        success: false,
         message: 'incomplete jwtConfiguration sent',
       });
     }
@@ -61,25 +116,40 @@ export class TenantService {
       });
       this.logger.log('New tenant created!', tenant);
       return {
+        success: true,
         message: 'Tenant created successfully!',
-        tenant,
+        data: tenant,
       };
     } catch (error) {
       console.log('Error from createATenant', error);
       throw new InternalServerErrorException({
+        success: false,
         message: 'Error creating new tenant',
       });
     }
   }
 
-  async updateATenant(id: string, data: CreateTenantDto) {
+  async updateATenant(
+    id: string,
+    data: CreateTenantDto,
+    headers: object,
+  ): Promise<ResponseDto> {
+    const valid = this.authorizationHeaderVerifier(headers, id,"/tenant", "PATCH");
+    if(!valid){
+      throw new UnauthorizedException({
+        success: false,
+        message: "You are not authorized"
+      })
+    }
     if (!id) {
       throw new BadRequestException({
+        success: false,
         message: 'tenant id not given',
       });
     }
     if (!data) {
       throw new BadRequestException({
+        success: false,
         message: 'No data given to update the tenant',
       });
     }
@@ -90,6 +160,7 @@ export class TenantService {
     });
     if (!oldTenant) {
       throw new BadRequestException({
+        success: false,
         message: 'tenant with the given id dont exists',
       });
     }
@@ -119,31 +190,96 @@ export class TenantService {
         },
       });
       return {
+        success: true,
         message: 'Tenant updated successfully!',
-        tenant,
+        data: tenant,
       };
     } catch (error) {
       console.log('Error happend in updateATenant', this.updateATenant);
       throw new InternalServerErrorException({
+        success: false,
         message: 'Error occured while updating the tenant',
       });
     }
   }
 
-  async deleteATenant(id: string) {
-    const tenant = await this.prismaService.tenant.delete({ where: { id } });
+  async deleteATenant(id: string, headers: object): Promise<ResponseDto> {
+    const valid = this.authorizationHeaderVerifier(headers, id,"/tenant", "DELETE");
+    if(!valid){
+      throw new UnauthorizedException({
+        success: false,
+        message: "You are not authorized"
+      })
+    }
+    if (!id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'tenant id not given',
+      });
+    }
+    const oldTenant = await this.prismaService.tenant.findUnique({
+      where: { id },
+    });
+    if (!oldTenant) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No tenant with given id exists',
+      });
+    }
+    const tenant = await this.prismaService.tenant.delete({
+      where: { ...oldTenant },
+    });
     return {
+      success: true,
       message: 'Tenant deleted successfully!',
-      tenant,
+      data: tenant,
     };
   }
 
-  async returnATenant(id: string) {
-    return await this.prismaService.tenant.findUnique({ where: { id } });
+  async returnATenant(id: string, headers: object): Promise<ResponseDto> {
+    const valid = this.authorizationHeaderVerifier(headers, id,"/tenant", "GET");
+    if(!valid){
+      throw new UnauthorizedException({
+        success: false,
+        message: "You are not authorized"
+      })
+    }
+    if (!id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'tenant id not given',
+      });
+    }
+    const tenant = await this.prismaService.tenant.findUnique({
+      where: { id },
+    });
+    if (!tenant) {
+      throw new BadRequestException({
+        succcess: false,
+        message: 'No such tenant exists',
+      });
+    }
+    return {
+      success: true,
+      message: 'Tenant found successfully',
+      data: tenant,
+    };
   }
 
-  async returnAllTenants() {
-    return await this.prismaService.tenant.findMany();
+  async returnAllTenants(headers: object): Promise<ResponseDto> {
+    const valid = this.authorizationHeaderVerifier(headers, null,"/tenant", "GET");
+    if(!valid){
+      throw new UnauthorizedException({
+        success: false,
+        message: "You are not authorized"
+      })
+    }
+    const tenants = await this.prismaService.tenant.findMany();
+    return {
+      success: true,
+      message: 'These are all the tenants',
+      data: tenants,
+    };
   }
 
   // search for a tenant with given ids else creates a new tenant with given ids
