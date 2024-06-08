@@ -1112,10 +1112,30 @@
         }
       }
     },
-    "/key/{id}": {
+    "/key": {
       "get": {
         "operationId": "KeyController_retrieveAllKey",
         "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/key/{id}": {
+      "get": {
+        "operationId": "KeyController_retrieveUniqueKey",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -1161,8 +1181,28 @@
     },
     "/key/generate": {
       "post": {
-        "operationId": "KeyController_generateKey",
+        "operationId": "KeyController_randomgenerateKey",
         "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/key/generate/{id}": {
+      "post": {
+        "operationId": "KeyController_generateKey",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": ""
