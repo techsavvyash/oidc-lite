@@ -36,6 +36,7 @@
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
     "crypto": "^1.0.1",
+    "jose": "^5.4.0",
     "jwk-to-pem": "^2.0.5",
     "node-jose": "^2.2.0",
     "oidc-provider": "^8.4.6",

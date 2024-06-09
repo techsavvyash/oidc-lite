@@ -15,6 +15,7 @@ import { MemoryMonitorService } from './memory-monitor/memory-monitor.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TenantController } from './tenant/tenant.controller';
 import { KeyModule } from './key/key.module';
+import { RefreshTokenModule } from './refresh_tokens/refreshtokens.module';
 
 @Module({
   imports: [OidcModule, UserModule, PrismaModule,JwtModule.register({
@@ -22,7 +23,7 @@ import { KeyModule } from './key/key.module';
     secret: process.env.JWT_SECRET,
     signOptions: { expiresIn: process.env.JWT_SECRET_EXPIRATION },
 
-    }), ApplicationModule,ScheduleModule.forRoot(), KeyModule],
+    }), ApplicationModule,ScheduleModule.forRoot(), KeyModule, RefreshTokenModule],
     controllers: [AppController, TenantController],
     providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService, MemoryMonitorService],
 

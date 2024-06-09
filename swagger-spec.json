@@ -1154,6 +1154,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/updateDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -1203,8 +1213,112 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generateKeyDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/jwt/refresh": {
+      "post": {
+        "operationId": "RefreshTokensController_refreshToken",
+        "parameters": [
+          {
+            "name": "refreshToken",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "token",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/refreshDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
+      "get": {
+        "operationId": "RefreshTokensController_retrieveByUserID",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "RefreshTokensController_deleteEntireApp",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/jwt/refresh/{id}": {
+      "get": {
+        "operationId": "RefreshTokensController_retrieve",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
             "description": ""
           }
         }
@@ -1220,6 +1334,60 @@
   "tags": [],
   "servers": [],
   "components": {
-    "schemas": {}
+    "schemas": {
+      "updateDTO": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "generateKeyDTO": {
+        "type": "object",
+        "properties": {
+          "algorithm": {
+            "type": "string"
+          },
+          "issuer": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "length": {
+            "type": "string"
+          },
+          "kid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "algorithm",
+          "issuer",
+          "name",
+          "length",
+          "kid"
+        ]
+      },
+      "refreshDTO": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "refreshToken",
+          "token"
+        ]
+      }
+    }
   }
 }
