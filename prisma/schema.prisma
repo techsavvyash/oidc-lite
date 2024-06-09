@@ -99,7 +99,7 @@ model Group {
   tenant           Tenant                 @relation(fields: [tenantId], references: [id])
   members          GroupMember[]
   applicationRoles GroupApplicationRole[]
-  users            User[]
+  // users            User[]
 
   @@unique([name, tenantId], name: "groups_uk_1")
 }
@@ -196,7 +196,7 @@ model User {
   updatedAt DateTime @updatedAt
   tenantId  String
   groupId   String? // Change from array to single reference
-  group     Group?   @relation(fields: [groupId], references: [id]) // Add the relation
+  // group     Group?   @relation(fields: [groupId], references: [id]) // Add the relation
 
   tenant            Tenant             @relation(fields: [tenantId], references: [id])
   groupMembers      GroupMember[]

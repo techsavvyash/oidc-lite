@@ -19,21 +19,16 @@ export class UserService {
 
   async authorizationHeaderVerifier(
     headers: object,
-    tenantId: string,
+    tenantID: string,
     requestedUrl: string,
     requestedMethod: string,
-  ) {
-    if (!headers) {
-      throw new BadRequestException({
-        success: false,
-        message: 'Headers missing',
-      });
-    }
+  ): Promise<ResponseDto> {
     const token = headers['authorization'];
     if (!token) {
-      throw new BadRequestException({
-        message: 'Authorization header required',
-      });
+      return {
+        success: false,
+        message: 'authorization header required',
+      };
     }
     const headerKey = await this.prismaService.authenticationKey.findUnique({
       where: {
@@ -41,32 +36,38 @@ export class UserService {
       },
     });
     if (!headerKey) {
-      throw new UnauthorizedException({
+      return {
         success: false,
         message: 'You are not authorized',
-      });
+      };
     }
     const permissions: Permissions = JSON.parse(headerKey.permissions);
-    let allowed = false;
-    if (permissions.endpoints) {
-      permissions.endpoints.forEach((val) => {
-        allowed =
-          (val.url === requestedUrl && val.methods === requestedMethod) ||
-          allowed;
-      });
-    } else {
-      allowed = true;
+    let allowed = permissions ? false : true;
+    if (permissions) {
+      if (permissions.endpoints) {
+        permissions.endpoints.forEach((val) => {
+          allowed =
+            (val.url === requestedUrl && val.methods === requestedMethod) ||
+            allowed;
+        });
+      } else {
+        allowed = true;
+      }
+      allowed =
+        allowed &&
+        (permissions.tenantId === tenantID || permissions.tenantId === null); // allowed only if tenant scoped or same tenantid
     }
-    allowed =
-      allowed &&
-      (permissions.tenantId === tenantId || permissions.tenantId === null); // allowed only if tenant scoped or same tenantid
+
     if (!allowed) {
-      throw new UnauthorizedException({
+      return {
         success: false,
-        message: 'You are unauthorized!',
-      });
+        message: 'Not authorized',
+      };
     }
-    return true;
+    return {
+      success: true,
+      message: 'Authorized',
+    };
   }
 
   async createAUser(
@@ -74,29 +75,57 @@ export class UserService {
     data: CreateUserDto,
     headers: object,
   ): Promise<ResponseDto> {
-    const valid = this.authorizationHeaderVerifier(
+    if (!data) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No data given to create a tenant',
+      });
+    }
+    const { tenantId } = data;
+    if (!tenantId) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Data dont have tenantId',
+      });
+    }
+    const tenant = await this.prismaService.tenant.findUnique({
+      where: { id: tenantId },
+    });
+    if (!tenant) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No such tenant exists',
+      });
+    }
+    const valid = await this.authorizationHeaderVerifier(
       headers,
-      'holdup',
+      tenantId,
       '/user',
       'POST',
     );
-    if (!valid) {
+    if (!valid.success) {
       throw new UnauthorizedException({
         success: false,
-        message: 'You are not authorized',
+        message: valid.message,
       });
     }
-
     if (!id) {
       throw new BadRequestException({
         success: false,
         message: 'user id not given',
       });
     }
-    if (!data) {
+
+    if (
+      !data.active ||
+      !data.applicationId ||
+      !data.membership ||
+      !data.userData
+    ) {
       throw new BadRequestException({
         success: false,
-        message: 'No data given to update the tenant',
+        message:
+          'Data missing active, applicationId, membership array or userData',
       });
     }
 
@@ -112,14 +141,8 @@ export class UserService {
       });
     }
 
-    const {
-      active,
-      applicationId,
-      tenantId,
-      additionalData,
-      membership,
-      userData,
-    } = data;
+    const { active, applicationId, additionalData, membership, userData } =
+      data;
     if (membership.length === 0) {
       throw new BadRequestException({
         success: false,
@@ -156,16 +179,23 @@ export class UserService {
   }
 
   async returnAUser(id: string, headers: object): Promise<ResponseDto> {
-    const valid = this.authorizationHeaderVerifier(
+    const tenantID = headers['x-stencil-tenantid'];
+    if (!tenantID) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'x-stencil-tenantid missing in header',
+      });
+    }
+    const valid = await this.authorizationHeaderVerifier(
       headers,
-      'holdup',
+      tenantID,
       '/user',
       'GET',
     );
-    if (!valid) {
+    if (!valid.success) {
       throw new UnauthorizedException({
         success: false,
-        message: 'You are not authorized',
+        message: valid.message,
       });
     }
 
@@ -199,16 +229,23 @@ export class UserService {
     data: UpdateUserDto,
     headers: object,
   ): Promise<ResponseDto> {
-    const valid = this.authorizationHeaderVerifier(
-      headers,
-      'holdup',
-      '/user',
-      'PATCH',
-    );
-    if (!valid) {
+    const tenantID = headers['x-stencil-tenantid'];
+    if (!tenantID) {
       throw new UnauthorizedException({
         success: false,
-        message: 'You are not authorized',
+        message: 'x-stencil-tenantid missing in header',
+      });
+    }
+    const valid = await this.authorizationHeaderVerifier(
+      headers,
+      tenantID,
+      '/user',
+      'GET',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: false,
+        message: valid.message,
       });
     }
 
@@ -279,16 +316,23 @@ export class UserService {
     headers: object,
     hardDelete: string,
   ): Promise<ResponseDto> {
-    const valid = this.authorizationHeaderVerifier(
-      headers,
-      'holdup',
-      '/user',
-      'DELETE',
-    );
-    if (!valid) {
+    const tenantID = headers['x-stencil-tenantid'];
+    if (!tenantID) {
       throw new UnauthorizedException({
         success: false,
-        message: 'You are not authorized',
+        message: 'x-stencil-tenantid missing in header',
+      });
+    }
+    const valid = await this.authorizationHeaderVerifier(
+      headers,
+      tenantID,
+      '/user',
+      'GET',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: false,
+        message: valid.message,
       });
     }
 
@@ -308,6 +352,12 @@ export class UserService {
       throw new BadRequestException({
         success: false,
         message: 'user with the given id dont exists',
+      });
+    }
+    if (user.tenantId !== tenantID) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized',
       });
     }
     if (hardDelete) {

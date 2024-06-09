@@ -133,12 +133,11 @@ CREATE TABLE "User" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "active" BOOLEAN NOT NULL,
     "data" TEXT,
-    "expiry" BIGINT,
+    "expiry" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "tenantId" TEXT NOT NULL,
     "groupId" TEXT,
-    CONSTRAINT "User_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "User_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 

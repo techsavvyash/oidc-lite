@@ -48,7 +48,7 @@ export class UserController {
   @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @Post('/')
   async createAUserWithRandomUUID(
-    @Body() data: CreateUserDto,
+    @Body('data') data: CreateUserDto,
     @Headers() headers: object,
   ): Promise<ResponseDto> {
     const id = randomUUID();
@@ -69,7 +69,7 @@ export class UserController {
   @Post('/:id')
   async createAUser(
     @Param('id') id: string,
-    @Body() data: CreateUserDto,
+    @Body('data') data: CreateUserDto,
     @Headers() headers: object,
   ): Promise<ResponseDto> {
     return await this.userService.createAUser(id, data, headers);
@@ -108,7 +108,7 @@ export class UserController {
   async updateAUser(
     @Param('id') id: string,
     @Headers() headers: object,
-    @Body() data: CreateUserDto,
+    @Body('data') data: CreateUserDto,
   ): Promise<ResponseDto> {
     return await this.userService.updateAUser(id, data, headers);
   }

@@ -7,6 +7,7 @@ import {
   Post,
   Query,
   Delete,
+  Headers,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -63,9 +64,10 @@ export class ApplicationController {
   @Post('/')
   async createAnApplicationWithRandomUUID(
     @Body('data') data: CreateApplicationDto,
+    @Headers() headers: object,
   ): Promise<ResponseDto> {
     const uuid = randomUUID();
-    return await this.applicationService.createApplication(uuid, data);
+    return await this.applicationService.createApplication(uuid, data, headers);
   }
 
   @Get('/:id')
@@ -95,8 +97,9 @@ export class ApplicationController {
   async createAnApplication(
     @Body('data') data: CreateApplicationDto,
     @Param('id') id: string,
+    @Headers() headers: object,
   ): Promise<ResponseDto> {
-    return await this.applicationService.createApplication(id, data);
+    return await this.applicationService.createApplication(id, data, headers);
   }
 
   @ApiOperation({ summary: 'Update an existing application' })
@@ -220,10 +223,16 @@ export class ApplicationController {
     return await this.applicationRoleService.updateRole(id, roleId, data);
   }
 
-  @ApiOperation({ summary: 'Create a new Scope for an application with random uuid' })
+  @ApiOperation({
+    summary: 'Create a new Scope for an application with random uuid',
+  })
   @ApiParam({ name: 'id', description: 'Application ID' })
   @ApiBody({ type: ScopeDto })
-  @ApiResponse({ status: 201, description: 'Scope created successfully', type: ResponseDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Scope created successfully',
+    type: ResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Post('/:id/scope')
@@ -234,10 +243,16 @@ export class ApplicationController {
     return await this.applicationScopeService.createScope(data, id);
   }
 
-  @ApiOperation({ summary: 'Create a new Scope for an application with given id' })
+  @ApiOperation({
+    summary: 'Create a new Scope for an application with given id',
+  })
   @ApiParam({ name: 'id', description: 'Application ID' })
   @ApiBody({ type: ScopeDto })
-  @ApiResponse({ status: 201, description: 'Scope created successfully', type: ResponseDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Scope created successfully',
+    type: ResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Post('/:id/scope/:scopeId')
@@ -252,7 +267,11 @@ export class ApplicationController {
   @ApiOperation({ summary: 'Delete a scope from an application' })
   @ApiParam({ name: 'id', description: 'Application ID' })
   @ApiParam({ name: 'scopeId', description: 'scope ID' })
-  @ApiResponse({ status: 200, description: 'scope deleted successfully', type: ResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'scope deleted successfully',
+    type: ResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Delete('/:id/scope/:scopeId')

@@ -16,21 +16,16 @@ export class UserRegistrationService {
 
   async authorizationHeaderVerifier(
     headers: object,
-    tenantId: string,
+    id: string,
     requestedUrl: string,
     requestedMethod: string,
-  ) {
-    if (!headers) {
-      throw new BadRequestException({
-        success: false,
-        message: 'Headers missing',
-      });
-    }
+  ): Promise<ResponseDto> {
     const token = headers['authorization'];
     if (!token) {
-      throw new BadRequestException({
-        message: 'Authorization header required',
-      });
+      return {
+        success: false,
+        message: 'authorization header required',
+      };
     }
     const headerKey = await this.prismaService.authenticationKey.findUnique({
       where: {
@@ -38,33 +33,40 @@ export class UserRegistrationService {
       },
     });
     if (!headerKey) {
-      throw new UnauthorizedException({
+      return {
         success: false,
         message: 'You are not authorized',
-      });
+      };
     }
     const permissions: Permissions = JSON.parse(headerKey.permissions);
-    let allowed = false;
-    if (permissions.endpoints) {
-      permissions.endpoints.forEach((val) => {
-        allowed =
-          (val.url === requestedUrl && val.methods === requestedMethod) ||
-          allowed;
-      });
-    } else {
-      allowed = true;
+    let allowed = permissions ? false : true;
+    if (permissions) {
+      if (permissions.endpoints) {
+        permissions.endpoints.forEach((val) => {
+          allowed =
+            (val.url === requestedUrl && val.methods === requestedMethod) ||
+            allowed;
+        });
+      } else {
+        allowed = true;
+      }
+      allowed =
+        allowed &&
+        (permissions.tenantId === id || permissions.tenantId === null); // allowed only if tenant scoped or same tenantid
     }
-    allowed =
-      allowed &&
-      (permissions.tenantId === tenantId || permissions.tenantId === null); // allowed only if tenant scoped or same tenantid
+
     if (!allowed) {
-      throw new UnauthorizedException({
+      return {
         success: false,
-        message: 'You are unauthorized!',
-      });
+        message: 'Not authorized',
+      };
     }
-    return true;
+    return {
+      success: true,
+      message: 'Authorized',
+    };
   }
+  
   async createAUserRegistration(
     userId: string,
     data: CreateUserRegistrationDto,

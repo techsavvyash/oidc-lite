@@ -31,6 +31,7 @@ export class ApplicationService {
   async createApplication(
     uuid: string,
     data: CreateApplicationDto,
+    headers: object
   ): Promise<ResponseDto> {
     if (!uuid) {
       throw new BadRequestException({
@@ -72,14 +73,18 @@ export class ApplicationService {
           data: {
             name: randomUUID(),
             jwtConfiguration: jwtConfiguration,
-          },
-        },
+          }
+        },{
+          headers: {
+            'Authorization': headers["authorization"]
+          }
+        }
       );
       const active = data.active ? data.active : true;
       const name = data.name;
       const roles = data.roles;
       const scopes = data.scopes;
-      const tenantId = tenant.data.tenant.id;
+      const tenantId = tenant.data.data.id;
       const configurations = JSON.stringify(data.oauthConfiguration);
 
       try {

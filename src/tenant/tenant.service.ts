@@ -22,7 +22,7 @@ export class TenantService {
 
   async authorizationHeaderVerifier(
     headers: object,
-    id: string,
+    tenantID: string,
     requestedUrl: string,
     requestedMethod: string,
   ): Promise<ResponseDto> {
@@ -58,7 +58,7 @@ export class TenantService {
       }
       allowed =
         allowed &&
-        (permissions.tenantId === id || permissions.tenantId === null); // allowed only if tenant scoped or same tenantid
+        (permissions.tenantId === tenantID || permissions.tenantId === null); // allowed only if tenant scoped or same tenantid
     }
 
     if (!allowed) {
