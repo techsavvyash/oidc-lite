@@ -53,8 +53,8 @@ model Application {
   tenantId                 String
 
   tenant                Tenant                  @relation(fields: [tenantId], references: [id])
-  accessTokenSigningKey Key?                    @relation("ApplicationAccessTokenSigningKey", fields: [accessTokenSigningKeysId], references: [id])
-  idTokenSigningKey     Key?                    @relation("ApplicationIdTokenSigningKey", fields: [idTokenSigningKeysId], references: [id])
+  // accessTokenSigningKey Key?                    @relation("ApplicationAccessTokenSigningKey", fields: [accessTokenSigningKeysId], references: [id])
+  // idTokenSigningKey     Key?                    @relation("ApplicationIdTokenSigningKey", fields: [idTokenSigningKeysId], references: [id])
   oauthScopes           ApplicationOauthScope[]
   roles                 ApplicationRole[]
   refreshTokens         RefreshToken[]
@@ -119,10 +119,10 @@ model Key {
   secret      String?
   type        String
 
-  applicationsAccessTokenSigningKeys Application[] @relation("ApplicationAccessTokenSigningKey")
-  applicationsIdTokenSigningKeys     Application[] @relation("ApplicationIdTokenSigningKey")
-  tenantsAccessTokenSigningKeys      Tenant[]      @relation("TenantAccessTokenSigningKey")
-  tenantsIdTokenSigningKeys          Tenant[]      @relation("TenantIdTokenSigningKey")
+  // applicationsAccessTokenSigningKeys Application[] @relation("ApplicationAccessTokenSigningKey")
+  // applicationsIdTokenSigningKeys     Application[] @relation("ApplicationIdTokenSigningKey")
+  // tenantsAccessTokenSigningKeys      Tenant[]      @relation("TenantAccessTokenSigningKey")
+  // tenantsIdTokenSigningKeys          Tenant[]      @relation("TenantIdTokenSigningKey")
 }
 
 model RefreshToken {
@@ -139,7 +139,7 @@ model RefreshToken {
   usersId        String
 
   application Application? @relation(fields: [applicationsId], references: [id])
-  tenant      Tenant?      @relation(fields: [tenantId], references: [id])
+  // tenant      Tenant?      @relation(fields: [tenantId], references: [id])
   user        User         @relation(fields: [usersId], references: [id])
 
   @@index([startInstant], name: "refresh_tokens_i_1")
@@ -157,11 +157,12 @@ model Tenant {
   updatedAt                DateTime @updatedAt
   name                     String   @unique
 
-  accessTokenSigningKey Key                 @relation("TenantAccessTokenSigningKey", fields: [accessTokenSigningKeysId], references: [id])
-  idTokenSigningKey     Key                 @relation("TenantIdTokenSigningKey", fields: [idTokenSigningKeysId], references: [id])
+  // removing foreign keys for testing purposes
+  // accessTokenSigningKey Key                 @relation("TenantAccessTokenSigningKey", fields: [accessTokenSigningKeysId], references: [id])
+  // idTokenSigningKey     Key                 @relation("TenantIdTokenSigningKey", fields: [idTokenSigningKeysId], references: [id])
   applications          Application[]
   groups                Group[]
-  refreshTokens         RefreshToken[]
+  // refreshTokens         RefreshToken[]
   users                 User[]
   AuthenticationKey     AuthenticationKey[]
 }

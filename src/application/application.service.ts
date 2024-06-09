@@ -4,6 +4,8 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import axios from 'axios';
+import { randomUUID } from 'crypto';
 import { ApplicationRolesService } from 'src/application/application-roles/application-roles.service';
 import { ApplicationScopesService } from 'src/application/application-scopes/application-scopes.service';
 import {
@@ -23,13 +25,19 @@ export class ApplicationService {
     private readonly applicationScopes: ApplicationScopesService,
     private readonly tenantService: TenantService,
   ) {
-    this.logger = new Logger();
+    this.logger = new Logger(ApplicationService.name);
   }
 
   async createApplication(
     uuid: string,
     data: CreateApplicationDto,
   ): Promise<ResponseDto> {
+    if (!uuid) {
+      throw new BadRequestException({
+        success: false,
+        message: 'no id given',
+      });
+    }
     const application = await this.prismaService.application.findUnique({
       where: { id: uuid },
     });
@@ -56,60 +64,71 @@ export class ApplicationService {
     const accessTokenKeyID = jwtConfiguration.accessTokenKeyID;
     const idTokenKeyID = jwtConfiguration.idTokenKeyID;
     // using the above two we will create a new tenant or find it.
-    const tenantId = (
-      await this.tenantService.findTenantElseCreate(
-        accessTokenKeyID,
-        idTokenKeyID,
-        data.tenant_id,
-      )
-    ).tenant.id;
-
-    const active = data.active ? data.active : true;
-    const name = data.name;
-    const roles = data.roles;
-    const scopes = data.scopes;
-
-    const configurations = JSON.stringify(data.oauthConfiguration);
-
+    // creating a new tenant based on given tenant id
     try {
-      const application = await this.prismaService.application.create({
-        data: {
-          id: uuid,
-          active,
-          accessTokenSigningKeysId: accessTokenKeyID,
-          idTokenSigningKeysId: idTokenKeyID,
-          name,
-          tenantId,
-          data: configurations,
+      const tenant = await axios.post(
+        `${process.env.HOST_NAME}:${process.env.HOST_PORT}/tenant/${data.tenant_id}`,
+        {
+          data: {
+            name: randomUUID(),
+            jwtConfiguration: jwtConfiguration,
+          },
         },
-      });
+      );
+      const active = data.active ? data.active : true;
+      const name = data.name;
+      const roles = data.roles;
+      const scopes = data.scopes;
+      const tenantId = tenant.data.tenant.id;
+      const configurations = JSON.stringify(data.oauthConfiguration);
 
       try {
-        roles.forEach((value) =>
-          this.applicationRoles.createRole(value, application.id),
-        );
-        scopes.forEach((value) =>
-          this.applicationScopes.createScope(value, application.id),
-        );
+        const application = await this.prismaService.application.create({
+          data: {
+            id: uuid,
+            active,
+            accessTokenSigningKeysId: accessTokenKeyID,
+            idTokenSigningKeysId: idTokenKeyID,
+            name,
+            tenantId,
+            data: configurations,
+          },
+        });
+
+        try {
+          roles.forEach((value) =>
+            this.applicationRoles.createRole(value, application.id),
+          );
+          scopes.forEach((value) =>
+            this.applicationScopes.createScope(value, application.id),
+          );
+        } catch (error) {
+          this.logger.log('This is error while creating scopes/roles: ', error);
+          throw new InternalServerErrorException({
+            success: false,
+            message: 'Error while creating new scop/roles',
+          });
+        }
+
+        this.logger.log('New application registred!', application);
+
+        return {
+          success: true,
+          message: 'Application created successfully!',
+          data: application,
+        };
       } catch (error) {
-        this.logger.log('This is error while creating scopes/roles: ', error);
+        this.logger.log('Error occured in createApplication', error);
         throw new InternalServerErrorException({
           success: false,
-          message: 'Error while creating new scop/roles',
+          message: 'Error while creating new application',
         });
       }
-
-      this.logger.log('New application registred!', application);
-
-      return {
-        success: true,
-        message: 'Application created successfully!',
-        data: application,
-      };
     } catch (error) {
+      this.logger.log('Error creating the tenant', error);
       throw new InternalServerErrorException({
         success: false,
-        message: 'Error while creating new application',
+        message: 'Sorry the tenant with given id cant be created',
       });
     }
   }
@@ -118,6 +137,12 @@ export class ApplicationService {
     id: string,
     newData: UpdateApplicationDto,
   ): Promise<ResponseDto> {
+    if (!id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'no id given',
+      });
+    }
     if (!newData) {
       throw new BadRequestException({
         success: false,
@@ -133,7 +158,12 @@ export class ApplicationService {
         message: 'Application with the given id dont exist',
       });
     }
-
+    if (newData.tenant_id && !newData.jwtConfiguration) {
+      throw new BadRequestException({
+        success: false,
+        message: 'jwt configurations not sent',
+      });
+    }
     const name = newData.name ? newData.name : application.name;
 
     const tenantId = newData.tenant_id
@@ -142,19 +172,20 @@ export class ApplicationService {
     const jwtConfiguration = newData.jwtConfiguration
       ? newData.jwtConfiguration
       : null;
-    const accessTokenKeyID = jwtConfiguration
-      ? jwtConfiguration.accessTokenKeyID
-      : application.accessTokenSigningKeysId;
-    const idTokenKeyID = jwtConfiguration
-      ? jwtConfiguration.idTokenKeyID
-      : application.idTokenSigningKeysId;
-    await this.tenantService.findTenantElseCreate(
-      accessTokenKeyID,
-      idTokenKeyID,
-      tenantId,
-    );
+    if (tenantId !== application.tenantId) {
+      const tenant = await axios.post(
+        `${process.env.HOST_NAME}:${process.env.HOST_PORT}/tenant/${tenantId}`,
+        {
+          data: {
+            name: randomUUID(),
+            jwtConfiguration: jwtConfiguration,
+          },
+        },
+      );
+    }
 
-    const active = newData.active ? newData.active : application.active;
+    const active =
+      newData.active !== null ? newData.active : application.active;
     const data = newData.oauthConfiguration
       ? JSON.stringify(newData.oauthConfiguration)
       : application.data;
@@ -223,8 +254,17 @@ export class ApplicationService {
   ): Promise<ResponseDto> {
     if (hardDelete) {
       try {
-        const application = await this.prismaService.application.delete({
+        const oldApplication = await this.prismaService.application.findUnique({
           where: { id },
+        });
+        if (!oldApplication) {
+          throw new BadRequestException({
+            success: false,
+            message: 'Application with given id dont exist',
+          });
+        }
+        const application = await this.prismaService.application.delete({
+          where: { ...oldApplication },
         });
         return {
           success: true,
@@ -249,6 +289,12 @@ export class ApplicationService {
   }
 
   async returnOauthConfiguration(id: string): Promise<ResponseDto> {
+    if (!id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'no id given',
+      });
+    }
     const application = await this.prismaService.application.findUnique({
       where: { id },
     });

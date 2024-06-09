@@ -14,7 +14,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class TenantService {
   private readonly logger: Logger;
   constructor(private readonly prismaService: PrismaService) {
-    this.logger = new Logger();
+    this.logger = new Logger(TenantService.name);
   }
 
   async createATenant(id: string, data: CreateTenantDto) {
@@ -26,7 +26,6 @@ export class TenantService {
         message: 'Tenant with the given id already exists',
       });
     }
-
     if (!data || !data.jwtConfiguration || !data.name) {
       throw new BadRequestException({
         message:
@@ -45,6 +44,7 @@ export class TenantService {
         message: 'incomplete jwtConfiguration sent',
       });
     }
+    
     const accessTokenSigningKeysId = jwtConfiguration.accessTokenKeyID;
     const idTokenSigningKeysId = jwtConfiguration.idTokenKeyID;
     const name = data.name;
