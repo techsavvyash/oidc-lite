@@ -11,7 +11,7 @@ import { AppService } from './app.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto, LoginDTO } from './dto/user.dto';
+// import { CreateUserDto, LoginDTO } from './dto/user.dto';
 import {
   ApiBody,
   ApiOperation,
@@ -164,7 +164,7 @@ export class AppController {
       },
     },
   })
-  async loginRoute(@Headers() headers: any, @Body() body: LoginDTO) {
+  async loginRoute(@Headers() headers: any, @Body() body: any) {
     return this.appService.loginService(headers, body);
   }
 
@@ -553,7 +553,7 @@ export class AppController {
   async signupRoute(
     @Headers() headers: any,
     @Body()
-    body: CreateUserDto,
+    body: any,
   ) {
     return this.appService.signupService(body);
   }

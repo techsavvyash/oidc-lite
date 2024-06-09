@@ -20,12 +20,13 @@ export class TenantService {
     this.logger = new Logger(TenantService.name);
   }
 
-  async authorizationHeaderVerifier(headers: object, id: string, requestedUrl: string, requestedMethod: string) {
+  async authorizationHeaderVerifier(headers: object, id: string, requestedUrl: string, requestedMethod: string): Promise<ResponseDto> {
     const token = headers['authorization'];
     if (!token) {
-      throw new BadRequestException({
-        message: 'Authorization header required',
-      });
+      return{
+        success: false,
+        message: "authorization header required"
+      }
     }
     const headerKey = await this.prismaService.authenticationKey.findUnique({
       where: {
@@ -33,25 +34,35 @@ export class TenantService {
       },
     });
     if (!headerKey) {
-      throw new UnauthorizedException({
+      return{
         success: false,
-        message: 'You are not authorized',
-      });
+        message: "You are not authorized"
+      }
     }
     const permissions: Permissions = JSON.parse(headerKey.permissions);
-    let allowed = false;
-    permissions.endpoints.forEach((val) => {
-      allowed = (val.url === requestedUrl && val.methods === requestedMethod) || allowed;
-    });
-    allowed =
-      allowed && (permissions.tenantId === id || permissions.tenantId === null); // allowed only if tenant scoped or same tenantid
-    if (!allowed) {
-      throw new UnauthorizedException({
-        success: false,
-        message: 'You are unauthorized!',
-      });
+    let allowed = permissions ? false: true;
+    if(permissions){
+      if(permissions.endpoints){
+        permissions.endpoints.forEach((val) => {
+          allowed = (val.url === requestedUrl && val.methods === requestedMethod) || allowed;
+        });
+      }else{
+        allowed = true
+      }
+      allowed =
+        allowed && (permissions.tenantId === id || permissions.tenantId === null); // allowed only if tenant scoped or same tenantid
     }
-    return true;
+    
+    if (!allowed) {
+      return{
+        success: false,
+        message: "Not authorized"
+      }
+    }
+    return{
+      success: true,
+      message: "Authorized"
+    }
   }
 
   async createATenant(
@@ -59,8 +70,8 @@ export class TenantService {
     data: CreateTenantDto,
     headers: object,
   ): Promise<ResponseDto> {
-    const valid = this.authorizationHeaderVerifier(headers, id, "/tenant","POST");
-    if(!valid){
+    const valid = await this.authorizationHeaderVerifier(headers, id, "/tenant","POST");
+    if(!valid.success){
       throw new UnauthorizedException({
         success: false,
         message: "You are not authorized"
@@ -134,11 +145,11 @@ export class TenantService {
     data: CreateTenantDto,
     headers: object,
   ): Promise<ResponseDto> {
-    const valid = this.authorizationHeaderVerifier(headers, id,"/tenant", "PATCH");
-    if(!valid){
+    const valid = await this.authorizationHeaderVerifier(headers, id,"/tenant", "PATCH");
+    if(!valid.success){
       throw new UnauthorizedException({
         success: false,
-        message: "You are not authorized"
+        message: valid.message
       })
     }
     if (!id) {
@@ -204,11 +215,11 @@ export class TenantService {
   }
 
   async deleteATenant(id: string, headers: object): Promise<ResponseDto> {
-    const valid = this.authorizationHeaderVerifier(headers, id,"/tenant", "DELETE");
-    if(!valid){
+    const valid = await this.authorizationHeaderVerifier(headers, id,"/tenant", "DELETE");
+    if(!valid.success){
       throw new UnauthorizedException({
         success: false,
-        message: "You are not authorized"
+        message: valid.message
       })
     }
     if (!id) {
@@ -237,11 +248,11 @@ export class TenantService {
   }
 
   async returnATenant(id: string, headers: object): Promise<ResponseDto> {
-    const valid = this.authorizationHeaderVerifier(headers, id,"/tenant", "GET");
-    if(!valid){
+    const valid = await this.authorizationHeaderVerifier(headers, id,"/tenant", "GET");
+    if(!valid.success){
       throw new UnauthorizedException({
         success: false,
-        message: "You are not authorized"
+        message: valid.message
       })
     }
     if (!id) {
@@ -267,11 +278,11 @@ export class TenantService {
   }
 
   async returnAllTenants(headers: object): Promise<ResponseDto> {
-    const valid = this.authorizationHeaderVerifier(headers, null,"/tenant", "GET");
-    if(!valid){
+    const valid = await this.authorizationHeaderVerifier(headers, null,"/tenant", "GET");
+    if(!valid.success){
       throw new UnauthorizedException({
         success: false,
-        message: "You are not authorized"
+        message: valid.message
       })
     }
     const tenants = await this.prismaService.tenant.findMany();

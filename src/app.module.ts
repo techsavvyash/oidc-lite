@@ -16,6 +16,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TenantController } from './tenant/tenant.controller';
 import { ApiKeysController } from './api-keys/api-keys.controller';
 import { ApiKeysService } from './api-keys/api-keys.service';
+import { UserRegistrationService } from './user/user-registration/user-registration.service';
 
 @Module({
   imports: [OidcModule, UserModule, PrismaModule,JwtModule.register({
@@ -24,6 +25,6 @@ import { ApiKeysService } from './api-keys/api-keys.service';
     signOptions: { expiresIn: process.env.JWT_SECRET_EXPIRATION },
   }), ApplicationModule,ScheduleModule.forRoot()],
   controllers: [AppController, TenantController,ApiKeysController],
-  providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService, MemoryMonitorService,ApiKeysService],
+  providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService, MemoryMonitorService,ApiKeysService, UserRegistrationService],
 })
 export class AppModule {}
