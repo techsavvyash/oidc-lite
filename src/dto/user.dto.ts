@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 class Membership {
   @ApiProperty() groupId: string;
 }
-export class UserData{
+export class UserData {
   @ApiProperty() username: string;
   @ApiProperty() firstname?: string;
   @ApiProperty() lastname?: string;
@@ -27,14 +27,15 @@ export class UpdateUserDto {
   @ApiProperty() userData: UserData;
 }
 
-
-export class CreateUserRegistrationDto{
-  @ApiProperty() applicationsId: string
-  @ApiProperty() data?: string
-  @ApiProperty() usersID: string
-  @ApiProperty() roles: string[]
+export class CreateUserRegistrationDto {
+  @ApiProperty() genenrateAuthenticationToken?: boolean;
+  @ApiProperty() applicationsId: string;
+  @ApiProperty() data?: string | JSON | object;
+  @ApiProperty() registrationId?: string;
+  @ApiProperty() roles: string[];
 }
 
-export class UpdateUserRegistrationDto{
-
+export class UpdateUserRegistrationDto {
+  @ApiProperty() data?: string | JSON | object;
+  @ApiProperty() roles?: string[];
 }

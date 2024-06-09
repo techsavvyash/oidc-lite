@@ -1471,19 +1471,53 @@
     "/user/registration/{userId}": {
       "post": {
         "operationId": "UserController_createAUserRegistration",
+        "summary": "Create a user registration",
         "parameters": [
           {
             "name": "userId",
             "required": true,
             "in": "path",
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization token",
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "description": "User registration data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserRegistrationDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "User registration created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "tags": [
@@ -1494,11 +1528,13 @@
     "/user/registration/{userId}/{applicationId}": {
       "get": {
         "operationId": "UserController_returnAUserRegistration",
+        "summary": "Get a user registration",
         "parameters": [
           {
             "name": "userId",
             "required": true,
             "in": "path",
+            "description": "User ID",
             "schema": {
               "type": "string"
             }
@@ -1507,6 +1543,15 @@
             "name": "applicationId",
             "required": true,
             "in": "path",
+            "description": "Application ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization token",
             "schema": {
               "type": "string"
             }
@@ -1514,7 +1559,20 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "User registration retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "tags": [
@@ -1523,11 +1581,13 @@
       },
       "patch": {
         "operationId": "UserController_updateAUserRegistration",
+        "summary": "Update a user registration",
         "parameters": [
           {
             "name": "userId",
             "required": true,
             "in": "path",
+            "description": "User ID",
             "schema": {
               "type": "string"
             }
@@ -1536,14 +1596,47 @@
             "name": "applicationId",
             "required": true,
             "in": "path",
+            "description": "Application ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization token",
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "description": "User registration data to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRegistrationDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": ""
+            "description": "User registration updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "tags": [
@@ -1552,11 +1645,13 @@
       },
       "delete": {
         "operationId": "UserController_deleteAUserRegistration",
+        "summary": "Delete a user registration",
         "parameters": [
           {
             "name": "userId",
             "required": true,
             "in": "path",
+            "description": "User ID",
             "schema": {
               "type": "string"
             }
@@ -1565,6 +1660,15 @@
             "name": "applicationId",
             "required": true,
             "in": "path",
+            "description": "Application ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization token",
             "schema": {
               "type": "string"
             }
@@ -1572,7 +1676,20 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "User registration deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "tags": [
@@ -2553,6 +2670,54 @@
           "applicationId",
           "membership",
           "userData"
+        ]
+      },
+      "CreateUserRegistrationDto": {
+        "type": "object",
+        "properties": {
+          "genenrateAuthenticationToken": {
+            "type": "boolean"
+          },
+          "applicationsId": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          },
+          "registrationId": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "genenrateAuthenticationToken",
+          "applicationsId",
+          "data",
+          "registrationId",
+          "roles"
+        ]
+      },
+      "UpdateUserRegistrationDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "data",
+          "roles"
         ]
       },
       "OauthConfiguration": {

@@ -137,6 +137,13 @@ export class UserController {
     return await this.userService.deleteAUser(id, headers, hardDelete);
   }
 
+  @ApiOperation({ summary: 'Create a user registration' })
+  @ApiBody({ type: CreateUserRegistrationDto, description: 'User registration data' })
+  @ApiResponse({ status: 201, description: 'User registration created successfully', type: ResponseDto })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiParam({ name: 'userId', description: 'User ID' })
+  @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @Post('/registration/:userId')
   async createAUserRegistration(
     @Param('userId') userId: string,
@@ -149,6 +156,14 @@ export class UserController {
       headers,
     );
   }
+
+  @ApiOperation({ summary: 'Get a user registration' })
+  @ApiResponse({ status: 200, description: 'User registration retrieved successfully', type: ResponseDto })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiParam({ name: 'userId', description: 'User ID' })
+  @ApiParam({ name: 'applicationId', description: 'Application ID' })
+  @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @Get('/registration/:userId/:applicationId')
   async returnAUserRegistration(
     @Param('userId') userId: string,
@@ -161,6 +176,15 @@ export class UserController {
       headers,
     );
   }
+
+  @ApiOperation({ summary: 'Update a user registration' })
+  @ApiBody({ type: UpdateUserRegistrationDto, description: 'User registration data to update' })
+  @ApiResponse({ status: 200, description: 'User registration updated successfully', type: ResponseDto })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiParam({ name: 'userId', description: 'User ID' })
+  @ApiParam({ name: 'applicationId', description: 'Application ID' })
+  @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @Patch('/registration/:userId/:applicationId')
   async updateAUserRegistration(
     @Param('userId') userId: string,
@@ -175,6 +199,14 @@ export class UserController {
       headers,
     );
   }
+
+  @ApiOperation({ summary: 'Delete a user registration' })
+  @ApiResponse({ status: 200, description: 'User registration deleted successfully', type: ResponseDto })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiParam({ name: 'userId', description: 'User ID' })
+  @ApiParam({ name: 'applicationId', description: 'Application ID' })
+  @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @Delete('/registration/:userId/:applicationId')
   async deleteAUserRegistration(
     @Param('userId') userId: string,
