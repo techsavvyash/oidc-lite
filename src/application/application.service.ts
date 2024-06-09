@@ -216,10 +216,25 @@ export class ApplicationService {
 
   async returnAllApplications(): Promise<ResponseDto> {
     const allApplications = await this.prismaService.application.findMany();
+    const result = await Promise.all(
+      allApplications.map(async (val) => {
+        const roles = await this.prismaService.applicationRole.findMany({
+          where: { applicationsId: val.id },
+        });
+        const scopes = await this.prismaService.applicationOauthScope.findMany({
+          where: { applicationsId: val.id },
+        });
+        return {
+          application: val,
+          scopes: scopes,
+          roles: roles,
+        };
+      }),
+    );
     return {
       success: true,
-      message: 'All applications found',
-      data: allApplications,
+      message: 'All applications found successfully',
+      data: result,
     };
   }
 
@@ -235,6 +250,12 @@ export class ApplicationService {
         id,
       },
     });
+    const roles = await this.prismaService.applicationRole.findMany({
+      where: { applicationsId: id },
+    });
+    const scopes = await this.prismaService.applicationOauthScope.findMany({
+      where: { applicationsId: id },
+    });
     if (!application) {
       throw new BadRequestException({
         success: false,
@@ -244,7 +265,7 @@ export class ApplicationService {
     return {
       success: true,
       message: 'Application found successfully',
-      data: application,
+      data: { application, scopes, roles },
     };
   }
 
