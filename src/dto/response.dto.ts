@@ -1,7 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from "@nestjs/swagger";
 
 export class ResponseDto {
   @ApiProperty() success: boolean;
   @ApiProperty() message: string;
-  @ApiProperty() data: Record<string, any>;
+  @ApiProperty() data?: Record<string, any>;
 }
