@@ -7,9 +7,15 @@ import {
   Delete,
   Headers,
   Query,
+  Param,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdateUserDto } from 'src/dto/user.dto';
+import {
+  CreateUserDto,
+  CreateUserRegistrationDto,
+  UpdateUserDto,
+  UpdateUserRegistrationDto,
+} from 'src/dto/user.dto';
 import {
   ApiBody,
   ApiOperation,
@@ -21,10 +27,14 @@ import {
 } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 import { ResponseDto } from 'src/dto/response.dto';
+import { UserRegistrationService } from './user-registration/user-registration.service';
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly userRegistrationService: UserRegistrationService,
+  ) {}
 
   @ApiOperation({ summary: 'Create a user with a random UUID' })
   @ApiBody({ type: CreateUserDto, description: 'User data' })
@@ -58,7 +68,7 @@ export class UserController {
   @ApiParam({ name: 'id', description: 'User ID' })
   @Post('/:id')
   async createAUser(
-    @Query('id') id: string,
+    @Param('id') id: string,
     @Body() data: CreateUserDto,
     @Headers() headers: object,
   ): Promise<ResponseDto> {
@@ -77,7 +87,7 @@ export class UserController {
   @ApiParam({ name: 'id', description: 'User ID' })
   @Get('/:id')
   async returnAUser(
-    @Query('id') id: string,
+    @Param('id') id: string,
     @Headers() headers: object,
   ): Promise<ResponseDto> {
     return await this.userService.returnAUser(id, headers);
@@ -96,7 +106,7 @@ export class UserController {
   @ApiParam({ name: 'id', description: 'User ID' })
   @Patch('/:id')
   async updateAUser(
-    @Query('id') id: string,
+    @Param('id') id: string,
     @Headers() headers: object,
     @Body() data: CreateUserDto,
   ): Promise<ResponseDto> {
@@ -120,10 +130,61 @@ export class UserController {
   })
   @Delete('/:id')
   async deleteAUser(
-    @Query('id') id: string,
+    @Param('id') id: string,
     @Headers() headers: object,
     @Query('hardDelete') hardDelete: string,
   ): Promise<ResponseDto> {
     return await this.userService.deleteAUser(id, headers, hardDelete);
+  }
+
+  @Post('/registration/:userId')
+  async createAUserRegistration(
+    @Param('userId') userId: string,
+    @Body('data') data: CreateUserRegistrationDto,
+    @Headers() headers: object,
+  ): Promise<ResponseDto> {
+    return await this.userRegistrationService.createAUserRegistration(
+      userId,
+      data,
+      headers,
+    );
+  }
+  @Get('/registration/:userId/:applicationId')
+  async returnAUserRegistration(
+    @Param('userId') userId: string,
+    @Param('applicationId') applicationId: string,
+    @Headers() headers: object,
+  ): Promise<ResponseDto> {
+    return await this.userRegistrationService.returnAUserRegistration(
+      userId,
+      applicationId,
+      headers,
+    );
+  }
+  @Patch('/registration/:userId/:applicationId')
+  async updateAUserRegistration(
+    @Param('userId') userId: string,
+    @Param('applicationId') applicationId: string,
+    @Body('data') data: UpdateUserRegistrationDto,
+    @Headers() headers: object,
+  ): Promise<ResponseDto> {
+    return await this.userRegistrationService.updateAUserRegistration(
+      userId,
+      applicationId,
+      data,
+      headers,
+    );
+  }
+  @Delete('/registration/:userId/:applicationId')
+  async deleteAUserRegistration(
+    @Param('userId') userId: string,
+    @Param('applicationId') applicationId: string,
+    @Headers() headers: object,
+  ): Promise<ResponseDto> {
+    return await this.userRegistrationService.deleteAUserRegistration(
+      userId,
+      applicationId,
+      headers,
+    );
   }
 }

@@ -24,14 +24,17 @@ export class UpdateUserDto {
   @ApiProperty() additionalData?: object | string;
   @ApiProperty() applicationId: string;
   @ApiProperty() membership?: Membership[];
-  @ApiProperty() userData?: UserData;
+  @ApiProperty() userData: UserData;
 }
 
 
-export class LoginDTO {
-  @ApiProperty() username: string;
-  @ApiProperty() password: string;
-  @ApiProperty() scopes?: string;
-  @ApiProperty() resource?: string;
-  @ApiProperty() grant_type?: string;
+export class CreateUserRegistrationDto{
+  @ApiProperty() applicationsId: string
+  @ApiProperty() data?: string
+  @ApiProperty() usersID: string
+  @ApiProperty() roles: string[]
+}
+
+export class UpdateUserRegistrationDto{
+
 }
