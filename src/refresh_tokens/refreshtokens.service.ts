@@ -124,6 +124,7 @@ export class RefreshTokensService {
         }
     }
 
+    // deleting refresh tokens 
     async deleteEntireApp(application : string){
         
     }
