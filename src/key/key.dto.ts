@@ -11,5 +11,4 @@ export class generateKeyDTO{
     @ApiProperty() issuer : string
     @ApiProperty() name : string
     @ApiProperty() length : string
-    @ApiProperty() kid : string
 }

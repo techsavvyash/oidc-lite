@@ -1,202 +1,193 @@
 import { BadGatewayException, BadRequestException, Body, Headers, HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { STATUS_CODES } from "http";
-import { generateKeyDTO, updateDTO } from "src/dto/key.dto";
+import { generateKeyDTO, updateDTO } from "src/key/key.dto";
 import { PrismaService } from "src/prisma/prisma.service";
-import jose from 'node-jose';
-
+import * as jose from 'node-jose';
 
 @Injectable()
-export class KeyService{
-    private readonly logger : Logger;
-    constructor(private readonly prismaService : PrismaService){
-        this.logger = new Logger() ;
+export class KeyService {
+    private readonly logger: Logger;
+    constructor(private readonly prismaService: PrismaService) {
+        this.logger = new Logger();
     }
 
-    async retrieveAllKey(){
-        try{
+    async retrieveAllKey() {
+        try {
             const item = await this.prismaService.key.findMany();
-            if(!item){
+            if (!item) {
                 return {
-                    success : true,
-                    message : 'any key is not present',
+                    success: true,
+                    message: 'any key is not present',
                 }
-            }else{
+            } else {
                 return {
-                    success : true,
-                    message : 'all keys retrieved',
-                    data : item
+                    success: true,
+                    message: 'all keys retrieved',
+                    data: item
                 }
             }
-        }catch(error){
+        } catch (error) {
             this.logger.log('error happened from retrieving all key', error)
             HttpStatus.NOT_FOUND;
         }
     }
-    async retrieveUniqueKey(uuid : string){
-        if(!uuid){
+    async retrieveUniqueKey(uuid: string) {
+        if (!uuid) {
             throw new BadGatewayException({
-                success : false,
-                message : 'uuid  is not given',
+                success: false,
+                message: 'uuid  is not given',
             })
         }
-        const id = uuid 
-        try{
-            const item = await this.prismaService.key.findUnique({ where : {id}})
-            if(!item){
+        const id = uuid
+        try {
+            const item = await this.prismaService.key.findUnique({ where: { id } })
+            if (!item) {
                 throw new HttpException(
                     'key does not exist with provided id',
                     HttpStatus.NOT_FOUND
                 );
             }
             return {
-                message : 'key id found',
+                message: 'key id found',
                 item
             }
-        }catch(error){
+        } catch (error) {
             this.logger.log('error happened from retrieve key section ', error)
             HttpStatus.INTERNAL_SERVER_ERROR;
         }
     }
 
-    async updateKey(uuid : string, data : updateDTO){
-        if(!uuid){
+    async updateKey(uuid: string, data: updateDTO) {
+        if (!uuid) {
             throw new BadRequestException({
-                success : false,
-                message : 'pls provide uuid and name with request',
+                success: false,
+                message: 'pls provide uuid and name with request',
             })
         }
-        const id = uuid ;
-        const key = await this.prismaService.key.findUnique({ where : {id}});
-        
-        if(!key){
+        const id = uuid;
+        const key = await this.prismaService.key.findUnique({ where: { id } });
+
+        if (!key) {
             throw new BadRequestException({
-                success : false,
-                message : 'pls provide a valid id or ID does not exist ',
+                success: false,
+                message: 'pls provide a valid id or ID does not exist ',
             })
         }
-        
-        const name = data.name ? data.name : key.name 
+
+        const name = data.name ? data.name : key.name
 
 
-        const udpated_key = await this.prismaService.key.update({ 
-            where : {id},
-            data : {
+        const udpated_key = await this.prismaService.key.update({
+            where: { id },
+            data: {
                 name
             }
         })
     }
 
 
-    async deleteKey(uuid : string){
-        if(!uuid){
+    async deleteKey(uuid: string) {
+        if (!uuid) {
             throw new BadRequestException({
-                success : false,
-                message : 'uuid is either not given or is invalid'
+                success: false,
+                message: 'uuid is either not given or is invalid'
             })
         }
         const id = uuid
-        const key = await this.prismaService.key.findUnique({ where : {id}})
+        const key = await this.prismaService.key.findUnique({ where: { id } })
 
-        try{
-            if(!key){
+        try {
+            if (!key) {
                 throw new HttpException(
                     'key does not exist with given id',
                     HttpStatus.NOT_FOUND
                 )
             }
-            const deleted_key = await this.prismaService.key.delete({ where : {id}})
+            const deleted_key = await this.prismaService.key.delete({ where: { id } })
             return {
-                success : true,
-                message : 'key deleted successfully'
+                success: true,
+                message: 'key deleted successfully'
             }
-        }catch(error){
+        } catch (error) {
             throw new BadRequestException({
-                success : false,
-                message : 'error while deleting a key',
+                success: false,
+                message: 'error while deleting a key',
             })
         }
     }
-    async generateKey(uuid :string, data : generateKeyDTO){
-        if(!uuid){
+    async generateKey(uuid: string, key: generateKeyDTO) {
+        if (!uuid) {
             throw new BadRequestException({
-                success : false,
-                message : 'uuid is either not given or is invalid'
+                success: false,
+                message: 'uuid is either not given or is invalid'
             })
         }
-        const algorithm = data.algorithm;
-        const name = data.name 
-        const length = data.length 
-        const issuer = data.issuer;
-        const kid = data.kid
-        const keystore = jose.JWK.createKeyStore();
+        const { algorithm, name, length, issuer} = key ;
+        const keyStore = jose.JWK.createKeyStore();
+        const keyStore2 = jose.JWK.createKeyStore();
+        const keyStore3 = jose.JWK.createKeyStore();
 
-        const date = new Date();
-        const insertinstant = date.getTime();
-        
-        try{
-            if(algorithm === 'RSA'){
-                await keystore.generate('RSA', length, {
-                    alg: 'RS256', 
-                    use: 'sig' 
+        try {
+            if (algorithm === 'RS256') {
+                await keyStore.generate("RSA", 2048, { alg: "HS256", use: "sig" }).then((result) => {
+                    const rskey = JSON.stringify(keyStore.toJSON(true), null, 2);
+                    this.logger.log("RS key generated successfully")
                 });
-                const jwks = keystore.toJSON(true); 
+                const jwks = keyStore.toJSON(true);
                 jwks.keys.forEach(key => {
-                    key.insertinstant = insertinstant ;
                     key.id = uuid;
                     key.issuer = issuer;
-                    key.length = length ;
-                    key.userName = name ;
+                    key.length = length;
+                    key.userName = name;
                     key.type = 'RSA'
-                  });
+                });
                 return {
-                    success : true,
-                    message : 'key generated successfully',
+                    success: true,
+                    message: 'key generated successfully',
                     jwks
                 }
-            }else if(algorithm === "EC") {
-                await keystore.generate('EC', 'P-256', {
-                    alg: 'ES256', 
-                    use: 'sig'
-                  });
-                  const jwks = keystore.toJSON(true); 
-                  jwks.keys.forEach(key => {
-                    key.insertinstant = insertinstant ;
+            } else if (algorithm === "ES256") {
+                await keyStore2.generate('EC', 'P-256', { alg: 'ES256', use: 'sig' }).then((result) => {
+                    const eckey = JSON.stringify(keyStore2.toJSON(true), null, 2);
+                    this.logger.log("EC key generated successfully")
+                });
+                console.log("eckey generate @@@@@@@@@@@@")
+                const jwks = keyStore2.toJSON(true);
+                jwks.keys.forEach(key => {
                     key.id = uuid;
                     key.issuer = issuer;
-                    key.length = length ;
-                    key.userName = name ;
-                    key.type = 'RSA'
-                  });
+                    key.length = length;
+                    key.userName = name;
+                    key.type = 'EC'
+                });
                 return {
-                    success : true,
-                    message : 'key generated successfully',
+                    success: true,
+                    message: 'key generated successfully',
                     jwks
                 }
-            }else{
-                await keystore.generate('oct', 256, {
-                    alg: 'HS256', 
-                    use: 'sig' 
-                  });
-                  const jwks = keystore.toJSON(true); 
-                  jwks.keys.forEach(key => {
-                    key.insertinstant = insertinstant ;
+            } else {
+                await keyStore3.generate('oct', 256, { alg: 'HS256', use: 'sig' }).then((result) => {
+                    const hskey = JSON.stringify(keyStore3.toJSON(true), null, 2);
+                    this.logger.log("HS key generated successfully")
+                });
+                const jwks = keyStore3.toJSON(true);
+                jwks.keys.forEach(key => {
                     key.id = uuid;
-                    key.userName = name ;
-                    key.kid = kid;
+                    key.userName = name;
                     key.type = 'HMAC'
-                  });
+                });
                 return {
-                    success : true,
-                    message : 'key generated successfully',
+                    success: true,
+                    message: 'key generated successfully',
                     jwks
                 }
             }
-        }catch(error){
+        } catch (error) {
             throw new BadRequestException({
-                success : false,
-                message : 'error while generating key',
-        })
+                success: false,
+                message: 'error while generating key',
+            })
         }
-    } 
-   
+    }
+
 }
