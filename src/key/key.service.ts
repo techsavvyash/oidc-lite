@@ -16,7 +16,7 @@ export class KeyService {
             const item = await this.prismaService.key.findMany();
             if (!item) {
                 return {
-                    success: true,
+                    success: false,
                     message: 'any key is not present',
                 }
             } else {
@@ -48,8 +48,9 @@ export class KeyService {
                 );
             }
             return {
+                success : true,
                 message: 'key id found',
-                item
+                data : item
             }
         } catch (error) {
             this.logger.log('error happened from retrieve key section ', error)
@@ -144,7 +145,7 @@ export class KeyService {
                 return {
                     success: true,
                     message: 'key generated successfully',
-                    jwks
+                    data : jwks
                 }
             } else if (algorithm === "ES256") {
                 await keyStore2.generate('EC', 'P-256', { alg: 'ES256', use: 'sig' }).then((result) => {
@@ -163,7 +164,7 @@ export class KeyService {
                 return {
                     success: true,
                     message: 'key generated successfully',
-                    jwks
+                    data : jwks
                 }
             } else {
                 await keyStore3.generate('oct', 256, { alg: 'HS256', use: 'sig' }).then((result) => {
@@ -179,7 +180,7 @@ export class KeyService {
                 return {
                     success: true,
                     message: 'key generated successfully',
-                    jwks
+                    data : jwks
                 }
             }
         } catch (error) {
