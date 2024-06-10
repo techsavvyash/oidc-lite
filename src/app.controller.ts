@@ -11,7 +11,7 @@ import { AppService } from './app.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto, LoginDTO } from './dto/user.dto';
+import { CreateUserDto, LoginDTO } from './user/user.dto';
 import {
   ApiBody,
   ApiOperation,

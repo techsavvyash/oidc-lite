@@ -1,6 +1,6 @@
 import { BadGatewayException, BadRequestException, Body, Headers, HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { STATUS_CODES } from "http";
-import { generateKeyDTO, updateDTO } from "src/dto/key.dto";
+import { generateKeyDTO, updateDTO } from "src/key/key.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 import jose from 'node-jose';
 

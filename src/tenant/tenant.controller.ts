@@ -8,7 +8,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { TenantService } from './tenant.service';
-import { CreateTenantDto } from 'src/dto/tenant.dto';
+import { CreateTenantDto } from 'src/tenant/tenant.dto';
 import { randomUUID } from 'crypto';
 
 @Controller('tenant')

@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { CreateTenantDto } from 'src/dto/tenant.dto';
+import { CreateTenantDto } from 'src/tenant/tenant.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()

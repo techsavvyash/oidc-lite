@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Put } from "@nestjs/common";
 import { KeyService } from "./key.service";
-import { generateKeyDTO, updateDTO } from "src/dto/key.dto";
+import { generateKeyDTO, updateDTO } from "src/key/key.dto";
 
 @Controller('key')
 export class KeyController{

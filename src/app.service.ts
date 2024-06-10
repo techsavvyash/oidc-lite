@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
-import { CreateUserDto, LoginDTO } from './dto/user.dto';
+import { CreateUserDto, LoginDTO } from './user/user.dto';
 import { PrismaService } from './prisma/prisma.service';
 import { UserService } from './user/user.service';
 
