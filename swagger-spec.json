@@ -1286,17 +1286,8 @@
         }
       },
       "delete": {
-        "operationId": "RefreshTokensController_deleteViaToken",
-        "parameters": [
-          {
-            "name": "token",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "operationId": "RefreshTokensController_deletereftoken",
+        "parameters": [],
         "responses": {
           "200": {
             "description": ""

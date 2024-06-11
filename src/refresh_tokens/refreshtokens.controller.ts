@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Header, Headers, Param, Post } from "@nestjs/common";
+import { BadGatewayException, Body, Controller, Delete, Get, Header, Headers, Param, Post } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { RefreshTokensService } from "./refreshtokens.service";
 import { refreshCookiesDTO, refreshDTO } from "./refreshToken.dto";
@@ -24,25 +24,34 @@ export class RefreshTokensController{
         return this.refreshService.retrieveByUserID(userId); 
     }
 
-
-    @Delete('/refresh')
-    async deleteViaApp(@Param('applicationId') applicationId : string){
-        return this.refreshService.deleteViaAppID(applicationId);
-    }
-    @Delete('/refresh')
-    async deleteViaUserID(@Param('usersId') usersId : string, @Param('token') token ?: string){
-        return this.refreshService.deleteViaUserID(usersId, token);
-    }
-    @Delete('/refresh')
-    async deleteViaUserAndAppID(@Param('userId') userId : string, @Param('applicationId') applicationsId : string, token ?: string){
-        return this.refreshService.deleteViaUserAndAppID(userId, applicationsId)
-    }
     @Delete('/refresh/:tokenId')
     async deleteViaTokenID(@Param('tokenId') id : string){
         return this.refreshService.deleteViaTokenID(id);
     }
-    @Delete('/refresh')
-    async deleteViaToken(@Param('token') token : string){
-        return this.refreshService.deleteViaToken(token)
+    
+    @Delete('refresh')
+    async deletereftoken(
+        @Body('applicationId') appid ?: string,
+        @Body('usersId') userid ?: string,
+        @Body('token') refreshToken ?: string
+    ){
+        if(appid && userid){
+            return this.refreshService.deleteViaUserAndAppID(userid, appid)
+        }
+        else if(appid){
+            return this.refreshService.deleteViaAppID(appid);
+        }
+        else if(userid){
+            return this.refreshService.deleteViaUserID(userid);
+        }
+        else if(refreshToken){
+            return this.refreshService.deleteViaToken(refreshToken)
+        }
+        else {
+            throw new BadGatewayException({ 
+                success : false,
+                message : 'invalid parameters'
+            })
+        }
     }
 }
