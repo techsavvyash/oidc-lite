@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Headers, Param, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Header, Headers, Param, Post } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { RefreshTokensService } from "./refreshtokens.service";
 import { refreshCookiesDTO, refreshDTO } from "./refreshToken.dto";
@@ -24,8 +24,25 @@ export class RefreshTokensController{
         return this.refreshService.retrieveByUserID(userId); 
     }
 
+
     @Delete('/refresh')
-    async deleteEntireApp(@Headers('applicationId') appId : string){
-        return this.deleteEntireApp(appId)
+    async deleteViaApp(@Param('applicationId') applicationId : string){
+        return this.refreshService.deleteViaAppID(applicationId);
+    }
+    @Delete('/refresh')
+    async deleteViaUserID(@Param('usersId') usersId : string, @Param('token') token ?: string){
+        return this.refreshService.deleteViaUserID(usersId, token);
+    }
+    @Delete('/refresh')
+    async deleteViaUserAndAppID(@Param('userId') userId : string, @Param('applicationId') applicationsId : string, token ?: string){
+        return this.refreshService.deleteViaUserAndAppID(userId, applicationsId)
+    }
+    @Delete('/refresh/:tokenId')
+    async deleteViaTokenID(@Param('tokenId') id : string){
+        return this.refreshService.deleteViaTokenID(id);
+    }
+    @Delete('/refresh')
+    async deleteViaToken(@Param('token') token : string){
+        return this.refreshService.deleteViaToken(token)
     }
 }

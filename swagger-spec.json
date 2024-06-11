@@ -1286,12 +1286,12 @@
         }
       },
       "delete": {
-        "operationId": "RefreshTokensController_deleteEntireApp",
+        "operationId": "RefreshTokensController_deleteViaToken",
         "parameters": [
           {
-            "name": "applicationId",
+            "name": "token",
             "required": true,
-            "in": "header",
+            "in": "path",
             "schema": {
               "type": "string"
             }
@@ -1310,6 +1310,26 @@
         "parameters": [
           {
             "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/jwt/refresh/{tokenId}": {
+      "delete": {
+        "operationId": "RefreshTokensController_deleteViaTokenID",
+        "parameters": [
+          {
+            "name": "tokenId",
             "required": true,
             "in": "path",
             "schema": {
