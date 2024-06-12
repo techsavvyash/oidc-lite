@@ -35,7 +35,7 @@ export class KeyService{
     }
     async retrieveUniqueKey(uuid : string){
         if(!uuid){
-            throw new BadGatewayException({
+            throw new BadRequestException({
                 success : false,
                 message : 'uuid  is not given',
             })
@@ -50,6 +50,7 @@ export class KeyService{
                 );
             }
             return {
+                success: true,
                 message : 'key id found',
                 item
             }
@@ -87,7 +88,6 @@ export class KeyService{
         })
     }
 
-
     async deleteKey(uuid : string){
         if(!uuid){
             throw new BadRequestException({
@@ -117,8 +117,8 @@ export class KeyService{
             })
         }
     }
+    
     async generateKey(uuid :string, data : generateKeyDTO){
-        console.log(data)
         if(!uuid){
             throw new BadRequestException({
                 success : false,

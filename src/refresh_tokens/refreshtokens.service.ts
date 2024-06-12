@@ -2,9 +2,6 @@ import { BadGatewayException, BadRequestException, Body, Header, Headers, Inject
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "src/prisma/prisma.service";
 import { refreshCookiesDTO, refreshDTO } from "./refreshToken.dto";
-import { userInfo } from "os";
-
-
 
 @Injectable()
 export class RefreshTokensService {
