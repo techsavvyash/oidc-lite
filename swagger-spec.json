@@ -16,7 +16,7 @@
         ]
       }
     },
-    "/login": {
+    "/logins": {
       "post": {
         "operationId": "AppController_loginRoute",
         "summary": "creates an opaque token for a user logined if no resource parameter is given",
@@ -2429,16 +2429,6 @@
             }
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/updateDTO"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": ""
@@ -2488,16 +2478,6 @@
             }
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/generateKeyDTO"
-              }
-            }
-          }
-        },
         "responses": {
           "201": {
             "description": ""
@@ -2603,6 +2583,28 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "operationId": "LoginController_login",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/login/logout": {
+      "get": {
+        "operationId": "LoginController_logout",
+        "parameters": [],
         "responses": {
           "200": {
             "description": ""
@@ -2854,6 +2856,9 @@
           },
           "userData": {
             "$ref": "#/components/schemas/UserData"
+          },
+          "email": {
+            "type": "string"
           }
         },
         "required": [
@@ -2862,7 +2867,8 @@
           "applicationId",
           "tenantId",
           "membership",
-          "userData"
+          "userData",
+          "email"
         ]
       },
       "UpdateUserDto": {
@@ -3153,44 +3159,6 @@
           "id",
           "name",
           "required"
-        ]
-      },
-      "updateDTO": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "name"
-        ]
-      },
-      "generateKeyDTO": {
-        "type": "object",
-        "properties": {
-          "algorithm": {
-            "type": "string"
-          },
-          "issuer": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "length": {
-            "type": "string"
-          },
-          "kid": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "algorithm",
-          "issuer",
-          "name",
-          "length",
-          "kid"
         ]
       },
       "refreshDTO": {

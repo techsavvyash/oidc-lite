@@ -1,14 +1,12 @@
 import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Put } from "@nestjs/common";
 import { KeyService } from "./key.service";
-import { generateKeyDTO, updateDTO } from "src/dto/key.dto";
+import { generateKeyDTO, updateDTO } from "src/key/key.dto";
 import { randomUUID } from "crypto";
 
 @Controller('key')
 export class KeyController{
     constructor(
         private readonly keyservice : KeyService,
-        private readonly udpateData : updateDTO,
-        private readonly generateData : generateKeyDTO
     ){}
 
     @Get('/')
@@ -21,7 +19,7 @@ export class KeyController{
     }
 
     @Put('/:id')
-    async udpatingKey(@Param('id') uuid : string, @Body() data : updateDTO){
+    async udpatingKey(@Param('id') uuid : string, data : updateDTO){
         return this.keyservice.updateKey(uuid , data);
     }
 
@@ -30,12 +28,12 @@ export class KeyController{
         return this.keyservice.deleteKey(uuid)
     }
     @Post('/generate')
-    async randomgenerateKey(@Body('key') data : generateKeyDTO){
+    async randomgenerateKey(@Body('key') key : generateKeyDTO){
         const uuid = randomUUID();
-        return this.keyservice.generateKey(uuid, data);
+        return this.keyservice.generateKey(uuid, key);
     }
     @Post('/generate/:id')
-    async generateKey(@Param('id') uuid : string,@Body() data : generateKeyDTO){
-        return this.keyservice.generateKey(uuid, data);
+    async generateKey(@Param('id') uuid : string,@Body('key') key : generateKeyDTO){
+        return this.keyservice.generateKey(uuid, key);
     }
 }

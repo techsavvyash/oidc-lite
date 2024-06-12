@@ -52,13 +52,13 @@ model Application {
   name                     String
   tenantId                 String
 
-  tenant                Tenant                  @relation(fields: [tenantId], references: [id])
+  tenant            Tenant                  @relation(fields: [tenantId], references: [id])
   // accessTokenSigningKey Key?                    @relation("ApplicationAccessTokenSigningKey", fields: [accessTokenSigningKeysId], references: [id])
   // idTokenSigningKey     Key?                    @relation("ApplicationIdTokenSigningKey", fields: [idTokenSigningKeysId], references: [id])
-  oauthScopes           ApplicationOauthScope[]
-  roles                 ApplicationRole[]
-  refreshTokens         RefreshToken[]
-  userRegistrations     UserRegistration[]
+  oauthScopes       ApplicationOauthScope[]
+  roles             ApplicationRole[]
+  refreshTokens     RefreshToken[]
+  userRegistrations UserRegistration[]
 
   @@unique([name, tenantId], name: "applications_uk_1")
   @@index([tenantId], name: "applications_i_1")
@@ -160,11 +160,11 @@ model Tenant {
   // removing foreign keys for testing purposes
   // accessTokenSigningKey Key                 @relation("TenantAccessTokenSigningKey", fields: [accessTokenSigningKeysId], references: [id])
   // idTokenSigningKey     Key                 @relation("TenantIdTokenSigningKey", fields: [idTokenSigningKeysId], references: [id])
-  applications          Application[]
-  groups                Group[]
+  applications      Application[]
+  groups            Group[]
   // refreshTokens         RefreshToken[]
-  users                 User[]
-  AuthenticationKey     AuthenticationKey[]
+  users             User[]
+  AuthenticationKey AuthenticationKey[]
 }
 
 model UserRegistration {
@@ -188,14 +188,15 @@ model UserRegistration {
 }
 
 model User {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   active    Boolean
   data      String?
   expiry    DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   tenantId  String
   groupId   String? // Change from array to single reference
+  email     String @unique
   // group     Group?   @relation(fields: [groupId], references: [id]) // Add the relation
 
   tenant            Tenant             @relation(fields: [tenantId], references: [id])

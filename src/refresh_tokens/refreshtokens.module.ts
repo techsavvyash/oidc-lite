@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { generateKeyDTO, updateDTO } from 'src/dto/key.dto';
 import { RefreshTokensController } from './refreshtokens.controller';
 import { RefreshTokensService } from './refreshtokens.service';
 import { refreshCookiesDTO, refreshDTO } from './refreshToken.dto';

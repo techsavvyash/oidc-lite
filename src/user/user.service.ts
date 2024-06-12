@@ -75,6 +75,7 @@ export class UserService {
     data: CreateUserDto,
     headers: object,
   ): Promise<ResponseDto> {
+    console.log(data);
     if (!data) {
       throw new BadRequestException({
         success: false,
@@ -120,12 +121,12 @@ export class UserService {
       !data.active ||
       !data.applicationId ||
       !data.membership ||
-      !data.userData
+      !data.userData || !data.email
     ) {
       throw new BadRequestException({
         success: false,
         message:
-          'Data missing active, applicationId, membership array or userData',
+          'Data missing active, applicationId, membership array, email or userData',
       });
     }
 
@@ -161,6 +162,7 @@ export class UserService {
           tenantId,
           groupId: membership[0].groupId,
           data: JSON.stringify(userInfo),
+          email: data.email
         },
       });
       this.logger.log('A new user created', user);

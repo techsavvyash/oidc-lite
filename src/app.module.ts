@@ -20,6 +20,7 @@ import { UserRegistrationService } from './user/user-registration/user-registrat
 import { HeaderAuthService } from './header-auth/header-auth.service';
 import { KeyModule } from './key/key.module';
 import { RefreshTokenModule } from './refresh_tokens/refreshtokens.module';
+import { LoginModule } from './login/login.module';
 
 @Module({
   imports: [OidcModule, UserModule, PrismaModule,JwtModule.register({
@@ -27,7 +28,7 @@ import { RefreshTokenModule } from './refresh_tokens/refreshtokens.module';
     secret: process.env.JWT_SECRET,
     signOptions: { expiresIn: process.env.JWT_SECRET_EXPIRATION },
 
-    }), ApplicationModule,ScheduleModule.forRoot(), KeyModule, RefreshTokenModule],
+    }), ApplicationModule,ScheduleModule.forRoot(), KeyModule, RefreshTokenModule, LoginModule],
     controllers: [AppController, TenantController,ApiKeysController],
     providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService, MemoryMonitorService,ApiKeysService, UserRegistrationService, HeaderAuthService],
 

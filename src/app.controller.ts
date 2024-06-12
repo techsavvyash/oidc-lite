@@ -41,7 +41,7 @@ export class AppController {
     };
   }
 
-  @Post('/login')
+  @Post('/logins')
   @ApiOperation({
     summary:
       'creates an opaque token for a user logined if no resource parameter is given',

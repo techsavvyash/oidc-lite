@@ -138,6 +138,7 @@ CREATE TABLE "User" (
     "updatedAt" DATETIME NOT NULL,
     "tenantId" TEXT NOT NULL,
     "groupId" TEXT,
+    "email" TEXT NOT NULL,
     CONSTRAINT "User_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -210,6 +211,9 @@ CREATE INDEX "user_registrations_i_2" ON "UserRegistration"("usersId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserRegistration_applicationsId_usersId_key" ON "UserRegistration"("applicationsId", "usersId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "AuthenticationKey_keyValue_key" ON "AuthenticationKey"("keyValue");

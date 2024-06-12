@@ -18,6 +18,7 @@ export class CreateUserDto {
   @ApiProperty() tenantId: string;
   @ApiProperty() membership: Membership[];
   @ApiProperty() userData: UserData;
+  @ApiProperty() email: string;
 }
 export class UpdateUserDto {
   @ApiProperty() active?: boolean;
