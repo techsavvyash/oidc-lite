@@ -18,14 +18,17 @@ import { ApiKeysController } from './api-keys/api-keys.controller';
 import { ApiKeysService } from './api-keys/api-keys.service';
 import { UserRegistrationService } from './user/user-registration/user-registration.service';
 import { HeaderAuthService } from './header-auth/header-auth.service';
+import { KeyModule } from './key/key.module';
 
 @Module({
   imports: [OidcModule, UserModule, PrismaModule,JwtModule.register({
     global: true,
     secret: process.env.JWT_SECRET,
     signOptions: { expiresIn: process.env.JWT_SECRET_EXPIRATION },
-  }), ApplicationModule,ScheduleModule.forRoot()],
-  controllers: [AppController, TenantController,ApiKeysController],
-  providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService, MemoryMonitorService,ApiKeysService, UserRegistrationService, HeaderAuthService],
+
+    }), ApplicationModule,ScheduleModule.forRoot(), KeyModule],
+    controllers: [AppController, TenantController,ApiKeysController],
+    providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService, MemoryMonitorService,ApiKeysService, UserRegistrationService, HeaderAuthService],
+
 })
 export class AppModule {}
