@@ -29,7 +29,7 @@ export class UpdateUserDto {
 
 export class CreateUserRegistrationDto {
   @ApiProperty() generateAuthenticationToken?: boolean;
-  @ApiProperty() applicationsId: string;
+  @ApiProperty() applicationId: string;
   @ApiProperty() data?: string | JSON | object;
   @ApiProperty() registrationId?: string;
   @ApiProperty() roles: string[];

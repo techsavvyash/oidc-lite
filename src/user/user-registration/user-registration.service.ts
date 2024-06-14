@@ -32,14 +32,14 @@ export class UserRegistrationService {
     data: CreateUserRegistrationDto,
     headers: object,
   ): Promise<ResponseDto> {
-    if (!data || !data.applicationsId || !userId) {
+    if (!data || !data.applicationId || !userId) {
       throw new BadRequestException({
         success: false,
         message: 'No data given for registration',
       });
     }
     const application = await this.prismaService.application.findUnique({
-      where: { id: data.applicationsId },
+      where: { id: data.applicationId },
     });
     if (!application) {
       throw new BadRequestException({
@@ -347,6 +347,12 @@ export class UserRegistrationService {
         message: valid.message,
       });
     }
+    if (!data || !data.userInfo || !data.registrationInfo) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Either data, data.userInfo or data.registrationInfo missing',
+      });
+    }
     const { userInfo, registrationInfo } = data;
     if (!registrationInfo.roles || registrationInfo.roles.length === 0) {
       throw new BadRequestException({
@@ -388,6 +394,9 @@ export class UserRegistrationService {
           },
         };
       } catch (error) {
+        const delCreatedUser = await this.prismaService.user.delete({
+          where: { id: userId },
+        });
         this.logger.log(
           'Error occured while creating User registration',
           error,

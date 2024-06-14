@@ -10,7 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { OIDCAuthQuery } from './oidc.auth.dto';
 import { LoginDto } from 'src/login/login.dto';
 import { randomUUID } from 'crypto';
-import { TokenDto } from './oidc.token.dto';
+import { IntrospectDto, TokenDto } from './oidc.token.dto';
 import * as jwt from 'jsonwebtoken';
 import { ResponseDto } from 'src/dto/response.dto';
 
@@ -163,8 +163,21 @@ export class OidcService {
         message: 'either of code,grant_type,redirect_uri missing',
       });
     }
-    const clientId = client_id ? client_id : data.client_id;
-    const clientSecret = client_secret ? client_secret : data.client_secret;
+    if (!data) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No data given',
+      });
+    }
+    const clientId = client_id ? client_id : data?.client_id;
+    const clientSecret = client_secret ? client_secret : data?.client_secret;
+    if (!clientId) {
+      throw new BadRequestException({
+        success: false,
+        message:
+          'Client id should be provided either via authorization header or data.client_id',
+      });
+    }
     const application = await this.prismaService.application.findUnique({
       where: { id: clientId },
     });
@@ -258,6 +271,102 @@ export class OidcService {
           userId: user.id,
           token_type: 'Bearer',
         },
+      };
+    }
+  }
+
+  async returnAllPublicJwks() {
+    const results = await this.prismaService.key.findMany();
+    const filteredResults = results.map((result, i) => {
+      delete result.privateKey;
+      delete result.secret;
+      return result;
+    });
+    console.log(results);
+    return filteredResults;
+  }
+
+  async introspect(data: IntrospectDto, headers: object) {
+    const contentType = headers['content-type'];
+    if (contentType !== 'application/x-www-form-urlencoded') {
+      throw new BadRequestException({
+        success: false,
+        message:
+          'content-type header should be application/x-www-form-urlencoded',
+      });
+    }
+    const authorization = headers['authorization']?.split('Basic')[1];
+    let client_id: string | null = null,
+      client_secret: string | null = null;
+    if (authorization) {
+      const credentials = Buffer.from(authorization, 'base64').toString(
+        'utf-8',
+      );
+      [client_id, client_secret] = credentials.split(':');
+    }
+    if (!data) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No data given',
+      });
+    }
+    const clientId = client_id ? client_id : data?.client_id;
+    const clientSecret = client_secret ? client_secret : data?.client_secret;
+    if (!clientId) {
+      throw new BadRequestException({
+        success: false,
+        message:
+          'Client id should be provided either via authorization header or data.client_id',
+      });
+    }
+    const application = await this.prismaService.application.findUnique({
+      where: { id: clientId },
+    });
+    if (!application) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No such application exists',
+      });
+    }
+    const applicationData = JSON.parse(application.data);
+    const actualSecret = applicationData?.clientSecret;
+    if (clientSecret !== actualSecret) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No such client with given id and secret exists',
+      });
+    }
+    if (!data.token) {
+      throw new BadRequestException({
+        success: false,
+        message: 'token not given',
+      });
+    }
+    const accessTokenSigningKey = await this.prismaService.key.findUnique({
+      where: { id: application.accessTokenSigningKeysId },
+    });
+    const accessTokenSecret = accessTokenSigningKey.publicKey
+      ? accessTokenSigningKey.publicKey
+      : accessTokenSigningKey.secret;
+    try {
+      const validSign: jwt.JwtPayload | string = jwt.verify(
+        data.token,
+        accessTokenSecret,
+      );
+      const now = new Date().getTime();
+      if ((validSign as jwt.JwtPayload).exp <= now) {
+        return {
+          active: false,
+        };
+      }
+      return {
+        success: true,
+        message: 'Token is valid',
+        data: validSign,
+      };
+    } catch (error) {
+      return {
+        active: false,
       };
     }
   }

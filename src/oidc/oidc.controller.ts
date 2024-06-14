@@ -20,7 +20,7 @@ import { OidcService } from './oidc.service';
 import { Request, Response } from 'express';
 import { OIDCAuthQuery } from './oidc.auth.dto';
 import { LoginDto } from 'src/login/login.dto';
-import { TokenDto } from './oidc.token.dto';
+import { IntrospectDto, TokenDto } from './oidc.token.dto';
 import { ResponseDto } from 'src/dto/response.dto';
 
 @ApiTags('OIDC')
@@ -76,5 +76,15 @@ export class OidcController {
     @Body() data: TokenDto,
   ): Promise<ResponseDto> {
     return await this.oidcService.returnToken(data, headers);
+  }
+
+  @Get('/.well-known/jwks.json')
+  async returnAllPublicJwks(){
+    return await this.oidcService.returnAllPublicJwks();
+  }
+
+  @Post('/introspect')
+  async introspect(@Body() data: IntrospectDto,@Headers() headers: object){
+    return await this.oidcService.introspect(data,headers);
   }
 }

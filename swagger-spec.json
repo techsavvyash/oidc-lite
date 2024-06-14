@@ -1307,6 +1307,44 @@
         ]
       }
     },
+    "/oidc/.well-known/jwks.json": {
+      "get": {
+        "operationId": "OidcController_returnAllPublicJwks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
+      }
+    },
+    "/oidc/introspect": {
+      "post": {
+        "operationId": "OidcController_introspect",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntrospectDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
+      }
+    },
     "/user": {
       "post": {
         "operationId": "UserController_createAUserWithRandomUUID",
@@ -2962,6 +3000,25 @@
           "redirect_uri"
         ]
       },
+      "IntrospectDto": {
+        "type": "object",
+        "properties": {
+          "client_id": {
+            "type": "string"
+          },
+          "client_secret": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "client_id",
+          "client_secret",
+          "token"
+        ]
+      },
       "UserData": {
         "type": "object",
         "properties": {
@@ -3059,7 +3116,7 @@
           "generateAuthenticationToken": {
             "type": "boolean"
           },
-          "applicationsId": {
+          "applicationId": {
             "type": "string"
           },
           "data": {
@@ -3077,7 +3134,7 @@
         },
         "required": [
           "generateAuthenticationToken",
-          "applicationsId",
+          "applicationId",
           "data",
           "registrationId",
           "roles"
