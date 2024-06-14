@@ -28,16 +28,17 @@ export class TenantService {
     data: CreateTenantDto,
     headers: object,
   ): Promise<ResponseTenantDto> {
+    // only tenant scoped api key can make new tenants
     const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
-      id,
+      null,
       '/tenant',
       'POST',
     );
     if (!valid.success) {
       throw new UnauthorizedException({
-        success: false,
-        message: 'You are not authorized',
+        success: valid.success,
+        message: valid.message,
       });
     }
     if (!id) {
@@ -147,15 +148,15 @@ export class TenantService {
     }
 
     const name = data.name ? data.name : oldTenant.name;
-    const jwtConfiguration = data.jwtConfiguration
-      ? data.jwtConfiguration
-      : null;
-    const accessTokenSigningKeysId = jwtConfiguration?.accessTokenKeyID
-      ? jwtConfiguration.accessTokenKeyID
-      : oldTenant.accessTokenSigningKeysId;
-    const idTokenSigningKeysId = jwtConfiguration?.idTokenKeyID
-      ? jwtConfiguration.idTokenKeyID
-      : oldTenant.idTokenSigningKeysId;
+    // const jwtConfiguration = data.jwtConfiguration
+    //   ? data.jwtConfiguration
+    //   : null;
+    // const accessTokenSigningKeysId = jwtConfiguration?.accessTokenKeyID
+    //   ? jwtConfiguration.accessTokenKeyID
+    //   : oldTenant.accessTokenSigningKeysId;
+    // const idTokenSigningKeysId = jwtConfiguration?.idTokenKeyID
+    //   ? jwtConfiguration.idTokenKeyID
+    //   : oldTenant.idTokenSigningKeysId;
     const additionalData = data.data
       ? JSON.stringify(data.data)
       : oldTenant.data;
@@ -165,8 +166,6 @@ export class TenantService {
         where: { id },
         data: {
           name,
-          accessTokenSigningKeysId,
-          idTokenSigningKeysId,
           data: additionalData,
         },
       });
