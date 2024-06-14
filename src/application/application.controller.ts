@@ -48,8 +48,8 @@ export class ApplicationController {
     type: ResponseDto,
   })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  async allApplications(): Promise<ResponseDto> {
-    return await this.applicationService.returnAllApplications();
+  async allApplications(@Headers() headers: object): Promise<ResponseDto> {
+    return await this.applicationService.returnAllApplications(headers);
   }
 
   @ApiOperation({ summary: 'Create an Application with a random UUID' })
@@ -80,8 +80,11 @@ export class ApplicationController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  async getAnApplication(@Param('id') id: string): Promise<ResponseDto> {
-    return await this.applicationService.returnAnApplication(id);
+  async getAnApplication(
+    @Param('id') id: string,
+    @Headers() headers: object,
+  ): Promise<ResponseDto> {
+    return await this.applicationService.returnAnApplication(id, headers);
   }
 
   @ApiOperation({ summary: 'Create an Application with given id' })
@@ -116,8 +119,9 @@ export class ApplicationController {
   async updateApplication(
     @Param('id') id: string,
     @Body('data') data: UpdateApplicationDto,
+    @Headers() headers: object,
   ): Promise<ResponseDto> {
-    return await this.applicationService.patchApplication(id, data);
+    return await this.applicationService.patchApplication(id, data, headers);
   }
 
   @ApiOperation({ summary: 'Delete an application by ID' })
@@ -139,8 +143,13 @@ export class ApplicationController {
   async deleteApplication(
     @Param('id') id: string,
     @Query('hardDelete') hardDelete: boolean,
+    @Headers() headers: object,
   ): Promise<ResponseDto> {
-    return await this.applicationService.deleteApplication(id, hardDelete);
+    return await this.applicationService.deleteApplication(
+      id,
+      hardDelete,
+      headers,
+    );
   }
 
   @ApiOperation({
@@ -314,7 +323,8 @@ export class ApplicationController {
   @Get('/:id/oauth-configuration')
   async returnOauthConfiguration(
     @Param('id') id: string,
+    @Headers() headers: object,
   ): Promise<ResponseDto> {
-    return await this.applicationService.returnOauthConfiguration(id);
+    return await this.applicationService.returnOauthConfiguration(id, headers);
   }
 }

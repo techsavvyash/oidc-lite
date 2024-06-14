@@ -44,7 +44,7 @@ export class HeaderAuthService {
       }
       allowed =
         allowed &&
-        (permissions.tenantId === tenantID || permissions.tenantId === null); // allowed only if tenant scoped or same tenantid
+        (headerKey.tenantsId === tenantID || headerKey.tenantsId === null); // allowed only if same tenantid or tenant scoped
     }
 
     if (!allowed) {
@@ -56,6 +56,7 @@ export class HeaderAuthService {
     return {
       success: true,
       message: 'Authorized',
+      data: headerKey
     };
   }
 }

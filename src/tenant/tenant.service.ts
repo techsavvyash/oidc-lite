@@ -8,77 +8,27 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { Permissions } from 'src/dto/apiKey.dto';
-import { ResponseDto } from 'src/dto/response.dto';
+import { ResponseTenantDto, ResponseDto } from 'src/dto/response.dto';
 import { CreateTenantDto, UpdateTenantDto } from 'src/dto/tenant.dto';
+import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class TenantService {
   private readonly logger: Logger;
-  constructor(private readonly prismaService: PrismaService) {
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly headerAuthService: HeaderAuthService,
+  ) {
     this.logger = new Logger(TenantService.name);
-  }
-
-  async authorizationHeaderVerifier(
-    headers: object,
-    tenantID: string,
-    requestedUrl: string,
-    requestedMethod: string,
-  ): Promise<ResponseDto> {
-    const token = headers['authorization'];
-    if (!token) {
-      return {
-        success: false,
-        message: 'authorization header required',
-      };
-    }
-    const headerKey = await this.prismaService.authenticationKey.findUnique({
-      where: {
-        keyValue: token,
-      },
-    });
-    if (!headerKey) {
-      return {
-        success: false,
-        message: 'You are not authorized',
-      };
-    }
-    const permissions: Permissions = JSON.parse(headerKey.permissions);
-    let allowed = permissions ? false : true;
-    if (permissions) {
-      if (permissions.endpoints) {
-        permissions.endpoints.forEach((val) => {
-          allowed =
-            (val.url === requestedUrl && val.methods === requestedMethod) ||
-            allowed;
-        });
-      } else {
-        allowed = true;
-      }
-      allowed =
-        allowed &&
-        (permissions.tenantId === tenantID || permissions.tenantId === null); // allowed only if tenant scoped or same tenantid
-    }
-
-    if (!allowed) {
-      return {
-        success: false,
-        message: 'Not authorized',
-      };
-    }
-    return {
-      success: true,
-      message: 'Authorized',
-    };
   }
 
   async createATenant(
     id: string,
     data: CreateTenantDto,
     headers: object,
-  ): Promise<ResponseDto> {
-    const valid = await this.authorizationHeaderVerifier(
+  ): Promise<ResponseTenantDto> {
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
       id,
       '/tenant',
@@ -159,8 +109,8 @@ export class TenantService {
     id: string,
     data: UpdateTenantDto,
     headers: object,
-  ): Promise<ResponseDto> {
-    const valid = await this.authorizationHeaderVerifier(
+  ): Promise<ResponseTenantDto> {
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
       id,
       '/tenant',
@@ -234,8 +184,8 @@ export class TenantService {
     }
   }
 
-  async deleteATenant(id: string, headers: object): Promise<ResponseDto> {
-    const valid = await this.authorizationHeaderVerifier(
+  async deleteATenant(id: string, headers: object): Promise<ResponseTenantDto> {
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
       id,
       '/tenant',
@@ -272,8 +222,8 @@ export class TenantService {
     };
   }
 
-  async returnATenant(id: string, headers: object): Promise<ResponseDto> {
-    const valid = await this.authorizationHeaderVerifier(
+  async returnATenant(id: string, headers: object): Promise<ResponseTenantDto> {
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
       id,
       '/tenant',
@@ -308,7 +258,7 @@ export class TenantService {
   }
 
   async returnAllTenants(headers: object): Promise<ResponseDto> {
-    const valid = await this.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
       null,
       '/tenant',

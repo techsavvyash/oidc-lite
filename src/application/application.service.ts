@@ -3,9 +3,8 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
-import axios from 'axios';
-import { randomUUID } from 'crypto';
 import { ApplicationRolesService } from 'src/application/application-roles/application-roles.service';
 import { ApplicationScopesService } from 'src/application/application-scopes/application-scopes.service';
 import {
@@ -13,6 +12,7 @@ import {
   UpdateApplicationDto,
 } from 'src/dto/application.dto';
 import { ResponseDto } from 'src/dto/response.dto';
+import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TenantService } from 'src/tenant/tenant.service';
 
@@ -24,6 +24,7 @@ export class ApplicationService {
     private readonly applicationRoles: ApplicationRolesService,
     private readonly applicationScopes: ApplicationScopesService,
     private readonly tenantService: TenantService,
+    private readonly headerAuthService: HeaderAuthService,
   ) {
     this.logger = new Logger(ApplicationService.name);
   }
@@ -31,8 +32,27 @@ export class ApplicationService {
   async createApplication(
     uuid: string,
     data: CreateApplicationDto,
-    headers: object
+    headers: object,
   ): Promise<ResponseDto> {
+    const tenant_id = headers['x-stencil-tenantid'];
+    if (!tenant_id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'x-stencil-tenantid header missing',
+      });
+    }
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      tenant_id,
+      '/application',
+      'POST',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
     if (!uuid) {
       throw new BadRequestException({
         success: false,
@@ -42,10 +62,10 @@ export class ApplicationService {
     const application = await this.prismaService.application.findUnique({
       where: { id: uuid },
     });
-    if (application) {
+    if (application || data.name === application.name) {
       throw new BadRequestException({
         success: false,
-        message: 'Application with the provided id already exists',
+        message: 'Application with the provided id/name already exists',
       });
     }
     if (!data) {
@@ -57,83 +77,76 @@ export class ApplicationService {
     if (!data.jwtConfiguration) {
       throw new BadRequestException({
         success: false,
-        message:
-          'jwt Configuration not provided. for now provide it in future will have a default field',
+        message: 'jwtConfiguration not provided',
+      });
+    }
+    const tenant = await this.tenantService.returnATenant(tenant_id, headers);
+    if (!tenant.success) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No such tenant exists',
       });
     }
     const jwtConfiguration = data.jwtConfiguration;
-    const accessTokenKeyID = jwtConfiguration.accessTokenKeyID;
-    const idTokenKeyID = jwtConfiguration.idTokenKeyID;
-    // using the above two we will create a new tenant or find it.
-    // creating a new tenant based on given tenant id
+    const accessTokenSigningKeysId = jwtConfiguration.accessTokenSigningKeysID;
+    const idTokenSigningKeysId = jwtConfiguration.idTokenSigningKeysID;
+    if (
+      tenant.data.accessTokenSigningKeysId !== accessTokenSigningKeysId ||
+      tenant.data.idTokenSigningKeysId !== idTokenSigningKeysId
+    ) {
+      throw new BadRequestException({
+        success: false,
+        message:
+          "Either idTokenSigningKeysId or accessTokenSigningKeysId don't match with the given tenant's signing ids",
+      });
+    }
+    const active = data.active ? data.active : true;
+    const name = data.name;
+    const roles = data.roles;
+    const scopes = data.scopes;
+    const tenantId = tenant.data.id;
+    const configurations = JSON.stringify(data.oauthConfiguration);
+
     try {
-      const tenant = await axios.post(
-        `${process.env.HOST_NAME}:${process.env.HOST_PORT}/tenant/${data.tenant_id}`,
-        {
-          data: {
-            name: randomUUID(),
-            jwtConfiguration: jwtConfiguration,
-          }
-        },{
-          headers: {
-            'Authorization': headers["authorization"]
-          }
-        }
-      );
-      const active = data.active ? data.active : true;
-      const name = data.name;
-      const roles = data.roles;
-      const scopes = data.scopes;
-      const tenantId = tenant.data.data.id;
-      const configurations = JSON.stringify(data.oauthConfiguration);
+      const application = await this.prismaService.application.create({
+        data: {
+          id: uuid,
+          active,
+          accessTokenSigningKeysId,
+          idTokenSigningKeysId,
+          name,
+          tenantId,
+          data: configurations,
+        },
+      });
 
       try {
-        const application = await this.prismaService.application.create({
-          data: {
-            id: uuid,
-            active,
-            accessTokenSigningKeysId: accessTokenKeyID,
-            idTokenSigningKeysId: idTokenKeyID,
-            name,
-            tenantId,
-            data: configurations,
-          },
-        });
-
-        try {
-          roles.forEach((value) =>
-            this.applicationRoles.createRole(value, application.id),
-          );
-          scopes.forEach((value) =>
-            this.applicationScopes.createScope(value, application.id),
-          );
-        } catch (error) {
-          this.logger.log('This is error while creating scopes/roles: ', error);
-          throw new InternalServerErrorException({
-            success: false,
-            message: 'Error while creating new scop/roles',
-          });
-        }
-
-        this.logger.log('New application registred!', application);
-
-        return {
-          success: true,
-          message: 'Application created successfully!',
-          data: application,
-        };
+        roles.forEach((value) =>
+          this.applicationRoles.createRole(value, application.id),
+        );
+        scopes.forEach((value) =>
+          this.applicationScopes.createScope(value, application.id),
+        );
       } catch (error) {
-        this.logger.log('Error occured in createApplication', error);
+        this.logger.log('This is error while creating scopes/roles: ', error);
         throw new InternalServerErrorException({
           success: false,
-          message: 'Error while creating new application',
+          message: 'Error while creating new scope/roles',
         });
       }
+
+      this.logger.log('New application registred!', application);
+
+      return {
+        success: true,
+        message: 'Application created successfully!',
+        data: application,
+      };
     } catch (error) {
-      this.logger.log('Error creating the tenant', error);
+      this.logger.log('Error occured in createApplication', error);
       throw new InternalServerErrorException({
         success: false,
-        message: 'Sorry the tenant with given id cant be created',
+        message: 'Error while creating new application',
       });
     }
   }
@@ -141,11 +154,31 @@ export class ApplicationService {
   async patchApplication(
     id: string,
     newData: UpdateApplicationDto,
+    headers: object,
   ): Promise<ResponseDto> {
     if (!id) {
       throw new BadRequestException({
         success: false,
         message: 'no id given',
+      });
+    }
+    const tenant_id = headers['x-stencil-tenantid'];
+    if (!tenant_id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'x-stencil-tenantid header missing',
+      });
+    }
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      tenant_id,
+      '/application',
+      'PATCH',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
       });
     }
     if (!newData) {
@@ -163,31 +196,16 @@ export class ApplicationService {
         message: 'Application with the given id dont exist',
       });
     }
-    if (newData.tenant_id && !newData.jwtConfiguration) {
-      throw new BadRequestException({
+    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
+      throw new UnauthorizedException({
         success: false,
-        message: 'jwt configurations not sent',
+        message: 'You are not authorized enough',
       });
     }
     const name = newData.name ? newData.name : application.name;
-
-    const tenantId = newData.tenant_id
-      ? newData.tenant_id
-      : application.tenantId;
-    const jwtConfiguration = newData.jwtConfiguration
-      ? newData.jwtConfiguration
-      : null;
-    if (tenantId !== application.tenantId) {
-      const tenant = await axios.post(
-        `${process.env.HOST_NAME}:${process.env.HOST_PORT}/tenant/${tenantId}`,
-        {
-          data: {
-            name: randomUUID(),
-            jwtConfiguration: jwtConfiguration,
-          },
-        },
-      );
-    }
+    // const jwtConfiguration = newData.jwtConfiguration
+    //   ? newData.jwtConfiguration
+    //   : null;
 
     const active =
       newData.active !== null ? newData.active : application.active;
@@ -200,7 +218,7 @@ export class ApplicationService {
         where: { id },
         data: {
           name,
-          tenantId,
+          tenantId: tenant_id,
           active,
           data,
         },
@@ -219,7 +237,19 @@ export class ApplicationService {
     }
   }
 
-  async returnAllApplications(): Promise<ResponseDto> {
+  async returnAllApplications(headers: object): Promise<ResponseDto> {
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      null,
+      '/application',
+      'GET',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
     const allApplications = await this.prismaService.application.findMany();
     const result = await Promise.all(
       allApplications.map(async (val) => {
@@ -243,7 +273,26 @@ export class ApplicationService {
     };
   }
 
-  async returnAnApplication(id: string): Promise<ResponseDto> {
+  async returnAnApplication(id: string, headers: object): Promise<ResponseDto> {
+    const tenant_id = headers['x-stencil-tenantid'];
+    if (!tenant_id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'x-stencil-tenantid header missing',
+      });
+    }
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      tenant_id,
+      '/application',
+      'GET',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
     if (!id) {
       throw new BadRequestException({
         success: false,
@@ -267,6 +316,12 @@ export class ApplicationService {
         message: 'Application with the given id dont exist',
       });
     }
+    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized',
+      });
+    }
     return {
       success: true,
       message: 'Application found successfully',
@@ -277,18 +332,47 @@ export class ApplicationService {
   async deleteApplication(
     id: string,
     hardDelete: boolean,
+    headers: object,
   ): Promise<ResponseDto> {
+    const tenant_id = headers['x-stencil-tenantid'];
+    if (!tenant_id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'x-stencil-tenantid header missing',
+      });
+    }
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      tenant_id,
+      '/application',
+      'DELETE',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
+    const oldApplication = await this.prismaService.application.findUnique({
+      where: { id },
+    });
+    if (
+      oldApplication.tenantId !== tenant_id &&
+      valid.data.tenantsId !== null
+    ) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized enough',
+      });
+    }
+    if (!oldApplication) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Application with given id dont exist',
+      });
+    }
     if (hardDelete) {
       try {
-        const oldApplication = await this.prismaService.application.findUnique({
-          where: { id },
-        });
-        if (!oldApplication) {
-          throw new BadRequestException({
-            success: false,
-            message: 'Application with given id dont exist',
-          });
-        }
         const application = await this.prismaService.application.delete({
           where: { ...oldApplication },
         });
@@ -305,7 +389,11 @@ export class ApplicationService {
         });
       }
     } else {
-      const application = await this.patchApplication(id, { active: false });
+      const application = await this.patchApplication(
+        id,
+        { active: false },
+        headers,
+      );
       return {
         success: true,
         message: 'Application soft deleted/inactive',
@@ -314,7 +402,23 @@ export class ApplicationService {
     }
   }
 
-  async returnOauthConfiguration(id: string): Promise<ResponseDto> {
+  async returnOauthConfiguration(
+    id: string,
+    headers: object,
+  ): Promise<ResponseDto> {
+    const tenant_id = headers['x-stencil-tenantid'];
+    if (!tenant_id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'x-stencil-tenantid header missing',
+      });
+    }
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      tenant_id,
+      '/application',
+      'GET',
+    );
     if (!id) {
       throw new BadRequestException({
         success: false,
@@ -328,6 +432,12 @@ export class ApplicationService {
       throw new BadRequestException({
         success: false,
         message: 'No application with the given id exists',
+      });
+    }
+    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized enough',
       });
     }
     return {

@@ -9,10 +9,10 @@ class OauthConfiguration {
 }
 
 class JwtConfiguration {
-  @ApiProperty() accessTokenKeyID?: string;
+  @ApiProperty() accessTokenSigningKeysID?: string;
   @ApiProperty() refreshTokenTimeToLiveInMinutes: number;
   @ApiProperty() timeToLiveInSeconds: number;
-  @ApiProperty() idTokenKeyID?: string;
+  @ApiProperty() idTokenSigningKeysID?: string;
 }
 
 export class RoleDto {
@@ -50,14 +50,12 @@ export class CreateApplicationDto {
   @ApiProperty() name: string;
   @ApiProperty() scopes: ScopeDto[];
   @ApiProperty() roles: RoleDto[];
-  @ApiProperty() tenant_id: string;
   @ApiProperty() jwtConfiguration: JwtConfiguration;
   @ApiProperty() oauthConfiguration: OauthConfiguration;
 }
 
 export class UpdateApplicationDto {
   @ApiProperty() active?: boolean;
-  @ApiProperty() tenant_id?: string;
   @ApiProperty() jwtConfiguration?: JwtConfiguration;
   @ApiProperty() oauthConfiguration?: OauthConfiguration;
   @ApiProperty() name?: string;

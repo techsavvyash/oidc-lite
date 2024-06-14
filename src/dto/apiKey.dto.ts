@@ -7,13 +7,13 @@ class Endpoints {
 
 export class Permissions {
   @ApiProperty() endpoints: Endpoints[];
-  @ApiProperty() tenantId?: string;
 }
 
 export class CreateApiKeyDto {
   @ApiProperty() key?: string;
   @ApiProperty() permissions?: Permissions;
   @ApiProperty() metaData?: string | JSON;
+  @ApiProperty() tenantId?: string;
 }
 class UpdataPermissionsDto {
   @ApiProperty() endpoints?: Endpoints[];

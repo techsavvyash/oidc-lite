@@ -51,9 +51,18 @@ export class ApiKeysService {
         message: 'key with the provided id cant be created',
       });
     }
-    const tenantsId = data.permissions?.tenantId
-      ? data.permissions?.tenantId
-      : null; // null implies a key with scope of all the tenants
+    const tenantsId = data.tenantId; // null implies a key with scope of all the tenants
+    if (tenantsId) {
+      const tenant = await this.prismaService.tenant.findUnique({
+        where: { id: tenantsId },
+      });
+      if (!tenant) {
+        throw new BadRequestException({
+          success: false,
+          message: 'The tenant with given tenant id dont exists',
+        });
+      }
+    }
     const metaData = data.metaData ? JSON.stringify(data.metaData) : null;
     const permissions = data.permissions
       ? JSON.stringify(data.permissions)
@@ -73,12 +82,14 @@ export class ApiKeysService {
       });
       this.logger.log('New api Key generated', apiKey);
       return {
+        success: true,
         message: 'Api key successfully generated',
-        apiKey,
+        data: apiKey,
       };
     } catch (error) {
       console.log('Error from createAnApiKey', error);
       throw new InternalServerErrorException({
+        success: false,
         message: 'Some internal server error occured while creating the apikey',
       });
     }
@@ -88,6 +99,7 @@ export class ApiKeysService {
     const token = headers['authorization'];
     if (!token) {
       throw new BadRequestException({
+        success: false,
         message: 'Authorization header required',
       });
     }
@@ -98,11 +110,13 @@ export class ApiKeysService {
     });
     if (!headerKey) {
       throw new UnauthorizedException({
+        success: false,
         message: 'You are not authorized enough',
       });
     }
     if (!id) {
       throw new BadRequestException({
+        success: false,
         message: 'No id given',
       });
     }
@@ -111,22 +125,25 @@ export class ApiKeysService {
     });
     if (!apiKey) {
       throw new BadRequestException({
+        success: false,
         message: 'No apiKey exists for the given id',
       });
     }
     if (
       !headerKey.keyManager &&
       headerKey.tenantsId !== apiKey.tenantsId &&
-      !headerKey.tenantsId !== null
+      headerKey.tenantsId !== null
     ) {
       // key should be level equal or higher
       throw new UnauthorizedException({
+        success: false,
         message: 'You are not authorized enough',
       });
     }
     return {
+      success: true,
       message: 'Found the requested key',
-      apiKey,
+      data: apiKey,
     };
   }
 
@@ -134,6 +151,7 @@ export class ApiKeysService {
     const token = headers['authorization'];
     if (!token) {
       throw new BadRequestException({
+        success: false,
         message: 'Authorization header required',
       });
     }
@@ -144,16 +162,19 @@ export class ApiKeysService {
     });
     if (!headerKey) {
       throw new UnauthorizedException({
+        success: false,
         message: 'You are not authorized enough',
       });
     }
     if (!id) {
       throw new BadRequestException({
+        success: false,
         message: 'No id give to update the api key',
       });
     }
     if (!data) {
       throw new BadRequestException({
+        success: false,
         message: 'No data given to update the api key',
       });
     }
@@ -162,16 +183,18 @@ export class ApiKeysService {
     });
     if (!oldApiKey) {
       throw new BadRequestException({
+        success: false,
         message: 'Api key with the given id dont exist',
       });
     }
     if (
       !headerKey.keyManager &&
       headerKey.tenantsId !== oldApiKey.tenantsId &&
-      !headerKey.tenantsId !== null
+      headerKey.tenantsId !== null
     ) {
       // key should be level equal or higher
       throw new UnauthorizedException({
+        success: false,
         message: 'You are not authorized enough',
       });
     }
@@ -194,12 +217,14 @@ export class ApiKeysService {
       });
       this.logger.log('Api key updated', apiKey);
       return {
+        success: true,
         message: 'Key updated successfully',
-        apiKey,
+        data: apiKey,
       };
     } catch (error) {
       console.log('Error occured in UpdateAnApiKey', error);
       throw new InternalServerErrorException({
+        success: false,
         message: 'some error occured while updating the key',
       });
     }
@@ -209,6 +234,7 @@ export class ApiKeysService {
     const token = headers['authorization'];
     if (!token) {
       throw new BadRequestException({
+        success: false,
         message: 'Authorization header required',
       });
     }
@@ -219,11 +245,13 @@ export class ApiKeysService {
     });
     if (!headerKey) {
       throw new UnauthorizedException({
+        success: false,
         message: 'You are not authorized enough',
       });
     }
     if (!id) {
       throw new BadRequestException({
+        success: false,
         message: 'No apiKey exists for the given id',
       });
     }
@@ -234,10 +262,11 @@ export class ApiKeysService {
     if (
       !headerKey.keyManager &&
       headerKey.tenantsId !== apiKeyBeforeDel.tenantsId &&
-      !headerKey.tenantsId !== null
+      headerKey.tenantsId !== null
     ) {
       // key should be level equal or higher
       throw new UnauthorizedException({
+        success: false,
         message: 'You are not authorized enough',
       });
     }
@@ -246,8 +275,9 @@ export class ApiKeysService {
     });
     this.logger.log('An api key is deleted!', apiKey);
     return {
+      success: true,
       message: 'successfully deleted apiKey',
-      apiKey,
+      data: apiKey,
     };
   }
 }
