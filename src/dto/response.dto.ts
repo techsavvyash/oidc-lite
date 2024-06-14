@@ -6,12 +6,7 @@ export class ResponseDto {
   @ApiProperty() data?: Record<string, any>;
 }
 
-export class ResponseTenantDto {
-  @ApiProperty() success: boolean;
-  @ApiProperty() message: string;
-  @ApiProperty() data: TenantDto;
-}
-export class TenantDto {
+class TenantDto {
   @ApiProperty() id: string;
   @ApiProperty() accessTokenSigningKeysId: string;
   @ApiProperty() data: string;
@@ -19,4 +14,10 @@ export class TenantDto {
   @ApiProperty() createdAt: Date;
   @ApiProperty() updatedAt: Date;
   @ApiProperty() name: string;
+}
+
+export class ResponseTenantDto {
+  @ApiProperty() success: boolean;
+  @ApiProperty() message: string;
+  @ApiProperty() data: TenantDto;
 }

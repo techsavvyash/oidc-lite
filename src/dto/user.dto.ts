@@ -15,7 +15,6 @@ export class CreateUserDto {
   @ApiProperty() active: boolean;
   @ApiProperty() additionalData?: object | string;
   @ApiProperty() applicationId: string;
-  @ApiProperty() tenantId: string;
   @ApiProperty() membership: Membership[];
   @ApiProperty() userData: UserData;
   @ApiProperty() email: string;

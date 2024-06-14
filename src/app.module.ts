@@ -21,6 +21,7 @@ import { HeaderAuthService } from './header-auth/header-auth.service';
 import { KeyModule } from './key/key.module';
 import { RefreshTokenModule } from './refresh_tokens/refreshtokens.module';
 import { LoginModule } from './login/login.module';
+import { KeyService } from './key/key.service';
 
 @Module({
   imports: [OidcModule, UserModule, PrismaModule,JwtModule.register({
@@ -30,7 +31,7 @@ import { LoginModule } from './login/login.module';
 
     }), ApplicationModule,ScheduleModule.forRoot(), KeyModule, RefreshTokenModule, LoginModule],
     controllers: [AppController, TenantController,ApiKeysController],
-    providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService, MemoryMonitorService,ApiKeysService, UserRegistrationService, HeaderAuthService],
+    providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService, MemoryMonitorService,ApiKeysService, UserRegistrationService, HeaderAuthService,KeyService],
 
 })
 export class AppModule {}
