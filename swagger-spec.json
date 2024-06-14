@@ -1137,9 +1137,10 @@
         ]
       }
     },
-    "/oidc/authorize": {
+    "/oidc/auth": {
       "get": {
         "operationId": "OidcController_authorize",
+        "summary": "OIDC Authorization Endpoint",
         "parameters": [
           {
             "name": "client_id",
@@ -1177,6 +1178,14 @@
             "name": "scope",
             "required": true,
             "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -1184,12 +1193,16 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Redirects to login page or authorizes the user"
           }
-        }
+        },
+        "tags": [
+          "OIDC"
+        ]
       },
       "post": {
         "operationId": "OidcController_postAuthorize",
+        "summary": "OIDC Post Authorization Endpoint",
         "parameters": [
           {
             "name": "client_id",
@@ -1227,6 +1240,14 @@
             "name": "scope",
             "required": true,
             "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -1243,16 +1264,29 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "Returns authentication token"
           }
-        }
+        },
+        "tags": [
+          "OIDC"
+        ]
       }
     },
     "/oidc/token": {
       "post": {
         "operationId": "OidcController_returnToken",
-        "parameters": [],
+        "summary": "OIDC Token Endpoint",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1264,10 +1298,13 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "Returns tokens (idToken, accessToken, refreshToken)"
           }
-        }
+        },
+        "tags": [
+          "OIDC"
+        ]
       }
     },
     "/user": {

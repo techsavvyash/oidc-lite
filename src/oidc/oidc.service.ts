@@ -20,7 +20,12 @@ export class OidcService {
   constructor(private readonly prismaService: PrismaService) {
     this.logger = new Logger(OidcService.name);
   }
-  async authorize(req: Request, res: Response, query: OIDCAuthQuery) {
+  async authorize(
+    req: Request,
+    res: Response,
+    query: OIDCAuthQuery,
+    headers: object,
+  ) {
     const { client_id, tenantId, redirect_uri, response_type, scope } = query;
     if (!client_id) {
       throw new BadRequestException({
@@ -64,7 +69,7 @@ export class OidcService {
     }
   }
 
-  async postAuthorize(data: LoginDto, query: OIDCAuthQuery) {
+  async postAuthorize(data: LoginDto, query: OIDCAuthQuery, headers: object) {
     if (!data || !data.loginId || !data.password) {
       throw new BadRequestException({
         success: false,
@@ -135,7 +140,7 @@ export class OidcService {
     }
   }
 
-  async returnToken(headers: object, data: TokenDto): Promise<ResponseDto> {
+  async returnToken(data: TokenDto, headers: object): Promise<ResponseDto> {
     if (headers['content-type'] !== 'application/x-www-form-urlencoded') {
       throw new BadRequestException({
         success: false,
