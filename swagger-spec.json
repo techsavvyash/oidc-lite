@@ -1527,6 +1527,20 @@
         ]
       }
     },
+    "/user/registration/combined": {
+      "post": {
+        "operationId": "UserController_createAUserAndUserRegistration",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "User"
+        ]
+      }
+    },
     "/user/registration/{userId}": {
       "post": {
         "operationId": "UserController_createAUserRegistration",

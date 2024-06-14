@@ -33,7 +33,9 @@ CREATE TABLE "Application" (
     "updatedAt" DATETIME NOT NULL,
     "name" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
-    CONSTRAINT "Application_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "Application_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Application_accessTokenSigningKeysId_fkey" FOREIGN KEY ("accessTokenSigningKeysId") REFERENCES "Key" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "Application_idTokenSigningKeysId_fkey" FOREIGN KEY ("idTokenSigningKeysId") REFERENCES "Key" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -97,6 +99,7 @@ CREATE TABLE "RefreshToken" (
     "tokenText" TEXT,
     "usersId" TEXT NOT NULL,
     CONSTRAINT "RefreshToken_applicationsId_fkey" FOREIGN KEY ("applicationsId") REFERENCES "Application" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "RefreshToken_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "RefreshToken_usersId_fkey" FOREIGN KEY ("usersId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -108,7 +111,9 @@ CREATE TABLE "Tenant" (
     "idTokenSigningKeysId" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    "name" TEXT NOT NULL
+    "name" TEXT NOT NULL,
+    CONSTRAINT "Tenant_accessTokenSigningKeysId_fkey" FOREIGN KEY ("accessTokenSigningKeysId") REFERENCES "Key" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Tenant_idTokenSigningKeysId_fkey" FOREIGN KEY ("idTokenSigningKeysId") REFERENCES "Key" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -122,8 +127,6 @@ CREATE TABLE "UserRegistration" (
     "lastLoginInstant" BIGINT,
     "updatedAt" DATETIME NOT NULL,
     "usersId" TEXT NOT NULL,
-    "verified" BOOLEAN NOT NULL,
-    "verifiedInstant" BIGINT,
     CONSTRAINT "UserRegistration_applicationsId_fkey" FOREIGN KEY ("applicationsId") REFERENCES "Application" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "UserRegistration_usersId_fkey" FOREIGN KEY ("usersId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );

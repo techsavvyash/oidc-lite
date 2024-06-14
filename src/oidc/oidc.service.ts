@@ -111,7 +111,6 @@ export class OidcService {
               authenticationToken,
               password,
               usersId: user.id,
-              verified: true,
             },
           });
         return {

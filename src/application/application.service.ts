@@ -23,7 +23,6 @@ export class ApplicationService {
     private readonly prismaService: PrismaService,
     private readonly applicationRoles: ApplicationRolesService,
     private readonly applicationScopes: ApplicationScopesService,
-    private readonly tenantService: TenantService,
     private readonly headerAuthService: HeaderAuthService,
   ) {
     this.logger = new Logger(ApplicationService.name);
@@ -60,9 +59,9 @@ export class ApplicationService {
       });
     }
     const application = await this.prismaService.application.findUnique({
-      where: { id: uuid },
+      where: { id: uuid,name: data.name },
     });
-    if (application || data.name === application.name) {
+    if (application) {
       throw new BadRequestException({
         success: false,
         message: 'Application with the provided id/name already exists',
@@ -80,8 +79,8 @@ export class ApplicationService {
         message: 'jwtConfiguration not provided',
       });
     }
-    const tenant = await this.tenantService.returnATenant(tenant_id, headers);
-    if (!tenant.success) {
+    const tenant = await this.prismaService.tenant.findUnique({where: {id: tenant_id}});
+    if (!tenant) {
       throw new BadRequestException({
         success: false,
         message: 'No such tenant exists',
@@ -90,9 +89,10 @@ export class ApplicationService {
     const jwtConfiguration = data.jwtConfiguration;
     const accessTokenSigningKeysId = jwtConfiguration.accessTokenSigningKeysID;
     const idTokenSigningKeysId = jwtConfiguration.idTokenSigningKeysID;
+    console.log(accessTokenSigningKeysId,idTokenSigningKeysId,tenant.accessTokenSigningKeysId,tenant.idTokenSigningKeysId);
     if (
-      tenant.data.accessTokenSigningKeysId !== accessTokenSigningKeysId ||
-      tenant.data.idTokenSigningKeysId !== idTokenSigningKeysId
+      tenant.accessTokenSigningKeysId !== accessTokenSigningKeysId ||
+      tenant.idTokenSigningKeysId !== idTokenSigningKeysId
     ) {
       throw new BadRequestException({
         success: false,
@@ -104,7 +104,7 @@ export class ApplicationService {
     const name = data.name;
     const roles = data.roles;
     const scopes = data.scopes;
-    const tenantId = tenant.data.id;
+    const tenantId = tenant.id;
     const configurations = JSON.stringify(data.oauthConfiguration);
 
     try {
