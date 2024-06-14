@@ -9,8 +9,9 @@ import {
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { ResponseTenantDto, ResponseDto } from 'src/dto/response.dto';
-import { CreateTenantDto, UpdateTenantDto } from 'src/dto/tenant.dto';
+import { CreateTenantDto, UpdateTenantDto } from './tenant.dto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
+import { KeyService } from 'src/key/key.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -19,6 +20,7 @@ export class TenantService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly headerAuthService: HeaderAuthService,
+    private readonly keyService: KeyService,
   ) {
     this.logger = new Logger(TenantService.name);
   }
@@ -79,6 +81,18 @@ export class TenantService {
 
     const accessTokenSigningKeysId = jwtConfiguration.accessTokenKeyID;
     const idTokenSigningKeysId = jwtConfiguration.idTokenKeyID;
+    const idTokenSigningKey = await this.prismaService.key.findUnique({
+      where: { id: idTokenSigningKeysId },
+    });
+    const accessTokenSigningKey = await this.prismaService.key.findUnique({
+      where: { id: accessTokenSigningKeysId },
+    });
+    if (!idTokenSigningKey || !accessTokenSigningKey) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Either one of signingKeys dont exists',
+      });
+    }
     const name = data.name;
     const additionalData = data.data ? JSON.stringify(data.data) : '';
     try {

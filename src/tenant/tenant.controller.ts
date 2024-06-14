@@ -18,7 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { ResponseDto } from 'src/dto/response.dto';
 import { TenantService } from './tenant.service';
-import { CreateTenantDto } from 'src/dto/tenant.dto';
+import { CreateTenantDto } from './tenant.dto';
 import { randomUUID } from 'crypto';
 
 @ApiTags('Tenant')

@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { CreateApiKeyDto, UpdateApiKeyDto } from 'src/dto/apiKey.dto';
+import { CreateApiKeyDto, UpdateApiKeyDto } from 'src/api-keys/apiKey.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()

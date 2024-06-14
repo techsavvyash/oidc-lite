@@ -11,11 +11,12 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
+  CreateUserAndUserRegistration,
   CreateUserDto,
   CreateUserRegistrationDto,
   UpdateUserDto,
   UpdateUserRegistrationDto,
-} from 'src/dto/user.dto';
+} from './user.dto';
 import {
   ApiBody,
   ApiOperation,
@@ -137,9 +138,29 @@ export class UserController {
     return await this.userService.deleteAUser(id, headers, hardDelete);
   }
 
+  @Post('/registration/combined')
+  async createAUserAndUserRegistration(
+    @Body('data') data: CreateUserAndUserRegistration,
+    @Headers() headers: object,
+  ) {
+    const uuid = randomUUID();
+    return await this.userRegistrationService.createAUserAndUserRegistration(
+      uuid,
+      data,
+      headers,
+    );
+  }
+
   @ApiOperation({ summary: 'Create a user registration' })
-  @ApiBody({ type: CreateUserRegistrationDto, description: 'User registration data' })
-  @ApiResponse({ status: 201, description: 'User registration created successfully', type: ResponseDto })
+  @ApiBody({
+    type: CreateUserRegistrationDto,
+    description: 'User registration data',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'User registration created successfully',
+    type: ResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiParam({ name: 'userId', description: 'User ID' })
@@ -158,7 +179,11 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Get a user registration' })
-  @ApiResponse({ status: 200, description: 'User registration retrieved successfully', type: ResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'User registration retrieved successfully',
+    type: ResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiParam({ name: 'userId', description: 'User ID' })
@@ -178,8 +203,15 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Update a user registration' })
-  @ApiBody({ type: UpdateUserRegistrationDto, description: 'User registration data to update' })
-  @ApiResponse({ status: 200, description: 'User registration updated successfully', type: ResponseDto })
+  @ApiBody({
+    type: UpdateUserRegistrationDto,
+    description: 'User registration data to update',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User registration updated successfully',
+    type: ResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiParam({ name: 'userId', description: 'User ID' })
@@ -201,7 +233,11 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Delete a user registration' })
-  @ApiResponse({ status: 200, description: 'User registration deleted successfully', type: ResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'User registration deleted successfully',
+    type: ResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiParam({ name: 'userId', description: 'User ID' })

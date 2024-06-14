@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { RoleDto, UpdateRoleDto } from 'src/dto/application.dto';
+import { RoleDto, UpdateRoleDto } from 'src/application/application.dto';
 import { ResponseDto } from 'src/dto/response.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 

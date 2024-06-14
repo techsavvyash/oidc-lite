@@ -10,7 +10,7 @@ import { ApplicationScopesService } from 'src/application/application-scopes/app
 import {
   CreateApplicationDto,
   UpdateApplicationDto,
-} from 'src/dto/application.dto';
+} from 'src/application/application.dto';
 import { ResponseDto } from 'src/dto/response.dto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';

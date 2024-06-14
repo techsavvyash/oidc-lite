@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ResponseDto } from 'src/dto/response.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Permissions } from 'src/dto/apiKey.dto';
+import { Permissions } from 'src/api-keys/apiKey.dto';
 
 @Injectable()
 export class HeaderAuthService {

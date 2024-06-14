@@ -2751,14 +2751,10 @@
             "items": {
               "type": "string"
             }
-          },
-          "tenantId": {
-            "type": "string"
           }
         },
         "required": [
-          "endpoints",
-          "tenantId"
+          "endpoints"
         ]
       },
       "CreateApiKeyDto": {
@@ -2772,12 +2768,16 @@
           },
           "metaData": {
             "type": "object"
+          },
+          "tenantId": {
+            "type": "string"
           }
         },
         "required": [
           "key",
           "permissions",
-          "metaData"
+          "metaData",
+          "tenantId"
         ]
       },
       "ApiKey": {
@@ -2950,9 +2950,6 @@
           "applicationId": {
             "type": "string"
           },
-          "tenantId": {
-            "type": "string"
-          },
           "membership": {
             "type": "array",
             "items": {
@@ -2970,7 +2967,6 @@
           "active",
           "additionalData",
           "applicationId",
-          "tenantId",
           "membership",
           "userData",
           "email"
@@ -3009,7 +3005,7 @@
       "CreateUserRegistrationDto": {
         "type": "object",
         "properties": {
-          "genenrateAuthenticationToken": {
+          "generateAuthenticationToken": {
             "type": "boolean"
           },
           "applicationsId": {
@@ -3029,7 +3025,7 @@
           }
         },
         "required": [
-          "genenrateAuthenticationToken",
+          "generateAuthenticationToken",
           "applicationsId",
           "data",
           "registrationId",
@@ -3111,9 +3107,6 @@
               "type": "string"
             }
           },
-          "tenant_id": {
-            "type": "string"
-          },
           "jwtConfiguration": {
             "$ref": "#/components/schemas/JwtConfiguration"
           },
@@ -3126,7 +3119,6 @@
           "name",
           "scopes",
           "roles",
-          "tenant_id",
           "jwtConfiguration",
           "oauthConfiguration"
         ]
@@ -3136,9 +3128,6 @@
         "properties": {
           "active": {
             "type": "boolean"
-          },
-          "tenant_id": {
-            "type": "string"
           },
           "jwtConfiguration": {
             "$ref": "#/components/schemas/JwtConfiguration"
@@ -3152,7 +3141,6 @@
         },
         "required": [
           "active",
-          "tenant_id",
           "jwtConfiguration",
           "oauthConfiguration",
           "name"

@@ -5,69 +5,19 @@ import {
   UnauthorizedException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Permissions } from 'src/dto/apiKey.dto';
 import { ResponseDto } from 'src/dto/response.dto';
-import { CreateUserDto, UpdateUserDto } from 'src/dto/user.dto';
+import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
   private readonly logger: Logger;
-  constructor(private readonly prismaService: PrismaService) {
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly headerAuthService: HeaderAuthService,
+  ) {
     this.logger = new Logger();
-  }
-
-  async authorizationHeaderVerifier(
-    headers: object,
-    tenantID: string,
-    requestedUrl: string,
-    requestedMethod: string,
-  ): Promise<ResponseDto> {
-    const token = headers['authorization'];
-    if (!token) {
-      return {
-        success: false,
-        message: 'authorization header required',
-      };
-    }
-    const headerKey = await this.prismaService.authenticationKey.findUnique({
-      where: {
-        keyValue: token,
-      },
-    });
-    if (!headerKey) {
-      return {
-        success: false,
-        message: 'You are not authorized',
-      };
-    }
-    const permissions: Permissions = JSON.parse(headerKey.permissions);
-    let allowed = permissions ? false : true;
-    if (permissions) {
-      if (permissions.endpoints) {
-        permissions.endpoints.forEach((val) => {
-          allowed =
-            (val.url === requestedUrl && val.methods === requestedMethod) ||
-            allowed;
-        });
-      } else {
-        allowed = true;
-      }
-      allowed =
-        allowed &&
-        (permissions.tenantId === tenantID || permissions.tenantId === null); // allowed only if tenant scoped or same tenantid
-    }
-
-    if (!allowed) {
-      return {
-        success: false,
-        message: 'Not authorized',
-      };
-    }
-    return {
-      success: true,
-      message: 'Authorized',
-    };
   }
 
   async createAUser(
@@ -75,18 +25,17 @@ export class UserService {
     data: CreateUserDto,
     headers: object,
   ): Promise<ResponseDto> {
-    console.log(data);
     if (!data) {
       throw new BadRequestException({
         success: false,
-        message: 'No data given to create a tenant',
+        message: 'No data given to create a user',
       });
     }
-    const { tenantId } = data;
+    const tenantId = headers['x-stencil-tenantid']
     if (!tenantId) {
       throw new BadRequestException({
         success: false,
-        message: 'Data dont have tenantId',
+        message: 'x-stencil-tenantid header missing',
       });
     }
     const tenant = await this.prismaService.tenant.findUnique({
@@ -98,7 +47,7 @@ export class UserService {
         message: 'No such tenant exists',
       });
     }
-    const valid = await this.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
       tenantId,
       '/user',
@@ -121,7 +70,8 @@ export class UserService {
       !data.active ||
       !data.applicationId ||
       !data.membership ||
-      !data.userData || !data.email
+      !data.userData ||
+      !data.email
     ) {
       throw new BadRequestException({
         success: false,
@@ -162,7 +112,7 @@ export class UserService {
           tenantId,
           groupId: membership[0].groupId,
           data: JSON.stringify(userInfo),
-          email: data.email
+          email: data.email,
         },
       });
       this.logger.log('A new user created', user);
@@ -188,7 +138,7 @@ export class UserService {
         message: 'x-stencil-tenantid missing in header',
       });
     }
-    const valid = await this.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
       tenantID,
       '/user',
@@ -238,7 +188,7 @@ export class UserService {
         message: 'x-stencil-tenantid missing in header',
       });
     }
-    const valid = await this.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
       tenantID,
       '/user',
@@ -325,7 +275,7 @@ export class UserService {
         message: 'x-stencil-tenantid missing in header',
       });
     }
-    const valid = await this.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
       tenantID,
       '/user',

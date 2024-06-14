@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { ScopeDto, UpdateScopeDto } from 'src/dto/application.dto';
+import { ScopeDto, UpdateScopeDto } from 'src/application/application.dto';
 import { ResponseDto } from 'src/dto/response.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 

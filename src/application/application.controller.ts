@@ -25,7 +25,7 @@ import {
   UpdateApplicationDto,
   UpdateRoleDto,
   UpdateScopeDto,
-} from 'src/dto/application.dto';
+} from 'src/application/application.dto';
 import { ResponseDto } from 'src/dto/response.dto';
 import { randomUUID } from 'crypto';
 import { ApplicationRolesService } from './application-roles/application-roles.service';

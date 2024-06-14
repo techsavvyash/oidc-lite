@@ -7,71 +7,24 @@ import {
 } from '@nestjs/common';
 import { ResponseDto } from 'src/dto/response.dto';
 import {
+  CreateUserAndUserRegistration,
   CreateUserRegistrationDto,
   UpdateUserRegistrationDto,
-} from 'src/dto/user.dto';
-import { Permissions } from 'src/dto/apiKey.dto';
+} from '../user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { randomUUID } from 'crypto';
+import { HeaderAuthService } from 'src/header-auth/header-auth.service';
+import { UserService } from '../user.service';
 
 @Injectable()
 export class UserRegistrationService {
   private readonly logger: Logger;
-  constructor(private readonly prismaService: PrismaService) {
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly headerAuthService: HeaderAuthService,
+    private readonly userService: UserService,
+  ) {
     this.logger = new Logger();
-  }
-
-  async authorizationHeaderVerifier(
-    headers: object,
-    tenantId: string,
-    requestedUrl: string,
-    requestedMethod: string,
-  ): Promise<ResponseDto> {
-    const token = headers['authorization'];
-    if (!token) {
-      return {
-        success: false,
-        message: 'authorization header required',
-      };
-    }
-    const headerKey = await this.prismaService.authenticationKey.findUnique({
-      where: {
-        keyValue: token,
-      },
-    });
-    if (!headerKey) {
-      return {
-        success: false,
-        message: 'You are not authorized',
-      };
-    }
-    const permissions: Permissions = JSON.parse(headerKey.permissions);
-    let allowed = permissions ? false : true;
-    if (permissions) {
-      if (permissions.endpoints) {
-        permissions.endpoints.forEach((val) => {
-          allowed =
-            (val.url === requestedUrl && val.methods === requestedMethod) ||
-            allowed;
-        });
-      } else {
-        allowed = true;
-      }
-      allowed =
-        allowed &&
-        (permissions.tenantId === tenantId || permissions.tenantId === null); // allowed only if tenant scoped or same tenantid
-    }
-
-    if (!allowed) {
-      return {
-        success: false,
-        message: 'Not authorized',
-      };
-    }
-    return {
-      success: true,
-      message: 'Authorized',
-    };
   }
 
   async createAUserRegistration(
@@ -95,7 +48,7 @@ export class UserRegistrationService {
       });
     }
     const tenantId = application.tenantId;
-    const valid = await this.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
       tenantId,
       '/user/registration',
@@ -125,7 +78,7 @@ export class UserRegistrationService {
     const registrationId = data.registrationId
       ? data.registrationId
       : randomUUID();
-    const authenticationToken = data.genenrateAuthenticationToken
+    const authenticationToken = data.generateAuthenticationToken
       ? randomUUID()
       : null;
     const roles = Promise.all(
@@ -141,8 +94,8 @@ export class UserRegistrationService {
     const additionalData = data.data;
     const password: string | null = (await JSON.parse(user.data))?.userData
       ?.password;
-    const verified = false; //for now
-    const verifiedInstant = 0;
+    // const verified = false; //for now
+    // const verifiedInstant = 0;
     try {
       const userRegistration = await this.prismaService.userRegistration.create(
         {
@@ -150,8 +103,6 @@ export class UserRegistrationService {
             id: registrationId,
             authenticationToken,
             data: JSON.stringify(additionalData),
-            verified,
-            verifiedInstant,
             usersId: userId,
             applicationsId: application.id,
             password,
@@ -189,7 +140,7 @@ export class UserRegistrationService {
       });
     }
     const tenantId = application.tenantId;
-    const valid = await this.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
       tenantId,
       '/user/registration',
@@ -255,7 +206,7 @@ export class UserRegistrationService {
       });
     }
     const tenantId = application.tenantId;
-    const valid = await this.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
       tenantId,
       '/user/registration',
@@ -325,7 +276,7 @@ export class UserRegistrationService {
       });
     }
     const tenantId = application.tenantId;
-    const valid = await this.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
       tenantId,
       '/user/registration',
@@ -368,6 +319,89 @@ export class UserRegistrationService {
       throw new InternalServerErrorException({
         success: false,
         message: 'Internal server error while deleting a user registration',
+      });
+    }
+  }
+
+  async createAUserAndUserRegistration(
+    userId: string,
+    data: CreateUserAndUserRegistration,
+    headers: object,
+  ): Promise<ResponseDto> {
+    const tenantId = headers['x-stencil-tenantid'];
+    if (!tenantId) {
+      throw new BadRequestException({
+        success: false,
+        message: 'x-stencil-tenantid header mission',
+      });
+    }
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      tenantId,
+      '/user/registration',
+      'POST',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: false,
+        message: valid.message,
+      });
+    }
+    const { userInfo, registrationInfo } = data;
+    if (!registrationInfo.roles || registrationInfo.roles.length === 0) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No roles provided',
+      });
+    }
+    if (
+      !userInfo.active ||
+      !userInfo.applicationId ||
+      !userInfo.membership ||
+      !userInfo.userData ||
+      !userInfo.email
+    ) {
+      throw new BadRequestException({
+        success: false,
+        message:
+          'Data missing active, applicationId, membership array, email or userData',
+      });
+    }
+    try {
+      const user = await this.userService.createAUser(
+        userId,
+        userInfo,
+        headers,
+      );
+      try {
+        const userRegistration = await this.createAUserRegistration(
+          userId,
+          registrationInfo,
+          headers,
+        );
+        return {
+          success: true,
+          message: 'User and user registration created successfully!',
+          data: {
+            user,
+            userRegistration,
+          },
+        };
+      } catch (error) {
+        this.logger.log(
+          'Error occured while creating User registration',
+          error,
+        );
+        throw new InternalServerErrorException({
+          success: false,
+          message: 'Error occured while creating user Registration',
+        });
+      }
+    } catch (error) {
+      this.logger.log('Error occured while creating a user', error);
+      throw new InternalServerErrorException({
+        success: false,
+        message: 'Error occured while creating a user',
       });
     }
   }
