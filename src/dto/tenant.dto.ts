@@ -10,5 +10,11 @@ class JwtConfiguration {
 export class CreateTenantDto {
   @ApiProperty() name: string;
   @ApiProperty() jwtConfiguration: JwtConfiguration;
-  @ApiProperty() data?: any; // additional data
+  @ApiProperty() data?: string | JSON; // additional data
+}
+
+export class UpdateTenantDto {
+  @ApiProperty() jwtConfiguration?: JwtConfiguration;
+  @ApiProperty() name?: string;
+  @ApiProperty() data?: string | JSON;
 }

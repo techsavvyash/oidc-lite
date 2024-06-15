@@ -27,6 +27,14 @@ export class ApplicationService {
   }
 
   async createApplication(uuid: string, data: CreateApplicationDto) {
+    const application = await this.prismaService.application.findUnique({
+      where: { id: uuid },
+    });
+    if (application) {
+      throw new BadRequestException({
+        message: 'Application with the provided id already exists',
+      });
+    }
     if (!data) {
       throw new BadRequestException({
         message: 'No data given',
@@ -175,17 +183,19 @@ export class ApplicationService {
 
   async deleteApplication(id: string, hardDelete: boolean) {
     if (hardDelete) {
-      const application = await this.prismaService.application.delete({ where: { id } });
+      const application = await this.prismaService.application.delete({
+        where: { id },
+      });
       return {
-        message: "Application deleted Successfully!",
-        application
-      }
+        message: 'Application deleted Successfully!',
+        application,
+      };
     } else {
       const application = await this.patchApplication(id, { active: false });
       return {
-        message: "Application soft deleted/inactive",
-        application
-      }
+        message: 'Application soft deleted/inactive',
+        application,
+      };
     }
   }
 
