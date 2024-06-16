@@ -95,7 +95,6 @@ export class ApiKeysController {
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Get('/:id')
   async returnAnApiKey(@Param('id') id: string, @Headers() headers: object) {
-    console.log(typeof headers);
     return await this.apiKeysService.returnAnApiKey(id, headers);
   }
 

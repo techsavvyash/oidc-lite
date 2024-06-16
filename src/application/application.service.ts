@@ -14,7 +14,6 @@ import {
 import { ResponseDto } from 'src/dto/response.dto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { TenantService } from 'src/tenant/tenant.service';
 
 @Injectable()
 export class ApplicationService {

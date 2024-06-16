@@ -168,8 +168,14 @@ export class ApplicationController {
   async createRoleWithRandomUUID(
     @Param('id') id: string,
     @Body('data') data: RoleDto,
+    @Headers() headers: object,
   ): Promise<ResponseDto> {
-    return await this.applicationRoleService.createRole(data, id);
+    return await this.applicationRoleService.createRole(
+      data,
+      id,
+      null,
+      headers,
+    );
   }
 
   @ApiOperation({
@@ -190,8 +196,14 @@ export class ApplicationController {
     @Param('id') id: string,
     @Param('roleId') roleId: string,
     @Body('data') data: RoleDto,
+    @Headers() headers: object,
   ): Promise<ResponseDto> {
-    return await this.applicationRoleService.createRole(data, id, roleId);
+    return await this.applicationRoleService.createRole(
+      data,
+      id,
+      roleId,
+      headers,
+    );
   }
 
   @ApiOperation({ summary: 'Delete a role from an application' })
@@ -208,8 +220,9 @@ export class ApplicationController {
   async deleteRole(
     @Param('id') id: string,
     @Param('roleId') roleId: string,
+    @Headers() headers: object,
   ): Promise<ResponseDto> {
-    return await this.applicationRoleService.deleteRole(id, roleId);
+    return await this.applicationRoleService.deleteRole(id, roleId, headers);
   }
 
   @ApiOperation({ summary: 'Update a role for an application' })
@@ -228,8 +241,14 @@ export class ApplicationController {
     @Param('id') id: string,
     @Param('roleId') roleId: string,
     @Body('data') data: RoleDto,
+    @Headers() headers: object,
   ): Promise<ResponseDto> {
-    return await this.applicationRoleService.updateRole(id, roleId, data);
+    return await this.applicationRoleService.updateRole(
+      id,
+      roleId,
+      data,
+      headers,
+    );
   }
 
   @ApiOperation({
@@ -248,8 +267,14 @@ export class ApplicationController {
   async createScopeWithRandomUUID(
     @Param('id') id: string,
     @Body('data') data: ScopeDto,
+    @Headers() headers: object,
   ) {
-    return await this.applicationScopeService.createScope(data, id);
+    return await this.applicationScopeService.createScope(
+      data,
+      id,
+      null,
+      headers,
+    );
   }
 
   @ApiOperation({
@@ -269,8 +294,14 @@ export class ApplicationController {
     @Param('id') id: string,
     @Param('scopeId') scopeId: string,
     @Body('data') data: ScopeDto,
+    @Headers() headers: object,
   ) {
-    return await this.applicationScopeService.createScope(data, id, scopeId);
+    return await this.applicationScopeService.createScope(
+      data,
+      id,
+      scopeId,
+      headers,
+    );
   }
 
   @ApiOperation({ summary: 'Delete a scope from an application' })
@@ -287,8 +318,9 @@ export class ApplicationController {
   async deleteScope(
     @Param('id') id: string,
     @Param('scopeId') scopeId: string,
+    @Headers() headers: object,
   ) {
-    return await this.applicationScopeService.deleteScope(id, scopeId);
+    return await this.applicationScopeService.deleteScope(id, scopeId, headers);
   }
 
   @ApiOperation({ summary: 'Update a Scope for an application' })
@@ -307,8 +339,14 @@ export class ApplicationController {
     @Param('id') id: string,
     @Param('scopeId') scopeId: string,
     @Body('data') data: ScopeDto,
+    @Headers() headers: object,
   ): Promise<ResponseDto> {
-    return await this.applicationScopeService.updateScope(id, scopeId, data);
+    return await this.applicationScopeService.updateScope(
+      id,
+      scopeId,
+      data,
+      headers,
+    );
   }
 
   @ApiOperation({ summary: 'Get OAuth configuration for an application by ID' })

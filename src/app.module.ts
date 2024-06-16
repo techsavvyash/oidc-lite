@@ -19,9 +19,7 @@ import { ApiKeysService } from './api-keys/api-keys.service';
 import { UserRegistrationService } from './user/user-registration/user-registration.service';
 import { HeaderAuthService } from './header-auth/header-auth.service';
 import { KeyModule } from './key/key.module';
-<<<<<<< HEAD
 import { GroupModule } from './groups/groups.module';
-=======
 import { RefreshTokenModule } from './refresh_tokens/refreshtokens.module';
 import { LoginModule } from './login/login.module';
 import { KeyService } from './key/key.service';

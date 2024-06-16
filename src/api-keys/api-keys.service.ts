@@ -14,7 +14,7 @@ export class ApiKeysService {
   private readonly logger: Logger;
 
   constructor(private readonly prismaService: PrismaService) {
-    this.logger = new Logger();
+    this.logger = new Logger(ApiKeysService.name);
   }
 
   async createAnApiKey(id: string, data: CreateApiKeyDto, headers: object) {
@@ -96,7 +96,7 @@ export class ApiKeysService {
         data: apiKey,
       };
     } catch (error) {
-      console.log('Error from createAnApiKey', error);
+      this.logger.log('Error from createAnApiKey', error);
       throw new InternalServerErrorException({
         success: false,
         message: 'Some internal server error occured while creating the apikey',
@@ -231,7 +231,7 @@ export class ApiKeysService {
         data: apiKey,
       };
     } catch (error) {
-      console.log('Error occured in UpdateAnApiKey', error);
+      this.logger.log('Error occured in UpdateAnApiKey', error);
       throw new InternalServerErrorException({
         success: false,
         message: 'some error occured while updating the key',

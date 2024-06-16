@@ -2633,12 +2633,6 @@
         }
       }
     },
-<<<<<<< HEAD
-    "/group": {
-      "post": {
-        "operationId": "GroupsController_createGroup",
-        "parameters": [],
-=======
     "/jwt/refresh": {
       "post": {
         "operationId": "RefreshTokensController_refreshToken",
@@ -2670,7 +2664,6 @@
             }
           }
         },
->>>>>>> refresh-token-api
         "responses": {
           "201": {
             "description": ""
@@ -2678,68 +2671,12 @@
         }
       },
       "get": {
-<<<<<<< HEAD
-        "operationId": "GroupsController_retrieveAllGp",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/group/{id}": {
-      "post": {
-        "operationId": "GroupsController_createGroupById",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      },
-      "get": {
-        "operationId": "GroupsController_retrieveGpById",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "put": {
-        "operationId": "GroupsController_updateGP",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-=======
         "operationId": "RefreshTokensController_retrieveByUserID",
         "parameters": [
           {
             "name": "userId",
             "required": true,
             "in": "header",
->>>>>>> refresh-token-api
             "schema": {
               "type": "string"
             }
@@ -2752,9 +2689,6 @@
         }
       },
       "delete": {
-<<<<<<< HEAD
-        "operationId": "GroupsController_deleteGP",
-=======
         "operationId": "RefreshTokensController_deletereftoken",
         "parameters": [],
         "responses": {
@@ -2767,7 +2701,6 @@
     "/jwt/refresh/{id}": {
       "get": {
         "operationId": "RefreshTokensController_retrieve",
->>>>>>> refresh-token-api
         "parameters": [
           {
             "name": "id",
@@ -2784,8 +2717,6 @@
           }
         }
       }
-<<<<<<< HEAD
-=======
     },
     "/jwt/refresh/{tokenId}": {
       "delete": {
