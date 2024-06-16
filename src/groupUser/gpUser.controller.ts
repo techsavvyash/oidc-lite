@@ -1,7 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
+import { BadGatewayException, Body, Controller, Delete, Get, Headers, Param, Post, Put } from "@nestjs/common";
 import { randomFill, randomUUID } from "crypto";
 import { GroupUserService } from "./gpUser.service";
-import { MembersDTO } from "./gpUser.dto";
+import { addUserDTO, deleteMemberDTO } from "./gpUser.dto";
 
 
 @Controller('groups')
@@ -12,10 +12,39 @@ export class GroupUserController{
 
     // group user routes 
     @Post('/member')
-    async addUserToGP(@Body('members') data : MembersDTO, uuid ?: string){
+    async addUserToGP(@Body() data : addUserDTO, uuid ?: string){
         if(!uuid){
             uuid = randomUUID()
         }
-        return this.groupUserService.addUser(data, uuid)
+        return this.groupUserService.addUser(data)
+    }
+    @Put('/member')
+    async updateUser(@Body() data : addUserDTO){
+        return this.groupUserService.updateUser(data)
+    }
+
+    @Delete('member/:id')
+    async delete(@Param('id') id : string){
+        return this.groupUserService.deleteByMemberId(id)
+    }
+    @Delete('/member')
+    async deleteUser(
+        @Body('groupId') gpId ?: string,
+        @Body('userId') userId ?: string,
+        @Body('memberIds') members ?: deleteMemberDTO
+    ){
+        if(gpId && userId){
+            return this.groupUserService.deleteViaUserAndGpId(userId, gpId)
+        }else if (gpId){
+            console.log("-----------")
+            return this.groupUserService.deleteAllUser(gpId)
+        }else if(members){
+            return this.groupUserService.deleteMembers(members)
+        }else{
+            throw new BadGatewayException({ 
+                success : false,
+                message : 'invalid parameters'
+            })
+        }
     }
 }
