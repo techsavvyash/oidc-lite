@@ -31,6 +31,7 @@ export class KeyController{
     async randomgenerateKey(@Body('key') key : generateKeyDTO){
         const uuid = randomUUID();
         return this.keyservice.generateKey(uuid, key);
+        return this.keyservice.generateKey(uuid, key);
     }
     @Post('/generate/:id')
     async generateKey(@Param('id') uuid : string,@Body('key') key : generateKeyDTO){
