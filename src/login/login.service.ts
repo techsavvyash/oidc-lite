@@ -7,8 +7,6 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { LoginDto } from './login.dto';
 import { ResponseDto } from 'src/dto/response.dto';
-import { Permissions } from 'src/api-keys/apiKey.dto';
-import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';

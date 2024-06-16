@@ -59,7 +59,7 @@ export class ApplicationService {
       });
     }
     const application = await this.prismaService.application.findUnique({
-      where: { id: uuid,name: data.name },
+      where: { id: uuid, name: data.name },
     });
     if (application) {
       throw new BadRequestException({
@@ -79,7 +79,9 @@ export class ApplicationService {
         message: 'jwtConfiguration not provided',
       });
     }
-    const tenant = await this.prismaService.tenant.findUnique({where: {id: tenant_id}});
+    const tenant = await this.prismaService.tenant.findUnique({
+      where: { id: tenant_id },
+    });
     if (!tenant) {
       throw new BadRequestException({
         success: false,
@@ -89,7 +91,16 @@ export class ApplicationService {
     const jwtConfiguration = data.jwtConfiguration;
     const accessTokenSigningKeysId = jwtConfiguration.accessTokenSigningKeysID;
     const idTokenSigningKeysId = jwtConfiguration.idTokenSigningKeysID;
-    console.log(accessTokenSigningKeysId,idTokenSigningKeysId,tenant.accessTokenSigningKeysId,tenant.idTokenSigningKeysId);
+    if (
+      !jwtConfiguration.refreshTokenTimeToLiveInMinutes ||
+      !jwtConfiguration.timeToLiveInSeconds
+    ) {
+      throw new BadRequestException({
+        success: false,
+        message:
+          'refreshTokenTimeToLiveInMinutes and timeToLiveInSeconds missing in jwtConfiguration',
+      });
+    }
     if (
       tenant.accessTokenSigningKeysId !== accessTokenSigningKeysId ||
       tenant.idTokenSigningKeysId !== idTokenSigningKeysId
@@ -122,10 +133,10 @@ export class ApplicationService {
 
       try {
         roles.forEach((value) =>
-          this.applicationRoles.createRole(value, application.id),
+          this.applicationRoles.createRole(value, application.id,null,headers),
         );
         scopes.forEach((value) =>
-          this.applicationScopes.createScope(value, application.id),
+          this.applicationScopes.createScope(value, application.id,null,headers),
         );
       } catch (error) {
         this.logger.log('This is error while creating scopes/roles: ', error);
@@ -203,9 +214,6 @@ export class ApplicationService {
       });
     }
     const name = newData.name ? newData.name : application.name;
-    // const jwtConfiguration = newData.jwtConfiguration
-    //   ? newData.jwtConfiguration
-    //   : null;
 
     const active =
       newData.active !== null ? newData.active : application.active;

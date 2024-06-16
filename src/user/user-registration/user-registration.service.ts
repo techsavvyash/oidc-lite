@@ -24,7 +24,7 @@ export class UserRegistrationService {
     private readonly headerAuthService: HeaderAuthService,
     private readonly userService: UserService,
   ) {
-    this.logger = new Logger();
+    this.logger = new Logger(UserRegistrationService.name);
   }
 
   async createAUserRegistration(
