@@ -52,7 +52,7 @@ export class KeyController{
     }
 
     @Put('/:id')
-    async udpatingKey(@Param('id') uuid : string, data : updateDTO){
+    async udpatingKey(@Param('id') uuid : string, @Body() data : updateDTO){
         return this.keyservice.updateKey(uuid , data);
     }
 
@@ -61,12 +61,16 @@ export class KeyController{
         return this.keyservice.deleteKey(uuid)
     }
     @Post('/generate')
+<<<<<<< HEAD
     async randomgenerateKey(@Body('key') key : generateKeyDTO){
+=======
+    async randomgenerateKey(@Body('key') data : generateKeyDTO){
+>>>>>>> refresh-token-api
         const uuid = randomUUID();
         return this.keyservice.generateKey(uuid, key);
     }
     @Post('/generate/:id')
-    async generateKey(@Param('id') uuid : string, data : generateKeyDTO){
+    async generateKey(@Param('id') uuid : string,@Body() data : generateKeyDTO){
         return this.keyservice.generateKey(uuid, data);
     }
 }

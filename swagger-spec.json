@@ -1331,6 +1331,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/updateDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -1380,6 +1390,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generateKeyDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": ""
@@ -1387,10 +1407,44 @@
         }
       }
     },
+<<<<<<< HEAD
     "/group": {
       "post": {
         "operationId": "GroupsController_createGroup",
         "parameters": [],
+=======
+    "/jwt/refresh": {
+      "post": {
+        "operationId": "RefreshTokensController_refreshToken",
+        "parameters": [
+          {
+            "name": "refreshToken",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "token",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/refreshDTO"
+              }
+            }
+          }
+        },
+>>>>>>> refresh-token-api
         "responses": {
           "201": {
             "description": ""
@@ -1398,6 +1452,7 @@
         }
       },
       "get": {
+<<<<<<< HEAD
         "operationId": "GroupsController_retrieveAllGp",
         "parameters": [],
         "responses": {
@@ -1451,6 +1506,14 @@
             "name": "id",
             "required": true,
             "in": "path",
+=======
+        "operationId": "RefreshTokensController_retrieveByUserID",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "header",
+>>>>>>> refresh-token-api
             "schema": {
               "type": "string"
             }
@@ -1463,7 +1526,22 @@
         }
       },
       "delete": {
+<<<<<<< HEAD
         "operationId": "GroupsController_deleteGP",
+=======
+        "operationId": "RefreshTokensController_deletereftoken",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/jwt/refresh/{id}": {
+      "get": {
+        "operationId": "RefreshTokensController_retrieve",
+>>>>>>> refresh-token-api
         "parameters": [
           {
             "name": "id",
@@ -1480,6 +1558,29 @@
           }
         }
       }
+<<<<<<< HEAD
+=======
+    },
+    "/jwt/refresh/{tokenId}": {
+      "delete": {
+        "operationId": "RefreshTokensController_deleteViaTokenID",
+        "parameters": [
+          {
+            "name": "tokenId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+>>>>>>> refresh-token-api
     }
   },
   "info": {
@@ -1492,6 +1593,7 @@
   "servers": [],
   "components": {
     "schemas": {
+<<<<<<< HEAD
       "JwtConfiguration": {
         "type": "object",
         "properties": {
@@ -1516,10 +1618,14 @@
         ]
       },
       "CreateTenantDto": {
+=======
+      "updateDTO": {
+>>>>>>> refresh-token-api
         "type": "object",
         "properties": {
           "name": {
             "type": "string"
+<<<<<<< HEAD
           },
           "jwtConfiguration": {
             "$ref": "#/components/schemas/JwtConfiguration"
@@ -1551,6 +1657,54 @@
           "success",
           "message",
           "data"
+=======
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "generateKeyDTO": {
+        "type": "object",
+        "properties": {
+          "algorithm": {
+            "type": "string"
+          },
+          "issuer": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "length": {
+            "type": "string"
+          },
+          "kid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "algorithm",
+          "issuer",
+          "name",
+          "length",
+          "kid"
+        ]
+      },
+      "refreshDTO": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "refreshToken",
+          "token"
+>>>>>>> refresh-token-api
         ]
       }
     }

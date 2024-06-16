@@ -35,8 +35,13 @@
     "body-parser": "^1.20.2",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.6",
+<<<<<<< HEAD
     "esm": "^3.2.25",
     "glob": "^10.4.1",
+=======
+    "crypto": "^1.0.1",
+    "jose": "^5.4.0",
+>>>>>>> refresh-token-api
     "jwk-to-pem": "^2.0.5",
     "memfs": "^4.9.2",
     "node-jose": "^2.2.0",
