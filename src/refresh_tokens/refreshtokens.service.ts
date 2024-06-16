@@ -1,7 +1,7 @@
 import { BadGatewayException, BadRequestException, Body, Header, Headers, Injectable, Logger, Options, Param } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "src/prisma/prisma.service";
-import { refreshCookiesDTO, refreshDTO } from "./refreshToken.dto";
+import { refreshDTO } from "./refreshToken.dto";
 import { userInfo } from "os";
 
 
@@ -16,7 +16,7 @@ export class RefreshTokensService {
         this.logger = new Logger();
     }
 
-    async refreshToken(@Headers() cookie: refreshCookiesDTO, @Body() data: refreshDTO) {
+    async refreshToken(@Headers() cookie: refreshDTO, @Body() data: refreshDTO) {
         if (!cookie || !data) {
             return {
                 success: false,
@@ -24,7 +24,6 @@ export class RefreshTokensService {
             }
         }
         try {
-
             const token = cookie.refreshToken ? cookie.refreshToken : data.refreshToken
             const refreshToken = await this.prismaService.refreshToken.findUnique({ where: { token } })
             if (refreshToken) {

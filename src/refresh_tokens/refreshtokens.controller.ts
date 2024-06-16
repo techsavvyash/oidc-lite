@@ -1,7 +1,7 @@
 import { BadGatewayException, Body, Controller, Delete, Get, Header, Headers, Param, Post } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { RefreshTokensService } from "./refreshtokens.service";
-import { refreshCookiesDTO, refreshDTO } from "./refreshToken.dto";
+import { refreshDTO } from "./refreshToken.dto";
 
 
 @Controller('jwt')
@@ -12,7 +12,7 @@ export class RefreshTokensController{
     ){}
 
     @Post('/refresh')
-    async refreshToken(@Headers() cookie : refreshCookiesDTO, @Body() data : refreshDTO){
+    async refreshToken(@Headers() cookie : refreshDTO, @Body() data : refreshDTO){
         return this.refreshService.refreshToken(cookie, data);
     }
     @Get('/refresh/:id')
