@@ -112,7 +112,7 @@ export class TenantService {
         data: tenant,
       };
     } catch (error) {
-      console.log('Error from createATenant', error);
+      this.logger.log('Error from createATenant', error);
       throw new InternalServerErrorException({
         success: false,
         message: 'Error creating new tenant',
@@ -189,7 +189,7 @@ export class TenantService {
         data: tenant,
       };
     } catch (error) {
-      console.log('Error happend in updateATenant', this.updateATenant);
+      this.logger.log('Error happend in updateATenant', this.updateATenant);
       throw new InternalServerErrorException({
         success: false,
         message: 'Error occured while updating the tenant',
