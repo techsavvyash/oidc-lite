@@ -1453,7 +1453,11 @@
       },
       "get": {
 <<<<<<< HEAD
+<<<<<<< HEAD
         "operationId": "GroupsController_retrieveAllGp",
+=======
+        "operationId": "GroupsController_retrieveAllGroup",
+>>>>>>> group-api
         "parameters": [],
         "responses": {
           "200": {
@@ -1464,7 +1468,7 @@
     },
     "/group/{id}": {
       "post": {
-        "operationId": "GroupsController_createGroupById",
+        "operationId": "GroupsController_createGroupByID",
         "parameters": [
           {
             "name": "id",
@@ -1559,6 +1563,7 @@
         }
       }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     },
     "/jwt/refresh/{tokenId}": {
@@ -1567,6 +1572,64 @@
         "parameters": [
           {
             "name": "tokenId",
+=======
+    },
+    "/groups/member": {
+      "post": {
+        "operationId": "GroupUserController_addUserToGP",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/addUserDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "operationId": "GroupUserController_updateUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/addUserDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "GroupUserController_deleteUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/groups/member/{id}": {
+      "delete": {
+        "operationId": "GroupUserController_delete",
+        "parameters": [
+          {
+            "name": "id",
+>>>>>>> group-api
             "required": true,
             "in": "path",
             "schema": {
@@ -1580,7 +1643,10 @@
           }
         }
       }
+<<<<<<< HEAD
 >>>>>>> refresh-token-api
+=======
+>>>>>>> group-api
     }
   },
   "info": {
@@ -1706,6 +1772,10 @@
           "token"
 >>>>>>> refresh-token-api
         ]
+      },
+      "addUserDTO": {
+        "type": "object",
+        "properties": {}
       }
     }
   }

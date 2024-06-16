@@ -11,17 +11,17 @@ export class GroupsController{
     ){}
 
     @Post('/')
-    async createGroup(@Body('group') data : createGroupDTO,){
+    async createGroup(@Body('group') data : createGroupDTO){
         const uuid = randomUUID() ;
         return this.groupService.createGroup(data, uuid)
     }
     @Post('/:id')
-    async createGroupById(@Body('group') data : createGroupDTO, @Param('id') uuid : string){
-        return this.groupService.createGroup(data, uuid);
+    async createGroupByID(@Body('group') data : createGroupDTO, @Param('id') uuid ?: string){
+        return this.groupService.createGroup(data, uuid)
     }
     @Get('/')
-    async retrieveAllGp(){
-        return this.groupService.retrieveGP();
+    async retrieveAllGroup(){
+        return this.groupService.retrieveGroup();
     }
     @Get('/:id')
     async retrieveGpById(@Param('id') id : string){

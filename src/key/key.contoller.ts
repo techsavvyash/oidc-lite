@@ -52,7 +52,11 @@ export class KeyController{
     }
 
     @Put('/:id')
+<<<<<<< HEAD
     async udpatingKey(@Param('id') uuid : string, @Body() data : updateDTO){
+=======
+    async udpatingKey(@Param('id') uuid : string,@Body('data') data : updateDTO){
+>>>>>>> group-api
         return this.keyservice.updateKey(uuid , data);
     }
 
@@ -70,7 +74,12 @@ export class KeyController{
         return this.keyservice.generateKey(uuid, key);
     }
     @Post('/generate/:id')
+<<<<<<< HEAD
     async generateKey(@Param('id') uuid : string,@Body() data : generateKeyDTO){
         return this.keyservice.generateKey(uuid, data);
+=======
+    async generateKey(@Param('id') uuid : string,@Body('key') key : generateKeyDTO){
+        return this.keyservice.generateKey(uuid, key);
+>>>>>>> group-api
     }
 }
