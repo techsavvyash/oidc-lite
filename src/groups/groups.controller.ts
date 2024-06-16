@@ -10,11 +10,13 @@ export class GroupsController{
         private readonly groupService : GroupsService
     ){}
 
+    @Post('/')
+    async createGroup(@Body('group') data : createGroupDTO){
+        const uuid = randomUUID() ;
+        return this.groupService.createGroup(data, uuid)
+    }
     @Post('/:id')
-    async createGroup(@Body('group') data : createGroupDTO, @Param('id') uuid ?: string){
-        if(!uuid){
-            const uuid = randomUUID() ;
-        }
+    async createGroupByID(@Body('group') data : createGroupDTO, @Param('id') uuid ?: string){
         return this.groupService.createGroup(data, uuid)
     }
     @Get('/')

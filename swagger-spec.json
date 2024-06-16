@@ -1398,7 +1398,7 @@
         }
       },
       "get": {
-        "operationId": "GroupsController_retrieveAllGp",
+        "operationId": "GroupsController_retrieveAllGroup",
         "parameters": [],
         "responses": {
           "200": {
@@ -1409,7 +1409,7 @@
     },
     "/group/{id}": {
       "post": {
-        "operationId": "GroupsController_createGroupById",
+        "operationId": "GroupsController_createGroupByID",
         "parameters": [
           {
             "name": "id",

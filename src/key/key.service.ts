@@ -42,10 +42,10 @@ export class KeyService {
         try {
             const item = await this.prismaService.key.findUnique({ where: { id } })
             if (!item) {
-                throw new HttpException(
-                    'key does not exist with provided id',
-                    HttpStatus.NOT_FOUND
-                );
+                throw new BadGatewayException({
+                    success : false,
+                    message : 'key does not exist with provided id'
+                })
             }
             return {
                 success : true,
@@ -53,8 +53,11 @@ export class KeyService {
                 data : item
             }
         } catch (error) {
-            this.logger.log('error happened from retrieve key section ', error)
-            HttpStatus.INTERNAL_SERVER_ERROR;
+            this.logger.log(error)
+            throw new BadGatewayException({
+                success : false,
+                message : 'error happened from retrieve key section'
+            })
         }
     }
 
@@ -62,28 +65,41 @@ export class KeyService {
         if (!uuid) {
             throw new BadRequestException({
                 success: false,
-                message: 'pls provide uuid and name with request',
+                message: 'pls provide uuid with request',
             })
         }
-        const id = uuid;
-        const key = await this.prismaService.key.findUnique({ where: { id } });
-
-        if (!key) {
-            throw new BadRequestException({
-                success: false,
-                message: 'pls provide a valid id or ID does not exist ',
-            })
-        }
-
-        const name = data.name ? data.name : key.name
-
-
-        const udpated_key = await this.prismaService.key.update({
-            where: { id },
-            data: {
-                name
+        try{
+            const key = await this.prismaService.key.findUnique({ where: { id : uuid } });
+            if (!key) {
+                throw new BadRequestException({
+                    success: false,
+                    message: 'key with such id does not exist in db',
+                })
             }
-        })
+            const algorithm = data.algorithm ? data.algorithm : key.algorithm;
+            const name = data.name ? data.name : key.name;
+            const issuer = data.issuer ? data.issuer : key.issuer;
+            const udpated_key = await this.prismaService.key.update({
+                where: { id : uuid },
+                data: {
+                    algorithm : algorithm,
+                    name : name,
+                    issuer : issuer
+                }
+            })
+            return {
+                success : true,
+                message : 'key updated successfully', 
+                key : udpated_key
+            }
+        }catch(error){
+            this.logger.log(error)
+            throw new BadGatewayException({
+                success : false,
+                message : 'error while updating key'
+            })
+        }
+
     }
 
 
@@ -129,12 +145,13 @@ export class KeyService {
         const keyStore3 = jose.JWK.createKeyStore();
 
         try {
+            let jwks;
             if (algorithm === 'RS256') {
                 await keyStore.generate("RSA", 2048, { alg: "HS256", use: "sig" }).then((result) => {
                     const rskey = JSON.stringify(keyStore.toJSON(true), null, 2);
                     this.logger.log("RS key generated successfully")
                 });
-                const jwks = keyStore.toJSON(true);
+                jwks = keyStore.toJSON(true);
                 jwks.keys.forEach(key => {
                     key.id = uuid;
                     key.issuer = issuer;
@@ -142,18 +159,12 @@ export class KeyService {
                     key.userName = name;
                     key.type = 'RSA'
                 });
-                return {
-                    success: true,
-                    message: 'key generated successfully',
-                    data : jwks
-                }
             } else if (algorithm === "ES256") {
                 await keyStore2.generate('EC', 'P-256', { alg: 'ES256', use: 'sig' }).then((result) => {
                     const eckey = JSON.stringify(keyStore2.toJSON(true), null, 2);
                     this.logger.log("EC key generated successfully")
                 });
-                console.log("eckey generate @@@@@@@@@@@@")
-                const jwks = keyStore2.toJSON(true);
+                jwks = keyStore2.toJSON(true);
                 jwks.keys.forEach(key => {
                     key.id = uuid;
                     key.issuer = issuer;
@@ -161,27 +172,39 @@ export class KeyService {
                     key.userName = name;
                     key.type = 'EC'
                 });
-                return {
-                    success: true,
-                    message: 'key generated successfully',
-                    data : jwks
-                }
             } else {
                 await keyStore3.generate('oct', 256, { alg: 'HS256', use: 'sig' }).then((result) => {
                     const hskey = JSON.stringify(keyStore3.toJSON(true), null, 2);
                     this.logger.log("HS key generated successfully")
                 });
-                const jwks = keyStore3.toJSON(true);
+                jwks = keyStore3.toJSON(true);
                 jwks.keys.forEach(key => {
                     key.id = uuid;
                     key.userName = name;
                     key.type = 'HMAC'
                 });
-                return {
-                    success: true,
-                    message: 'key generated successfully',
-                    data : jwks
-                }
+            }
+            const [keyData] = jwks.keys;
+            
+            console.log("saved the key successfully")
+            await this.prismaService.key.createMany({
+                data: {
+                    id: uuid,
+                    algorithm: algorithm,
+                    issuer: issuer,
+                    kid: keyData.kid,
+                    name: name,
+                    privateKey: keyData.d,
+                    publicKey: keyData.n,
+                    secret: keyData.k,
+                    type: keyData.kty,
+                },
+            });
+            this.logger.log("saved key in db")
+            return {
+                success: true,
+                message: 'key generated successfully',
+                data : jwks
             }
         } catch (error) {
             throw new BadRequestException({
