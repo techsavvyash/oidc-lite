@@ -10,9 +10,16 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { OIDCAuthQuery } from './oidc.auth.dto';
 import { LoginDto } from 'src/login/login.dto';
 import { randomUUID } from 'crypto';
-import { IntrospectDto, TokenDto } from './oidc.token.dto';
+import {
+  AccessTokenDto,
+  IdTokenDto,
+  IntrospectDto,
+  RefreshTokenDto,
+  TokenDto,
+} from './oidc.token.dto';
 import * as jwt from 'jsonwebtoken';
 import { ResponseDto } from 'src/dto/response.dto';
+import { ApplicationDataDto } from 'src/application/application.dto';
 
 @Injectable()
 export class OidcService {
@@ -230,33 +237,54 @@ export class OidcService {
         ? accessTokenSigningKey.privateKey
         : accessTokenSigningKey.secret;
       const now = new Date().getTime();
-      const idToken = jwt.sign(
-        {
-          user: { ...JSON.parse(user.data) },
-          createdAt: now,
-          expiryAt: now + 36000,
+      const applicationData: ApplicationDataDto = JSON.parse(application.data);
+      const refreshTokenSeconds =
+        applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
+      const accessTokenSeconds = applicationData.jwtConfiguration.timeToLiveInSeconds;
+
+      const idTokenPayload: IdTokenDto = {
+        active: true,
+        iat: now,
+        exp: now + refreshTokenSeconds,
+        iss: 'Stencil Service',
+        userData: { ...JSON.parse(user.data) },
+      };
+      const idToken = jwt.sign(idTokenPayload, idTokenSecret, {
+        algorithm: idTokenSigningKey.algorithm as jwt.Algorithm,
+      });
+      const refreshTokenPayload: RefreshTokenDto = {
+        active: true,
+        iat: now,
+        applicationId: application.id,
+        iss: 'Stencil Service',
+        exp: now + refreshTokenSeconds,
+      };
+      const refreshToken = jwt.sign(refreshTokenPayload, accessTokenSecret, {
+        algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,
+      });
+      const saveToken = await this.prismaService.refreshToken.create({
+        data: {
+          applicationsId: application.id,
+          token: refreshToken,
+          tenantId: application.tenantId,
+          usersId: user.id, // foreign key constraint failed since some are removed
+          expiry: now + refreshTokenSeconds,
+          startInstant: now,
+          data: '',
         },
-        idTokenSecret,
-        { algorithm: idTokenSigningKey.algorithm as jwt.Algorithm },
-      );
-      const refreshToken = jwt.sign(
-        {
-          createdAt: now,
-          iss: 'Stencil',
-          expiryAt: now + 3600,
-        },
-        accessTokenSecret,
-        { algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm },
-      );
-      // save the refreshToken
+      });
+      // user.groupid => all grps.foreach => applicationroleid => applicationrole.name
+      const accessTokenPayload: AccessTokenDto = {
+        active: true,
+        roles: ['admin'],
+        iat: now,
+        exp: now + accessTokenSeconds,
+        iss: 'Stencil',
+        sub: user.id,
+        applicationId: application.id
+      }
       const accessToken = jwt.sign(
-        {
-          roles: 'roles will come here',
-          scopes: 'scopes will come here',
-          createdAt: now,
-          expiryAt: now + 360,
-          iss: 'Stencil',
-        },
+        accessTokenPayload,
         accessTokenSecret,
         { algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm },
       );
@@ -267,7 +295,7 @@ export class OidcService {
           idToken,
           accessToken,
           refreshToken,
-          refreshTokenId: 'will add later',
+          refreshTokenId: saveToken.id,
           userId: user.id,
           token_type: 'Bearer',
         },
