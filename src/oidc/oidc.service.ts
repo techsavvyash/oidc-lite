@@ -240,7 +240,8 @@ export class OidcService {
       const applicationData: ApplicationDataDto = JSON.parse(application.data);
       const refreshTokenSeconds =
         applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
-      const accessTokenSeconds = applicationData.jwtConfiguration.timeToLiveInSeconds;
+      const accessTokenSeconds =
+        applicationData.jwtConfiguration.timeToLiveInSeconds;
 
       const idTokenPayload: IdTokenDto = {
         active: true,
@@ -281,13 +282,11 @@ export class OidcService {
         exp: now + accessTokenSeconds,
         iss: 'Stencil',
         sub: user.id,
-        applicationId: application.id
-      }
-      const accessToken = jwt.sign(
-        accessTokenPayload,
-        accessTokenSecret,
-        { algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm },
-      );
+        applicationId: application.id,
+      };
+      const accessToken = jwt.sign(accessTokenPayload, accessTokenSecret, {
+        algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,
+      });
       return {
         success: true,
         message: 'oAuth Complete',
@@ -422,6 +421,33 @@ export class OidcService {
       return {
         active: false,
       };
+    }
+  }
+
+  async returnClaimsOfEndUser(headers: object) {
+    const authorization = headers['authorization']?.split('Bearer ')[1];
+    if (!authorization) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Bearer Authorization header required',
+      });
+    }
+    try {
+      const payload = jwt.decode(authorization);
+      const userid = payload.sub;
+      const applicationId = (payload as AccessTokenDto).applicationId;
+      const user = await this.prismaService.user.findUnique({
+        where: { id: userid as string },
+      });
+      const userData = JSON.parse(user.data);
+      delete userData.userData.password;
+      return {...userData};
+    } catch (error) {
+      this.logger.log('Error occured in returnClaimsOfEndUser', error);
+      throw new InternalServerErrorException({
+        success: false,
+        message: 'Error occured while processing end user info',
+      });
     }
   }
 }

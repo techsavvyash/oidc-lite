@@ -107,4 +107,10 @@ export class OidcController {
   async introspect(@Body() data: IntrospectDto, @Headers() headers: object) {
     return await this.oidcService.introspect(data, headers);
   }
+
+  @Get('/userinfo')
+  @Post('/userinfo')
+  async returnClaimsOfEndUser(@Headers() headers: object){
+    return await this.oidcService.returnClaimsOfEndUser(headers);
+  }
 }

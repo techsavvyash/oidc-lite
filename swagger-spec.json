@@ -1388,6 +1388,20 @@
         ]
       }
     },
+    "/oidc/userinfo": {
+      "get": {
+        "operationId": "OidcController_returnClaimsOfEndUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
+      }
+    },
     "/user": {
       "post": {
         "operationId": "UserController_createAUserWithRandomUUID",
