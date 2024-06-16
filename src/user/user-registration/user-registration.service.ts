@@ -16,6 +16,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { randomUUID } from 'crypto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { UserService } from '../user.service';
+import { AccessTokenDto, RefreshTokenDto } from 'src/oidc/oidc.token.dto';
+import { ApplicationDataDto } from 'src/application/application.dto';
 
 @Injectable()
 export class UserRegistrationService {
@@ -84,12 +86,15 @@ export class UserRegistrationService {
       : null;
     const roles = await Promise.all(
       data.roles.map(async (role) => {
-        return await this.prismaService.applicationRole.findMany({
+        const findRole = await this.prismaService.applicationRole.findUnique({
           where: {
-            applicationsId: application.id,
-            name: role,
+            application_roles_uk_1: {
+              applicationsId: application.id,
+              name: role,
+            },
           },
         });
+        return findRole?.name;
       }),
     );
     const additionalData = data.data;
@@ -119,21 +124,25 @@ export class UserRegistrationService {
         ? accessToken.privateKey
         : accessToken.secret;
       const now = new Date().getTime();
-      const token = jwt.sign(
-        {
-          applicationId: application.id,
-          iat: now,
-          iss: 'Take from application.data',
-          exp: now + 360, // take from application.data
-          roles: roles,
-        },
-        accessSecret,
-        { algorithm: accessToken.algorithm as jwt.Algorithm },
-      );
+      const applicationData: ApplicationDataDto = JSON.parse(application.data);
+      const accessTokenSeconds =
+        applicationData.jwtConfiguration.timeToLiveInSeconds;
+      const accessTokenPayload: AccessTokenDto = {
+        active: true,
+        applicationId: application.id,
+        iat: now,
+        iss: 'Stencil Service',
+        exp: now + accessTokenSeconds,
+        roles: roles,
+        sub: user.id,
+      };
+      const token_acess_token = jwt.sign(accessTokenPayload, accessSecret, {
+        algorithm: accessToken.algorithm as jwt.Algorithm,
+      });
       return {
         success: true,
         message: 'User registered',
-        data: { userRegistration, token },
+        data: { userRegistration, token: token_acess_token },
       };
     } catch (error) {
       this.logger.log('Error from createAUserRegistration', error);
@@ -416,23 +425,41 @@ export class UserRegistrationService {
           ? accessToken.privateKey
           : accessToken.secret;
         const now = new Date().getTime();
-        const refreshToken = jwt.sign(
-          {
-            applicationId: application.id,
-            iat: now,
-            iss: 'Take from application.data',
-            exp: now + 36000, // take from application.data
-          },
-          accessSecret,
-          { algorithm: accessToken.algorithm as jwt.Algorithm },
+        const applicationData: ApplicationDataDto = JSON.parse(
+          application.data,
         );
+        const refreshTokenSeconds =
+          applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
+        const refreshTokenPayload: RefreshTokenDto = {
+          active: true,
+          applicationId: application.id,
+          iat: now,
+          iss: 'Take from application.data',
+          exp: now + refreshTokenSeconds,
+        };
+        const refreshToken = jwt.sign(refreshTokenPayload, accessSecret, {
+          algorithm: accessToken.algorithm as jwt.Algorithm,
+        });
+        const saveToken = await this.prismaService.refreshToken.create({
+          data: {
+            applicationsId: application.id,
+            token: refreshToken,
+            tenantId: application.tenantId,
+            usersId: user.data.id,
+            expiry: now + refreshTokenSeconds,
+            startInstant: now,
+            data: '',
+          },
+        });
+        this.logger.log('A refersh token is saved!', saveToken);
         return {
           success: true,
           message: 'User and user registration created successfully!',
           data: {
             user,
             userRegistration,
-            refreshToken
+            refreshToken,
+            refreshTokenId: saveToken.id,
           },
         };
       } catch (error) {

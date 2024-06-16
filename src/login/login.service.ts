@@ -134,10 +134,10 @@ export class LoginService {
         applicationsId: application.id,
         token: refreshToken,
         tenantId: application.tenantId,
-        usersId: user.id, // foreign key constraint failed since some are removed
+        usersId: user.id,
         expiry: now + refreshTokenSeconds,
         startInstant: now,
-        data: ""
+        data: '',
       },
     });
 
