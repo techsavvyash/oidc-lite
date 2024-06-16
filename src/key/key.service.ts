@@ -2,9 +2,7 @@ import { BadGatewayException, BadRequestException, Body, Headers, HttpException,
 import { STATUS_CODES } from "http";
 import { generateKeyDTO, updateDTO } from "src/key/key.dto";
 import { PrismaService } from "src/prisma/prisma.service";
-import jose from 'node-jose';
-import { JWK } from 'jose';
-
+import * as jose from 'node-jose';
 
 @Injectable()
 export class KeyService {
@@ -134,20 +132,17 @@ export class KeyService {
             })
         }
     }
-    async generateKey(uuid :string, data : generateKeyDTO){
-        console.log(data)
-        if(!uuid){
+    async generateKey(uuid: string, key: generateKeyDTO) {
+        if (!uuid) {
             throw new BadRequestException({
                 success: false,
                 message: 'uuid is either not given or is invalid'
             })
         }
-        const algorithm = data.algorithm;
-        const name = data.name 
-        const length = data.length 
-        const issuer = data.issuer;
-        const kid = data.kid
-        // const keystore = jose.JWK.createKeyStore();
+        const { algorithm, name, length, issuer} = key ;
+        const keyStore = jose.JWK.createKeyStore();
+        const keyStore2 = jose.JWK.createKeyStore();
+        const keyStore3 = jose.JWK.createKeyStore();
 
         try {
             let jwks;
@@ -219,75 +214,4 @@ export class KeyService {
         }
     }
 
-        const { publicKey, privateKey } = await jose.generateKeyPair('PS256')
-        console.log(publicKey)
-        console.log(privateKey)
-                
-        // try{
-        //     if(algorithm === 'RSA'){
-        //         await keystore.generate('RSA', length, {
-        //             alg: 'RS256', 
-        //             use: 'sig' 
-        //         });
-        //         const jwks = keystore.toJSON(true); 
-        //         console.log(jwks)
-        //         jwks.keys.forEach(key => {
-        //             key.insertinstant = insertinstant ;
-        //             key.id = uuid;
-        //             key.issuer = issuer;
-        //             key.length = length ;
-        //             key.userName = name ;
-        //             key.type = 'RSA'
-        //           });
-        //         return {
-        //             success : true,
-        //             message : 'key generated successfully',
-        //             jwks
-        //         }
-        //     }else if(algorithm === "EC") {
-        //         await keystore.generate('EC', 'P-256', {
-        //             alg: 'ES256', 
-        //             use: 'sig'
-        //           });
-        //           const jwks = keystore.toJSON(true); 
-        //           jwks.keys.forEach(key => {
-        //             key.insertinstant = insertinstant ;
-        //             key.id = uuid;
-        //             key.issuer = issuer;
-        //             key.length = length ;
-        //             key.userName = name ;
-        //             key.type = 'RSA'
-        //           });
-        //         return {
-        //             success : true,
-        //             message : 'key generated successfully',
-        //             jwks
-        //         }
-        //     }else{
-        //         await keystore.generate('oct', 256, {
-        //             alg: 'HS256', 
-        //             use: 'sig' 
-        //           });
-        //           const jwks = keystore.toJSON(true); 
-        //           jwks.keys.forEach(key => {
-        //             key.insertinstant = insertinstant ;
-        //             key.id = uuid;
-        //             key.userName = name ;
-        //             key.kid = kid;
-        //             key.type = 'HMAC'
-        //           });
-        //         return {
-        //             success : true,
-        //             message : 'key generated successfully',
-        //             jwks
-        //         }
-        //     }
-        // }catch(error){
-        //     throw new BadRequestException({
-        //         success : false,
-        //         message : 'error while generating key',
-        // })
-        // }
-    } 
-   
 }
