@@ -8,13 +8,15 @@ import { MembersDTO } from "./gpUser.dto";
     constructor(private readonly prismaService : PrismaService){
         this.logger = new Logger();
     }
-    async addUser(membersDto : MembersDTO, uuid : string){
+    async addUser(data : MembersDTO, uuid : string){
         if(!uuid){
             throw new BadGatewayException({
                 success : false,
                 message : 'please give uuid along with request'
             })
         }
+        console.log(data)
+        console.log(data.members)
         try{
             // await this.prismaService.groupMember.aggregate({ where : {id : uuid}})
 

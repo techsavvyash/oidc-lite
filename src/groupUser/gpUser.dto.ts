@@ -1,14 +1,21 @@
-import { IsUUID, IsObject, ValidateNested } from 'class-validator';
+import { IsUUID, IsObject, ValidateNested, IsString, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 
-class MemberDTO {
-  @IsUUID()
+
+class UserIdDto {
+  @IsString()
   userId: string;
+}
+
+class GroupMembersDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => UserIdDto)
+  members: UserIdDto[];
 }
 export class MembersDTO {
   @IsObject()
   @ValidateNested({ each: true })
-  @Type(() => MemberDTO)
-  
-  members: Record<string, MemberDTO[]>;
+  @Type(() => Object)
+  members: Record<string, GroupMembersDto[]>;
 }
