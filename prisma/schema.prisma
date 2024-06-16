@@ -99,7 +99,7 @@ model Group {
   tenant           Tenant                 @relation(fields: [tenantId], references: [id])
   members          GroupMember[]
   applicationRoles GroupApplicationRole[]
-  users            User[]
+  // users            User[]
 
   @@unique([name, tenantId], name: "groups_uk_1")
 }
@@ -157,12 +157,13 @@ model Tenant {
   updatedAt                DateTime @updatedAt
   name                     String   @unique
 
-  accessTokenSigningKey Key            @relation("TenantAccessTokenSigningKey", fields: [accessTokenSigningKeysId], references: [id])
-  idTokenSigningKey     Key            @relation("TenantIdTokenSigningKey", fields: [idTokenSigningKeysId], references: [id])
+  accessTokenSigningKey Key                 @relation("TenantAccessTokenSigningKey", fields: [accessTokenSigningKeysId], references: [id])
+  idTokenSigningKey     Key                 @relation("TenantIdTokenSigningKey", fields: [idTokenSigningKeysId], references: [id])
   applications          Application[]
   groups                Group[]
   refreshTokens         RefreshToken[]
   users                 User[]
+  AuthenticationKey     AuthenticationKey[]
 }
 
 model UserRegistration {
@@ -175,8 +176,8 @@ model UserRegistration {
   lastLoginInstant    BigInt?
   updatedAt           DateTime @updatedAt
   usersId             String
-  verified            Boolean
-  verifiedInstant     BigInt?
+  // verified            Boolean
+  // verifiedInstant     BigInt?
 
   application Application @relation(fields: [applicationsId], references: [id])
   user        User        @relation(fields: [usersId], references: [id])
@@ -186,18 +187,32 @@ model UserRegistration {
 }
 
 model User {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   active    Boolean
   data      String?
-  expiry    BigInt?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  expiry    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   tenantId  String
-  groupId   String? // Change from array to single reference
-  group     Group?   @relation(fields: [groupId], references: [id]) // Add the relation
+  groupId   String?
+  email     String    @unique
+  // group     Group?   @relation(fields: [groupId], references: [id]) // Add the relation
 
   tenant            Tenant             @relation(fields: [tenantId], references: [id])
   groupMembers      GroupMember[]
   refreshTokens     RefreshToken[]
   userRegistrations UserRegistration[]
+}
+
+model AuthenticationKey {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  keyManager  Boolean
+  keyValue    String   @unique
+  permissions String?
+  metaData    String?
+  tenantsId   String?
+
+  tenant Tenant? @relation(fields: [tenantsId], references: [id])
 }
