@@ -87,7 +87,7 @@ export class GroupsService {
         }
     }
 
-    async retrieveGP() {
+    async retrieveGroup() {
         try {
             const gps = await this.prismaService.group.findMany()
             if (gps) {
