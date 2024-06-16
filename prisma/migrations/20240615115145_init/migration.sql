@@ -127,8 +127,6 @@ CREATE TABLE "UserRegistration" (
     "lastLoginInstant" BIGINT,
     "updatedAt" DATETIME NOT NULL,
     "usersId" TEXT NOT NULL,
-    "verified" BOOLEAN NOT NULL,
-    "verifiedInstant" BIGINT,
     CONSTRAINT "UserRegistration_applicationsId_fkey" FOREIGN KEY ("applicationsId") REFERENCES "Application" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "UserRegistration_usersId_fkey" FOREIGN KEY ("usersId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
@@ -138,13 +136,26 @@ CREATE TABLE "User" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "active" BOOLEAN NOT NULL,
     "data" TEXT,
-    "expiry" BIGINT,
+    "expiry" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "tenantId" TEXT NOT NULL,
     "groupId" TEXT,
-    CONSTRAINT "User_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    "email" TEXT NOT NULL,
     CONSTRAINT "User_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "AuthenticationKey" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "keyManager" BOOLEAN NOT NULL,
+    "keyValue" TEXT NOT NULL,
+    "permissions" TEXT,
+    "metaData" TEXT,
+    "tenantsId" TEXT,
+    CONSTRAINT "AuthenticationKey_tenantsId_fkey" FOREIGN KEY ("tenantsId") REFERENCES "Tenant" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateIndex
@@ -203,3 +214,9 @@ CREATE INDEX "user_registrations_i_2" ON "UserRegistration"("usersId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserRegistration_applicationsId_usersId_key" ON "UserRegistration"("applicationsId", "usersId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AuthenticationKey_keyValue_key" ON "AuthenticationKey"("keyValue");
