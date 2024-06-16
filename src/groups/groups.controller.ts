@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
+import { Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 import { GroupsService } from "./groups.service";
 import { randomFill, randomUUID } from "crypto";
 import { createGroupDTO } from "./groups.dto";
@@ -11,12 +11,12 @@ export class GroupsController{
     ){}
 
     @Post('/')
-    async createGroup(@Body('group') data : createGroupDTO,){
+    async createGroup(data : createGroupDTO){
         const uuid = randomUUID() ;
         return this.groupService.createGroup(data, uuid)
     }
     @Post('/:id')
-    async createGroupById(@Body('group') data : createGroupDTO, @Param('id') uuid : string){
+    async createGroupById(data : createGroupDTO, @Param('id') uuid : string){
         return this.groupService.createGroup(data, uuid);
     }
     @Get('/')
@@ -28,7 +28,7 @@ export class GroupsController{
         return this.groupService.retrieveGpById(id)
     }
     @Put('/:id')
-    async updateGP(@Param('id') id : string,@Body('group') data : createGroupDTO){
+    async updateGP(@Param('id') id : string, data : createGroupDTO){
         return this.groupService.updateGp(id, data)
     }
     @Delete('/:id')
