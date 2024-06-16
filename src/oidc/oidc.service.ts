@@ -282,8 +282,34 @@ export class OidcService {
       delete result.secret;
       return result;
     });
-    console.log(results);
     return filteredResults;
+  }
+
+  async returnAPublicJwks(tenantId: string) {
+    const tenant = await this.prismaService.tenant.findUnique({
+      where: { id: tenantId },
+    });
+    if (!tenant) {
+      throw new BadRequestException({
+        success: false,
+        message: 'no such tenant exists',
+      });
+    }
+    const accessTokenSigningKey = await this.prismaService.key.findUnique({
+      where: { id: tenant.accessTokenSigningKeysId },
+    });
+    const idTokenSigningKey = await this.prismaService.key.findUnique({
+      where: { id: tenant.idTokenSigningKeysId },
+    });
+    delete accessTokenSigningKey.privateKey;
+    delete accessTokenSigningKey.secret;
+    delete idTokenSigningKey.privateKey;
+    delete idTokenSigningKey.secret;
+    const result = {
+      accessTokenSigningKey,
+      idTokenSigningKey,
+    };
+    return result;
   }
 
   async introspect(data: IntrospectDto, headers: object) {

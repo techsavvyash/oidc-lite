@@ -1310,10 +1310,35 @@
     "/oidc/.well-known/jwks.json": {
       "get": {
         "operationId": "OidcController_returnAllPublicJwks",
+        "summary": "Return all public JWKS",
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Returns all public JWKS"
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
+      }
+    },
+    "/oidc/{tenantId}/.well-known/jwks.json": {
+      "get": {
+        "operationId": "OidcController_returnAPublicJwks",
+        "summary": "Return public JWKS for a tenant",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns public JWKS for a tenant"
           }
         },
         "tags": [
@@ -1324,7 +1349,25 @@
     "/oidc/introspect": {
       "post": {
         "operationId": "OidcController_introspect",
-        "parameters": [],
+        "summary": "Introspect a token",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "content-type",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -1336,8 +1379,8 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "Returns token introspection result"
           }
         },
         "tags": [

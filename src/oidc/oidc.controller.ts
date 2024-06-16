@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Headers,
+  Param,
   Post,
   Query,
   Req,
@@ -15,6 +16,7 @@ import {
   ApiBody,
   ApiQuery,
   ApiHeader,
+  ApiParam,
 } from '@nestjs/swagger';
 import { OidcService } from './oidc.service';
 import { Request, Response } from 'express';
@@ -78,13 +80,31 @@ export class OidcController {
     return await this.oidcService.returnToken(data, headers);
   }
 
+  @ApiOperation({ summary: 'Return all public JWKS' })
+  @ApiResponse({ status: 200, description: 'Returns all public JWKS' })
   @Get('/.well-known/jwks.json')
-  async returnAllPublicJwks(){
+  async returnAllPublicJwks() {
     return await this.oidcService.returnAllPublicJwks();
   }
 
+  @ApiOperation({ summary: 'Return public JWKS for a tenant' })
+  @ApiParam({ name: 'tenantId', required: true, type: String })
+  @ApiResponse({ status: 200, description: 'Returns public JWKS for a tenant' })
+  @Get('/:tenantId/.well-known/jwks.json')
+  async returnAPublicJwks(@Param('tenantId') tenantId: string) {
+    return await this.oidcService.returnAPublicJwks(tenantId);
+  }
+
+  @ApiOperation({ summary: 'Introspect a token' })
+  @ApiBody({ type: IntrospectDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns token introspection result',
+  })
+  @ApiHeader({ name: 'content-type', required: true })
+  @ApiHeader({ name: 'authorization', required: false })
   @Post('/introspect')
-  async introspect(@Body() data: IntrospectDto,@Headers() headers: object){
-    return await this.oidcService.introspect(data,headers);
+  async introspect(@Body() data: IntrospectDto, @Headers() headers: object) {
+    return await this.oidcService.introspect(data, headers);
   }
 }
