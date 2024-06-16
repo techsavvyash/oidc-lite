@@ -170,7 +170,7 @@ model Tenant {
 model UserRegistration {
   id                  String   @id @default(uuid())
   applicationsId      String
-  authenticationToken String?
+  authenticationToken String?  @unique
   password            String
   data                String?
   createdAt           DateTime @default(now())

@@ -60,3 +60,8 @@ export class UpdateApplicationDto {
   @ApiProperty() oauthConfiguration?: OauthConfiguration;
   @ApiProperty() name?: string;
 }
+
+export class ApplicationDataDto {
+  @ApiProperty() oauthConfiguration: OauthConfiguration;
+  @ApiProperty() jwtConfiguration: JwtConfiguration;
+}

@@ -10,13 +10,15 @@ import { ResponseDto } from 'src/dto/response.dto';
 import * as jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
+import { ApplicationDataDto } from 'src/application/application.dto';
+import { AccessTokenDto, RefreshTokenDto } from 'src/oidc/oidc.token.dto';
 
 @Injectable()
 export class LoginService {
   private readonly logger: Logger;
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly headerAuthService: HeaderAuthService
+    private readonly headerAuthService: HeaderAuthService,
   ) {
     this.logger = new Logger(LoginService.name);
   }
@@ -61,13 +63,18 @@ export class LoginService {
       });
     }
     const userRegistration =
-      await this.prismaService.userRegistration.findFirst({
-        where: { applicationsId: application.id, usersId: user.id },
+      await this.prismaService.userRegistration.findUnique({
+        where: {
+          user_registrations_uk_1: {
+            applicationsId: data.applicationId,
+            usersId: user.id,
+          },
+        },
       });
     if (!userRegistration) {
       throw new BadRequestException({
         success: false,
-        message: 'User not registered with the given application',
+        message: 'User not found',
       });
     }
     if (userRegistration.password !== password) {
@@ -91,41 +98,50 @@ export class LoginService {
     const idSecret = idTokenSigningKey.privateKey
       ? idTokenSigningKey.privateKey
       : idTokenSigningKey.secret; // will be needed in signup cases
-    // const roles = uses groupId to find roles
-    const roles = ['admin']; // for now
+    // groupId.split() => groups => application_role_id => all roles
+    const roles = ['user']; // for now
     const now = new Date().getTime();
-    const refreshToken = jwt.sign(
-      {
-        applicationId: application.id,
-        iat: now,
-        iss: 'Take from application.data',
-        exp: now + 36000, // take from application.data
-      },
-      accessSecret,
-      { algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm },
-    );
-    const accessToken = jwt.sign(
-      {
-        applicationId: application.id,
-        iat: now,
-        iss: 'Take from application.data',
-        exp: now + 360, // take from application.data
-        roles: roles,
-      },
-      accessSecret,
-      { algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm },
-    );
-    // const saveToken = await this.prismaService.refreshToken.create({data: {
-    //     applicationsId: application.id,
-    //     token: refreshToken,
-    //     tenantId: application.tenantId,
-    //     usersId: user.id, // foreign key constraint failed since some are removed
-    //     expiry: now + 36000,
-    //     startInstant: now,
-    //     data: null
-    // }})
+    const applicationData: ApplicationDataDto = JSON.parse(application.data);
+    const refreshTokenSeconds =
+      applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
+    const accessTokenSeconds =
+      applicationData.jwtConfiguration.timeToLiveInSeconds;
 
-    // this.logger.log("A refresh token created",refreshToken);
+    const refreshTokenPayload: RefreshTokenDto = {
+      active: true,
+      applicationId: application.id,
+      iat: now,
+      iss: 'Stencil Service',
+      exp: now + refreshTokenSeconds,
+    };
+    const refreshToken = jwt.sign(refreshTokenPayload, accessSecret, {
+      algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,
+    });
+    const accessTokenPayload: AccessTokenDto = {
+      active: true,
+      applicationId: application.id,
+      sub: user.id,
+      iat: now,
+      iss: 'Stencil Service',
+      exp: now + accessTokenSeconds,
+      roles: roles,
+    };
+    const accessToken = jwt.sign(accessTokenPayload, accessSecret, {
+      algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,
+    });
+    const saveToken = await this.prismaService.refreshToken.create({
+      data: {
+        applicationsId: application.id,
+        token: refreshToken,
+        tenantId: application.tenantId,
+        usersId: user.id, // foreign key constraint failed since some are removed
+        expiry: now + refreshTokenSeconds,
+        startInstant: now,
+        data: ""
+      },
+    });
+
+    this.logger.log('A refresh token created', refreshToken);
     return {
       success: true,
       message: 'User logged in!',
@@ -134,6 +150,7 @@ export class LoginService {
         refreshToken: {
           value: refreshToken,
           publicKey: accessTokenSigningKey.publicKey,
+          id: saveToken.id,
         },
         accessToken: {
           value: accessToken,

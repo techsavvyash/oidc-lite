@@ -8,6 +8,7 @@ import {
 import { ApplicationRolesService } from 'src/application/application-roles/application-roles.service';
 import { ApplicationScopesService } from 'src/application/application-scopes/application-scopes.service';
 import {
+  ApplicationDataDto,
   CreateApplicationDto,
   UpdateApplicationDto,
 } from 'src/application/application.dto';
@@ -115,7 +116,10 @@ export class ApplicationService {
     const roles = data.roles;
     const scopes = data.scopes;
     const tenantId = tenant.id;
-    const configurations = JSON.stringify(data.oauthConfiguration);
+    const configurations = JSON.stringify({
+      oauthConfiguration: data.oauthConfiguration,
+      jwtConfiguration: data.jwtConfiguration,
+    });
 
     try {
       const application = await this.prismaService.application.create({
@@ -132,10 +136,20 @@ export class ApplicationService {
 
       try {
         roles.forEach((value) =>
-          this.applicationRoles.createRole(value, application.id,null,headers),
+          this.applicationRoles.createRole(
+            value,
+            application.id,
+            null,
+            headers,
+          ),
         );
         scopes.forEach((value) =>
-          this.applicationScopes.createScope(value, application.id,null,headers),
+          this.applicationScopes.createScope(
+            value,
+            application.id,
+            null,
+            headers,
+          ),
         );
       } catch (error) {
         this.logger.log('This is error while creating scopes/roles: ', error);
@@ -216,10 +230,10 @@ export class ApplicationService {
 
     const active =
       newData.active !== null ? newData.active : application.active;
-    const data = newData.oauthConfiguration
-      ? JSON.stringify(newData.oauthConfiguration)
-      : application.data;
-
+    const oldApplicationData: ApplicationDataDto = JSON.parse(application.data);
+    const newApplicationData: ApplicationDataDto = {jwtConfiguration: newData.jwtConfiguration, oauthConfiguration: newData.oauthConfiguration};
+    newApplicationData.jwtConfiguration = newApplicationData.jwtConfiguration ? newApplicationData.jwtConfiguration: oldApplicationData.jwtConfiguration;
+    newApplicationData.oauthConfiguration = newApplicationData.oauthConfiguration ? newApplicationData.oauthConfiguration: oldApplicationData.oauthConfiguration;
     try {
       const application = await this.prismaService.application.update({
         where: { id },
@@ -227,7 +241,7 @@ export class ApplicationService {
           name,
           tenantId: tenant_id,
           active,
-          data,
+          data: JSON.stringify(newApplicationData),
         },
       });
       return {
