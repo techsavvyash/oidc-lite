@@ -31,7 +31,7 @@ export class UserService {
         message: 'No data given to create a user',
       });
     }
-    const tenantId = headers['x-stencil-tenantid']
+    const tenantId = headers['x-stencil-tenantid'];
     if (!tenantId) {
       throw new BadRequestException({
         success: false,
@@ -100,6 +100,15 @@ export class UserService {
         message: 'User must be a member of one group',
       });
     }
+    // which grps to join? grps having the correct application id or any gps?
+    const existingGroups = await Promise.all(
+      membership.map(async (val) => {
+        const group = await this.prismaService.group.findUnique({
+          where: { id: val },
+        });
+      }),
+    );
+    const groups = existingGroups.join(' ');
     const userInfo = {
       userData,
       additionalData,
@@ -110,7 +119,7 @@ export class UserService {
           id,
           active,
           tenantId,
-          groupId: membership[0].groupId,
+          groupId: groups,
           data: JSON.stringify(userInfo),
           email: data.email,
         },
@@ -232,9 +241,20 @@ export class UserService {
       ? data.additionalData
       : oldUserData?.additionalData;
     const applicationId = data.applicationId;
-    const groupId = data.membership?.[0].groupId
-      ? data.membership[0].groupId
-      : oldUser.groupId;
+    let groupId = '';
+    if(data.membership && data.membership.length > 0){
+      const membership = data.membership;
+      const existingGroups = await Promise.all(
+        membership.map(async (val) => {
+          const group = await this.prismaService.group.findUnique({
+            where: { id: val },
+          });
+        }),
+      );
+      const groups = existingGroups.join(' ');
+      groupId = groups;
+    }
+    groupId = (groupId !== '' && groupId !== ' ') ? groupId : oldUser.groupId;
     const userInfo = {
       userData,
       additionalData,

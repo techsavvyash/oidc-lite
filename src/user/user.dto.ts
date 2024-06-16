@@ -1,8 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-class Membership {
-  @ApiProperty() groupId: string;
-}
 export class UserData {
   @ApiProperty() username: string;
   @ApiProperty() firstname?: string;
@@ -15,7 +12,7 @@ export class CreateUserDto {
   @ApiProperty() active: boolean;
   @ApiProperty() additionalData?: object | string;
   @ApiProperty() applicationId: string;
-  @ApiProperty() membership: Membership[];
+  @ApiProperty() membership: string[];
   @ApiProperty() userData: UserData;
   @ApiProperty() email: string;
 }
@@ -23,7 +20,7 @@ export class UpdateUserDto {
   @ApiProperty() active?: boolean;
   @ApiProperty() additionalData?: object | string;
   @ApiProperty() applicationId: string;
-  @ApiProperty() membership?: Membership[];
+  @ApiProperty() membership?: string[];
   @ApiProperty() userData: UserData;
 }
 

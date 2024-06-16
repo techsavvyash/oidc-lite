@@ -11,6 +11,7 @@ import {
   CreateUserRegistrationDto,
   UpdateUserRegistrationDto,
 } from '../user.dto';
+import * as jwt from 'jsonwebtoken';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { randomUUID } from 'crypto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
@@ -81,7 +82,7 @@ export class UserRegistrationService {
     const authenticationToken = data.generateAuthenticationToken
       ? randomUUID()
       : null;
-    const roles = Promise.all(
+    const roles = await Promise.all(
       data.roles.map(async (role) => {
         return await this.prismaService.applicationRole.findMany({
           where: {
@@ -110,7 +111,25 @@ export class UserRegistrationService {
         },
       );
       this.logger.log('A new user registration is made!', userRegistration);
-      const token = randomUUID(); // for now, use jwks later
+      const accessTokenSigningKeyId = application.accessTokenSigningKeysId;
+      const accessToken = await this.prismaService.key.findUnique({
+        where: { id: accessTokenSigningKeyId },
+      });
+      const accessSecret = accessToken.privateKey
+        ? accessToken.privateKey
+        : accessToken.secret;
+      const now = new Date().getTime();
+      const token = jwt.sign(
+        {
+          applicationId: application.id,
+          iat: now,
+          iss: 'Take from application.data',
+          exp: now + 360, // take from application.data
+          roles: roles,
+        },
+        accessSecret,
+        { algorithm: accessToken.algorithm as jwt.Algorithm },
+      );
       return {
         success: true,
         message: 'User registered',
@@ -385,12 +404,35 @@ export class UserRegistrationService {
           registrationInfo,
           headers,
         );
+        const applicationId = userInfo.applicationId;
+        const application = await this.prismaService.application.findUnique({
+          where: { id: applicationId },
+        });
+        const accessTokenSigningKeyId = application.accessTokenSigningKeysId;
+        const accessToken = await this.prismaService.key.findUnique({
+          where: { id: accessTokenSigningKeyId },
+        });
+        const accessSecret = accessToken.privateKey
+          ? accessToken.privateKey
+          : accessToken.secret;
+        const now = new Date().getTime();
+        const refreshToken = jwt.sign(
+          {
+            applicationId: application.id,
+            iat: now,
+            iss: 'Take from application.data',
+            exp: now + 36000, // take from application.data
+          },
+          accessSecret,
+          { algorithm: accessToken.algorithm as jwt.Algorithm },
+        );
         return {
           success: true,
           message: 'User and user registration created successfully!',
           data: {
             user,
             userRegistration,
+            refreshToken
           },
         };
       } catch (error) {
