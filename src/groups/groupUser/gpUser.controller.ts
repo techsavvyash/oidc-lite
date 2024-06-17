@@ -1,14 +1,14 @@
 import { BadGatewayException, Body, Controller, Delete, Get, Headers, Param, Post, Put } from "@nestjs/common";
 import { randomFill, randomUUID } from "crypto";
 import { GroupUserService } from "./gpUser.service";
-import { addUserDTO, deleteMemberDTO } from "./gpUser.dto";
+import { addUserDTO } from "./gpUser.dto";
 
 
 @Controller('group')
 export class GroupUserController {
     constructor(
         private readonly groupUserService: GroupUserService
-    ) {}
+    ) { }
 
     // group user routes 
     @Post('/member')
@@ -31,8 +31,7 @@ export class GroupUserController {
     async deleteUser(
         @Body('groupId') gpId?: string,
         @Body('userId') userId?: string,
-        @Body('memberId') memberId ?: string,
-        @Body('members') members?: deleteMemberDTO
+        @Body('memberId') memberId?: string,
     ) {
 
         if (gpId && userId) {

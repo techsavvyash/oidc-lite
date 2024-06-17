@@ -3,11 +3,11 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { generateKeyDTO, updateDTO } from 'src/key/key.dto';
 import { GroupUserController } from './gpUser.controller';
 import { GroupUserService } from './gpUser.service';
-import { addUserDTO, deleteMemberDTO } from './gpUser.dto';
+import { addUserDTO } from './gpUser.dto';
 
 @Module({
   controllers: [GroupUserController],
-  providers: [GroupUserService,PrismaService,addUserDTO, deleteMemberDTO],
-  exports : [addUserDTO, deleteMemberDTO]
+  providers: [GroupUserService,PrismaService,addUserDTO,],
+  exports : [addUserDTO, ]
 })
 export class GroupUserModule {}

@@ -18,28 +18,3 @@ export class addUserDTO{
   members : GPDTO[]
 }
 
-
-
-class idDto {
-  @IsString()
-  userId: string;
-}
-class memberDTO{
-  @IsArray()
-  @IsString()
-  member : idDto[]
-}
-export class deleteMemberDTO{
-  @Type(()=>memberDTO)
-  members : memberDTO[]
-}
-
-
-// class memberDTO {
-//   @IsString()
-//   userId: string;
-// }
-// export class deleteMemberDTO{
-//   @IsArray()
-//   memberIds : memberDTO[]
-// }

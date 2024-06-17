@@ -1429,6 +1429,16 @@
       "delete": {
         "operationId": "GroupUserController_deleteUser",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deleteMemberDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": ""
@@ -1728,6 +1738,10 @@
         ]
       },
       "addUserDTO": {
+        "type": "object",
+        "properties": {}
+      },
+      "deleteMemberDTO": {
         "type": "object",
         "properties": {}
       },
