@@ -15,15 +15,10 @@ import { MemoryMonitorService } from './memory-monitor/memory-monitor.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TenantController } from './tenant/tenant.controller';
 import { KeyModule } from './key/key.module';
-<<<<<<< HEAD
 import { GroupModule } from './groups/groups.module';
-<<<<<<< HEAD
-=======
 import { RefreshTokenModule } from './refresh_tokens/refreshtokens.module';
->>>>>>> refresh-token-api
-=======
 import { GroupUserModule } from './groupUser/gpUser.module';
->>>>>>> group-api
+
 
 @Module({
   imports: [OidcModule, UserModule, PrismaModule,JwtModule.register({
@@ -31,15 +26,7 @@ import { GroupUserModule } from './groupUser/gpUser.module';
     secret: process.env.JWT_SECRET,
     signOptions: { expiresIn: process.env.JWT_SECRET_EXPIRATION },
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    }), ApplicationModule,ScheduleModule.forRoot(), KeyModule, GroupModule],
-=======
-    }), ApplicationModule,ScheduleModule.forRoot(), KeyModule, RefreshTokenModule],
->>>>>>> refresh-token-api
-=======
-    }), ApplicationModule,ScheduleModule.forRoot(), KeyModule, GroupModule, GroupUserModule],
->>>>>>> group-api
+    }), ApplicationModule,ScheduleModule.forRoot(), KeyModule, GroupModule,RefreshTokenModule, GroupUserModule],
     controllers: [AppController, TenantController],
     providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService, MemoryMonitorService],
 

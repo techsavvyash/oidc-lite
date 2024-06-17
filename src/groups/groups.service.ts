@@ -10,72 +10,49 @@ export class GroupsService {
     constructor(private readonly prismaService: PrismaService) {
         this.logger = new Logger();
     }
-    async createGroup(data: createGroupDTO, uuid: string, key ?: string) {
-        if (!uuid ) {
+    async createGroup(data: createGroupDTO, uuid: string, key?: string) {
+        if (!uuid) {
             throw new BadGatewayException({
                 success: false,
                 message: 'please provide a valid id'
             })
         }
-        let tenant ;
-        const existingTenant = await this.prismaService.tenant.findUnique({where: { id: data.tenantId }});
-        if(existingTenant){
+        let tenant;
+        const existingTenant = await this.prismaService.tenant.findUnique({ where: { id: data.tenantId } });
+        if (existingTenant) {
             tenant = existingTenant;
-        }else{
+        } else {
             throw new BadGatewayException({
-                success : false,
-                message : 'tenant id does not exist in db pls provide such tenant id which exist in db'
+                success: false,
+                message: 'tenant id does not exist in db pls provide such tenant id which exist in db'
             })
         }
         const item = await Promise.all(
-            data.roleIDs.map(async (roleId : string) => {
-                const applicationIDs = await this.prismaService.applicationRole.findUnique({ where : { id : roleId}})
+            data.roleIDs.map(async (roleId: string) => {
+                const applicationIDs = await this.prismaService.applicationRole.findUnique({ where: { id: roleId } })
                 return {
-                    applicationRoleId : roleId,
-                    applicationIds : applicationIDs
+                    applicationRoleId: roleId,
+                    applicationIds: applicationIDs
                 }
             })
         )
         try {
-            const groupData: Prisma.GroupCreateInput = {
-                name: data.name,
-                id: uuid,
-                tenant: {
-                    connect: {
-                      id: tenant,
-                    },
-                  },
-                applicationRoles: {
-                  create: await item.map((item) => ({
-                    applicationRole: {
-                      connect: {
-                          id: item.applicationRoleId,
-                      },
-                    },
-                    application: {
-                        connect: {
-                          id: item.applicationIds,
-                        },
-                    }
-                  })),
-                },
-              };    
             const group = await this.prismaService.group.create({
-                data : groupData,
-                include: {
-                    applicationRoles: true,
-                  },
+                data: {
+                    name: data.name,
+                    tenantId: tenant.id,
+                },
             })
-            if(group){
+            if (group) {
                 return {
                     success: true,
                     message: 'group created successfully!',
                     data: group
                 }
-            }else{
+            } else {
                 throw new BadGatewayException({
-                    success : false,
-                    message : 'error occured while regsitering group'
+                    success: false,
+                    message: 'error occured while regsitering group'
                 })
             }
         } catch (error) {
@@ -147,69 +124,49 @@ export class GroupsService {
             })
         }
         const item = await Promise.all(
-            data.roleIDs.map(async (roleId : string) => {
-                const applicationIDs = await this.prismaService.applicationRole.findUnique({ where : { id : roleId}})
+            data.roleIDs.map(async (roleId: string) => {
+                const applicationIDs = await this.prismaService.applicationRole.findUnique({ where: { id: roleId } })
                 return {
-                    applicationRoleId : roleId,
-                    applicationIds : applicationIDs
+                    applicationRoleId: roleId,
+                    applicationIds: applicationIDs
                 }
             })
         )
-        let tenant ;
-        const existingTenant = await this.prismaService.tenant.findUnique({where: { id: data.tenantId }});
-        if(existingTenant){
+        let tenant;
+        const existingTenant = await this.prismaService.tenant.findUnique({ where: { id: data.tenantId } });
+        if (existingTenant) {
             tenant = existingTenant;
-        }else{
+        } else {
             throw new BadGatewayException({
-                success : false,
-                message : 'tenant id does not exist in db pls provide such tenant id which exist in db'
+                success: false,
+                message: 'tenant id does not exist in db pls provide such tenant id which exist in db'
             })
         }
-        const groupData: Prisma.GroupCreateInput = {
-            name: data.name,
-            id: uuid,
-            tenant: {
-                connect: {
-                  id: tenant,
-                },
-              },
-            applicationRoles: {
-              create: await item.map((item) => ({
-                applicationRole: {
-                  connect: {
-                      id: item.applicationRoleId,
-                  },
-                },
-                application: {
-                    connect: {
-                      id: item.applicationIds,
-                    },
-                }
-              })),
-            },
-          };
         try {
-            const group = await this.prismaService.group.findUnique({ where : {id : uuid}})
-            if(!group){
+            const group = await this.prismaService.group.findUnique({ where: { id: uuid } })
+            if (!group) {
                 throw new BadGatewayException({
-                    success : false,
-                    message : 'unable to find group with given id'
+                    success: false,
+                    message: 'unable to find group with given id'
                 })
             }
             const updated_gp = await this.prismaService.group.update({
                 where: { id: uuid },
-                data : groupData
+                data: {
+                    name: data.name,
+                    tenantId: tenant.id
+                }
             })
-            if(updated_gp){
+            if (updated_gp) {
                 return {
                     sucess: true,
                     message: 'group updated successfully',
                     data: updated_gp
                 }
-            }else{
+            } else {
                 throw new BadGatewayException({
-                    success : false,
-                    message : 'error while updating group'
+                    success: false,
+                    message: 'error while updating group'
                 })
             }
         } catch (error) {
@@ -229,14 +186,14 @@ export class GroupsService {
             })
         }
         try {
-            const group = await this.prismaService.group.findUnique({ where : {id : uuid}})
-            if(!group){
+            const group = await this.prismaService.group.findUnique({ where: { id: uuid } })
+            if (!group) {
                 throw new BadGatewayException({
-                    success : false,
-                    message : 'unable to find group with given id'
+                    success: false,
+                    message: 'unable to find group with given id'
                 })
             }
-            await this.prismaService.group.delete({ where: { id : uuid } })
+            await this.prismaService.group.delete({ where: { id: uuid } })
             return {
                 success: true,
                 message: 'group with given id deleted successfully'
