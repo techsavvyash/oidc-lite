@@ -7,32 +7,54 @@ import {
   HttpStatus,
   Injectable,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { generateKeyDTO, updateDTO } from 'src/key/key.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as jose from 'node-jose';
 import * as jwkToPem from 'jwk-to-pem';
+import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 
 @Injectable()
 export class KeyService {
   private readonly logger: Logger;
-  constructor(private readonly prismaService: PrismaService) {
-    this.logger = new Logger();
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly headerAuthService: HeaderAuthService,
+  ) {
+    this.logger = new Logger(KeyService.name);
   }
 
-  async retrieveAllKey() {
+  async retrieveAllKey(headers: object) {
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      null,
+      '/key',
+      'GET',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
     try {
       const item = await this.prismaService.key.findMany();
       if (!item) {
         return {
           success: false,
-          message: 'any key is not present',
+          message: 'no key is present',
         };
       } else {
+        const result = item.map((key) => {
+          delete key.secret;
+          delete key.privateKey;
+          return key;
+        });
         return {
           success: true,
           message: 'all keys retrieved',
-          data: item,
+          data: result,
         };
       }
     } catch (error) {
@@ -40,7 +62,20 @@ export class KeyService {
       HttpStatus.NOT_FOUND;
     }
   }
-  async retrieveUniqueKey(uuid: string) {
+
+  async retrieveUniqueKey(uuid: string, headers: object) {
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      null,
+      '/key',
+      'GET',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
     if (!uuid) {
       throw new BadGatewayException({
         success: false,
@@ -66,7 +101,20 @@ export class KeyService {
       HttpStatus.INTERNAL_SERVER_ERROR;
     }
   }
-  async updateKey(uuid: string, data: updateDTO) {
+
+  async updateKey(uuid: string, data: updateDTO, headers: object) {
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      null,
+      '/key',
+      'GET',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
     if (!uuid) {
       throw new BadRequestException({
         success: false,
@@ -92,7 +140,20 @@ export class KeyService {
       },
     });
   }
-  async deleteKey(uuid: string) {
+
+  async deleteKey(uuid: string, headers: object) {
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      null,
+      '/key',
+      'GET',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
     if (!uuid) {
       throw new BadRequestException({
         success: false,
@@ -123,7 +184,20 @@ export class KeyService {
       });
     }
   }
-  async generateKey(uuid: string, key: generateKeyDTO) {
+  
+  async generateKey(uuid: string, key: generateKeyDTO, headers: object) {
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      null,
+      '/key',
+      'GET',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
     if (!uuid) {
       throw new BadRequestException({
         success: false,
@@ -131,6 +205,12 @@ export class KeyService {
       });
     }
     const { algorithm, name, length, issuer } = key;
+    if(!algorithm || !name){
+      throw new BadRequestException({
+        success: false,
+        message: 'No algorithm and name provided for key'
+      })
+    }
     const keyStore = jose.JWK.createKeyStore();
     const keyStore2 = jose.JWK.createKeyStore();
     const keyStore3 = jose.JWK.createKeyStore();
