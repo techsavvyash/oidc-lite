@@ -61,7 +61,6 @@ export class RefreshTokensService {
     const refreshTokenSigningKey = await this.prismaService.key.findUnique({
       where: { id: application.accessTokenSigningKeysId },
     });
-
     const refreshSecret = refreshTokenSigningKey.privateKey
       ? refreshTokenSigningKey.privateKey
       : refreshTokenSigningKey.secret;
@@ -74,27 +73,28 @@ export class RefreshTokensService {
       const accessTokenDecoded = await jwt.verify(accessToken, refreshSecret);
       const applicationData: ApplicationDataDto = JSON.parse(application.data);
       const refreshTokenSeconds =
-        applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
+      applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60 * 1000;
       const { exp, iss } = refreshTokenDecoded as RefreshTokenDto;
       const now = new Date().getTime();
       if (exp < now) {
+          console.log(exp,now);
         throw new BadRequestException({
           success: false,
           message: 'Invalid token',
         });
       }
       const refreshTokenPayload: RefreshTokenDto = {
-        active: true,
-        iat: now,
-        exp: now + refreshTokenSeconds,
-        iss,
-        applicationId: application.id,
-      };
-      const newRefreshToken = jwt.sign(
-        refreshTokenPayload,
-        refreshTokenSigningKey.algorithm,
-        { algorithm: refreshTokenSigningKey.algorithm as jwt.Algorithm },
-      );
+          active: true,
+          iat: now,
+          exp: now + refreshTokenSeconds,
+          iss,
+          applicationId: application.id,
+        };
+        const newRefreshToken = jwt.sign(
+            refreshTokenPayload,
+            refreshSecret,
+            { algorithm: refreshTokenSigningKey.algorithm as jwt.Algorithm },
+        );
       const updateToken = await this.prismaService.refreshToken.update({
         where: { id: foundRefreshToken.id },
         data: { token: newRefreshToken },
@@ -105,7 +105,7 @@ export class RefreshTokensService {
         active: true,
         applicationId: application.id,
         iat: now,
-        exp: now + applicationData.jwtConfiguration.timeToLiveInSeconds,
+        exp: now + applicationData.jwtConfiguration.timeToLiveInSeconds * 1000,
         iss,
         sub,
         scope,
@@ -113,7 +113,7 @@ export class RefreshTokensService {
       };
       const newAccessToken = jwt.sign(
         accessTokenPayload,
-        refreshTokenSigningKey.algorithm,
+        refreshSecret,
         { algorithm: refreshTokenSigningKey.algorithm as jwt.Algorithm },
       );
       return {
@@ -169,16 +169,18 @@ export class RefreshTokensService {
         message: 'please send uuid along with request',
       });
     }
-    const refreshToken = await this.prismaService.refreshToken.findUnique({
-      where: { id, tenantId },
-    });
     try {
+      const refreshToken = await this.prismaService.refreshToken.findUnique({
+        where: { id, tenantId: tenant.id },
+      });
       if (!refreshToken) {
         throw new BadRequestException({
           success: false,
           message: 'refresh token is not found',
         });
       } else {
+        delete refreshToken.expiry;
+        delete refreshToken.startInstant; // giving errors since cant be serialized
         return {
           success: true,
           message: 'refresh token found successfully',
@@ -242,9 +244,13 @@ export class RefreshTokensService {
           message: 'refresh token is not found',
         });
       } else {
+        refreshToken.forEach((val) => {
+          delete val.expiry;
+          delete val.startInstant; // giving errors since cant be serialized
+        });
         return {
           success: true,
-          message: 'refresh token found successfully',
+          message: 'refresh tokens found successfully',
           data: refreshToken,
         };
       }

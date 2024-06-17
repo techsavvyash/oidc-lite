@@ -2222,6 +2222,7 @@
     "/jwt/refresh": {
       "post": {
         "operationId": "RefreshTokensController_refreshToken",
+        "summary": "Refresh the access token using the refresh token",
         "parameters": [
           {
             "name": "refreshToken",
@@ -2251,18 +2252,38 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "Token refreshed successfully"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "502": {
+            "description": "Bad Gateway"
           }
-        }
+        },
+        "tags": [
+          "jwt"
+        ]
       },
       "get": {
         "operationId": "RefreshTokensController_retrieveByUserID",
+        "summary": "Retrieve refresh tokens by user ID",
         "parameters": [
           {
             "name": "userId",
             "required": true,
             "in": "header",
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-stencil-tenantid",
+            "in": "header",
+            "description": "Tenant ID",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -2270,28 +2291,93 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Refresh tokens retrieved successfully"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
-        }
+        },
+        "tags": [
+          "jwt"
+        ]
       },
       "delete": {
         "operationId": "RefreshTokensController_deletereftoken",
-        "parameters": [],
+        "summary": "Delete refresh token",
+        "parameters": [
+          {
+            "name": "x-stencil-tenantid",
+            "in": "header",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "applicationId": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "usersId": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "token": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": ""
+            "description": "Refresh token deleted successfully"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
-        }
+        },
+        "tags": [
+          "jwt"
+        ]
       }
     },
     "/jwt/refresh/{id}": {
       "get": {
         "operationId": "RefreshTokensController_retrieve",
+        "summary": "Retrieve refresh token by ID",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "UUID of the refresh token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-stencil-tenantid",
+            "in": "header",
+            "description": "Tenant ID",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -2299,19 +2385,39 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Refresh token retrieved successfully"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
-        }
+        },
+        "tags": [
+          "jwt"
+        ]
       }
     },
     "/jwt/refresh/{tokenId}": {
       "delete": {
         "operationId": "RefreshTokensController_deleteViaTokenID",
+        "summary": "Delete refresh token by token ID",
         "parameters": [
           {
             "name": "tokenId",
             "required": true,
             "in": "path",
+            "description": "Token ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-stencil-tenantid",
+            "in": "header",
+            "description": "Tenant ID",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -2319,9 +2425,18 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Refresh token deleted successfully"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
-        }
+        },
+        "tags": [
+          "jwt"
+        ]
       }
     },
     "/login": {

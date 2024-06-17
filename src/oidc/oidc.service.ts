@@ -227,9 +227,9 @@ export class OidcService {
       ? accessTokenSigningKey.privateKey
       : accessTokenSigningKey.secret;
     const refreshTokenSeconds =
-      applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
+      applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60 * 1000;
     const accessTokenSeconds =
-      applicationData.jwtConfiguration.timeToLiveInSeconds;
+      applicationData.jwtConfiguration.timeToLiveInSeconds * 1000;
     let user: UserDto = null;
     // now generate tokens
     if (grant_type === 'code') {

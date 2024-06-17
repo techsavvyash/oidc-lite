@@ -126,7 +126,7 @@ export class UserRegistrationService {
       const now = new Date().getTime();
       const applicationData: ApplicationDataDto = JSON.parse(application.data);
       const accessTokenSeconds =
-        applicationData.jwtConfiguration.timeToLiveInSeconds;
+        applicationData.jwtConfiguration.timeToLiveInSeconds * 1000;
       const accessTokenPayload: AccessTokenDto = {
         active: true,
         applicationId: application.id,
@@ -429,7 +429,7 @@ export class UserRegistrationService {
           application.data,
         );
         const refreshTokenSeconds =
-          applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
+          applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60 * 1000;
         const refreshTokenPayload: RefreshTokenDto = {
           active: true,
           applicationId: application.id,
