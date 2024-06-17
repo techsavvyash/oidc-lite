@@ -1,7 +1,8 @@
 import { BadGatewayException, Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { addUserDTO, deleteMemberDTO } from "./gpUser.dto";
+import { addUserDTO } from "./gpUser.dto";
 import { randomUUID } from "crypto";
+import { log } from "console";
 
 @Injectable() export class GroupUserService {
     private readonly logger: Logger
@@ -35,9 +36,9 @@ import { randomUUID } from "crypto";
                     const addUsers = [];
 
                     await Promise.all(
-                        member.userIds.map(async (userId) => {
+                        member.userIds.map(async (obj) => {
                             const user = await this.prismaService.user.findUnique({
-                                where: { id: String(userId) },
+                                where: { id: obj.userId },
                             });
 
                             if (!user) {
@@ -50,12 +51,12 @@ import { randomUUID } from "crypto";
                             const newData = {
                                 user: {
                                     connect: {
-                                        id: String(userId),
+                                        id: obj.userId,
                                     },
                                 },
                                 group: {
                                     connect: {
-                                        id: String(member.groupId),
+                                        id: member.groupId,
                                     },
                                 },
                                 createdAt: new Date().getTime(),
@@ -66,7 +67,7 @@ import { randomUUID } from "crypto";
                             });
 
                             addUsers.push({
-                                userId: String(userId),
+                                userId: String(obj.userId),
                                 id: randomUUID()
                             });
                         })
@@ -121,6 +122,11 @@ import { randomUUID } from "crypto";
     }
 
     async deleteByMemberId(uuid: string) {
+
+        const groupMembers = await this.prismaService.groupMember.findMany();
+        for (const groupMember of groupMembers) {
+            console.log(groupMember);
+        }
         if (!uuid) {
             throw new BadGatewayException({
                 success: false,
@@ -150,7 +156,7 @@ import { randomUUID } from "crypto";
         }
     }
 
-    async deleteViaUserAndGpId(userId: string, gpId: string) {
+    async deleteViaUserAndGpId(userId: string, gpId: string, id?: string) {
         if (!userId || !gpId) {
             throw new BadGatewayException({
                 success: false,
@@ -158,19 +164,25 @@ import { randomUUID } from "crypto";
             })
         }
         try {
-            const user = await this.prismaService.groupMember.findUnique({ where: { id: userId } })
-            const gp = await this.prismaService.groupMember.findUnique({ where: { id: gpId } })
+            const user = await this.prismaService.groupMember.findFirst({ where: { userId } })
+            const gp = await this.prismaService.groupMember.findFirst({ where: { groupId: gpId } })
+
             if (user && gp) {
-                await this.prismaService.groupMember.delete({ where: { id: userId } })
-            }else{
+                await this.prismaService.groupMember.deleteMany({
+                    where: {
+                        userId,
+                        groupId: gpId,
+                    },
+                });
+            } else {
                 throw new BadGatewayException({
-                    success : false,
-                    message : 'either user id or gp id do not exist in db'
+                    success: false,
+                    message: 'either user id or gp id do not exist in db'
                 })
             }
             return {
-                success : true,
-                message : 'user deleted successfully'
+                success: true,
+                message: 'user deleted successfully'
             }
         } catch (error) {
             this.logger.log(error)
@@ -188,16 +200,17 @@ import { randomUUID } from "crypto";
             })
         }
         try {
-            if (await this.prismaService.groupMember.findUnique({ where: { id: String(gpId) } })){
+            const groupId = await this.prismaService.groupMember.findFirst({ where: {groupId : gpId} })
+            if (groupId) {
                 await this.prismaService.groupMember.deleteMany({
                     where: {
                         groupId: gpId,
                     },
                 });
-            }else{
+            } else {
                 throw new BadGatewayException({
-                    success : false,
-                    message : 'gp id do not exist in db'
+                    success: false,
+                    message: 'gp id do not exist in db'
                 })
             }
             return {
@@ -212,31 +225,5 @@ import { randomUUID } from "crypto";
             });
         }
     }
-
-    async deleteMembers(data: deleteMemberDTO) {
-        try {
-            await Promise.all(
-                data.members.map(async (member) => {
-                    if (await this.prismaService.groupMember.findUnique({ where: { id: member } })) {
-                        await this.prismaService.groupMember.delete({ where: { id: member } })
-                    } else {
-                        throw new BadGatewayException({
-                            success: false,
-                            message: `member id ${member} does not exist in db`
-                        })
-                    }
-                })
-            )
-            return {
-                success: true,
-                message: 'members deleted successfully'
-            }
-        } catch (error) {
-            this.logger.log(error)
-            throw new BadGatewayException({
-                success: false,
-                message: 'error occured from deleting members via member array'
-            })
-        }
-    }
+    
 }

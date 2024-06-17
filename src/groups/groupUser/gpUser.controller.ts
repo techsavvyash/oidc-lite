@@ -4,46 +4,45 @@ import { GroupUserService } from "./gpUser.service";
 import { addUserDTO, deleteMemberDTO } from "./gpUser.dto";
 
 
-@Controller('groups')
-export class GroupUserController{
+@Controller('group')
+export class GroupUserController {
     constructor(
-        private readonly groupUserService : GroupUserService
-    ){}
+        private readonly groupUserService: GroupUserService
+    ) {}
 
     // group user routes 
     @Post('/member')
-    async addUserToGP(@Body() data : addUserDTO, uuid ?: string){
-        if(!uuid){
+    async addUserToGP(@Body() data: addUserDTO, uuid?: string) {
+        if (!uuid) {
             uuid = randomUUID()
         }
         return this.groupUserService.addUser(data)
     }
     @Put('/member')
-    async updateUser(@Body() data : addUserDTO){
+    async updateUser(@Body() data: addUserDTO) {
         return this.groupUserService.updateUser(data)
     }
 
     @Delete('member/:id')
-    async delete(@Param('id') id : string){
+    async delete(@Param('id') id: string) {
         return this.groupUserService.deleteByMemberId(id)
     }
     @Delete('/member')
     async deleteUser(
-        @Body('groupId') gpId ?: string,
-        @Body('userId') userId ?: string,
-        @Body('memberIds') members ?: deleteMemberDTO
-    ){
-        if(gpId && userId){
+        @Body('groupId') gpId?: string,
+        @Body('userId') userId?: string,
+        @Body('memberId') memberId ?: string,
+        @Body('members') members?: deleteMemberDTO
+    ) {
+
+        if (gpId && userId) {
             return this.groupUserService.deleteViaUserAndGpId(userId, gpId)
-        }else if (gpId){
-            console.log("-----------")
+        } else if (gpId) {
             return this.groupUserService.deleteAllUser(gpId)
-        }else if(members){
-            return this.groupUserService.deleteMembers(members)
-        }else{
-            throw new BadGatewayException({ 
-                success : false,
-                message : 'invalid parameters'
+        } else {
+            throw new BadGatewayException({
+                success: false,
+                message: 'invalid parameters'
             })
         }
     }

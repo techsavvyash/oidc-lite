@@ -17,7 +17,7 @@ import { TenantController } from './tenant/tenant.controller';
 import { KeyModule } from './key/key.module';
 import { GroupModule } from './groups/groups.module';
 import { RefreshTokenModule } from './refresh_tokens/refreshtokens.module';
-import { GroupUserModule } from './groupUser/gpUser.module';
+import { GroupUserModule } from './groups/groupUser/gpUser.module';
 
 
 @Module({

@@ -1387,6 +1387,75 @@
         }
       }
     },
+    "/group/member": {
+      "post": {
+        "operationId": "GroupUserController_addUserToGP",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/addUserDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "operationId": "GroupUserController_updateUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/addUserDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "GroupUserController_deleteUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/group/member/{id}": {
+      "delete": {
+        "operationId": "GroupUserController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/group": {
       "post": {
         "operationId": "GroupsController_createGroup",
@@ -1585,75 +1654,6 @@
           }
         }
       }
-    },
-    "/groups/member": {
-      "post": {
-        "operationId": "GroupUserController_addUserToGP",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/addUserDTO"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      },
-      "put": {
-        "operationId": "GroupUserController_updateUser",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/addUserDTO"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "operationId": "GroupUserController_deleteUser",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/groups/member/{id}": {
-      "delete": {
-        "operationId": "GroupUserController_delete",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
     }
   },
   "info": {
@@ -1727,6 +1727,10 @@
           "data"
         ]
       },
+      "addUserDTO": {
+        "type": "object",
+        "properties": {}
+      },
       "refreshDTO": {
         "type": "object",
         "properties": {
@@ -1741,10 +1745,6 @@
           "refreshToken",
           "token"
         ]
-      },
-      "addUserDTO": {
-        "type": "object",
-        "properties": {}
       }
     }
   }

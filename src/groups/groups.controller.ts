@@ -5,34 +5,33 @@ import { createGroupDTO } from "./groups.dto";
 
 
 @Controller('group')
-export class GroupsController{
+export class GroupsController {
     constructor(
-        private readonly groupService : GroupsService
-    ){}
-
+        private readonly groupService: GroupsService
+    ) { }
     @Post('/')
-    async createGroup(@Body('group') data : createGroupDTO){
-        const uuid = randomUUID() ;
+    async createGroup(@Body('group') data: createGroupDTO) {
+        const uuid = randomUUID();
         return this.groupService.createGroup(data, uuid)
     }
     @Post('/:id')
-    async createGroupByID(@Body('group') data : createGroupDTO, @Param('id') uuid ?: string){
+    async createGroupByID(@Body('group') data: createGroupDTO, @Param('id') uuid?: string) {
         return this.groupService.createGroup(data, uuid)
     }
     @Get('/')
-    async retrieveAllGroup(){
+    async retrieveAllGroup() {
         return this.groupService.retrieveGroup();
     }
     @Get('/:id')
-    async retrieveGpById(@Param('id') id : string){
+    async retrieveGpById(@Param('id') id: string) {
         return this.groupService.retrieveGpById(id)
     }
     @Put('/:id')
-    async updateGP(@Param('id') id : string,@Body('group') data : createGroupDTO){
+    async updateGP(@Param('id') id: string, @Body('group') data: createGroupDTO) {
         return this.groupService.updateGp(id, data)
     }
     @Delete('/:id')
-    async deleteGP(@Param('id') id : string){
+    async deleteGP(@Param('id') id: string) {
         return this.groupService.deleteGroup(id)
     }
 }
