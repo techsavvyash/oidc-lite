@@ -3042,6 +3042,12 @@
           "code": {
             "type": "string"
           },
+          "loginId": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
           "grant_type": {
             "type": "string"
           },
@@ -3053,6 +3059,8 @@
           "client_id",
           "client_secret",
           "code",
+          "loginId",
+          "password",
           "grant_type",
           "redirect_uri"
         ]

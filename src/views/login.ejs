@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Login</h1>
-    <form action="<%= host %>/oidc/authorize?client_id=<%= applicationId %>" method="post">
+    <form action="<%= host %>/oidc/auth?client_id=<%= applicationId %>" method="post">
         <label for="email">Email:</label>
         <input type="email" id="email" name="loginId" required>
         <br>

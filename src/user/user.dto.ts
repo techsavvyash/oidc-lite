@@ -41,3 +41,15 @@ export class CreateUserAndUserRegistration {
   @ApiProperty() userInfo: CreateUserDto;
   @ApiProperty() registrationInfo: CreateUserRegistrationDto;
 }
+
+export class UserDto {
+  id: string;
+  active: boolean;
+  data: string;
+  expiry: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  tenantId: string;
+  groupId: string;
+  email: string;
+}

@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
   Logger,
   NotImplementedException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -20,6 +21,7 @@ import {
 import * as jwt from 'jsonwebtoken';
 import { ResponseDto } from 'src/dto/response.dto';
 import { ApplicationDataDto } from 'src/application/application.dto';
+import { UserDto } from 'src/user/user.dto';
 
 @Injectable()
 export class OidcService {
@@ -131,12 +133,19 @@ export class OidcService {
           data: userRegistration.authenticationToken,
         };
       }
+      const updateRegistration =
+        await this.prismaService.userRegistration.update({
+          where: { id: alreadyRegisterd.id },
+          data: {
+            authenticationToken,
+          },
+        });
 
       this.logger.log('A user authenticated', user);
       return {
         success: true,
         message: 'Authentication successfull',
-        data: alreadyRegisterd.authenticationToken,
+        data: updateRegistration.authenticationToken,
       };
     } catch (error) {
       this.logger.log('Error from postAuthorize', error);
@@ -154,7 +163,7 @@ export class OidcService {
         message: 'content-type should be application/x-www-form-urlencoded',
       });
     }
-    const authorization = headers['authorization']?.split('Basic')[1];
+    const authorization = headers['authorization']?.split('Basic ')[1];
     let client_id: string | null = null,
       client_secret: string | null = null;
     if (authorization) {
@@ -163,7 +172,7 @@ export class OidcService {
       );
       [client_id, client_secret] = credentials.split(':');
     }
-    const { code, grant_type, redirect_uri } = data;
+    const { code, grant_type, redirect_uri, loginId, password } = data;
     if (!code || !grant_type || !redirect_uri) {
       throw new BadRequestException({
         success: false,
@@ -194,18 +203,42 @@ export class OidcService {
         message: 'No such application exists',
       });
     }
-    const applicationData = JSON.parse(application.data);
-    const actualSecret = applicationData?.clientSecret;
+    const applicationData: ApplicationDataDto = JSON.parse(application.data);
+    const actualSecret = applicationData?.oauthConfiguration.clientSecret;
     if (clientSecret !== actualSecret) {
       throw new BadRequestException({
         success: false,
         message: 'No such client with given id and secret exists',
       });
     }
+    const idTokenSigningKeysId = application.idTokenSigningKeysId;
+    const accessTokenSigningKeysId = application.accessTokenSigningKeysId;
 
+    const idTokenSigningKey = await this.prismaService.key.findUnique({
+      where: { id: idTokenSigningKeysId },
+    });
+    const accessTokenSigningKey = await this.prismaService.key.findUnique({
+      where: { id: accessTokenSigningKeysId },
+    });
+    const idTokenSecret = idTokenSigningKey.privateKey
+      ? idTokenSigningKey.privateKey
+      : idTokenSigningKey.secret;
+    const accessTokenSecret = accessTokenSigningKey.privateKey
+      ? accessTokenSigningKey.privateKey
+      : accessTokenSigningKey.secret;
+    const refreshTokenSeconds =
+      applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
+    const accessTokenSeconds =
+      applicationData.jwtConfiguration.timeToLiveInSeconds;
+    let user: UserDto = null;
     // now generate tokens
     if (grant_type === 'code') {
-      // for now only, as we can use password as well here
+      if (!code) {
+        throw new BadRequestException({
+          success: false,
+          message: 'No authorizationToken passed as code',
+        });
+      }
       const userRegistration =
         await this.prismaService.userRegistration.findFirst({
           where: { authenticationToken: code },
@@ -218,88 +251,114 @@ export class OidcService {
         });
         // redirect to login/signup page
       }
-      const user = await this.prismaService.user.findUnique({
+      const foundUser = await this.prismaService.user.findUnique({
         where: { id: userRegistration.usersId },
       });
-      const idTokenSigningKeysId = application.idTokenSigningKeysId;
-      const accessTokenSigningKeysId = application.accessTokenSigningKeysId;
-
-      const idTokenSigningKey = await this.prismaService.key.findUnique({
-        where: { id: idTokenSigningKeysId },
+      user = user === null ? foundUser : null;
+    } else if (grant_type === 'password') {
+      if (!loginId || !password) {
+        throw new BadRequestException({
+          success: false,
+          message: 'No loginId or password given',
+        });
+      }
+      const foundUser = await this.prismaService.user.findUnique({
+        where: { email: loginId },
       });
-      const accessTokenSigningKey = await this.prismaService.key.findUnique({
-        where: { id: accessTokenSigningKeysId },
-      });
-      const idTokenSecret = idTokenSigningKey.privateKey
-        ? idTokenSigningKey.privateKey
-        : idTokenSigningKey.secret;
-      const accessTokenSecret = accessTokenSigningKey.privateKey
-        ? accessTokenSigningKey.privateKey
-        : accessTokenSigningKey.secret;
-      const now = new Date().getTime();
-      const applicationData: ApplicationDataDto = JSON.parse(application.data);
-      const refreshTokenSeconds =
-        applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
-      const accessTokenSeconds =
-        applicationData.jwtConfiguration.timeToLiveInSeconds;
-
-      const idTokenPayload: IdTokenDto = {
-        active: true,
-        iat: now,
-        exp: now + refreshTokenSeconds,
-        iss: 'Stencil Service',
-        userData: { ...JSON.parse(user.data) },
-      };
-      const idToken = jwt.sign(idTokenPayload, idTokenSecret, {
-        algorithm: idTokenSigningKey.algorithm as jwt.Algorithm,
-      });
-      const refreshTokenPayload: RefreshTokenDto = {
-        active: true,
-        iat: now,
-        applicationId: application.id,
-        iss: 'Stencil Service',
-        exp: now + refreshTokenSeconds,
-      };
-      const refreshToken = jwt.sign(refreshTokenPayload, accessTokenSecret, {
-        algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,
-      });
-      const saveToken = await this.prismaService.refreshToken.create({
-        data: {
-          applicationsId: application.id,
-          token: refreshToken,
-          tenantId: application.tenantId,
-          usersId: user.id, // foreign key constraint failed since some are removed
-          expiry: now + refreshTokenSeconds,
-          startInstant: now,
-          data: '',
-        },
-      });
-      // user.groupid => all grps.foreach => applicationroleid => applicationrole.name
-      const accessTokenPayload: AccessTokenDto = {
-        active: true,
-        roles: ['admin'],
-        iat: now,
-        exp: now + accessTokenSeconds,
-        iss: 'Stencil',
-        sub: user.id,
-        applicationId: application.id,
-      };
-      const accessToken = jwt.sign(accessTokenPayload, accessTokenSecret, {
-        algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,
-      });
-      return {
-        success: true,
-        message: 'oAuth Complete',
-        data: {
-          idToken,
-          accessToken,
-          refreshToken,
-          refreshTokenId: saveToken.id,
-          userId: user.id,
-          token_type: 'Bearer',
-        },
-      };
+      if (!foundUser) {
+        throw new BadRequestException({
+          success: false,
+          message: 'No such user exists',
+        });
+      }
+      const foundUserRegistration =
+        await this.prismaService.userRegistration.findUnique({
+          where: {
+            user_registrations_uk_1: {
+              applicationsId: application.id,
+              usersId: foundUser.id,
+            },
+          },
+        });
+      if (!foundUserRegistration) {
+        throw new NotImplementedException({
+          success: false,
+          message:
+            'You must be redirected to login/signup page, how ever it will be implemented later',
+        });
+        // redirect to login/signup page
+      }
+      if (foundUserRegistration.password !== password) {
+        throw new UnauthorizedException({
+          success: false,
+          message: 'You are not authorized',
+        });
+      }
+      user = user === null ? foundUser : null;
     }
+    if (!user) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No user found!',
+      });
+    }
+    const now = new Date().getTime();
+    const idTokenPayload: IdTokenDto = {
+      active: true,
+      iat: now,
+      exp: now + refreshTokenSeconds,
+      iss: 'Stencil Service',
+      userData: { ...JSON.parse(user.data) },
+    };
+    const idToken = jwt.sign(idTokenPayload, idTokenSecret, {
+      algorithm: idTokenSigningKey.algorithm as jwt.Algorithm,
+    });
+    const refreshTokenPayload: RefreshTokenDto = {
+      active: true,
+      iat: now,
+      applicationId: application.id,
+      iss: 'Stencil Service',
+      exp: now + refreshTokenSeconds,
+    };
+    const refreshToken = jwt.sign(refreshTokenPayload, accessTokenSecret, {
+      algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,
+    });
+    const saveToken = await this.prismaService.refreshToken.create({
+      data: {
+        applicationsId: application.id,
+        token: refreshToken,
+        tenantId: application.tenantId,
+        usersId: user.id,
+        expiry: now + refreshTokenSeconds,
+        startInstant: now,
+        data: '',
+      },
+    });
+    // user.groupid => all grps.foreach => applicationroleid => applicationrole.name
+    const accessTokenPayload: AccessTokenDto = {
+      active: true,
+      roles: ['admin'],
+      iat: now,
+      exp: now + accessTokenSeconds,
+      iss: 'Stencil Service',
+      sub: user.id,
+      applicationId: application.id,
+    };
+    const accessToken = jwt.sign(accessTokenPayload, accessTokenSecret, {
+      algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,
+    });
+    return {
+      success: true,
+      message: 'oAuth Complete',
+      data: {
+        idToken,
+        accessToken,
+        refreshToken,
+        refreshTokenId: saveToken.id,
+        userId: user.id,
+        token_type: 'Bearer',
+      },
+    };
   }
 
   async returnAllPublicJwks() {
@@ -441,7 +500,7 @@ export class OidcService {
       });
       const userData = JSON.parse(user.data);
       delete userData.userData.password;
-      return {...userData};
+      return { ...userData };
     } catch (error) {
       this.logger.log('Error occured in returnClaimsOfEndUser', error);
       throw new InternalServerErrorException({

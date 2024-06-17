@@ -3,7 +3,9 @@ import { ApiProperty } from '@nestjs/swagger';
 export class TokenDto {
   @ApiProperty() client_id?: string;
   @ApiProperty() client_secret?: string;
-  @ApiProperty() code: string;
+  @ApiProperty() code?: string;
+  @ApiProperty() loginId?: string;
+  @ApiProperty() password?: string;
   @ApiProperty() grant_type: string;
   @ApiProperty() redirect_uri: string;
 }
