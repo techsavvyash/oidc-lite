@@ -1,330 +1,521 @@
-import { BadRequestException, Body, Headers, Injectable, InternalServerErrorException, Logger, UnauthorizedException } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { PrismaService } from "src/prisma/prisma.service";
-import { refreshCookiesDTO, refreshDTO } from "./refreshToken.dto";
-import { HeaderAuthService } from "src/header-auth/header-auth.service";
-
+import {
+  BadRequestException,
+  Body,
+  Headers,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { refreshCookiesDTO, refreshDTO } from './refreshToken.dto';
+import { HeaderAuthService } from 'src/header-auth/header-auth.service';
+import { ApplicationDataDto } from 'src/application/application.dto';
+import * as jwt from 'jsonwebtoken';
+import { AccessTokenDto, RefreshTokenDto } from 'src/oidc/oidc.token.dto';
 @Injectable()
 export class RefreshTokensService {
-    private readonly logger: Logger
-    constructor(
-        private readonly prismaService: PrismaService,
-        private readonly jwtService: JwtService,
-        private readonly headerAuthService: HeaderAuthService,
-    ) {
-        this.logger = new Logger();
+  private readonly logger: Logger;
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly jwtService: JwtService,
+    private readonly headerAuthService: HeaderAuthService,
+  ) {
+    this.logger = new Logger();
+  }
+
+  async refreshToken(
+    @Headers() cookie: refreshCookiesDTO,
+    @Body() data: refreshDTO,
+  ) {
+    if (!cookie || !data) {
+      return {
+        success: false,
+        message: 'please provide refresh and access token via cookie or body',
+      };
+    }
+    const refreshToken = cookie.refreshToken
+      ? cookie.refreshToken
+      : data.refreshToken;
+    const accessToken = cookie.token ? cookie.token : data.token;
+    if (!refreshToken || !accessToken) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No refresh or access token provided',
+      });
+    }
+    const foundRefreshToken = await this.prismaService.refreshToken.findUnique({
+      where: { token: refreshToken },
+    });
+    if (!foundRefreshToken) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No refresh token found',
+      });
     }
 
-    async refreshToken(@Headers() cookie: refreshCookiesDTO, @Body() data: refreshDTO) {
-        if (!cookie || !data) {
-            return {
-                success: false,
-                message: 'please provide refresh and access token via cookie or body'
-            }
-        }
-        try {
+    const application = await this.prismaService.application.findUnique({
+      where: { id: foundRefreshToken.applicationsId },
+    });
+    const refreshTokenSigningKey = await this.prismaService.key.findUnique({
+      where: { id: application.accessTokenSigningKeysId },
+    });
 
-            const token = cookie.refreshToken ? cookie.refreshToken : data.refreshToken
-            const refreshToken = await this.prismaService.refreshToken.findUnique({ where: { token } })
-            if (refreshToken) {
-                if (refreshToken.expiry < (new Date()).getSeconds()) {
-                    const uuid = refreshToken.id
-                    const expiresIn = '1h'
-                    const access_token = this.jwtService.sign({ uuid }, { expiresIn }); 
-                    this.logger.log('access token generated')
-                    const item = {
-                        refreshToken: token,
-                        refreshTokenID: uuid,
-                        token: access_token
-                    }
-                    return {
-                        success: true,
-                        message: 'access token generated successfully!',
-                        data : item
-                    }
-                } else {
-                    throw new BadRequestException({
-                        success: false,
-                        message: 'refresh token had expired'
-                    })
-                }
-            } else {
-                throw new BadRequestException({
-                    success: false,
-                    message: 'invalid refresh token'
-                })
-            }
-        } catch (error) {
-            this.logger.log(error)
-            throw new BadRequestException({
-                success: false,
-                message: 'error occured verifying refresh token'
-            })
-        }
-    }
-
-    async retrieveByID(id: string, tenantID?: string) {
-        if (!id) {
-            throw new BadRequestException({
-                success: false,
-                message: 'please send uuid along with request'
-            })
-        }
-        const refreshToken = await this.prismaService.refreshToken.findUnique({ where: { id } })
-        try {
-            if (!refreshToken) {
-                throw new BadRequestException({
-                    success: false,
-                    message: 'refresh token is not generated'
-                })
-            } else {
-                return {
-                    success : true,
-                    message : 'refresh token generated successfully',
-                    data : refreshToken,
-                }
-            }
-        } catch (error) {
-            this.logger.log(error);
-            throw new BadRequestException({
-                success: false,
-                message: 'error occures while retrieving refresh token from uuid'
-            })
-        }
-    }
-
-    async retrieveByUserID(usersId: string) {
-        if (!usersId) {
-            throw new BadRequestException({
-                success: false,
-                message: 'please send userId along with request'
-            })
-        }
-        const refreshToken = await this.prismaService.refreshToken.findUnique({
-            where: {
-                id: usersId,
-            }
+    const refreshSecret = refreshTokenSigningKey.privateKey
+      ? refreshTokenSigningKey.privateKey
+      : refreshTokenSigningKey.secret;
+    const refreshTokenValue = foundRefreshToken.token;
+    try {
+      const refreshTokenDecoded = await jwt.verify(
+        refreshTokenValue,
+        refreshSecret,
+      );
+      const accessTokenDecoded = await jwt.verify(accessToken, refreshSecret);
+      const applicationData: ApplicationDataDto = JSON.parse(application.data);
+      const refreshTokenSeconds =
+        applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
+      const { exp, iss } = refreshTokenDecoded as RefreshTokenDto;
+      const now = new Date().getTime();
+      if (exp < now) {
+        throw new BadRequestException({
+          success: false,
+          message: 'Invalid token',
         });
-        try {
-            if (!refreshToken) {
-                throw new BadRequestException({
-                    success: false,
-                    message: 'refresh token is not generated'
-                })
-            } else {
-                return {
-                    success : true,
-                    message : 'refresh token generated successfully',
-                    data : refreshToken,
-                }
-            }
-        } catch (error) {
-            this.logger.log(error);
-            throw new BadRequestException({
-                success: false,
-                message: 'error occures while retrieving refresh token from userID'
-            })
-        }
-    }
+      }
+      const refreshTokenPayload: RefreshTokenDto = {
+        active: true,
+        iat: now,
+        exp: now + refreshTokenSeconds,
+        iss,
+        applicationId: application.id,
+      };
+      const newRefreshToken = jwt.sign(
+        refreshTokenPayload,
+        refreshTokenSigningKey.algorithm,
+        { algorithm: refreshTokenSigningKey.algorithm as jwt.Algorithm },
+      );
+      const updateToken = await this.prismaService.refreshToken.update({
+        where: { id: foundRefreshToken.id },
+        data: { token: newRefreshToken },
+      });
 
-    async deleteViaAppID(applicationId : string,headers: object){
-        if(!applicationId){
-            throw new BadRequestException({
-                success : false,
-                message : 'please send a valid application ID'
-            })
-        }
-        const appId = await this.prismaService.application.findUnique({where: {id: applicationId}});
-        if(!appId){
-            throw new BadRequestException({
-                success : false,
-                message : 'application id not found'
-            })
-        }
-        const valid = await this.headerAuthService.authorizationHeaderVerifier(headers,appId.tenantId,"/jwt/refresh",'DELETE');
-        if(!valid.success){
-            throw new UnauthorizedException({
-                success: valid.success,
-                message: valid.message
-            })
-        }
-        try{
-                await this.prismaService.refreshToken.deleteMany({ where : {
-                    applicationsId : applicationId 
-                }})
-                return {
-                    success : true,
-                    message : 'all refresh tokens deleted successfully with the given application id'
-                }
-            
-        }catch(error){
-            this.logger.log(error)
-            throw new InternalServerErrorException({
-                success : false, 
-                message : 'error occured while deleting all refresh token from given application id'
-            })
-        }
+      const { sub, scope, roles } = accessTokenDecoded as AccessTokenDto;
+      const accessTokenPayload: AccessTokenDto = {
+        active: true,
+        applicationId: application.id,
+        iat: now,
+        exp: now + applicationData.jwtConfiguration.timeToLiveInSeconds,
+        iss,
+        sub,
+        scope,
+        roles,
+      };
+      const newAccessToken = jwt.sign(
+        accessTokenPayload,
+        refreshTokenSigningKey.algorithm,
+        { algorithm: refreshTokenSigningKey.algorithm as jwt.Algorithm },
+      );
+      return {
+        success: true,
+        message: 'Refresh token refreshed',
+        data: {
+          refreshToken: newRefreshToken,
+          refreshTokenId: updateToken.id,
+          accessToken: newAccessToken,
+        },
+      };
+    } catch (error) {
+      this.logger.log('Error from refreshToken', error);
+      throw new BadRequestException({
+        success: false,
+        message: 'Invalid token',
+      });
     }
-    
-    async deleteViaUserID(usersId : string,headers: object){
-        if(!usersId){
-            throw new BadRequestException({
-                success : false,
-                message : 'please send a valid user id'
-            })
-        }
-        const userId = await this.prismaService.user.findUnique({ where : {
-            id: usersId,
-        }})
-        if(!userId){
-            throw new BadRequestException({
-                success : false,
-                message : 'unable to find refresh token with provided credentials'
-            })
-        }
-        const valid = await this.headerAuthService.authorizationHeaderVerifier(headers,null,'/jwt/refresh','DELETE');
-        if(!valid.success){
-            throw new UnauthorizedException({
-                success: valid.success,
-                message: valid.message
-            })
-        }
-        try{
-                await this.prismaService.refreshToken.deleteMany({ where : {
-                    usersId: usersId
-                }})
-                return {
-                    success : true,
-                    message : 'all refresh token is deleted successfully with the help of given user id'
-                }
-        }catch(error){
-            this.logger.log(error)
-            throw new InternalServerErrorException({
-                success : false,
-                message : 'error occured while deleting refresh token from given user id'
-            })
-        }
-    }
+  }
 
-    async deleteViaUserAndAppID( userId : string, applicationsId : string,headers: object){
-        if(!userId || !applicationsId){
-            throw new BadRequestException({
-                success : false,
-                message : 'please send userId and applicationId both'
-            })
-        }
-        const userID = await this.prismaService.user.findUnique({ where : {id : userId}})
-        const appId = await this.prismaService.application.findUnique({ where : {id : applicationsId}})
-        if(!userID || !appId){
-            throw new BadRequestException({
-                success: false,
-                message: 'No such userid or appid exists'
-            })
-        }
-        const valid = await this.headerAuthService.authorizationHeaderVerifier(headers,appId.tenantId,'/jwt/refersh','DELETE');
-        if(!valid.success){
-            throw new UnauthorizedException({
-                success: valid.success,
-                message: valid.message
-            })
-        }
-        try{
-                await this.prismaService.refreshToken.deleteMany({ where : {
-                    usersId : userId,
-                    applicationsId : applicationsId
-                }})
-            return {
-                success : true,
-                message : 'refresh token deleted with provided application ID and user ID'
-            }
-        }catch(error){
-            this.logger.log(error)
-            throw new InternalServerErrorException({
-                success : false,
-                message : 'error occured deleting refresh tokens while userId and applicationId both are given'
-            })
-        }
+  async retrieveByID(id: string, headers: object) {
+    const tenantId = headers['x-stencil-tenantid'];
+    if (!tenantId) {
+      throw new BadRequestException({
+        success: false,
+        message: 'x-stencil-tenantid header missing',
+      });
     }
-    // deleting refersh token via given tokenID
-    async deleteViaTokenID( id : string, headers: object){
+    const tenant = await this.prismaService.tenant.findUnique({
+      where: { id: tenantId },
+    });
+    if (!tenant) {
+      throw new BadRequestException({
+        success: false,
+        message: 'no such tenant exists',
+      });
+    }
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      tenantId,
+      '/jwt/refresh',
+      'GET',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
+    if (!id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'please send uuid along with request',
+      });
+    }
+    const refreshToken = await this.prismaService.refreshToken.findUnique({
+      where: { id, tenantId },
+    });
+    try {
+      if (!refreshToken) {
+        throw new BadRequestException({
+          success: false,
+          message: 'refresh token is not found',
+        });
+      } else {
+        return {
+          success: true,
+          message: 'refresh token found successfully',
+          data: refreshToken,
+        };
+      }
+    } catch (error) {
+      this.logger.log(error);
+      throw new BadRequestException({
+        success: false,
+        message: 'error occures while retrieving refresh token from uuid',
+      });
+    }
+  }
 
-        if(!id){
-            throw new BadRequestException({
-                success : false,
-                message : 'please send a valid token id'
-            })
-        }
-        const ref_token = await this.prismaService.refreshToken.findUnique({ where : {
-            id : id
-        }})
-        if(!ref_token){
-            throw new BadRequestException({
-                success : false,
-                message : 'unable to find refresh token with provided credentials'
-            })
-        }
-        const appid = ref_token.applicationsId;
-        const application = await this.prismaService.application.findUnique({where: {id: appid}});
-        const valid = await this.headerAuthService.authorizationHeaderVerifier(headers,application.tenantId,"/jwt/refresh",'DELETE');
-        if(!valid.success){
-            throw new UnauthorizedException({
-                success: valid.success,
-                message: valid.message
-            })
-        }
-        try{
-                const token = await this.prismaService.refreshToken.delete({ where : {id}})
-                return {
-                    success : true,
-                    message : 'refresh token is deleted successfully with the help of given token id',
-                    data: token
-                }
-        }catch(error){
-            this.logger.log(error)
-            throw new BadRequestException({
-                success : false,
-                message : 'error occured while deleting refresh token from given token id'
-            })
-        }
+  async retrieveByUserID(usersId: string, headers: object) {
+    const tenantId = headers['x-stencil-tenantid'];
+    if (!tenantId) {
+      throw new BadRequestException({
+        success: false,
+        message: 'x-stencil-tenantid header missing',
+      });
     }
-    // deleting refresh token via given refresh token
-    async deleteViaToken(token : string,headers: object){
-        if(!token){
-            throw new BadRequestException({
-                success : false,
-                message : 'please send a valid token'
-            })
-        }
-        const ref_token = await this.prismaService.refreshToken.findUnique({ where : {
-            token : token
-        }})
-        if(!ref_token){
-            throw new BadRequestException({
-                success : false,
-                message : 'unable to find refresh token with provided credentials'
-            })
-        }
-        const appid = ref_token.applicationsId;
-        const application = await this.prismaService.application.findUnique({where: {id: appid}});
-        const valid = await this.headerAuthService.authorizationHeaderVerifier(headers,application.tenantId,'/jwt/refresh','DELETE');
-        if(!valid.success){
-            throw new UnauthorizedException({
-                success: false,message: valid.message
-            })
-        }
-        try{
-            
-                await this.prismaService.refreshToken.delete({ where : {token}})
-                return {
-                    success : true,
-                    message : 'refresh token is deleted successfully with the help of given token'
-                }
-        }catch(error){
-            this.logger.log(error)
-            throw new BadRequestException({
-                success : false,
-                message : 'error occured while deleting refresh token from given token string'
-            })
-        }
+    const tenant = await this.prismaService.tenant.findUnique({
+      where: { id: tenantId },
+    });
+    if (!tenant) {
+      throw new BadRequestException({
+        success: false,
+        message: 'no such tenant exists',
+      });
     }
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      tenantId,
+      '/jwt/refresh',
+      'GET',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
+    if (!usersId) {
+      throw new BadRequestException({
+        success: false,
+        message: 'please send userId along with request',
+      });
+    }
+    const refreshToken = await this.prismaService.refreshToken.findMany({
+      where: {
+        usersId,
+        tenantId,
+      },
+    });
+    try {
+      if (!refreshToken) {
+        throw new BadRequestException({
+          success: false,
+          message: 'refresh token is not found',
+        });
+      } else {
+        return {
+          success: true,
+          message: 'refresh token found successfully',
+          data: refreshToken,
+        };
+      }
+    } catch (error) {
+      this.logger.log(error);
+      throw new BadRequestException({
+        success: false,
+        message: 'error occures while retrieving refresh token from userID',
+      });
+    }
+  }
+
+  async deleteViaAppID(applicationId: string, headers: object) {
+    if (!applicationId) {
+      throw new BadRequestException({
+        success: false,
+        message: 'please send a valid application ID',
+      });
+    }
+    const appId = await this.prismaService.application.findUnique({
+      where: { id: applicationId },
+    });
+    if (!appId) {
+      throw new BadRequestException({
+        success: false,
+        message: 'application id not found',
+      });
+    }
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      appId.tenantId,
+      '/jwt/refresh',
+      'DELETE',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
+    try {
+      await this.prismaService.refreshToken.deleteMany({
+        where: {
+          applicationsId: applicationId,
+        },
+      });
+      return {
+        success: true,
+        message:
+          'all refresh tokens deleted successfully with the given application id',
+      };
+    } catch (error) {
+      this.logger.log(error);
+      throw new InternalServerErrorException({
+        success: false,
+        message:
+          'error occured while deleting all refresh token from given application id',
+      });
+    }
+  }
+
+  async deleteViaUserID(usersId: string, headers: object) {
+    if (!usersId) {
+      throw new BadRequestException({
+        success: false,
+        message: 'please send a valid user id',
+      });
+    }
+    const userId = await this.prismaService.user.findUnique({
+      where: {
+        id: usersId,
+      },
+    });
+    if (!userId) {
+      throw new BadRequestException({
+        success: false,
+        message: 'unable to find refresh token with provided credentials',
+      });
+    }
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      null,
+      '/jwt/refresh',
+      'DELETE',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
+    try {
+      await this.prismaService.refreshToken.deleteMany({
+        where: {
+          usersId: usersId,
+        },
+      });
+      return {
+        success: true,
+        message:
+          'all refresh token is deleted successfully with the help of given user id',
+      };
+    } catch (error) {
+      this.logger.log(error);
+      throw new InternalServerErrorException({
+        success: false,
+        message:
+          'error occured while deleting refresh token from given user id',
+      });
+    }
+  }
+
+  async deleteViaUserAndAppID(
+    userId: string,
+    applicationsId: string,
+    headers: object,
+  ) {
+    if (!userId || !applicationsId) {
+      throw new BadRequestException({
+        success: false,
+        message: 'please send userId and applicationId both',
+      });
+    }
+    const userID = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+    const appId = await this.prismaService.application.findUnique({
+      where: { id: applicationsId },
+    });
+    if (!userID || !appId) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No such userid or appid exists',
+      });
+    }
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      appId.tenantId,
+      '/jwt/refersh',
+      'DELETE',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
+    try {
+      await this.prismaService.refreshToken.deleteMany({
+        where: {
+          usersId: userId,
+          applicationsId: applicationsId,
+        },
+      });
+      return {
+        success: true,
+        message:
+          'refresh token deleted with provided application ID and user ID',
+      };
+    } catch (error) {
+      this.logger.log(error);
+      throw new InternalServerErrorException({
+        success: false,
+        message:
+          'error occured deleting refresh tokens while userId and applicationId both are given',
+      });
+    }
+  }
+
+  async deleteViaTokenID(id: string, headers: object) {
+    if (!id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'please send a valid token id',
+      });
+    }
+    const ref_token = await this.prismaService.refreshToken.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!ref_token) {
+      throw new BadRequestException({
+        success: false,
+        message: 'unable to find refresh token with provided credentials',
+      });
+    }
+    const appid = ref_token.applicationsId;
+    const application = await this.prismaService.application.findUnique({
+      where: { id: appid },
+    });
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      application.tenantId,
+      '/jwt/refresh',
+      'DELETE',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
+    try {
+      const token = await this.prismaService.refreshToken.delete({
+        where: { id },
+      });
+      return {
+        success: true,
+        message:
+          'refresh token is deleted successfully with the help of given token id',
+        data: token,
+      };
+    } catch (error) {
+      this.logger.log(error);
+      throw new BadRequestException({
+        success: false,
+        message:
+          'error occured while deleting refresh token from given token id',
+      });
+    }
+  }
+
+  async deleteViaToken(token: string, headers: object) {
+    if (!token) {
+      throw new BadRequestException({
+        success: false,
+        message: 'please send a valid token',
+      });
+    }
+    const ref_token = await this.prismaService.refreshToken.findUnique({
+      where: {
+        token: token,
+      },
+    });
+    if (!ref_token) {
+      throw new BadRequestException({
+        success: false,
+        message: 'unable to find refresh token with provided credentials',
+      });
+    }
+    const appid = ref_token.applicationsId;
+    const application = await this.prismaService.application.findUnique({
+      where: { id: appid },
+    });
+    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+      headers,
+      application.tenantId,
+      '/jwt/refresh',
+      'DELETE',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: false,
+        message: valid.message,
+      });
+    }
+    try {
+      await this.prismaService.refreshToken.delete({ where: { token } });
+      return {
+        success: true,
+        message:
+          'refresh token is deleted successfully with the help of given token',
+      };
+    } catch (error) {
+      this.logger.log(error);
+      throw new BadRequestException({
+        success: false,
+        message:
+          'error occured while deleting refresh token from given token string',
+      });
+    }
+  }
 }
