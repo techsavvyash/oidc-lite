@@ -2487,16 +2487,24 @@
         "type": "object",
         "properties": {
           "accessTokenKeyID": {
-            "type": "string"
+            "type": "string",
+            "description": "ID for the access token signing keys",
+            "example": "access-key-id-123"
           },
           "refreshTokenTimeToLiveInMinutes": {
-            "type": "number"
+            "type": "number",
+            "description": "Time to live for refresh tokens in minutes",
+            "example": 1440
           },
           "timeToLiveInSeconds": {
-            "type": "number"
+            "type": "number",
+            "description": "Time to live for access tokens in seconds",
+            "example": 3600
           },
           "idTokenKeyID": {
-            "type": "string"
+            "type": "string",
+            "description": "ID for the ID token signing keys",
+            "example": "id-key-id-456"
           }
         },
         "required": [
@@ -2510,19 +2518,27 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Name of the tenant",
+            "example": "TenantName"
           },
           "jwtConfiguration": {
-            "$ref": "#/components/schemas/JwtConfiguration"
+            "description": "JWT configuration for the tenant",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/JwtConfiguration"
+              }
+            ]
           },
           "data": {
-            "type": "object"
+            "type": "string | JSON",
+            "description": "Additional data for the tenant",
+            "example": "{\"key\": \"value\"}"
           }
         },
         "required": [
           "name",
-          "jwtConfiguration",
-          "data"
+          "jwtConfiguration"
         ]
       },
       "ResponseDto": {
