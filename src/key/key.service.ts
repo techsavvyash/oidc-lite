@@ -1,8 +1,6 @@
 import {
   BadGatewayException,
   BadRequestException,
-  Body,
-  Headers,
   HttpException,
   HttpStatus,
   Injectable,
@@ -184,7 +182,7 @@ export class KeyService {
       });
     }
   }
-  
+
   async generateKey(uuid: string, key: generateKeyDTO, headers: object) {
     const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
@@ -289,7 +287,6 @@ export class KeyService {
             this.logger.log('HS key generated successfully');
           });
         const jwks = keyStore3.toJSON(true);
-        console.log(jwks);
         const key = await this.prismaService.key.create({
           data: {
             id: uuid,

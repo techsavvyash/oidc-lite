@@ -114,7 +114,7 @@ export class KeyController {
   @Post('/generate/:id')
   async generateKey(
     @Param('id') uuid: string,
-    @Body() key: generateKeyDTO,
+    @Body('key') key: generateKeyDTO,
     @Headers() headers: object,
   ) {
     return this.keyservice.generateKey(uuid, key, headers);

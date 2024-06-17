@@ -23,6 +23,8 @@ import { GroupModule } from './groups/groups.module';
 import { RefreshTokenModule } from './refresh_tokens/refreshtokens.module';
 import { LoginModule } from './login/login.module';
 import { KeyService } from './key/key.service';
+import { TestUsersController } from './test-users/test-users.controller';
+import { TestUsersService } from './test-users/test-users.service';
 
 @Module({
   imports: [OidcModule, UserModule, PrismaModule,JwtModule.register({
@@ -31,8 +33,8 @@ import { KeyService } from './key/key.service';
     signOptions: { expiresIn: process.env.JWT_SECRET_EXPIRATION },
 
     }), ApplicationModule,ScheduleModule.forRoot(), KeyModule, RefreshTokenModule, LoginModule],
-    controllers: [AppController, TenantController,ApiKeysController],
-    providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService, MemoryMonitorService,ApiKeysService, UserRegistrationService, HeaderAuthService,KeyService],
+    controllers: [AppController, TenantController,ApiKeysController, TestUsersController],
+    providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService, MemoryMonitorService,ApiKeysService, UserRegistrationService, HeaderAuthService,KeyService, TestUsersService],
 
 })
 export class AppModule {}

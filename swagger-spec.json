@@ -552,6 +552,17 @@
         ]
       }
     },
+    "/test-users/register": {
+      "get": {
+        "operationId": "TestUsersController_registerUsers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/oidc/auth": {
       "get": {
         "operationId": "OidcController_authorize",
