@@ -6,10 +6,11 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import * as fs from 'fs';
 import * as cookieParser from 'cookie-parser';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-
+  app.useGlobalPipes(new ValidationPipe());
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.useStaticAssets(resolve('./src/public'));

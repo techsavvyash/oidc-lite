@@ -2878,32 +2878,123 @@
           "roles"
         ]
       },
+      "ScopeDto": {
+        "type": "object",
+        "properties": {
+          "defaultConsentDetail": {
+            "type": "string",
+            "description": "Default consent detail",
+            "example": "Default consent detail example"
+          },
+          "defaultConsentMessage": {
+            "type": "string",
+            "description": "Default consent message",
+            "example": "Default consent message example"
+          },
+          "id": {
+            "type": "string",
+            "description": "ID of the scope (optional)",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the scope",
+            "example": "Scope name example"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "Indicates if the scope is required",
+            "example": true
+          }
+        },
+        "required": [
+          "defaultConsentDetail",
+          "defaultConsentMessage",
+          "name",
+          "required"
+        ]
+      },
+      "RoleDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Description of the role",
+            "example": "Admin role with full permissions"
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "Indicates if this role is the default role",
+            "example": true
+          },
+          "isSuperRole": {
+            "type": "boolean",
+            "description": "Indicates if this role is a super role",
+            "example": false
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the role",
+            "example": "Admin"
+          },
+          "id": {
+            "type": "string",
+            "description": "ID of the role (optional)",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          }
+        },
+        "required": [
+          "description",
+          "isDefault",
+          "isSuperRole",
+          "name"
+        ]
+      },
       "OauthConfiguration": {
         "type": "object",
         "properties": {
           "authorizedOriginURLs": {
+            "description": "List of authorized origin URLs",
+            "example": [
+              "https://example.com",
+              "https://anotherexample.com"
+            ],
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "authorizedRedirectURLs": {
+            "description": "List of authorized redirect URLs",
+            "example": [
+              "https://example.com/callback",
+              "https://anotherexample.com/callback"
+            ],
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "clientSecret": {
-            "type": "string"
+            "type": "string",
+            "description": "Client secret for authentication",
+            "example": "supersecret"
           },
           "enabledGrants": {
+            "description": "List of enabled grants",
+            "example": [
+              "authorization_code",
+              "refresh_token"
+            ],
             "type": "array",
             "items": {
               "type": "string"
             }
           },
           "logoutURL": {
-            "type": "string"
+            "type": "string",
+            "description": "Logout URL",
+            "example": "https://example.com/logout"
           }
         },
         "required": [
@@ -2918,28 +3009,44 @@
         "type": "object",
         "properties": {
           "active": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Indicates if the application is active",
+            "example": true
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Name of the application",
+            "example": "My Application"
           },
           "scopes": {
+            "description": "List of scopes",
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/ScopeDto"
             }
           },
           "roles": {
+            "description": "List of roles",
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/RoleDto"
             }
           },
           "jwtConfiguration": {
-            "$ref": "#/components/schemas/JwtConfiguration"
+            "description": "JWT configuration",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/JwtConfiguration"
+              }
+            ]
           },
           "oauthConfiguration": {
-            "$ref": "#/components/schemas/OauthConfiguration"
+            "description": "OAuth configuration",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OauthConfiguration"
+              }
+            ]
           }
         },
         "required": [
@@ -2955,132 +3062,92 @@
         "type": "object",
         "properties": {
           "active": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Indicates if the application is active (optional)",
+            "example": true
           },
           "jwtConfiguration": {
-            "$ref": "#/components/schemas/JwtConfiguration"
+            "description": "JWT configuration (optional)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/JwtConfiguration"
+              }
+            ]
           },
           "oauthConfiguration": {
-            "$ref": "#/components/schemas/OauthConfiguration"
+            "description": "OAuth configuration (optional)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OauthConfiguration"
+              }
+            ]
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Name of the application (optional)",
+            "example": "Updated Application Name"
           }
-        },
-        "required": [
-          "active",
-          "jwtConfiguration",
-          "oauthConfiguration",
-          "name"
-        ]
-      },
-      "RoleDto": {
-        "type": "object",
-        "properties": {
-          "description": {
-            "type": "string"
-          },
-          "isDefault": {
-            "type": "boolean"
-          },
-          "isSuperRole": {
-            "type": "boolean"
-          },
-          "name": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "description",
-          "isDefault",
-          "isSuperRole",
-          "name",
-          "id"
-        ]
+        }
       },
       "UpdateRoleDto": {
         "type": "object",
         "properties": {
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "Description of the role (optional)",
+            "example": "Updated description for the admin role"
           },
           "isDefault": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Indicates if this role is the default role (optional)",
+            "example": true
           },
           "isSuperRole": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Indicates if this role is a super role (optional)",
+            "example": false
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Name of the role (optional)",
+            "example": "Updated Admin"
           },
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "ID of the role (optional)",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
           }
-        },
-        "required": [
-          "description",
-          "isDefault",
-          "isSuperRole",
-          "name",
-          "id"
-        ]
-      },
-      "ScopeDto": {
-        "type": "object",
-        "properties": {
-          "defaultConsentDetail": {
-            "type": "string"
-          },
-          "defaultConsentMessage": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "required": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "defaultConsentDetail",
-          "defaultConsentMessage",
-          "id",
-          "name",
-          "required"
-        ]
+        }
       },
       "UpdateScopeDto": {
         "type": "object",
         "properties": {
           "defaultConsentDetail": {
-            "type": "string"
+            "type": "string",
+            "description": "Default consent detail (optional)",
+            "example": "Updated default consent detail example"
           },
           "defaultConsentMessage": {
-            "type": "string"
+            "type": "string",
+            "description": "Default consent message (optional)",
+            "example": "Updated default consent message example"
           },
           "id": {
-            "type": "string"
+            "type": "string",
+            "description": "ID of the scope (optional)",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Name of the scope (optional)",
+            "example": "Updated scope name example"
           },
           "required": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Indicates if the scope is required (optional)",
+            "example": true
           }
-        },
-        "required": [
-          "defaultConsentDetail",
-          "defaultConsentMessage",
-          "id",
-          "name",
-          "required"
-        ]
+        }
       },
       "updateDTO": {
         "type": "object",
