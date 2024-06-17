@@ -1,13 +1,10 @@
-import { BadGatewayException, Body, Controller, Delete, Get, Header, Headers, Param, Post } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
+import { BadGatewayException, Body, Controller, Delete, Get, Headers, Param, Post } from "@nestjs/common";
 import { RefreshTokensService } from "./refreshtokens.service";
 import { refreshCookiesDTO, refreshDTO } from "./refreshToken.dto";
-
 
 @Controller('jwt')
 export class RefreshTokensController{
     constructor(
-        private readonly prismaService : PrismaService,
         private readonly refreshService : RefreshTokensService
     ){}
 
@@ -25,27 +22,28 @@ export class RefreshTokensController{
     }
 
     @Delete('/refresh/:tokenId')
-    async deleteViaTokenID(@Param('tokenId') id : string){
-        return this.refreshService.deleteViaTokenID(id);
+    async deleteViaTokenID(@Param('tokenId') id : string,@Headers() headers: object){
+        return this.refreshService.deleteViaTokenID(id, headers);
     }
     
     @Delete('refresh')
     async deletereftoken(
-        @Body('applicationId') appid ?: string,
-        @Body('usersId') userid ?: string,
-        @Body('token') refreshToken ?: string
+        @Body('applicationId') appid: string,
+        @Body('usersId') userid: string,
+        @Body('token') refreshToken: string,
+        @Headers() headers: object,
     ){
         if(appid && userid){
-            return this.refreshService.deleteViaUserAndAppID(userid, appid)
+            return this.refreshService.deleteViaUserAndAppID(userid, appid,headers)
         }
         else if(appid){
-            return this.refreshService.deleteViaAppID(appid);
+            return this.refreshService.deleteViaAppID(appid,headers);
         }
         else if(userid){
-            return this.refreshService.deleteViaUserID(userid);
+            return this.refreshService.deleteViaUserID(userid,headers);
         }
         else if(refreshToken){
-            return this.refreshService.deleteViaToken(refreshToken)
+            return this.refreshService.deleteViaToken(refreshToken,headers)
         }
         else {
             throw new BadGatewayException({ 
