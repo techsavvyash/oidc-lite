@@ -815,11 +815,11 @@
       }
     },
     "/oidc/userinfo": {
-      "get": {
+      "post": {
         "operationId": "OidcController_returnClaimsOfEndUser",
         "parameters": [],
         "responses": {
-          "200": {
+          "201": {
             "description": ""
           }
         },

@@ -133,6 +133,12 @@ export class OidcService {
           data: userRegistration.authenticationToken,
         };
       }
+      if(alreadyRegisterd.password !== password){
+        throw new UnauthorizedException({
+          success: false,
+          message: 'Not authorized'
+        })
+      }
       const updateRegistration =
         await this.prismaService.userRegistration.update({
           where: { id: alreadyRegisterd.id },
@@ -440,8 +446,8 @@ export class OidcService {
         message: 'No such application exists',
       });
     }
-    const applicationData = JSON.parse(application.data);
-    const actualSecret = applicationData?.clientSecret;
+    const applicationData: ApplicationDataDto = JSON.parse(application.data);
+    const actualSecret = applicationData?.oauthConfiguration.clientSecret;
     if (clientSecret !== actualSecret) {
       throw new BadRequestException({
         success: false,

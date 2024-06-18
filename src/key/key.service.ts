@@ -203,11 +203,11 @@ export class KeyService {
       });
     }
     const { algorithm, name, length, issuer } = key;
-    if(!algorithm || !name){
+    if (!algorithm || !name) {
       throw new BadRequestException({
         success: false,
-        message: 'No algorithm and name provided for key'
-      })
+        message: 'No algorithm and name provided for key',
+      });
     }
     const keyStore = jose.JWK.createKeyStore();
     const keyStore2 = jose.JWK.createKeyStore();
@@ -246,6 +246,7 @@ export class KeyService {
           success: true,
           message: 'key generated successfully',
           data: jwks,
+          key: key,
         };
       } else if (algorithm === 'ES256') {
         await keyStore2
@@ -278,6 +279,7 @@ export class KeyService {
           success: true,
           message: 'key generated successfully',
           data: jwks,
+          key: key,
         };
       } else if (algorithm === 'HS256') {
         await keyStore3
@@ -303,6 +305,7 @@ export class KeyService {
           success: true,
           message: 'key generated successfully',
           data: jwks,
+          key: key,
         };
       } else {
         throw new BadRequestException({

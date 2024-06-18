@@ -108,8 +108,7 @@ export class OidcController {
     return await this.oidcService.introspect(data, headers);
   }
 
-  @Get('/userinfo')
-  @Post('/userinfo')
+  @Post('userinfo')
   async returnClaimsOfEndUser(@Headers() headers: object){
     return await this.oidcService.returnClaimsOfEndUser(headers);
   }

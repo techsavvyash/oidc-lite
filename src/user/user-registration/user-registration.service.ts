@@ -434,7 +434,7 @@ export class UserRegistrationService {
           active: true,
           applicationId: application.id,
           iat: now,
-          iss: 'Take from application.data',
+          iss: 'Stencil service',
           exp: now + refreshTokenSeconds,
         };
         const refreshToken = jwt.sign(refreshTokenPayload, accessSecret, {

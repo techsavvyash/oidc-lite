@@ -95,7 +95,7 @@ export class KeyController {
   })
   @Post('/generate')
   async randomgenerateKey(
-    @Body() key: generateKeyDTO,
+    @Body('key') key: generateKeyDTO,
     @Headers() headers: object,
   ) {
     const uuid = randomUUID();
