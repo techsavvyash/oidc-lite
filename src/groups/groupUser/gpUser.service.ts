@@ -1,8 +1,8 @@
 import { BadGatewayException, Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { addUserDTO } from "./gpUser.dto";
 import { randomUUID } from "crypto";
 import { log } from "console";
+import { addUserDTO } from "../groups.dto";
 
 @Injectable() export class GroupUserService {
     private readonly logger: Logger

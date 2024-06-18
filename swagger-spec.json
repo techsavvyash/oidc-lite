@@ -1389,7 +1389,7 @@
     },
     "/group/member": {
       "post": {
-        "operationId": "GroupUserController_addUserToGP",
+        "operationId": "GroupsController_addUserToGP",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -1408,7 +1408,7 @@
         }
       },
       "put": {
-        "operationId": "GroupUserController_updateUser",
+        "operationId": "GroupsController_updateUser",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -1427,18 +1427,8 @@
         }
       },
       "delete": {
-        "operationId": "GroupUserController_deleteUser",
+        "operationId": "GroupsController_deleteUser",
         "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/deleteMemberDTO"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": ""
@@ -1448,7 +1438,7 @@
     },
     "/group/member/{id}": {
       "delete": {
-        "operationId": "GroupUserController_delete",
+        "operationId": "GroupsController_delete",
         "parameters": [
           {
             "name": "id",
@@ -1738,10 +1728,6 @@
         ]
       },
       "addUserDTO": {
-        "type": "object",
-        "properties": {}
-      },
-      "deleteMemberDTO": {
         "type": "object",
         "properties": {}
       },

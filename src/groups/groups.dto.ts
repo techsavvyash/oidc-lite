@@ -10,3 +10,21 @@ export class createGroupDTO{
     name : string
     tenantId : string
 }
+
+// group user dto 
+class UserIdDto {
+    @IsString()
+    userId: string;
+  }
+  class GPDTO{
+    groupId : string
+    @IsArray()
+    @IsString()
+    userIds : UserIdDto[]
+  }
+  export class addUserDTO{
+    @IsArray()
+    @Type(()=>GPDTO)
+    members : GPDTO[]
+  }
+  

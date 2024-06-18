@@ -17,7 +17,6 @@ import { TenantController } from './tenant/tenant.controller';
 import { KeyModule } from './key/key.module';
 import { GroupModule } from './groups/groups.module';
 import { RefreshTokenModule } from './refresh_tokens/refreshtokens.module';
-import { GroupUserModule } from './groups/groupUser/gpUser.module';
 
 
 @Module({
@@ -26,7 +25,7 @@ import { GroupUserModule } from './groups/groupUser/gpUser.module';
     secret: process.env.JWT_SECRET,
     signOptions: { expiresIn: process.env.JWT_SECRET_EXPIRATION },
 
-    }), ApplicationModule,ScheduleModule.forRoot(), KeyModule, GroupModule,RefreshTokenModule, GroupUserModule],
+    }), ApplicationModule,ScheduleModule.forRoot(), KeyModule, GroupModule,RefreshTokenModule],
     controllers: [AppController, TenantController],
     providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService, MemoryMonitorService],
 
