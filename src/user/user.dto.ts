@@ -1,11 +1,32 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsOptional, Matches, MinLength } from 'class-validator';
 
 export class UserData {
-  @ApiProperty() username: string;
-  @ApiProperty() firstname?: string;
-  @ApiProperty() lastname?: string;
-  @ApiProperty() email: string;
-  @ApiProperty() password: string;
+
+  @ApiProperty()
+  @MinLength(2, { message: 'Username must be atleast 2 characters' })
+  username: string;
+
+  @ApiProperty()
+  @IsOptional()
+  firstname?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  lastname?: string;
+
+  @ApiProperty()
+  @IsEmail()
+  email: string;
+  
+  @ApiProperty() 
+  @Matches(
+    new RegExp(
+      '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])(?=.{8,})'
+    ),
+    { message: 'Password must be atleast 8 characters, with atleast one lowercase, one uppercase, one number and a special character' }
+  )
+  password: string;
 }
 
 export class CreateUserDto {
