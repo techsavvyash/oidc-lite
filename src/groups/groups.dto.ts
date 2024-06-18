@@ -9,3 +9,11 @@ export class createGroupDTO{
     name : string
     tenantId : string
 }
+
+export class RoleDto {
+    @ApiProperty() description: string;
+    @ApiProperty() isDefault: boolean;
+    @ApiProperty() isSuperRole: boolean;
+    @ApiProperty() name: string;
+    @ApiProperty() id?: string;
+  }

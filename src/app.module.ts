@@ -32,7 +32,7 @@ import { TestUsersService } from './test-users/test-users.service';
     secret: process.env.JWT_SECRET,
     signOptions: { expiresIn: process.env.JWT_SECRET_EXPIRATION },
 
-    }), ApplicationModule,ScheduleModule.forRoot(), KeyModule, RefreshTokenModule, LoginModule],
+    }), ApplicationModule,ScheduleModule.forRoot(), KeyModule, RefreshTokenModule, LoginModule, GroupModule],
     controllers: [AppController, TenantController,ApiKeysController, TestUsersController],
     providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService, MemoryMonitorService,ApiKeysService, UserRegistrationService, HeaderAuthService,KeyService, TestUsersService],
 
