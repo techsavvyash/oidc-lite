@@ -7,7 +7,6 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { refreshCookiesDTO, refreshDTO } from './refreshToken.dto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
@@ -19,10 +18,9 @@ export class RefreshTokensService {
   private readonly logger: Logger;
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly jwtService: JwtService,
     private readonly headerAuthService: HeaderAuthService,
   ) {
-    this.logger = new Logger();
+    this.logger = new Logger(RefreshTokensService.name);
   }
 
   async refreshToken(
@@ -77,7 +75,6 @@ export class RefreshTokensService {
       const { exp, iss } = refreshTokenDecoded as RefreshTokenDto;
       const now = new Date().getTime();
       if (exp < now) {
-          console.log(exp,now);
         throw new BadRequestException({
           success: false,
           message: 'Invalid token',

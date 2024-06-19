@@ -20,7 +20,6 @@ import { UserRegistrationService } from './user/user-registration/user-registrat
 import { HeaderAuthService } from './header-auth/header-auth.service';
 import { KeyModule } from './key/key.module';
 import { GroupModule } from './groups/groups.module';
-import { GroupUserModule } from './groupUser/gpUser.module';
 import { RefreshTokenModule } from './refresh_tokens/refreshtokens.module';
 import { LoginModule } from './login/login.module';
 import { KeyService } from './key/key.service';
@@ -28,14 +27,41 @@ import { TestUsersController } from './test-users/test-users.controller';
 import { TestUsersService } from './test-users/test-users.service';
 
 @Module({
-  imports: [OidcModule, UserModule, PrismaModule,JwtModule.register({
-    global: true,
-    secret: process.env.JWT_SECRET,
-    signOptions: { expiresIn: process.env.JWT_SECRET_EXPIRATION },
-
-    }), ApplicationModule,ScheduleModule.forRoot(), KeyModule, RefreshTokenModule, LoginModule, GroupUserModule],
-    controllers: [AppController, TenantController,ApiKeysController, TestUsersController],
-    providers: [AppService,UserService,PrismaService, ApplicationRolesService, ApplicationScopesService, TenantService, MemoryMonitorService,ApiKeysService, UserRegistrationService, HeaderAuthService,KeyService, TestUsersService],
-
+  imports: [
+    OidcModule,
+    UserModule,
+    PrismaModule,
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: process.env.JWT_SECRET_EXPIRATION },
+    }),
+    ApplicationModule,
+    ScheduleModule.forRoot(),
+    KeyModule,
+    RefreshTokenModule,
+    LoginModule,
+    GroupModule,
+  ],
+  controllers: [
+    AppController,
+    TenantController,
+    ApiKeysController,
+    TestUsersController,
+  ],
+  providers: [
+    AppService,
+    UserService,
+    PrismaService,
+    ApplicationRolesService,
+    ApplicationScopesService,
+    TenantService,
+    MemoryMonitorService,
+    ApiKeysService,
+    UserRegistrationService,
+    HeaderAuthService,
+    KeyService,
+    TestUsersService,
+  ],
 })
 export class AppModule {}

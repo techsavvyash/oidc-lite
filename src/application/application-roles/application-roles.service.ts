@@ -18,7 +18,7 @@ export class ApplicationRolesService {
     private readonly prismaService: PrismaService,
     private readonly headerAuthService: HeaderAuthService,
   ) {
-    this.logger = new Logger();
+    this.logger = new Logger(ApplicationRolesService.name);
   }
 
   async createRole(

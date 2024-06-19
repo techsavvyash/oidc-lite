@@ -77,7 +77,7 @@ model GroupApplicationRole {
 model GroupMember {
   id        String @id @default(uuid())
   groupId   String
-  createdAt BigInt
+  createdAt DateTime @default(now())
   userId    String
 
   group Group @relation(fields: [groupId], references: [id])
@@ -109,7 +109,7 @@ model Key {
   id          String   @id @default(uuid())
   algorithm   String?
   certificate String?
-  expiry      BigInt?
+  expiry      Int?
   createdAt   DateTime @default(now())
   issuer      String?
   kid         String   @unique
@@ -129,10 +129,10 @@ model Key {
 model RefreshToken {
   id             String   @id @default(uuid())
   applicationsId String?
-  expiry         BigInt
+  expiry         Int
   data           String
   createdAt      DateTime @default(now())
-  startInstant   BigInt
+  startInstant   Int
   tenantId       String?
   token          String?  @unique
   tokenHash      String?  @unique
@@ -174,7 +174,7 @@ model UserRegistration {
   password            String
   data                String?
   createdAt           DateTime @default(now())
-  lastLoginInstant    BigInt?
+  lastLoginInstant    DateTime?
   updatedAt           DateTime @updatedAt
   usersId             String
   // verified            Boolean
@@ -191,7 +191,7 @@ model User {
   id        String    @id @default(uuid())
   active    Boolean
   data      String?
-  expiry    DateTime?
+  expiry    Int?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   tenantId  String

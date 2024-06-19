@@ -1,38 +1,107 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
-import { GroupsService } from "./groups.service";
-import { randomFill, randomUUID } from "crypto";
-import { createGroupDTO } from "./groups.dto";
-
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Headers,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { GroupsService } from './groups.service';
+import { randomUUID } from 'crypto';
+import { createGroupDTO } from './dtos/groups.dto';
+import { addUserDTO, deleteMemberDTO } from './dtos/gpUser.dto';
+import { GroupUserService } from 'src/groups/gpUser.service';
 
 @Controller('group')
-export class GroupsController{
-    constructor(
-        private readonly groupService : GroupsService
-    ){}
+export class GroupsController {
+  constructor(
+    private readonly groupService: GroupsService,
+    private readonly groupUserService: GroupUserService,
+  ) {}
 
-    @Post('/')
-    async createGroup(@Body('group') data : createGroupDTO){
-        const uuid = randomUUID() ;
-        return this.groupService.createGroup(data, uuid)
+  @Post('/')
+  async createGroup(
+    @Body('group') data: createGroupDTO,
+    @Headers() headers: object,
+  ) {
+    const uuid = randomUUID();
+    return await this.groupService.createGroup(data, uuid, headers);
+  }
+
+  @Post('/:id')
+  async createGroupByID(
+    @Body('group') data: createGroupDTO,
+    @Param('id') uuid: string,
+    @Headers() headers: object,
+  ) {
+    return await this.groupService.createGroup(data, uuid, headers);
+  }
+
+  @Get('/')
+  async retrieveAllGroup(@Headers() headers: object) {
+    return await this.groupService.retrieveAllGroups(headers);
+  }
+
+  @Get('/:id')
+  async retrieveGpById(@Param('id') id: string, @Headers() headers: object) {
+    return await this.groupService.retrieveGpById(id, headers);
+  }
+
+  @Put('/:id')
+  async updateGP(
+    @Param('id') id: string,
+    @Body('group') data: createGroupDTO,
+    @Headers() headers: object,
+  ) {
+    return await this.groupService.updateGp(id, data, headers);
+  }
+
+  @Delete('/:id')
+  async deleteGP(@Param('id') id: string, @Headers() headers: object) {
+    return await this.groupService.deleteGroup(id, headers);
+  }
+
+  @Post('member/:uuid')
+  async addUserToGP(
+    @Body() data: addUserDTO,
+    @Param('uuid') uuid: string,
+    @Headers() headers: object,
+  ) {
+    if (!uuid) {
+      uuid = randomUUID();
     }
-    @Post('/:id')
-    async createGroupByID(@Body('group') data : createGroupDTO, @Param('id') uuid ?: string){
-        return this.groupService.createGroup(data, uuid)
+    return this.groupUserService.addUser(data, headers);
+  }
+  @Put('member')
+  async updateUser(@Body() data: addUserDTO, @Headers() headers: object) {
+    return this.groupUserService.addUser(data, headers);
+  }
+
+  @Delete('member/:id')
+  async delete(@Param('id') id: string, @Headers() headers: object) {
+    return this.groupUserService.deleteByMemberId(id, headers);
+  }
+  @Delete('member')
+  async deleteUser(
+    @Body('groupId') gpId: string,
+    @Body('userId') userId: string,
+    @Body('memberIds') members: deleteMemberDTO,
+    @Headers() headers: object,
+  ) {
+    if (gpId && userId) {
+      return this.groupUserService.deleteViaUserAndGpId(userId, gpId, headers);
+    } else if (gpId) {
+      return this.groupUserService.deleteAllUser(gpId, headers);
+    } else if (members) {
+      return this.groupUserService.deleteMembers(members, headers);
+    } else {
+      throw new BadRequestException({
+        success: false,
+        message: 'invalid parameters',
+      });
     }
-    @Get('/')
-    async retrieveAllGroup(){
-        return this.groupService.retrieveGroup();
-    }
-    @Get('/:id')
-    async retrieveGpById(@Param('id') id : string){
-        return this.groupService.retrieveGpById(id)
-    }
-    @Put('/:id')
-    async updateGP(@Param('id') id : string,@Body('group') data : createGroupDTO){
-        return this.groupService.updateGp(id, data)
-    }
-    @Delete('/:id')
-    async deleteGP(@Param('id') id : string){
-        return this.groupService.deleteGroup(id)
-    }
+  }
 }

@@ -2376,7 +2376,7 @@
         "summary": "Retrieve refresh token by ID",
         "parameters": [
           {
-            "name": "tokenId",
+            "name": "id",
             "required": true,
             "in": "path",
             "description": "UUID of the refresh token",
@@ -2394,77 +2394,6 @@
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Refresh token deleted successfully"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "tags": [
-          "jwt"
-        ]
-      }
-    },
-    "/login": {
-      "post": {
-        "operationId": "LoginController_login",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/login/logout": {
-      "get": {
-        "operationId": "LoginController_logout",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/groups/member": {
-      "post": {
-        "operationId": "GroupUserController_addUserToGP",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/addUserDTO"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      },
-      "put": {
-        "operationId": "GroupUserController_updateUser",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/addUserDTO"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Refresh token retrieved successfully"
@@ -2536,6 +2465,180 @@
       "get": {
         "operationId": "LoginController_logout",
         "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/group": {
+      "post": {
+        "operationId": "GroupsController_createGroup",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
+      "get": {
+        "operationId": "GroupsController_retrieveAllGroup",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/group/{id}": {
+      "post": {
+        "operationId": "GroupsController_createGroupByID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
+      "get": {
+        "operationId": "GroupsController_retrieveGpById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "operationId": "GroupsController_updateGP",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "GroupsController_deleteGP",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/group/member/{uuid}": {
+      "post": {
+        "operationId": "GroupsController_addUserToGP",
+        "parameters": [
+          {
+            "name": "uuid",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/addUserDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/group/member": {
+      "put": {
+        "operationId": "GroupsController_updateUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/addUserDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "GroupsController_deleteUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/group/member/{id}": {
+      "delete": {
+        "operationId": "GroupsController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -3239,12 +3342,24 @@
       "updateDTO": {
         "type": "object",
         "properties": {
+          "algorithm": {
+            "type": "string"
+          },
+          "issuer": {
+            "type": "string"
+          },
           "name": {
+            "type": "string"
+          },
+          "length": {
             "type": "string"
           }
         },
         "required": [
-          "name"
+          "algorithm",
+          "issuer",
+          "name",
+          "length"
         ]
       },
       "generateKeyDTO": {
@@ -3284,6 +3399,10 @@
           "refreshToken",
           "token"
         ]
+      },
+      "addUserDTO": {
+        "type": "object",
+        "properties": {}
       }
     }
   }

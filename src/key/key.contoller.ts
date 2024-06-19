@@ -35,7 +35,7 @@ export class KeyController {
   })
   @Get('/')
   async retrieveAllKey(@Headers() headers: object) {
-    return this.keyservice.retrieveAllKey(headers);
+    return await this.keyservice.retrieveAllKey(headers);
   }
 
   @ApiOperation({ summary: 'Retrieve a key by ID' })
@@ -51,7 +51,7 @@ export class KeyController {
     @Param('id') uuid: string,
     @Headers() headers: object,
   ) {
-    return this.keyservice.retrieveUniqueKey(uuid, headers);
+    return await this.keyservice.retrieveUniqueKey(uuid, headers);
   }
 
   @ApiOperation({ summary: 'Update a key by ID' })
@@ -69,7 +69,7 @@ export class KeyController {
     @Body() data: updateDTO,
     @Headers() headers: object,
   ) {
-    return this.keyservice.updateKey(uuid, data, headers);
+    return await this.keyservice.updateKey(uuid, data, headers);
   }
 
   @ApiOperation({ summary: 'Delete a key by ID' })
@@ -82,7 +82,7 @@ export class KeyController {
   })
   @Delete('/:id')
   async deletingKey(@Param('id') uuid: string, @Headers() headers: object) {
-    return this.keyservice.deleteKey(uuid, headers);
+    return await this.keyservice.deleteKey(uuid, headers);
   }
 
   @ApiOperation({ summary: 'Generate a random key' })
@@ -99,7 +99,7 @@ export class KeyController {
     @Headers() headers: object,
   ) {
     const uuid = randomUUID();
-    return this.keyservice.generateKey(uuid, key, headers);
+    return await this.keyservice.generateKey(uuid, key, headers);
   }
 
   @ApiOperation({ summary: 'Generate a key with a specific ID' })
@@ -117,6 +117,6 @@ export class KeyController {
     @Body('key') key: generateKeyDTO,
     @Headers() headers: object,
   ) {
-    return this.keyservice.generateKey(uuid, key, headers);
+    return await this.keyservice.generateKey(uuid, key, headers);
   }
 }

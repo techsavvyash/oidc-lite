@@ -46,7 +46,7 @@ export class UserDto {
   id: string;
   active: boolean;
   data: string;
-  expiry: Date;
+  expiry: number;
   createdAt: Date;
   updatedAt: Date;
   tenantId: string;

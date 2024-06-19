@@ -20,7 +20,7 @@ export class ApplicationScopesService {
     private readonly prismaService: PrismaService,
     private readonly headerAuthService: HeaderAuthService,
   ) {
-    this.logger = new Logger();
+    this.logger = new Logger(ApplicationScopesService.name);
   }
 
   async createScope(

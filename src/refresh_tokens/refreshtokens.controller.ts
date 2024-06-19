@@ -34,7 +34,7 @@ export class RefreshTokensController {
     @Headers() cookie: refreshCookiesDTO,
     @Body() data: refreshDTO,
   ) {
-    return this.refreshService.refreshToken(cookie, data);
+    return await this.refreshService.refreshToken(cookie, data);
   }
 
   @Get('/refresh/:id')
@@ -52,7 +52,7 @@ export class RefreshTokensController {
     description: 'Tenant ID',
   })
   async retrieve(@Param('id') uuid: string, @Headers() headers: object) {
-    return this.refreshService.retrieveByID(uuid, headers);
+    return await this.refreshService.retrieveByID(uuid, headers);
   }
 
   @Get('/refresh')
@@ -73,7 +73,7 @@ export class RefreshTokensController {
     @Headers('userId') userId: string,
     @Headers() headers: object,
   ) {
-    return this.refreshService.retrieveByUserID(userId, headers);
+    return await this.refreshService.retrieveByUserID(userId, headers);
   }
 
   @Delete('/refresh/:tokenId')
@@ -94,7 +94,7 @@ export class RefreshTokensController {
     @Param('tokenId') id: string,
     @Headers() headers: object,
   ) {
-    return this.refreshService.deleteViaTokenID(id, headers);
+    return await this.refreshService.deleteViaTokenID(id, headers);
   }
 
   @Delete('refresh')
@@ -128,13 +128,13 @@ export class RefreshTokensController {
     @Headers() headers: object,
   ) {
     if (appid && userid) {
-      return this.refreshService.deleteViaUserAndAppID(userid, appid, headers);
+      return await this.refreshService.deleteViaUserAndAppID(userid, appid, headers);
     } else if (appid) {
-      return this.refreshService.deleteViaAppID(appid, headers);
+      return await this.refreshService.deleteViaAppID(appid, headers);
     } else if (userid) {
-      return this.refreshService.deleteViaUserID(userid, headers);
+      return await this.refreshService.deleteViaUserID(userid, headers);
     } else if (refreshToken) {
-      return this.refreshService.deleteViaToken(refreshToken, headers);
+      return await this.refreshService.deleteViaToken(refreshToken, headers);
     } else {
       throw new BadGatewayException({
         success: false,
