@@ -9,7 +9,7 @@ import { randomUUID } from 'crypto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { ResponseDto } from 'src/dto/response.dto';
-import { RoleDto } from '../groups.dto';
+import { RoleDto } from '../dtos/groups.dto';
 
 @Injectable()
 export class GroupAppRoleService {
