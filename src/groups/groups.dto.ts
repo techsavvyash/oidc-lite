@@ -1,5 +1,6 @@
 import { ApiOperation, ApiProperty } from "@nestjs/swagger";
-import {IsArray, IsString} from "class-validator"
+import {IsArray, IsString, IsUUID, IsObject, ValidateNested } from "class-validator"
+import { Type } from 'class-transformer';
 
 
 export class createGroupDTO{
