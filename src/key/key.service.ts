@@ -4,6 +4,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  InternalServerErrorException,
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -97,6 +98,10 @@ export class KeyService {
     } catch (error) {
       this.logger.log('error happened from retrieve key section ', error);
       HttpStatus.INTERNAL_SERVER_ERROR;
+      throw new InternalServerErrorException({
+        success: false,
+        message: 'no such key exists'
+      })
     }
   }
 
@@ -137,6 +142,11 @@ export class KeyService {
         name,
       },
     });
+    return {
+      success: true,
+      message: 'Keyset updated',
+      data: udpated_key,
+    }
   }
 
   async deleteKey(uuid: string, headers: object) {
@@ -174,6 +184,7 @@ export class KeyService {
       return {
         success: true,
         message: 'key deleted successfully',
+        data: deleted_key,
       };
     } catch (error) {
       throw new BadRequestException({

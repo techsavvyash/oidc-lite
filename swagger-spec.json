@@ -3396,24 +3396,12 @@
       "updateDTO": {
         "type": "object",
         "properties": {
-          "algorithm": {
-            "type": "string"
-          },
-          "issuer": {
-            "type": "string"
-          },
           "name": {
-            "type": "string"
-          },
-          "length": {
             "type": "string"
           }
         },
         "required": [
-          "algorithm",
-          "issuer",
-          "name",
-          "length"
+          "name"
         ]
       },
       "generateKeyDTO": {

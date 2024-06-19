@@ -66,7 +66,7 @@ export class KeyController {
   @Put('/:id')
   async udpatingKey(
     @Param('id') uuid: string,
-    @Body() data: updateDTO,
+    @Body('key') data: updateDTO,
     @Headers() headers: object,
   ) {
     return await this.keyservice.updateKey(uuid, data, headers);
