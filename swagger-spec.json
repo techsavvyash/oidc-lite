@@ -2475,49 +2475,151 @@
     "/group": {
       "post": {
         "operationId": "GroupsController_createGroup",
-        "parameters": [],
+        "summary": "Create a new group",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Authorization token",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createGroupDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Group created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
-        }
+        },
+        "tags": [
+          "group"
+        ]
       },
       "get": {
         "operationId": "GroupsController_retrieveAllGroup",
-        "parameters": [],
+        "summary": "Retrieve all groups",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Authorization token",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "All groups retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
-        }
+        },
+        "tags": [
+          "group"
+        ]
       }
     },
     "/group/{id}": {
       "post": {
         "operationId": "GroupsController_createGroupByID",
+        "summary": "Create a group with a specific ID",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Group ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Authorization token",
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createGroupDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Group created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
-        }
+        },
+        "tags": [
+          "group"
+        ]
       },
       "get": {
         "operationId": "GroupsController_retrieveGpById",
+        "summary": "Retrieve a group by ID",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Group ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Authorization token",
             "schema": {
               "type": "string"
             }
@@ -2525,30 +2627,120 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Group retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
-        }
+        },
+        "tags": [
+          "group"
+        ]
       },
       "put": {
         "operationId": "GroupsController_updateGP",
+        "summary": "Update a group by ID",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Group ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Authorization token",
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createGroupDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": ""
+            "description": "Group updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
-        }
+        },
+        "tags": [
+          "group"
+        ]
       },
       "delete": {
         "operationId": "GroupsController_deleteGP",
+        "summary": "Delete a group by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Group ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Authorization token",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Group deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "group"
+        ]
+      }
+    },
+    "/group/member/{id}": {
+      "post": {
+        "operationId": "GroupsController_addUserToGP",
+        "summary": "Add a user to a group",
         "parameters": [
           {
             "name": "id",
@@ -2557,26 +2749,22 @@
             "schema": {
               "type": "string"
             }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/group/member/{uuid}": {
-      "post": {
-        "operationId": "GroupsController_addUserToGP",
-        "parameters": [
+          },
           {
-            "name": "uuid",
+            "name": "x-stencil-tenantid",
+            "in": "header",
+            "description": "Tenant ID",
             "required": true,
-            "in": "path",
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "uuid",
+            "required": false,
+            "in": "path",
+            "description": "Group member UUID",
+            "schema": {}
           }
         ],
         "requestBody": {
@@ -2591,15 +2779,67 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "User added to group successfully."
+          },
+          "400": {
+            "description": "Bad Request."
           }
-        }
+        },
+        "tags": [
+          "group"
+        ]
+      },
+      "delete": {
+        "operationId": "GroupsController_delete",
+        "summary": "Delete a group member by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Group member ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-stencil-tenantid",
+            "in": "header",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User deleted successfully."
+          },
+          "400": {
+            "description": "Bad Request."
+          }
+        },
+        "tags": [
+          "group"
+        ]
       }
     },
     "/group/member": {
       "put": {
         "operationId": "GroupsController_updateUser",
-        "parameters": [],
+        "summary": "Update a group user",
+        "parameters": [
+          {
+            "name": "x-stencil-tenantid",
+            "in": "header",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -2612,48 +2852,63 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "User updated successfully."
+          },
+          "400": {
+            "description": "Bad Request."
           }
-        }
+        },
+        "tags": [
+          "group"
+        ]
       },
       "delete": {
         "operationId": "GroupsController_deleteUser",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/group/member/{id}": {
-      "delete": {
-        "operationId": "GroupsController_delete",
+        "summary": "Delete a user from group",
         "parameters": [
           {
-            "name": "id",
+            "name": "x-stencil-tenantid",
+            "in": "header",
+            "description": "Tenant ID",
             "required": true,
-            "in": "path",
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deleteMemberDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": ""
+            "description": "User(s) deleted successfully."
+          },
+          "400": {
+            "description": "Bad Request."
           }
-        }
+        },
+        "tags": [
+          "group"
+        ]
       }
     },
     "/group/{id}/role/{roleId}": {
       "post": {
         "operationId": "GroupsController_createRole",
+        "summary": "Create a role for a group application",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -2662,24 +2917,52 @@
             "name": "roleId",
             "required": true,
             "in": "path",
+            "description": "Role ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-stencil-tenantid",
+            "in": "header",
+            "description": "Tenant ID",
+            "required": true,
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Role created successfully."
+          },
+          "400": {
+            "description": "Bad Request."
           }
-        }
+        },
+        "tags": [
+          "group"
+        ]
       },
       "delete": {
         "operationId": "GroupsController_deleteRole",
+        "summary": "Delete a role from a group application",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -2688,6 +2971,16 @@
             "name": "roleId",
             "required": true,
             "in": "path",
+            "description": "Role ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-stencil-tenantid",
+            "in": "header",
+            "description": "Tenant ID",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -2695,9 +2988,15 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Role deleted successfully."
+          },
+          "400": {
+            "description": "Bad Request."
           }
-        }
+        },
+        "tags": [
+          "group"
+        ]
       }
     }
   },
@@ -3162,36 +3461,27 @@
         "type": "object",
         "properties": {
           "description": {
-            "type": "string",
-            "description": "Description of the role",
-            "example": "Admin role with full permissions"
+            "type": "string"
           },
           "isDefault": {
-            "type": "boolean",
-            "description": "Indicates if this role is the default role",
-            "example": true
+            "type": "boolean"
           },
           "isSuperRole": {
-            "type": "boolean",
-            "description": "Indicates if this role is a super role",
-            "example": false
+            "type": "boolean"
           },
           "name": {
-            "type": "string",
-            "description": "Name of the role",
-            "example": "Admin"
+            "type": "string"
           },
           "id": {
-            "type": "string",
-            "description": "ID of the role (optional)",
-            "example": "550e8400-e29b-41d4-a716-446655440000"
+            "type": "string"
           }
         },
         "required": [
           "description",
           "isDefault",
           "isSuperRole",
-          "name"
+          "name",
+          "id"
         ]
       },
       "OauthConfiguration": {
@@ -3454,7 +3744,25 @@
           "token"
         ]
       },
+      "createGroupDTO": {
+        "type": "object",
+        "properties": {
+          "roleIDs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "roleIDs"
+        ]
+      },
       "addUserDTO": {
+        "type": "object",
+        "properties": {}
+      },
+      "deleteMemberDTO": {
         "type": "object",
         "properties": {}
       }
