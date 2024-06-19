@@ -1,55 +1,167 @@
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsBoolean,
+  IsDate,
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Matches,
+  MinLength,
+} from 'class-validator';
 
 export class UserData {
-  @ApiProperty() username: string;
-  @ApiProperty() firstname?: string;
-  @ApiProperty() lastname?: string;
-  @ApiProperty() email: string;
-  @ApiProperty() password: string;
+  @ApiProperty()
+  @MinLength(2, { message: 'Username must be atleast 2 characters' })
+  username: string;
+
+  @ApiProperty()
+  @IsOptional()
+  firstname?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  lastname?: string;
+
+  @ApiProperty()
+  @IsEmail()
+  email: string;
+
+  @ApiProperty()
+  @Matches(
+    new RegExp(
+      '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])(?=.{8,})',
+    ),
+    {
+      message:
+        'Password must be atleast 8 characters, with atleast one lowercase, one uppercase, one number and a special character',
+    },
+  )
+  password: string;
 }
 
 export class CreateUserDto {
-  @ApiProperty() active: boolean;
-  @ApiProperty() additionalData?: object | string;
-  @ApiProperty() applicationId: string;
-  @ApiProperty() membership: string[];
-  @ApiProperty() userData: UserData;
-  @ApiProperty() email: string;
+  @ApiProperty()
+  @IsBoolean()
+  active: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  additionalData?: object | string;
+
+  @ApiProperty()
+  @IsUUID()
+  applicationId: string;
+
+  @ApiProperty()
+  @IsString({ each: true })
+  membership: string[];
+
+  @ApiProperty()
+  userData: UserData;
+
+  @ApiProperty()
+  @IsEmail()
+  email: string;
 }
 export class UpdateUserDto {
-  @ApiProperty() active?: boolean;
-  @ApiProperty() additionalData?: object | string;
-  @ApiProperty() applicationId: string;
-  @ApiProperty() membership?: string[];
-  @ApiProperty() userData: UserData;
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  active?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  additionalData?: object | string;
+
+  @ApiProperty()
+  @IsUUID()
+  applicationId: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString({ each: true })
+  membership?: string[];
+
+  @ApiProperty()
+  userData: UserData;
 }
 
 export class CreateUserRegistrationDto {
-  @ApiProperty() generateAuthenticationToken?: boolean;
-  @ApiProperty() applicationId: string;
-  @ApiProperty() data?: string | JSON | object;
-  @ApiProperty() registrationId?: string;
-  @ApiProperty() roles: string[];
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  generateAuthenticationToken?: boolean;
+
+  @ApiProperty()
+  @IsUUID()
+  applicationId: string;
+
+  @ApiProperty()
+  @IsOptional()
+  data?: string | JSON | object;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsUUID()
+  registrationId?: string;
+
+  @ApiProperty()
+  @IsEnum(['user', 'admin', 'group', 'tenant'], {
+    each: true,
+    message: 'Roles must be one of the following: user, admin, group, tenant',
+  }) //check2
+  roles: string[];
 }
 
 export class UpdateUserRegistrationDto {
-  @ApiProperty() data?: string | JSON | object;
-  @ApiProperty() roles?: string[];
+  @ApiProperty()
+  @IsOptional()
+  data?: string | JSON | object;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsEnum(['user', 'admin', 'group', 'tenant'], {
+    each: true,
+    message: 'Roles must be one of the following: user, admin, group, tenant',
+  }) //check3
+  roles?: string[];
 }
 
 export class CreateUserAndUserRegistration {
-  @ApiProperty() userInfo: CreateUserDto;
-  @ApiProperty() registrationInfo: CreateUserRegistrationDto;
+  @ApiProperty()
+  userInfo: CreateUserDto;
+
+  @ApiProperty()
+  registrationInfo: CreateUserRegistrationDto;
 }
 
 export class UserDto {
+  @IsUUID()
   id: string;
+
+  @IsBoolean()
   active: boolean;
+
+  @IsString()
   data: string;
+
+  @IsDate()
   expiry: number;
+
+  @IsDate()
   createdAt: Date;
+
+  @IsDate()
   updatedAt: Date;
+
+  @IsString()
   tenantId: string;
+
+  @IsUUID()
   groupId: string;
+
+  @IsEmail()
   email: string;
 }
