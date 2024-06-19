@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { randomInt } from 'crypto';
 
 interface UserInfo {
   applicationId: string;
@@ -74,7 +75,7 @@ export class TestUsersService {
   public async registerUsers(): Promise<any[]> {
     const requests = [];
     for (let i = 0; i < 100; i++) {
-      const userRequest = this.createUser(i);
+      const userRequest = this.createUser(2001+i);
       requests.push(
         axios.post(this.baseUrl, userRequest, { headers: this.headers }),
       );
