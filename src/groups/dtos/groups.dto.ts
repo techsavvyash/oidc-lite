@@ -33,3 +33,11 @@ export class GroupPermissions {
     name: string;
   };
 }
+
+export class RoleDto {
+    @ApiProperty() description: string;
+    @ApiProperty() isDefault: boolean;
+    @ApiProperty() isSuperRole: boolean;
+    @ApiProperty() name: string;
+    @ApiProperty() id?: string;
+  }
