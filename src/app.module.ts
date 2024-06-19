@@ -40,7 +40,7 @@ import { TestUsersService } from './test-users/test-users.service';
     ScheduleModule.forRoot(),
     KeyModule,
     RefreshTokenModule,
-    LoginModule,
+    LoginModule, GroupModule,
     GroupModule,
   ],
   controllers: [

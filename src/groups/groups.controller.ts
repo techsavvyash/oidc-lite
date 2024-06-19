@@ -5,20 +5,23 @@ import {
   Delete,
   Get,
   Headers,
-  Param,
+  Headers, Param,
   Post,
   Put,
 } from '@nestjs/common';
 import { GroupsService } from './groups.service';
 import { randomUUID } from 'crypto';
-import { createGroupDTO } from './dtos/groups.dto';
+import { RoleDto, createGroupDTO } from './dtos/groups.dto';
 import { addUserDTO, deleteMemberDTO } from './dtos/gpUser.dto';
-import { GroupUserService } from 'src/groups/gpUser.service';
+import { GroupUserService } from 'src/groups/gpUser.service';import { ResponseDto } from "src/dto/response.dto";
+import { GroupAppRoleService } from "./group-Application-role/gpApplicationRole.service";
+
 
 @Controller('group')
 export class GroupsController {
   constructor(
-    private readonly groupService: GroupsService,
+    private readonly groupService: GroupsService,,
+        private readonly groupAppRoleService : GroupAppRoleService
     private readonly groupUserService: GroupUserService,
   ) {}
 
@@ -104,4 +107,26 @@ export class GroupsController {
       });
     }
   }
+  @Post('/:id/role/:roleId')
+    async createRole(
+        @Param('id') id: string,
+        @Param('roleId') roleId: string,
+        @Body('data') data: RoleDto,
+        @Headers() headers: object,
+    ): Promise<ResponseDto> {
+        return await this.groupAppRoleService.createRole(
+            data,
+            id,
+            roleId,
+            headers,
+        );
+    }
+    @Delete('/:id/role/:roleId')
+    async deleteRole(        
+        @Param('id') id: string,
+        @Param('roleId') roleId: string,
+        @Headers() headers: object,
+    ): Promise<ResponseDto> {
+        return await this.groupAppRoleService.deleteRole(id, roleId, headers);
+    }
 }
