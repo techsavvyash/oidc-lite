@@ -21,7 +21,7 @@ import {
   CreateApiKeyDto,
   UpdateApiKeyDto,
   ApiKeyResponseDto,
-} from 'src/api-keys/apiKey.dto';
+} from './apiKey.dto';
 import { randomUUID } from 'crypto';
 
 @ApiTags('Authentication keys')

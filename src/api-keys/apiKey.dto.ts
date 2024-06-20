@@ -67,35 +67,42 @@ export class UpdateApiKeyDto {
 }
 
 class ApiKey {
-
-  @ApiProperty() 
+  @ApiProperty()
   @IsUUID()
   id: string;
 
-  @ApiProperty() 
+  @ApiProperty()
   @IsDate()
   createdAt: Date;
 
-  @ApiProperty() 
+  @ApiProperty()
   @IsDate()
   updatedAt: Date;
 
-  @ApiProperty() 
+  @ApiProperty()
   @IsBoolean()
   keyManager: boolean;
 
-  @ApiProperty() 
-  permissions: Permissions;
+  @ApiProperty()
+  @IsString()
+  keyValue: string; //check 1
 
-  @ApiProperty() 
+  @ApiProperty()
+  permissions: string | Permissions; //check 2
+
+  @ApiProperty()
   @IsString()
   metaData: string;
 
-  @ApiProperty() 
+  @ApiProperty()
   @IsString()
   tenantsId: string;
 }
 export class ApiKeyResponseDto {
+
+  @ApiProperty()
+  @IsBoolean()
+  success: boolean;
 
   @ApiProperty() 
   @IsString()
@@ -103,5 +110,5 @@ export class ApiKeyResponseDto {
 
   @ApiProperty() 
   @IsOptional()
-  apiKey?: ApiKey;
+  data?: ApiKey;
 }
