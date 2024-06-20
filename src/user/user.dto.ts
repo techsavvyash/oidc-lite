@@ -99,13 +99,7 @@ export class CreateUserRegistrationDto {
   registrationId?: string;
 
   @ApiProperty() 
-  @IsEnum(
-    ['user', 'admin', 'group', 'tenant'], 
-    { 
-      each: true,
-      message: 'Roles must be one of the following: user, admin, group, tenant'
-    }
-  ) //check2
+  @IsString({ each:true })
   roles: string[];
 }
 
@@ -117,13 +111,7 @@ export class UpdateUserRegistrationDto {
 
   @ApiProperty() 
   @IsOptional()
-  @IsEnum(
-    ['user', 'admin', 'group', 'tenant'], 
-    { 
-      each: true,
-      message: 'Roles must be one of the following: user, admin, group, tenant'
-    }
-  ) //check3
+  @IsString({ each:true })
   roles?: string[];
 }
 

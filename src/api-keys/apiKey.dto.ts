@@ -9,11 +9,11 @@ class Endpoints {
 
   @ApiProperty() 
   @IsEnum(
-    ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD', 'CONNECT', 'TRACE'],
+    ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     {
-      message: 'Invalid HTTP method. Must be one of GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD, CONNECT, TRACE'
+      message: 'Invalid HTTP method. Must be one of GET, POST, PUT, DELETE, PATCH'
     }
-  ) //check1
+  )
   methods: string;
 }
 
