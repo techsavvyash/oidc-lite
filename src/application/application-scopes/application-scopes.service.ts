@@ -36,7 +36,7 @@ export class ApplicationScopesService {
         message: valid.message,
       });
     }
-    const tenant_id = valid.apiKey.tenantsId? valid.apiKey.tenantsId: headers['x-stencil-tenantid'];
+    const tenant_id = valid.data.tenantsId? valid.data.tenantsId: headers['x-stencil-tenantid'];
     if (!data) {
       throw new BadRequestException({
         success: false,
@@ -58,7 +58,7 @@ export class ApplicationScopesService {
         message: 'Application with the provided id dont exist',
       });
     }
-    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',
@@ -115,7 +115,7 @@ export class ApplicationScopesService {
         message: valid.message,
       });
     }
-    const tenant_id = valid.apiKey.tenantsId? valid.apiKey.tenantsId: headers['x-stencil-tenantid'];
+    const tenant_id = valid.data.tenantsId? valid.data.tenantsId: headers['x-stencil-tenantid'];
     if (!applicationsId) {
       throw new BadRequestException({
         success: false,
@@ -137,7 +137,7 @@ export class ApplicationScopesService {
         message: 'No application with the given id exists',
       });
     }
-    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',
@@ -175,7 +175,7 @@ export class ApplicationScopesService {
         message: valid.message,
       });
     }
-    const tenant_id = valid.apiKey.tenantsId? valid.apiKey.tenantsId: headers['x-stencil-tenantid'];
+    const tenant_id = valid.data.tenantsId? valid.data.tenantsId: headers['x-stencil-tenantid'];
     if (!data) {
       throw new BadRequestException({
         success: false,
@@ -197,7 +197,7 @@ export class ApplicationScopesService {
         message: 'no Application with the given id exists',
       });
     }
-    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',
@@ -255,7 +255,7 @@ export class ApplicationScopesService {
         message: valid.message,
       });
     }
-    const tenant_id = valid.apiKey.tenantsId? valid.apiKey.tenantsId: headers['x-stencil-tenantid'];
+    const tenant_id = valid.data.tenantsId? valid.data.tenantsId: headers['x-stencil-tenantid'];
     if (!id) {
       throw new BadRequestException({
         success: false,
@@ -271,7 +271,7 @@ export class ApplicationScopesService {
         message: 'no application with given id exists',
       });
     }
-    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',

@@ -89,7 +89,7 @@ export class HeaderAuthService {
     return {
       success: true,
       message: 'Key extracted',
-      apiKey: data,
+      data,
     };
   }
 
@@ -105,8 +105,8 @@ export class HeaderAuthService {
         message: valid.message,
       };
     }
-    const { apiKey } = valid;
-    const permissions = apiKey.permissions;
+    const { data } = valid;
+    const permissions = data.permissions as Permissions;
     let allowed = permissions ? false : true;
     if (permissions) {
       if (permissions.endpoints) {
@@ -128,7 +128,7 @@ export class HeaderAuthService {
     return {
       success: true,
       message: 'Authorized',
-      apiKey,
+      data,
     };
   }
 }

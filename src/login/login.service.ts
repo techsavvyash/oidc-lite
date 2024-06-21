@@ -50,7 +50,7 @@ export class LoginService {
         message: valid.message,
       });
     }
-    const tenant_id = valid.apiKey.tenantsId;
+    const tenant_id = valid.data.tenantsId;
     if (application.tenantId !== tenant_id && tenant_id !== null) {
       throw new UnauthorizedException({
         success: false,

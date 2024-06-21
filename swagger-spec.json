@@ -2842,8 +2842,11 @@
           "keyManager": {
             "type": "boolean"
           },
+          "keyValue": {
+            "type": "string"
+          },
           "permissions": {
-            "$ref": "#/components/schemas/Permissions"
+            "type": "object"
           },
           "metaData": {
             "type": "string"
@@ -2857,6 +2860,7 @@
           "createdAt",
           "updatedAt",
           "keyManager",
+          "keyValue",
           "permissions",
           "metaData",
           "tenantsId"
@@ -2871,14 +2875,14 @@
           "message": {
             "type": "string"
           },
-          "apiKey": {
+          "data": {
             "$ref": "#/components/schemas/ApiKey"
           }
         },
         "required": [
           "success",
           "message",
-          "apiKey"
+          "data"
         ]
       },
       "UpdataPermissionsDto": {

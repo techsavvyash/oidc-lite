@@ -367,8 +367,8 @@ export class UserRegistrationService {
         message: valid.message,
       });
     }
-    const tenantId = valid.apiKey.tenantsId
-      ? valid.apiKey.tenantsId
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
       : headers['x-stencil-tenantid'];
     const userInfoApplication = data.userInfo.applicationId;
     const regiInfoApplication = data.registrationInfo.applicationId;
@@ -382,7 +382,7 @@ export class UserRegistrationService {
     const application = await this.prismaService.application.findUnique({
       where: { id: data.userInfo.applicationId },
     });
-    if (application.tenantId !== tenantId && valid.apiKey.tenantsId !== null) {
+    if (application.tenantId !== tenantId && valid.data.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',

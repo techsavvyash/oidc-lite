@@ -141,8 +141,8 @@ export class RefreshTokensService {
         message: valid.message,
       });
     }
-    const tenantId = valid.apiKey.tenantsId
-      ? valid.apiKey.tenantsId
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
       : headers['x-stencil-tenantid'];
     if (!tenantId) {
       throw new BadRequestException({

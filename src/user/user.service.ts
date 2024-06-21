@@ -42,8 +42,8 @@ export class UserService {
         message: valid.message,
       });
     }
-    const tenantId = valid.apiKey.tenantsId
-      ? valid.apiKey.tenantsId
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
       : headers['x-stencil-tenantid'];
     if (!tenantId) {
       throw new BadRequestException({
@@ -154,8 +154,8 @@ export class UserService {
         message: valid.message,
       });
     }
-    const tenantId = valid.apiKey.tenantsId
-      ? valid.apiKey.tenantsId
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
       : headers['x-stencil-tenantid'];
 
     if (!id) {
@@ -176,7 +176,7 @@ export class UserService {
         message: 'user with the given id dont exists',
       });
     }
-    if (user.tenantId !== tenantId && valid.apiKey.tenantsId !== null) {
+    if (user.tenantId !== tenantId && valid.data.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized',
@@ -205,8 +205,8 @@ export class UserService {
         message: valid.message,
       });
     }
-    const tenantId = valid.apiKey.tenantsId
-      ? valid.apiKey.tenantsId
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
       : headers['x-stencil-tenantid'];
 
     if (!id) {
@@ -233,7 +233,7 @@ export class UserService {
         message: 'user with the given id dont exists',
       });
     }
-    if (oldUser.tenantId !== tenantId && valid.apiKey.tenantsId !== null) {
+    if (oldUser.tenantId !== tenantId && valid.data.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized',
@@ -305,8 +305,8 @@ export class UserService {
         message: valid.message,
       });
     }
-    const tenantId = valid.apiKey.tenantsId
-      ? valid.apiKey.tenantsId
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
       : headers['x-stencil-tenantid'];
 
     if (!id) {
@@ -327,7 +327,7 @@ export class UserService {
         message: 'user with the given id dont exists',
       });
     }
-    if (user.tenantId !== tenantId && valid.apiKey.tenantsId !== null) {
+    if (user.tenantId !== tenantId && valid.data.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized',

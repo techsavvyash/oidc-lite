@@ -44,8 +44,8 @@ export class ApplicationService {
         message: valid.message,
       });
     }
-    const tenant_id = valid.apiKey.tenantsId
-      ? valid.apiKey.tenantsId
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
       : headers['x-stencil-tenantid'];
     if (!tenant_id) {
       throw new BadRequestException({
@@ -199,8 +199,8 @@ export class ApplicationService {
         message: valid.message,
       });
     }
-    const tenant_id = valid.apiKey.tenantsId
-      ? valid.apiKey.tenantsId
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
       : headers['x-stencil-tenantid'];
     if (!newData) {
       throw new BadRequestException({
@@ -217,7 +217,7 @@ export class ApplicationService {
         message: 'Application with the given id dont exist',
       });
     }
-    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',
@@ -311,8 +311,8 @@ export class ApplicationService {
         message: valid.message,
       });
     }
-    const tenant_id = valid.apiKey.tenantsId
-      ? valid.apiKey.tenantsId
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
       : headers['x-stencil-tenantid'];
     if (!id) {
       throw new BadRequestException({
@@ -337,7 +337,7 @@ export class ApplicationService {
         message: 'Application with the given id dont exist',
       });
     }
-    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized',
@@ -366,15 +366,15 @@ export class ApplicationService {
         message: valid.message,
       });
     }
-    const tenant_id = valid.apiKey.tenantsId
-      ? valid.apiKey.tenantsId
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
       : headers['x-stencil-tenantid'];
     const oldApplication = await this.prismaService.application.findUnique({
       where: { id },
     });
     if (
       oldApplication.tenantId !== tenant_id &&
-      valid.apiKey.tenantsId !== null
+      valid.data.tenantsId !== null
     ) {
       throw new UnauthorizedException({
         success: false,
@@ -433,8 +433,8 @@ export class ApplicationService {
         message: valid.message,
       });
     }
-    const tenant_id = valid.apiKey.tenantsId
-      ? valid.apiKey.tenantsId
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
       : headers['x-stencil-tenantid'];
     if (!id) {
       throw new BadRequestException({
@@ -451,7 +451,7 @@ export class ApplicationService {
         message: 'No application with the given id exists',
       });
     }
-    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',
