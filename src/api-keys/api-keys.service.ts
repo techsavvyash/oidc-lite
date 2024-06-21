@@ -36,7 +36,7 @@ export class ApiKeysService {
     }
     if (!id) {
       throw new BadRequestException({
-        message: 'No id give to create an api key',
+        message: 'No id given. Give an id to create an api key',
       });
     }
     const key = await this.prismaService.authenticationKey.findUnique({
