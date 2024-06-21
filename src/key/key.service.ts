@@ -8,11 +8,11 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { generateKeyDTO, updateDTO } from 'src/key/key.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { generateKeyDTO, updateDTO } from './key.dto';
+import { PrismaService } from '../prisma/prisma.service';
 import * as jose from 'node-jose';
 import * as jwkToPem from 'jwk-to-pem';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
+import { HeaderAuthService } from '../header-auth/header-auth.service';
 
 @Injectable()
 export class KeyService {
