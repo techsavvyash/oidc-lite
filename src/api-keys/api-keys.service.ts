@@ -6,8 +6,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { CreateApiKeyDto, UpdateApiKeyDto } from 'src/api-keys/apiKey.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateApiKeyDto, UpdateApiKeyDto } from './apiKey.dto';
+import { PrismaService } from '../prisma/prisma.service'
 
 @Injectable()
 export class ApiKeysService {
@@ -36,7 +36,7 @@ export class ApiKeysService {
     }
     if (!id) {
       throw new BadRequestException({
-        message: 'No id give to create an api key',
+        message: 'No id given. Give an id to create an api key',
       });
     }
     const key = await this.prismaService.authenticationKey.findUnique({
