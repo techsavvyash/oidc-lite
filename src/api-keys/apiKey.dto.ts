@@ -96,6 +96,7 @@ class ApiKey {
   tenantsId: string;
 }
 export class ApiKeyResponseDto {
+  @ApiProperty() success: boolean;
 
   @ApiProperty() 
   @IsString()

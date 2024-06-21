@@ -11,7 +11,7 @@ import * as jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { ApplicationDataDto } from 'src/application/application.dto';
-import { AccessTokenDto, RefreshTokenDto } from 'src/oidc/oidc.token.dto';
+import { AccessTokenDto, RefreshTokenDto } from '../oidc/dto/oidc.token.dto';
 
 @Injectable()
 export class LoginService {
@@ -39,9 +39,8 @@ export class LoginService {
         message: 'NO application exists for the given id',
       });
     }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      application.tenantId,
       '/login',
       'POST',
     );
@@ -49,6 +48,13 @@ export class LoginService {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
+      });
+    }
+    const tenant_id = valid.apiKey.tenantsId;
+    if (application.tenantId !== tenant_id && tenant_id !== null) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized to login with given authorization key',
       });
     }
 
@@ -99,11 +105,40 @@ export class LoginService {
       ? idTokenSigningKey.privateKey
       : idTokenSigningKey.secret; // will be needed in signup cases
     // groupId.split() => groups => application_role_id => all roles
-    const roles = ['user']; // for now
+    const groups = user.groupId.split(' '); // splits all the groups
+    const allRoles = await Promise.all(
+      groups.map(async (group) => {
+        return await this.prismaService.groupApplicationRole.findMany({
+          where: { groupsId: group },
+        });
+      }),
+    );
+    const filterRolesBasedOnCurrentApplication = await Promise.all(
+      allRoles.map(async (group) => {
+        return await Promise.all(
+          group.map(async (role) => {
+            const actualRoleData =
+              await this.prismaService.applicationRole.findUnique({
+                where: { id: role.applicationRolesId },
+              });
+            if (actualRoleData.applicationsId === application.id)
+              return actualRoleData.name;
+            return;
+          }),
+        );
+      }),
+    );
+    const flattenedRoles = filterRolesBasedOnCurrentApplication.flat();
+    const filteredFlattenedRoles = flattenedRoles.filter(
+      (role) => role !== undefined,
+    );
+    const roles = filteredFlattenedRoles; // for now
     const now = new Date().getTime();
     const applicationData: ApplicationDataDto = JSON.parse(application.data);
     const refreshTokenSeconds =
-      applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60 * 1000;
+      applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes *
+      60 *
+      1000;
     const accessTokenSeconds =
       applicationData.jwtConfiguration.timeToLiveInSeconds * 1000;
 

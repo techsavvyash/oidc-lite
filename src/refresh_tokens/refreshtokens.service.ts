@@ -12,7 +12,7 @@ import { refreshCookiesDTO, refreshDTO } from './refreshToken.dto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { ApplicationDataDto } from 'src/application/application.dto';
 import * as jwt from 'jsonwebtoken';
-import { AccessTokenDto, RefreshTokenDto } from 'src/oidc/oidc.token.dto';
+import { AccessTokenDto, RefreshTokenDto } from '../oidc/dto/oidc.token.dto';
 @Injectable()
 export class RefreshTokensService {
   private readonly logger: Logger;
@@ -71,7 +71,9 @@ export class RefreshTokensService {
       const accessTokenDecoded = await jwt.verify(accessToken, refreshSecret);
       const applicationData: ApplicationDataDto = JSON.parse(application.data);
       const refreshTokenSeconds =
-      applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60 * 1000;
+        applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes *
+        60 *
+        1000;
       const { exp, iss } = refreshTokenDecoded as RefreshTokenDto;
       const now = new Date().getTime();
       if (exp < now) {
@@ -81,17 +83,15 @@ export class RefreshTokensService {
         });
       }
       const refreshTokenPayload: RefreshTokenDto = {
-          active: true,
-          iat: now,
-          exp: now + refreshTokenSeconds,
-          iss,
-          applicationId: application.id,
-        };
-        const newRefreshToken = jwt.sign(
-            refreshTokenPayload,
-            refreshSecret,
-            { algorithm: refreshTokenSigningKey.algorithm as jwt.Algorithm },
-        );
+        active: true,
+        iat: now,
+        exp: now + refreshTokenSeconds,
+        iss,
+        applicationId: application.id,
+      };
+      const newRefreshToken = jwt.sign(refreshTokenPayload, refreshSecret, {
+        algorithm: refreshTokenSigningKey.algorithm as jwt.Algorithm,
+      });
       const updateToken = await this.prismaService.refreshToken.update({
         where: { id: foundRefreshToken.id },
         data: { token: newRefreshToken },
@@ -108,11 +108,9 @@ export class RefreshTokensService {
         scope,
         roles,
       };
-      const newAccessToken = jwt.sign(
-        accessTokenPayload,
-        refreshSecret,
-        { algorithm: refreshTokenSigningKey.algorithm as jwt.Algorithm },
-      );
+      const newAccessToken = jwt.sign(accessTokenPayload, refreshSecret, {
+        algorithm: refreshTokenSigningKey.algorithm as jwt.Algorithm,
+      });
       return {
         success: true,
         message: 'Refresh token refreshed',
@@ -132,25 +130,8 @@ export class RefreshTokensService {
   }
 
   async retrieveByID(id: string, headers: object) {
-    const tenantId = headers['x-stencil-tenantid'];
-    if (!tenantId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const tenant = await this.prismaService.tenant.findUnique({
-      where: { id: tenantId },
-    });
-    if (!tenant) {
-      throw new BadRequestException({
-        success: false,
-        message: 'no such tenant exists',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenantId,
       '/jwt/refresh',
       'GET',
     );
@@ -159,6 +140,22 @@ export class RefreshTokensService {
         success: valid.success,
         message: valid.message,
       });
+    }
+    const tenantId = valid.apiKey.tenantsId
+      ? valid.apiKey.tenantsId
+      : headers['x-stencil-tenantid'];
+    if (!tenantId) {
+      throw new BadRequestException({
+        success: false,
+        message: 'x-stencil-tenantid missing',
+      });
+    }
+    const tenant = await this.prismaService.tenant.findUnique({where: {id: tenantId}});
+    if(!tenant){
+      throw new BadRequestException({
+        success: false,
+        message: "No tenant with given id exists"
+      })
     }
     if (!id) {
       throw new BadRequestException({

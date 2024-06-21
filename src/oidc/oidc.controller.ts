@@ -20,9 +20,9 @@ import {
 } from '@nestjs/swagger';
 import { OidcService } from './oidc.service';
 import { Request, Response } from 'express';
-import { OIDCAuthQuery } from './oidc.auth.dto';
+import { OIDCAuthQuery } from './dto/oidc.auth.dto';
 import { LoginDto } from 'src/login/login.dto';
-import { IntrospectDto, TokenDto } from './oidc.token.dto';
+import { IntrospectDto, TokenDto } from './dto/oidc.token.dto';
 import { ResponseDto } from 'src/dto/response.dto';
 
 @ApiTags('OIDC')

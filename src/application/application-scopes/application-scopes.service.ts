@@ -29,25 +29,14 @@ export class ApplicationScopesService {
     scopeId: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
-      headers,
-      tenant_id,
-      '/application/scope',
-      'POST',
-    );
+    const valid = await this.headerAuthService.validateRoute(headers,'/application/scope','POST');
     if (!valid.success) {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
       });
     }
+    const tenant_id = valid.apiKey.tenantsId? valid.apiKey.tenantsId: headers['x-stencil-tenantid'];
     if (!data) {
       throw new BadRequestException({
         success: false,
@@ -69,7 +58,7 @@ export class ApplicationScopesService {
         message: 'Application with the provided id dont exist',
       });
     }
-    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',
@@ -119,25 +108,14 @@ export class ApplicationScopesService {
     id: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
-      headers,
-      tenant_id,
-      '/application/scope',
-      'GET',
-    );
+    const valid = await this.headerAuthService.validateRoute(headers,'/application/scope','GET');
     if (!valid.success) {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
       });
     }
+    const tenant_id = valid.apiKey.tenantsId? valid.apiKey.tenantsId: headers['x-stencil-tenantid'];
     if (!applicationsId) {
       throw new BadRequestException({
         success: false,
@@ -159,7 +137,7 @@ export class ApplicationScopesService {
         message: 'No application with the given id exists',
       });
     }
-    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',
@@ -190,25 +168,14 @@ export class ApplicationScopesService {
     data: UpdateScopeDto,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
-      headers,
-      tenant_id,
-      '/application/scope',
-      'PATCH',
-    );
+    const valid = await this.headerAuthService.validateRoute(headers,'/application/scope','PATCH');
     if (!valid.success) {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
       });
     }
+    const tenant_id = valid.apiKey.tenantsId? valid.apiKey.tenantsId: headers['x-stencil-tenantid'];
     if (!data) {
       throw new BadRequestException({
         success: false,
@@ -230,7 +197,7 @@ export class ApplicationScopesService {
         message: 'no Application with the given id exists',
       });
     }
-    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',
@@ -281,25 +248,14 @@ export class ApplicationScopesService {
     scopeId: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
-      headers,
-      tenant_id,
-      '/application/scope',
-      'DELETE',
-    );
+    const valid = await this.headerAuthService.validateRoute(headers,'/application/scope','DELETE');
     if (!valid.success) {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
       });
     }
+    const tenant_id = valid.apiKey.tenantsId? valid.apiKey.tenantsId: headers['x-stencil-tenantid'];
     if (!id) {
       throw new BadRequestException({
         success: false,
@@ -315,7 +271,7 @@ export class ApplicationScopesService {
         message: 'no application with given id exists',
       });
     }
-    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',

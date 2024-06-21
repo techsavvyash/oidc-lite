@@ -16,7 +16,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { randomUUID } from 'crypto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { UserService } from '../user.service';
-import { AccessTokenDto, RefreshTokenDto } from 'src/oidc/oidc.token.dto';
+import { AccessTokenDto, RefreshTokenDto } from '../../oidc/dto/oidc.token.dto';
 import { ApplicationDataDto } from 'src/application/application.dto';
 
 @Injectable()
@@ -172,7 +172,7 @@ export class UserRegistrationService {
       headers,
       tenantId,
       '/user/registration',
-      'POST',
+      'GET',
     );
     if (!valid.success) {
       throw new UnauthorizedException({
@@ -308,7 +308,7 @@ export class UserRegistrationService {
       headers,
       tenantId,
       '/user/registration',
-      'POST',
+      'DELETE',
     );
     if (!valid.success) {
       throw new UnauthorizedException({
@@ -356,23 +356,36 @@ export class UserRegistrationService {
     data: CreateUserAndUserRegistration,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenantId = headers['x-stencil-tenantid'];
-    if (!tenantId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header mission',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenantId,
       '/user/registration',
       'POST',
     );
     if (!valid.success) {
       throw new UnauthorizedException({
-        success: false,
+        success: valid.success,
         message: valid.message,
+      });
+    }
+    const tenantId = valid.apiKey.tenantsId
+      ? valid.apiKey.tenantsId
+      : headers['x-stencil-tenantid'];
+    const userInfoApplication = data.userInfo.applicationId;
+    const regiInfoApplication = data.registrationInfo.applicationId;
+    if (userInfoApplication !== regiInfoApplication) {
+      throw new BadRequestException({
+        success: false,
+        message:
+          'mismatch in applicationId provided in userInfo and registrationInfo',
+      });
+    }
+    const application = await this.prismaService.application.findUnique({
+      where: { id: data.userInfo.applicationId },
+    });
+    if (application.tenantId !== tenantId && valid.apiKey.tenantsId !== null) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized enough',
       });
     }
     if (!data || !data.userInfo || !data.registrationInfo) {
@@ -429,7 +442,9 @@ export class UserRegistrationService {
           application.data,
         );
         const refreshTokenSeconds =
-          applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60 * 1000;
+          applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes *
+          60 *
+          1000;
         const refreshTokenPayload: RefreshTokenDto = {
           active: true,
           applicationId: application.id,

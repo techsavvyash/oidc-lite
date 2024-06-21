@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { OIDCAuthQuery } from './oidc.auth.dto';
+import { OIDCAuthQuery } from './dto/oidc.auth.dto';
 import { LoginDto } from 'src/login/login.dto';
 import { randomUUID } from 'crypto';
 import {
@@ -17,7 +17,7 @@ import {
   IntrospectDto,
   RefreshTokenDto,
   TokenDto,
-} from './oidc.token.dto';
+} from './dto/oidc.token.dto';
 import * as jwt from 'jsonwebtoken';
 import { ResponseDto } from 'src/dto/response.dto';
 import { ApplicationDataDto } from 'src/application/application.dto';

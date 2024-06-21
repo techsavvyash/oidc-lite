@@ -33,16 +33,8 @@ export class ApplicationService {
     data: CreateApplicationDto,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application',
       'POST',
     );
@@ -50,6 +42,16 @@ export class ApplicationService {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
+      });
+    }
+    const tenant_id = valid.apiKey.tenantsId
+      ? valid.apiKey.tenantsId
+      : headers['x-stencil-tenantid'];
+    if (!tenant_id) {
+      throw new BadRequestException({
+        success: false,
+        message:
+          'Provide tenant id in x-stencil-tenantid if the authorization key is tenant scoped',
       });
     }
     if (!uuid) {
@@ -186,16 +188,8 @@ export class ApplicationService {
         message: 'no id given',
       });
     }
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application',
       'PATCH',
     );
@@ -205,6 +199,9 @@ export class ApplicationService {
         message: valid.message,
       });
     }
+    const tenant_id = valid.apiKey.tenantsId
+      ? valid.apiKey.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!newData) {
       throw new BadRequestException({
         success: false,
@@ -220,7 +217,7 @@ export class ApplicationService {
         message: 'Application with the given id dont exist',
       });
     }
-    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',
@@ -231,9 +228,17 @@ export class ApplicationService {
     const active =
       newData.active !== null ? newData.active : application.active;
     const oldApplicationData: ApplicationDataDto = JSON.parse(application.data);
-    const newApplicationData: ApplicationDataDto = {jwtConfiguration: newData.jwtConfiguration, oauthConfiguration: newData.oauthConfiguration};
-    newApplicationData.jwtConfiguration = newApplicationData.jwtConfiguration ? newApplicationData.jwtConfiguration: oldApplicationData.jwtConfiguration;
-    newApplicationData.oauthConfiguration = newApplicationData.oauthConfiguration ? newApplicationData.oauthConfiguration: oldApplicationData.oauthConfiguration;
+    const newApplicationData: ApplicationDataDto = {
+      jwtConfiguration: newData.jwtConfiguration,
+      oauthConfiguration: newData.oauthConfiguration,
+    };
+    newApplicationData.jwtConfiguration = newApplicationData.jwtConfiguration
+      ? newApplicationData.jwtConfiguration
+      : oldApplicationData.jwtConfiguration;
+    newApplicationData.oauthConfiguration =
+      newApplicationData.oauthConfiguration
+        ? newApplicationData.oauthConfiguration
+        : oldApplicationData.oauthConfiguration;
     try {
       const application = await this.prismaService.application.update({
         where: { id },
@@ -295,16 +300,8 @@ export class ApplicationService {
   }
 
   async returnAnApplication(id: string, headers: object): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application',
       'GET',
     );
@@ -314,6 +311,9 @@ export class ApplicationService {
         message: valid.message,
       });
     }
+    const tenant_id = valid.apiKey.tenantsId
+      ? valid.apiKey.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!id) {
       throw new BadRequestException({
         success: false,
@@ -337,7 +337,7 @@ export class ApplicationService {
         message: 'Application with the given id dont exist',
       });
     }
-    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized',
@@ -355,16 +355,8 @@ export class ApplicationService {
     hardDelete: boolean,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application',
       'DELETE',
     );
@@ -374,12 +366,15 @@ export class ApplicationService {
         message: valid.message,
       });
     }
+    const tenant_id = valid.apiKey.tenantsId
+      ? valid.apiKey.tenantsId
+      : headers['x-stencil-tenantid'];
     const oldApplication = await this.prismaService.application.findUnique({
       where: { id },
     });
     if (
       oldApplication.tenantId !== tenant_id &&
-      valid.data.tenantsId !== null
+      valid.apiKey.tenantsId !== null
     ) {
       throw new UnauthorizedException({
         success: false,
@@ -427,19 +422,20 @@ export class ApplicationService {
     id: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application',
       'GET',
     );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
+    const tenant_id = valid.apiKey.tenantsId
+      ? valid.apiKey.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!id) {
       throw new BadRequestException({
         success: false,
@@ -455,7 +451,7 @@ export class ApplicationService {
         message: 'No application with the given id exists',
       });
     }
-    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',

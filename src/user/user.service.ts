@@ -31,11 +31,25 @@ export class UserService {
         message: 'No data given to create a user',
       });
     }
-    const tenantId = headers['x-stencil-tenantid'];
+    const valid = await this.headerAuthService.validateRoute(
+      headers,
+      '/user',
+      'POST',
+    );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
+    const tenantId = valid.apiKey.tenantsId
+      ? valid.apiKey.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!tenantId) {
       throw new BadRequestException({
         success: false,
-        message: 'x-stencil-tenantid header missing',
+        message:
+          'x-stencil-tenantid header required with tenant scoped authorization key',
       });
     }
     const tenant = await this.prismaService.tenant.findUnique({
@@ -45,18 +59,6 @@ export class UserService {
       throw new BadRequestException({
         success: false,
         message: 'No such tenant exists',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
-      headers,
-      tenantId,
-      '/user',
-      'POST',
-    );
-    if (!valid.success) {
-      throw new UnauthorizedException({
-        success: false,
-        message: valid.message,
       });
     }
     if (!id) {
@@ -103,9 +105,10 @@ export class UserService {
     // which grps to join? grps having the correct application id or any gps?
     const existingGroups = await Promise.all(
       membership.map(async (val) => {
-        const group = await this.prismaService.group.findUnique({
+        const groups = await this.prismaService.group.findUnique({
           where: { id: val },
         });
+        return groups.id;
       }),
     );
     const groups = existingGroups.join(' ');
@@ -140,25 +143,20 @@ export class UserService {
   }
 
   async returnAUser(id: string, headers: object): Promise<ResponseDto> {
-    const tenantID = headers['x-stencil-tenantid'];
-    if (!tenantID) {
-      throw new UnauthorizedException({
-        success: false,
-        message: 'x-stencil-tenantid missing in header',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenantID,
       '/user',
       'GET',
     );
     if (!valid.success) {
       throw new UnauthorizedException({
-        success: false,
+        success: valid.success,
         message: valid.message,
       });
     }
+    const tenantId = valid.apiKey.tenantsId
+      ? valid.apiKey.tenantsId
+      : headers['x-stencil-tenantid'];
 
     if (!id) {
       throw new BadRequestException({
@@ -178,6 +176,12 @@ export class UserService {
         message: 'user with the given id dont exists',
       });
     }
+    if (user.tenantId !== tenantId && valid.apiKey.tenantsId !== null) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized',
+      });
+    }
     return {
       success: true,
       message: 'User found successfully',
@@ -190,25 +194,20 @@ export class UserService {
     data: UpdateUserDto,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenantID = headers['x-stencil-tenantid'];
-    if (!tenantID) {
-      throw new UnauthorizedException({
-        success: false,
-        message: 'x-stencil-tenantid missing in header',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenantID,
       '/user',
-      'GET',
+      'PATCH',
     );
     if (!valid.success) {
       throw new UnauthorizedException({
-        success: false,
+        success: valid.success,
         message: valid.message,
       });
     }
+    const tenantId = valid.apiKey.tenantsId
+      ? valid.apiKey.tenantsId
+      : headers['x-stencil-tenantid'];
 
     if (!id) {
       throw new BadRequestException({
@@ -234,6 +233,12 @@ export class UserService {
         message: 'user with the given id dont exists',
       });
     }
+    if (oldUser.tenantId !== tenantId && valid.apiKey.tenantsId !== null) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized',
+      });
+    }
     const active = data.active ? data.active : oldUser.active;
     const oldUserData = JSON.parse(oldUser.data);
     const userData = data.userData ? data.userData : oldUserData?.userData;
@@ -242,19 +247,20 @@ export class UserService {
       : oldUserData?.additionalData;
     const applicationId = data.applicationId;
     let groupId = '';
-    if(data.membership && data.membership.length > 0){
+    if (data.membership && data.membership.length > 0) {
       const membership = data.membership;
       const existingGroups = await Promise.all(
         membership.map(async (val) => {
-          const group = await this.prismaService.group.findUnique({
+          const groups = await this.prismaService.group.findUnique({
             where: { id: val },
           });
+          return groups.id;
         }),
       );
       const groups = existingGroups.join(' ');
       groupId = groups;
     }
-    groupId = (groupId !== '' && groupId !== ' ') ? groupId : oldUser.groupId;
+    groupId = groupId !== '' && groupId !== ' ' ? groupId : oldUser.groupId;
     const userInfo = {
       userData,
       additionalData,
@@ -288,25 +294,20 @@ export class UserService {
     headers: object,
     hardDelete: string,
   ): Promise<ResponseDto> {
-    const tenantID = headers['x-stencil-tenantid'];
-    if (!tenantID) {
-      throw new UnauthorizedException({
-        success: false,
-        message: 'x-stencil-tenantid missing in header',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenantID,
       '/user',
-      'GET',
+      'DELETE',
     );
     if (!valid.success) {
       throw new UnauthorizedException({
-        success: false,
+        success: valid.success,
         message: valid.message,
       });
     }
+    const tenantId = valid.apiKey.tenantsId
+      ? valid.apiKey.tenantsId
+      : headers['x-stencil-tenantid'];
 
     if (!id) {
       throw new BadRequestException({
@@ -326,7 +327,7 @@ export class UserService {
         message: 'user with the given id dont exists',
       });
     }
-    if (user.tenantId !== tenantID) {
+    if (user.tenantId !== tenantId && valid.apiKey.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized',

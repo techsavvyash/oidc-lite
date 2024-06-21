@@ -27,16 +27,8 @@ export class ApplicationRolesService {
     roleId: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application/role',
       'POST',
     );
@@ -46,6 +38,9 @@ export class ApplicationRolesService {
         message: valid.message,
       });
     }
+    const tenant_id = valid.apiKey.tenantsId
+      ? valid.apiKey.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!data) {
       throw new BadRequestException({
         success: false,
@@ -67,7 +62,7 @@ export class ApplicationRolesService {
         message: 'Application with the provided id dont exist',
       });
     }
-    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',
@@ -116,16 +111,8 @@ export class ApplicationRolesService {
     id: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application/role',
       'GET',
     );
@@ -135,6 +122,9 @@ export class ApplicationRolesService {
         message: valid.message,
       });
     }
+    const tenant_id = valid.apiKey.tenantsId
+      ? valid.apiKey.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!applicationsId) {
       throw new BadRequestException({
         success: false,
@@ -156,7 +146,7 @@ export class ApplicationRolesService {
         message: 'No application with the given id exists',
       });
     }
-    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',
@@ -187,16 +177,8 @@ export class ApplicationRolesService {
     data: UpdateRoleDto,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application/role',
       'PATCH',
     );
@@ -206,6 +188,9 @@ export class ApplicationRolesService {
         message: valid.message,
       });
     }
+    const tenant_id = valid.apiKey.tenantsId
+      ? valid.apiKey.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!data) {
       throw new BadRequestException({
         success: false,
@@ -227,7 +212,7 @@ export class ApplicationRolesService {
         message: 'Application with the given id dont exist',
       });
     }
-    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',
@@ -260,16 +245,8 @@ export class ApplicationRolesService {
     roleId: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application/role',
       'DELETE',
     );
@@ -279,6 +256,9 @@ export class ApplicationRolesService {
         message: valid.message,
       });
     }
+    const tenant_id = valid.apiKey.tenantsId
+      ? valid.apiKey.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!id) {
       throw new BadRequestException({
         success: false,
@@ -294,7 +274,7 @@ export class ApplicationRolesService {
         message: 'no application with given id exists',
       });
     }
-    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
+    if (application.tenantId !== tenant_id && valid.apiKey.tenantsId !== null) {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',

@@ -109,7 +109,7 @@ export class UserController {
   async updateAUser(
     @Param('id') id: string,
     @Headers() headers: object,
-    @Body('data') data: CreateUserDto,
+    @Body('data') data: UpdateUserDto,
   ): Promise<ResponseDto> {
     return await this.userService.updateAUser(id, data, headers);
   }
