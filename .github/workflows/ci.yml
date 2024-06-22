@@ -29,11 +29,15 @@ jobs:
         run: |
           yarn workspaces run test --coverage
 
+      - name: Debug Coverage Files
+        run: |
+          echo "Listing coverage directory contents:"
+          ls -R coverage
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: ./
           files: ./coverage/**/lcov.info
           flags: unittests
           name: codecov-umbrella
