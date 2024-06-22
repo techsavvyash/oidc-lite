@@ -14,6 +14,9 @@ export class CreateApiKeyDto {
   @ApiProperty() permissions?: Permissions;
   @ApiProperty() metaData?: string | JSON;
   @ApiProperty() tenantId?: string;
+  @ApiProperty() adminUsername?: string;
+  @ApiProperty() adminPassword?: string;
+
 }
 class UpdataPermissionsDto {
   @ApiProperty() endpoints?: Endpoints[];

@@ -16,6 +16,20 @@
         ]
       }
     },
+    "/admin": {
+      "post": {
+        "operationId": "AppController_createAdmin",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC Wrapper"
+        ]
+      }
+    },
     "/tenant": {
       "post": {
         "operationId": "TenantController_createATenantWithRandomUUID",
@@ -2816,13 +2830,21 @@
           },
           "tenantId": {
             "type": "string"
+          },
+          "adminUsername": {
+            "type": "string"
+          },
+          "adminPassword": {
+            "type": "string"
           }
         },
         "required": [
           "key",
           "permissions",
           "metaData",
-          "tenantId"
+          "tenantId",
+          "adminUsername",
+          "adminPassword"
         ]
       },
       "ApiKey": {

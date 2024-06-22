@@ -75,7 +75,7 @@ model GroupApplicationRole {
 }
 
 model GroupMember {
-  id        String @id @default(uuid())
+  id        String   @id @default(uuid())
   groupId   String
   createdAt DateTime @default(now())
   userId    String
@@ -168,14 +168,14 @@ model Tenant {
 }
 
 model UserRegistration {
-  id                  String   @id @default(uuid())
+  id                  String    @id @default(uuid())
   applicationsId      String
-  authenticationToken String?  @unique
+  authenticationToken String?   @unique
   password            String
   data                String?
-  createdAt           DateTime @default(now())
+  createdAt           DateTime  @default(now())
   lastLoginInstant    DateTime?
-  updatedAt           DateTime @updatedAt
+  updatedAt           DateTime  @updatedAt
   usersId             String
   // verified            Boolean
   // verifiedInstant     BigInt?
@@ -188,15 +188,15 @@ model UserRegistration {
 }
 
 model User {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
   active    Boolean
   data      String?
   expiry    Int?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   tenantId  String
   groupId   String?
-  email     String    @unique
+  email     String   @unique
   // group     Group?   @relation(fields: [groupId], references: [id]) // Add the relation
 
   tenant            Tenant             @relation(fields: [tenantId], references: [id])
@@ -216,4 +216,9 @@ model AuthenticationKey {
   tenantsId   String?
 
   tenant Tenant? @relation(fields: [tenantsId], references: [id])
+}
+
+model Admin {
+  username String @unique
+  password String
 }
