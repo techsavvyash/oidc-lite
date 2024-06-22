@@ -1,58 +1,22 @@
 name: CI
 
-on:
-  push:
-    branches:
-      - main
-      - feat-final
-  pull_request:
-    branches:
-      - main
-      - feat-final
+on: [push, pull_request]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [16.x]  # Specify your Node.js version here
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
-      with:
-        node-version: ${{ matrix.node-version }}
-
-    - name: Cache Yarn dependencies
-      uses: actions/cache@v2
-      with:
-        path: |
-          **/node_modules
-          ~/.cache/yarn
-        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-yarn-
-
-    - name: Install dependencies
-      run: yarn install --frozen-lockfile
-
-    - name: Build workspace packages
-      run: yarn workspaces run build
-
-    - name: Run tests
-      run: yarn workspaces run test --coverage
-
-    - name: List coverage directory
-      run: ls -R ./coverage
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./coverage/clover.xml
-        flags: unittests
-        name: codecov-umbrella
+      - uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: npm install
+      - run: npm test
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
