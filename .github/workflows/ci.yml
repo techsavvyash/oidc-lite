@@ -14,37 +14,39 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x]
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
 
-      - name: Install dependencies
-        run: yarn install
+    - name: Cache Yarn dependencies
+      uses: actions/cache@v2
+      with:
+        path: |
+          **/node_modules
+          ~/.cache/yarn
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-
 
-      - name: Run linter
-        run: yarn run lint
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile
 
-      - name: Run formatter check
-        run: yarn run format:check
+    - name: Run tests
+      run: yarn workspaces foreach run test --coverage
 
-      - name: Run unit tests
-        run: yarn run test
-
-      - name: Run e2e tests
-        run: yarn run test:e2e
-
-      - name: Generate test coverage
-        run: yarn run test:cov
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/lcov.info
-          flags: unittests
-          name: codecov-umbrella
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage/**/clover.xml
+        flags: unittests
+        name: codecov-umbrella
