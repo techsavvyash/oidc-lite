@@ -8,6 +8,7 @@ import {
   Query,
   Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -24,6 +25,8 @@ import { OIDCAuthQuery } from './dto/oidc.auth.dto';
 import { LoginDto } from 'src/login/login.dto';
 import { IntrospectDto, TokenDto } from './dto/oidc.token.dto';
 import { ResponseDto } from 'src/dto/response.dto';
+import { QueryApplicationIdGuard } from 'src/guards/queryApplicationId.guard';
+import { DataApplicationIdGuard } from 'src/guards/dataApplicationId.guard';
 
 @ApiTags('OIDC')
 @Controller('oidc')
@@ -42,6 +45,7 @@ export class OidcController {
   })
   @ApiHeader({ name: 'authorization', required: false })
   @Get('auth')
+  @UseGuards(QueryApplicationIdGuard)
   async authorize(
     @Query() query: OIDCAuthQuery,
     @Req() req: Request,
@@ -57,6 +61,7 @@ export class OidcController {
   @ApiResponse({ status: 200, description: 'Returns authentication token' })
   @ApiHeader({ name: 'authorization', required: false })
   @Post('auth')
+  @UseGuards(QueryApplicationIdGuard)
   async postAuthorize(
     @Body() data: LoginDto,
     @Query() query: OIDCAuthQuery,
@@ -104,6 +109,7 @@ export class OidcController {
   @ApiHeader({ name: 'content-type', required: true })
   @ApiHeader({ name: 'authorization', required: false })
   @Post('/introspect')
+  @UseGuards(DataApplicationIdGuard)
   async introspect(@Body() data: IntrospectDto, @Headers() headers: object) {
     return await this.oidcService.introspect(data, headers);
   }

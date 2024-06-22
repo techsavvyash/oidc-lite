@@ -31,7 +31,7 @@ import { ResponseDto } from 'src/dto/response.dto';
 import { randomUUID } from 'crypto';
 import { ApplicationRolesService } from './application-roles/application-roles.service';
 import { ApplicationScopesService } from './application-scopes/application-scopes.service';
-import { AuthorizedOriginUrls } from './guards/application.guard';
+import { ParamApplicationIdGuard } from '../guards/paramApplicationId.guard';
 
 @ApiTags('Applications')
 @Controller('application')
@@ -82,7 +82,7 @@ export class ApplicationController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @UseGuards(AuthorizedOriginUrls)
+  @UseGuards(ParamApplicationIdGuard)
   async getAnApplication(
     @Param('applicationId') id: string,
     @Headers() headers: object,
@@ -119,7 +119,7 @@ export class ApplicationController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Patch('/:applicationId')
-  @UseGuards(AuthorizedOriginUrls)
+  @UseGuards(ParamApplicationIdGuard)
   async updateApplication(
     @Param('applicationId') id: string,
     @Body('data') data: UpdateApplicationDto,
@@ -144,7 +144,7 @@ export class ApplicationController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Delete('/:applicationId')
-  @UseGuards(AuthorizedOriginUrls)
+  @UseGuards(ParamApplicationIdGuard)
   async deleteApplication(
     @Param('applicationId') id: string,
     @Query('hardDelete') hardDelete: boolean,
@@ -170,7 +170,7 @@ export class ApplicationController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Post('/:applicationId/role')
-  @UseGuards(AuthorizedOriginUrls)
+  @UseGuards(ParamApplicationIdGuard)
   async createRoleWithRandomUUID(
     @Param('applicationId') id: string,
     @Body('data') data: RoleDto,
@@ -198,7 +198,7 @@ export class ApplicationController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Post('/:applicationId/role/:roleId')
-  @UseGuards(AuthorizedOriginUrls)
+  @UseGuards(ParamApplicationIdGuard)
   async createRole(
     @Param('applicationId') id: string,
     @Param('roleId') roleId: string,
@@ -224,7 +224,7 @@ export class ApplicationController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Delete('/:applicationId/role/:roleId')
-  @UseGuards(AuthorizedOriginUrls)
+  @UseGuards(ParamApplicationIdGuard)
   async deleteRole(
     @Param('applicationId') id: string,
     @Param('roleId') roleId: string,
@@ -245,7 +245,7 @@ export class ApplicationController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Patch('/:applicationId/role/:roleId')
-  @UseGuards(AuthorizedOriginUrls)
+  @UseGuards(ParamApplicationIdGuard)
   async updateRole(
     @Param('applicationId') id: string,
     @Param('roleId') roleId: string,
@@ -273,7 +273,7 @@ export class ApplicationController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Post('/:applicationId/scope')
-  @UseGuards(AuthorizedOriginUrls)
+  @UseGuards(ParamApplicationIdGuard)
   async createScopeWithRandomUUID(
     @Param('applicationId') id: string,
     @Body('data') data: ScopeDto,
@@ -300,7 +300,7 @@ export class ApplicationController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Post('/:applicationId/scope/:scopeId')
-  @UseGuards(AuthorizedOriginUrls)
+  @UseGuards(ParamApplicationIdGuard)
   async createScope(
     @Param('applicationId') id: string,
     @Param('scopeId') scopeId: string,
@@ -326,7 +326,7 @@ export class ApplicationController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Delete('/:applicationId/scope/:scopeId')
-  @UseGuards(AuthorizedOriginUrls)
+  @UseGuards(ParamApplicationIdGuard)
   async deleteScope(
     @Param('applicationId') id: string,
     @Param('scopeId') scopeId: string,
@@ -347,7 +347,7 @@ export class ApplicationController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Patch('/:applicationId/scope/:scopeId')
-  @UseGuards(AuthorizedOriginUrls)
+  @UseGuards(ParamApplicationIdGuard)
   async updateScope(
     @Param('applicationId') id: string,
     @Param('scopeId') scopeId: string,
@@ -372,7 +372,7 @@ export class ApplicationController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @Get('/:applicationId/oauth-configuration')
-  @UseGuards(AuthorizedOriginUrls)
+  @UseGuards(ParamApplicationIdGuard)
   async returnOauthConfiguration(
     @Param('applicationId') id: string,
     @Headers() headers: object,

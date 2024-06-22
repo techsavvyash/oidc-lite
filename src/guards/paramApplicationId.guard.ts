@@ -6,13 +6,13 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ApplicationDataDto } from '../application.dto';
+import { ApplicationDataDto } from '../application/application.dto';
 
 @Injectable()
-export class AuthorizedOriginUrls implements CanActivate {
+export class ParamApplicationIdGuard implements CanActivate {
   private readonly logger: Logger;
   constructor(private readonly prismaService: PrismaService) {
-    this.logger = new Logger(AuthorizedOriginUrls.name);
+    this.logger = new Logger(ParamApplicationIdGuard.name);
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

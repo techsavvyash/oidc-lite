@@ -256,7 +256,7 @@ export class RefreshTokensService {
       });
     }
   }
-
+  
   async deleteViaAppID(applicationId: string, headers: object) {
     if (!applicationId) {
       throw new BadRequestException({
