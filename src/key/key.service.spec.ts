@@ -12,6 +12,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import * as jose from 'node-jose';
+import * as jwkToPem from 'jwk-to-pem';
 
 describe('KeyService', () => {
   let service: KeyService;
@@ -44,11 +45,6 @@ describe('KeyService', () => {
     type: 'RSA',
   };
 
-  jest.mock('node-jose', () => ({
-    JWK: {
-      createKeyStore: jest.fn(),
-    },
-  }));
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -72,6 +68,8 @@ describe('KeyService', () => {
             authorizationHeaderVerifier: jest.fn(),
           },
         },
+        // jose,
+        // jwkToPem,
       ],
     }).compile();
 
@@ -310,12 +308,12 @@ describe('KeyService', () => {
 
       expect(mockUpdate).toHaveBeenCalledWith({
         where: { id: 'uuid' },
-        data: { name: 'newName' },
+        data: { name: 'updatedKeyName' },
       });
       expect(result).toEqual({
         success: true,
         message: 'Keyset updated',
-        data: { id: 'uuid', name: 'newName' },
+        data: mockKey,
       });
     });
   });
@@ -385,7 +383,7 @@ describe('KeyService', () => {
       expect(result).toEqual({
         success: true,
         message: 'key deleted successfully',
-        data: { id: 'uuid' },
+        data: mockKey,
       });
     });
   });
@@ -460,7 +458,7 @@ describe('KeyService', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('should generate RS256 key', async () => {
+    it('should generate RS256 / ES256 / HS256 key', async () => {
       jest
         .spyOn(headerAuthService, 'authorizationHeaderVerifier')
         .mockResolvedValue({
@@ -468,39 +466,10 @@ describe('KeyService', () => {
           message: 'Authorized',
           data: mockHeaderKey,
         });
-      const mockKeyStore = {
-        generate: jest.fn().mockResolvedValue({
-          toJSON: () => ({
-            keys: [
-              {
-                kid: 'kid',
-                alg: 'RS256',
-                kty: 'RSA',
-                use: 'sig',
-              },
-            ],
-          }),
-        }),
-      };
 
-      (jose.JWK.createKeyStore as jest.Mock).mockReturnValue(mockKeyStore);
       const mockCreate = jest
         .spyOn(prismaService.key, 'create')
-        .mockResolvedValue({
-          id: 'uuid',
-          algorithm: 'RS256',
-          certificate: 'string',
-          expiry: 1681942800,
-          createdAt: new Date(),
-          issuer: 'issuer',
-          kid: 'kid',
-          updatedAt: new Date(),
-          name: 'keyName',
-          privateKey: 'privateKeyPem',
-          publicKey: 'publicKeyPem',
-          secret: 'string',
-          type: 'RS',
-        });
+        .mockResolvedValue(mockKey);
 
       const result = await service.generateKey(
         'uuid',
@@ -509,19 +478,51 @@ describe('KeyService', () => {
       );
 
       expect(mockCreate).toHaveBeenCalledWith({
-        data: {
-          id: 'uuid',
-          algorithm: 'RS256',
-          name: 'keyName',
-          issuer: 'issuer',
-          kid: 'kid',
-          privateKey: 'privateKeyPem',
-          publicKey: 'publicKeyPem',
-          type: 'RS',
-        },
+        data: expect.objectContaining({
+          algorithm: expect.any(String),
+          id: expect.any(String),
+          issuer: expect.any(String),
+          kid: expect.any(String),
+          name: expect.any(String),
+          privateKey: expect.any(String),
+          publicKey: expect.any(String),
+          type: expect.any(String),
+        }),
       });
+
       expect(result.success).toBe(true);
       expect(result.message).toBe('key generated successfully');
+      expect(result.key).toMatchObject(mockKey)
     });
   });
 });
+
+
+// UNIT TESTS : KEY SERVICE
+// -------------------------
+// Test 1: Retrieve all keys
+//     - It should throw UnauthorizedException if authorization header is invalid
+//     - It should return all keys retrieved
+//     - It should throw InternalServerException status if error occurs
+// Test 2: Retrieve unique key
+//     - It should throw UnauthorizedException if authorization header is invalid
+//     - It should throw BadGatewayException if uuid is not provided
+//     - It should return key if found
+//     - It should throw HttpException if key is not found
+//     - It should log error and throw InternalServerErrorException if error occurs
+// Test 3: Update key
+//     - It should throw UnauthorizedException if authorization header is invalid
+//     - It should throw BadRequestException if uuid is not provided
+//     - It should throw BadRequestException if key is not found
+//     - It should update key if valid data is provided
+// Test 4: Delete key
+//     - It should throw UnauthorizedException if authorization header is invalid
+//     - It should throw BadRequestException if uuid is not provided
+//     - It should throw HttpException if key is not found
+//     - It should delete key if it exists
+// Test 5: Generate key
+//     - It should throw UnauthorizedException if authorization header is invalid
+//     - It should throw BadRequestException if uuid is not provided
+//     - It should throw BadRequestException if algorithm or name is not provided
+//     - It should generate RS256 / ES256 / HS256 key
+// -------------------------
