@@ -223,8 +223,6 @@ export class KeyService {
       });
     }
     const keyStore = jose.JWK.createKeyStore();
-    const keyStore2 = jose.JWK.createKeyStore();
-    const keyStore3 = jose.JWK.createKeyStore();
 
     try {
       if (algorithm === 'RS256') {
@@ -262,12 +260,12 @@ export class KeyService {
           key: key,
         };
       } else if (algorithm === 'ES256') {
-        await keyStore2
+        await keyStore
           .generate('EC', 'P-256', { alg: 'ES256', use: 'sig' })
           .then(() => {
-            const eckey = JSON.stringify(keyStore2.toJSON(true), null, 2);
+            const eckey = JSON.stringify(keyStore.toJSON(true), null, 2);
           });
-        const jwks = keyStore2.toJSON(true);
+        const jwks = keyStore.toJSON(true);
         const publicKeyPem = jwkToPem(jwks.keys[0]);
         const privateKeyPem = jwkToPem(jwks.keys[0], { private: true });
         const key = await this.prismaService.key.create({
@@ -295,13 +293,13 @@ export class KeyService {
           key: key,
         };
       } else if (algorithm === 'HS256') {
-        await keyStore3
+        await keyStore
           .generate('oct', 256, { alg: 'HS256', use: 'sig' })
           .then(() => {
-            const hskey = JSON.stringify(keyStore3.toJSON(true), null, 2);
+            const hskey = JSON.stringify(keyStore.toJSON(true), null, 2);
             this.logger.log('HS key generated successfully');
           });
-        const jwks = keyStore3.toJSON(true);
+        const jwks = keyStore.toJSON(true);
         const key = await this.prismaService.key.create({
           data: {
             id: uuid,
