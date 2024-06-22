@@ -5,13 +5,16 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { DomainPinningService } from 'src/domain-pinning/domain-pinning.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ApplicationDataDto } from '../application/application.dto';
 
 @Injectable()
 export class DataApplicationIdGuard implements CanActivate {
   private readonly logger: Logger;
-  constructor(private readonly prismaService: PrismaService) {
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly domainPinningService: DomainPinningService,
+  ) {
     this.logger = new Logger(DataApplicationIdGuard.name);
   }
 
@@ -31,13 +34,17 @@ export class DataApplicationIdGuard implements CanActivate {
       where: { id: applicationId },
     });
     if (!application) return false;
-    const applicationData: ApplicationDataDto = JSON.parse(application.data);
-    const authorizedOriginURLs =
-      applicationData?.oauthConfiguration?.authorizedOriginURLs;
-    if (authorizedOriginURLs.includes(hostname)) return true;
-    this.logger.log(
-      `Unauthorized access attempt on ${application.id} by ${hostname}`,
-    );
-    return false;
+    // const applicationData: ApplicationDataDto = JSON.parse(application.data);
+    // const authorizedOriginURLs =
+    //   applicationData?.oauthConfiguration?.authorizedOriginURLs;
+    try {
+      const data = await this.domainPinningService.get(`${hostname}`);
+      return true;
+    } catch (error) {
+      this.logger.log(
+        `Unauthorized access attempt on ${application.id} by ${hostname}`,
+      );
+      return false;
+    }
   }
 }
