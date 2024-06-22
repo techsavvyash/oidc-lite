@@ -97,6 +97,7 @@ export class UserRegistrationService {
         return findRole?.name;
       }),
     );
+    const filteredRoles = roles.map(i => i);
     const additionalData = data.data;
     const password: string | null = (await JSON.parse(user.data))?.userData
       ?.password;
@@ -133,7 +134,7 @@ export class UserRegistrationService {
         iat: now,
         iss: 'Stencil Service',
         exp: now + accessTokenSeconds,
-        roles: roles,
+        roles: filteredRoles,
         sub: user.id,
       };
       const token_acess_token = jwt.sign(accessTokenPayload, accessSecret, {

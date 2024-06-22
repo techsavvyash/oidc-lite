@@ -26,7 +26,7 @@ export class AuthorizedOriginUrls implements CanActivate {
     if (!application) return false;
     const applicationData: ApplicationDataDto = JSON.parse(application.data);
     const authorizedOriginURLs =
-      applicationData.oauthConfiguration.authorizedOriginURLs;
+      applicationData?.oauthConfiguration?.authorizedOriginURLs;
     if(authorizedOriginURLs.includes(hostname)) return true;
     this.logger.log(`Unauthorized access attempt on ${application.id} by ${hostname}`);
     return false;

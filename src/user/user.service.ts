@@ -108,7 +108,7 @@ export class UserService {
         const groups = await this.prismaService.group.findUnique({
           where: { id: val },
         });
-        return groups.id;
+        return groups?.id;
       }),
     );
     const groups = existingGroups.join(' ');
