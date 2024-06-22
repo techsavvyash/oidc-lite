@@ -8,6 +8,7 @@ import {
   Headers,
   Query,
   Param,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -29,6 +30,7 @@ import {
 import { randomUUID } from 'crypto';
 import { ResponseDto } from 'src/dto/response.dto';
 import { UserRegistrationService } from './user-registration/user-registration.service';
+import { AuthorizedOriginUrls } from 'src/application/guards/application.guard';
 @ApiTags('User')
 @Controller('user')
 export class UserController {
@@ -190,6 +192,7 @@ export class UserController {
   @ApiParam({ name: 'applicationId', description: 'Application ID' })
   @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @Get('/registration/:userId/:applicationId')
+  @UseGuards(AuthorizedOriginUrls)
   async returnAUserRegistration(
     @Param('userId') userId: string,
     @Param('applicationId') applicationId: string,
@@ -218,6 +221,7 @@ export class UserController {
   @ApiParam({ name: 'applicationId', description: 'Application ID' })
   @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @Patch('/registration/:userId/:applicationId')
+  @UseGuards(AuthorizedOriginUrls)
   async updateAUserRegistration(
     @Param('userId') userId: string,
     @Param('applicationId') applicationId: string,
@@ -244,6 +248,7 @@ export class UserController {
   @ApiParam({ name: 'applicationId', description: 'Application ID' })
   @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @Delete('/registration/:userId/:applicationId')
+  @UseGuards(AuthorizedOriginUrls)
   async deleteAUserRegistration(
     @Param('userId') userId: string,
     @Param('applicationId') applicationId: string,

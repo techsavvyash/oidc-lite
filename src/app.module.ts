@@ -25,6 +25,7 @@ import { LoginModule } from './login/login.module';
 import { KeyService } from './key/key.service';
 import { TestUsersController } from './test-users/test-users.controller';
 import { TestUsersService } from './test-users/test-users.service';
+import { DomainPinningService } from './domain-pinning/domain-pinning.service';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { TestUsersService } from './test-users/test-users.service';
     HeaderAuthService,
     KeyService,
     TestUsersService,
+    DomainPinningService
   ],
 })
 export class AppModule {}

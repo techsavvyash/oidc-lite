@@ -8,6 +8,7 @@ import {
   Query,
   Delete,
   Headers,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -30,6 +31,7 @@ import { ResponseDto } from 'src/dto/response.dto';
 import { randomUUID } from 'crypto';
 import { ApplicationRolesService } from './application-roles/application-roles.service';
 import { ApplicationScopesService } from './application-scopes/application-scopes.service';
+import { AuthorizedOriginUrls } from './guards/application.guard';
 
 @ApiTags('Applications')
 @Controller('application')
@@ -70,7 +72,7 @@ export class ApplicationController {
     return await this.applicationService.createApplication(uuid, data, headers);
   }
 
-  @Get('/:id')
+  @Get('/:applicationId')
   @ApiOperation({ summary: 'Get an application by ID' })
   @ApiParam({ name: 'id', description: 'Application ID' })
   @ApiResponse({
@@ -80,8 +82,9 @@ export class ApplicationController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @UseGuards(AuthorizedOriginUrls)
   async getAnApplication(
-    @Param('id') id: string,
+    @Param('applicationId') id: string,
     @Headers() headers: object,
   ): Promise<ResponseDto> {
     return await this.applicationService.returnAnApplication(id, headers);
@@ -96,10 +99,10 @@ export class ApplicationController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @Post('/:id')
+  @Post('/:applicationId')
   async createAnApplication(
     @Body('data') data: CreateApplicationDto,
-    @Param('id') id: string,
+    @Param('applicationId') id: string,
     @Headers() headers: object,
   ): Promise<ResponseDto> {
     return await this.applicationService.createApplication(id, data, headers);
@@ -115,9 +118,10 @@ export class ApplicationController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @Patch('/:id')
+  @Patch('/:applicationId')
+  @UseGuards(AuthorizedOriginUrls)
   async updateApplication(
-    @Param('id') id: string,
+    @Param('applicationId') id: string,
     @Body('data') data: UpdateApplicationDto,
     @Headers() headers: object,
   ): Promise<ResponseDto> {
@@ -139,9 +143,10 @@ export class ApplicationController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @Delete('/:id')
+  @Delete('/:applicationId')
+  @UseGuards(AuthorizedOriginUrls)
   async deleteApplication(
-    @Param('id') id: string,
+    @Param('applicationId') id: string,
     @Query('hardDelete') hardDelete: boolean,
     @Headers() headers: object,
   ): Promise<ResponseDto> {
@@ -164,9 +169,10 @@ export class ApplicationController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @Post('/:id/role')
+  @Post('/:applicationId/role')
+  @UseGuards(AuthorizedOriginUrls)
   async createRoleWithRandomUUID(
-    @Param('id') id: string,
+    @Param('applicationId') id: string,
     @Body('data') data: RoleDto,
     @Headers() headers: object,
   ): Promise<ResponseDto> {
@@ -191,9 +197,10 @@ export class ApplicationController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @Post('/:id/role/:roleId')
+  @Post('/:applicationId/role/:roleId')
+  @UseGuards(AuthorizedOriginUrls)
   async createRole(
-    @Param('id') id: string,
+    @Param('applicationId') id: string,
     @Param('roleId') roleId: string,
     @Body('data') data: RoleDto,
     @Headers() headers: object,
@@ -216,9 +223,10 @@ export class ApplicationController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @Delete('/:id/role/:roleId')
+  @Delete('/:applicationId/role/:roleId')
+  @UseGuards(AuthorizedOriginUrls)
   async deleteRole(
-    @Param('id') id: string,
+    @Param('applicationId') id: string,
     @Param('roleId') roleId: string,
     @Headers() headers: object,
   ): Promise<ResponseDto> {
@@ -236,9 +244,10 @@ export class ApplicationController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @Patch('/:id/role/:roleId')
+  @Patch('/:applicationId/role/:roleId')
+  @UseGuards(AuthorizedOriginUrls)
   async updateRole(
-    @Param('id') id: string,
+    @Param('applicationId') id: string,
     @Param('roleId') roleId: string,
     @Body('data') data: RoleDto,
     @Headers() headers: object,
@@ -263,9 +272,10 @@ export class ApplicationController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @Post('/:id/scope')
+  @Post('/:applicationId/scope')
+  @UseGuards(AuthorizedOriginUrls)
   async createScopeWithRandomUUID(
-    @Param('id') id: string,
+    @Param('applicationId') id: string,
     @Body('data') data: ScopeDto,
     @Headers() headers: object,
   ) {
@@ -289,9 +299,10 @@ export class ApplicationController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @Post('/:id/scope/:scopeId')
+  @Post('/:applicationId/scope/:scopeId')
+  @UseGuards(AuthorizedOriginUrls)
   async createScope(
-    @Param('id') id: string,
+    @Param('applicationId') id: string,
     @Param('scopeId') scopeId: string,
     @Body('data') data: ScopeDto,
     @Headers() headers: object,
@@ -314,9 +325,10 @@ export class ApplicationController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @Delete('/:id/scope/:scopeId')
+  @Delete('/:applicationId/scope/:scopeId')
+  @UseGuards(AuthorizedOriginUrls)
   async deleteScope(
-    @Param('id') id: string,
+    @Param('applicationId') id: string,
     @Param('scopeId') scopeId: string,
     @Headers() headers: object,
   ) {
@@ -334,9 +346,10 @@ export class ApplicationController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @Patch('/:id/scope/:scopeId')
+  @Patch('/:applicationId/scope/:scopeId')
+  @UseGuards(AuthorizedOriginUrls)
   async updateScope(
-    @Param('id') id: string,
+    @Param('applicationId') id: string,
     @Param('scopeId') scopeId: string,
     @Body('data') data: ScopeDto,
     @Headers() headers: object,
@@ -358,9 +371,10 @@ export class ApplicationController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  @Get('/:id/oauth-configuration')
+  @Get('/:applicationId/oauth-configuration')
+  @UseGuards(AuthorizedOriginUrls)
   async returnOauthConfiguration(
-    @Param('id') id: string,
+    @Param('applicationId') id: string,
     @Headers() headers: object,
   ): Promise<ResponseDto> {
     return await this.applicationService.returnOauthConfiguration(id, headers);

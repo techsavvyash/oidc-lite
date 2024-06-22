@@ -16,6 +16,20 @@
         ]
       }
     },
+    "/cert": {
+      "get": {
+        "operationId": "AppController_getCertificate",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC Wrapper"
+        ]
+      }
+    },
     "/tenant": {
       "post": {
         "operationId": "TenantController_createATenantWithRandomUUID",
@@ -1389,19 +1403,25 @@
         ]
       }
     },
-    "/application/{id}": {
+    "/application/{applicationId}": {
       "get": {
         "operationId": "ApplicationController_getAnApplication",
         "summary": "Get an application by ID",
         "parameters": [
           {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
             "description": "Application ID",
-            "schema": {
-              "type": "string"
-            }
+            "schema": {}
           }
         ],
         "responses": {
@@ -1431,7 +1451,7 @@
         "summary": "Create an Application with given id",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
             "schema": {
@@ -1476,13 +1496,19 @@
         "summary": "Update an existing application",
         "parameters": [
           {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
             "description": "Application ID",
-            "schema": {
-              "type": "string"
-            }
+            "schema": {}
           }
         ],
         "requestBody": {
@@ -1522,10 +1548,9 @@
         "summary": "Delete an application by ID",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
-            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1538,6 +1563,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Application ID",
+            "schema": {}
           }
         ],
         "responses": {
@@ -1563,19 +1595,25 @@
         ]
       }
     },
-    "/application/{id}/role": {
+    "/application/{applicationId}/role": {
       "post": {
         "operationId": "ApplicationController_createRoleWithRandomUUID",
         "summary": "Create a new role for an application with a random uuid",
         "parameters": [
           {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
             "description": "Application ID",
-            "schema": {
-              "type": "string"
-            }
+            "schema": {}
           }
         ],
         "requestBody": {
@@ -1611,16 +1649,15 @@
         ]
       }
     },
-    "/application/{id}/role/{roleId}": {
+    "/application/{applicationId}/role/{roleId}": {
       "post": {
         "operationId": "ApplicationController_createRole",
         "summary": "Create a new role for an application with given id",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
-            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1633,6 +1670,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Application ID",
+            "schema": {}
           }
         ],
         "requestBody": {
@@ -1672,10 +1716,9 @@
         "summary": "Delete a role from an application",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
-            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1688,6 +1731,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Application ID",
+            "schema": {}
           }
         ],
         "responses": {
@@ -1717,10 +1767,9 @@
         "summary": "Update a role for an application",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
-            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1733,6 +1782,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Application ID",
+            "schema": {}
           }
         ],
         "requestBody": {
@@ -1769,19 +1825,25 @@
         ]
       }
     },
-    "/application/{id}/scope": {
+    "/application/{applicationId}/scope": {
       "post": {
         "operationId": "ApplicationController_createScopeWithRandomUUID",
         "summary": "Create a new Scope for an application with random uuid",
         "parameters": [
           {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
             "description": "Application ID",
-            "schema": {
-              "type": "string"
-            }
+            "schema": {}
           }
         ],
         "requestBody": {
@@ -1817,16 +1879,15 @@
         ]
       }
     },
-    "/application/{id}/scope/{scopeId}": {
+    "/application/{applicationId}/scope/{scopeId}": {
       "post": {
         "operationId": "ApplicationController_createScope",
         "summary": "Create a new Scope for an application with given id",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
-            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1838,6 +1899,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Application ID",
+            "schema": {}
           }
         ],
         "requestBody": {
@@ -1877,10 +1945,9 @@
         "summary": "Delete a scope from an application",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
-            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1893,6 +1960,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Application ID",
+            "schema": {}
           }
         ],
         "responses": {
@@ -1922,10 +1996,9 @@
         "summary": "Update a Scope for an application",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
-            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1943,6 +2016,13 @@
             "required": true,
             "in": "path",
             "description": "Scope ID",
+            "schema": {}
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Application ID",
             "schema": {}
           }
         ],
@@ -1980,19 +2060,25 @@
         ]
       }
     },
-    "/application/{id}/oauth-configuration": {
+    "/application/{applicationId}/oauth-configuration": {
       "get": {
         "operationId": "ApplicationController_returnOauthConfiguration",
         "summary": "Get OAuth configuration for an application by ID",
         "parameters": [
           {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
             "description": "Application ID",
-            "schema": {
-              "type": "string"
-            }
+            "schema": {}
           }
         ],
         "responses": {

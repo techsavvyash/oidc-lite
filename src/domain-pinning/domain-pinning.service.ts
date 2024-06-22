@@ -11,7 +11,7 @@ export class DomainPinningService {
   constructor() {
     // Load the trusted public key
     this.trustedPubKey = fs
-      .readFileSync(path.resolve('src/pubKeys.txt'), 'utf8')
+      .readFileSync(path.resolve('./pubKeys.txt'), 'utf8')
       .trim();
   }
 
