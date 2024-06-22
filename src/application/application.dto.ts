@@ -29,7 +29,7 @@ class OauthConfiguration {
     message: 'There can be at most 100 authorized origin URLs',
   })
   @IsString({ each: true, message: 'Each URL must be a string' })
-  @IsUrl({}, { each: true, message: 'Each URL must be a valid URL' })
+  // @IsUrl({}, { each: true, message: 'Each URL must be a valid URL' })
   authorizedOriginURLs: string[];
 
   @ApiProperty({

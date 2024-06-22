@@ -18,25 +18,22 @@ export class DomainPinningService {
   async get(hostname: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const options = {
-        hostname: 'www.google.com',
+        hostname: hostname,
         port: 443,
-        path: '/',
+        path: '/health',
         method: 'GET',
         agent: new https.Agent({
           checkServerIdentity: (hostname, cert) => {
             const rawCert = cert.raw.toString('base64');
             const pemCert = `-----BEGIN CERTIFICATE-----\n${rawCert.match(/.{1,64}/g).join('\n')}\n-----END CERTIFICATE-----`;
             console.log("Extracted certificate",pemCert);
-            // Extract the public key from the PEM certificate
             const pubKey = crypto.createPublicKey(pemCert);
             const pubKeyPem = pubKey
               .export({ type: 'spki', format: 'pem' })
               .toString()
               .trim();
-            // For debugging: Log the extracted public key
-            console.log('Extracted Public Key PEM:', pubKeyPem);
 
-            if (this.trustedPubKey !== pubKeyPem) {
+              if (this.trustedPubKey !== pubKeyPem) {
               reject(new Error('Public key does not match'));
             }
             return undefined;
