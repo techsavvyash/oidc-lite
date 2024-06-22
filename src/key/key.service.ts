@@ -57,8 +57,10 @@ export class KeyService {
         };
       }
     } catch (error) {
-      this.logger.log('error happened from retrieving all key', error);
-      HttpStatus.NOT_FOUND;
+      throw new InternalServerErrorException({
+        success: false,
+        message: 'error while retrieving keys',
+      })
     }
   }
 

@@ -8,17 +8,47 @@ import {
   BadGatewayException,
   BadRequestException,
   HttpException,
-  HttpStatus,
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import * as jose from 'node-jose';
-import * as jwkToPem from 'jwk-to-pem';
 
 describe('KeyService', () => {
   let service: KeyService;
   let prismaService: PrismaService;
   let headerAuthService: HeaderAuthService;
+
+  const mockHeaderKey = {
+    id: 'id',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    keyManager: false,
+    keyValue: 'string',
+    permissions: 'string',
+    metaData: 'string',
+    tenantsId: 'string',
+  };
+  const mockKey = {
+    id: '1',
+    algorithm: 'RS256',
+    certificate: 'mockCertificate1',
+    expiry: 1681942800,
+    createdAt: new Date(),
+    issuer: 'Issuer1',
+    kid: 'kid1',
+    updatedAt: new Date(),
+    name: 'KeyName1',
+    privateKey: 'mockPrivateKey1',
+    publicKey: 'mockPublicKey1',
+    secret: 'mockSecret1',
+    type: 'RSA',
+  };
+
+  jest.mock('node-jose', () => ({
+    JWK: {
+      createKeyStore: jest.fn(),
+    },
+  }));
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -81,7 +111,11 @@ describe('KeyService', () => {
       ];
       jest
         .spyOn(headerAuthService, 'authorizationHeaderVerifier')
-        .mockResolvedValue({ success: true });
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+          data: mockHeaderKey,
+        });
       jest.spyOn(prismaService.key, 'findMany').mockResolvedValue(mockKeys);
 
       const result = await service.retrieveAllKey({
@@ -99,17 +133,24 @@ describe('KeyService', () => {
       });
     });
 
-    it('should log error and return NOT_FOUND status if error occurs', async () => {
+    it('should throw InternalServerException status if error occurs', async () => {
       jest
         .spyOn(headerAuthService, 'authorizationHeaderVerifier')
-        .mockResolvedValue({ success: true });
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+          data: mockHeaderKey,
+        });
       jest.spyOn(prismaService.key, 'findMany').mockImplementation(() => {
-        throw new Error('Database error');
+        throw new InternalServerErrorException({
+          success: false,
+          message: 'error while retrieving keys',
+        });
       });
 
       await expect(
         service.retrieveAllKey({ authorization: 'valid-token' }),
-      ).rejects.toThrow(HttpException);
+      ).rejects.toThrow(InternalServerErrorException);
     });
   });
 
@@ -127,7 +168,11 @@ describe('KeyService', () => {
     it('should throw BadGatewayException if uuid is not provided', async () => {
       jest
         .spyOn(headerAuthService, 'authorizationHeaderVerifier')
-        .mockResolvedValue({ success: true });
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+          data: mockHeaderKey,
+        });
 
       await expect(
         service.retrieveUniqueKey('', { authorization: 'valid-token' }),
@@ -135,24 +180,13 @@ describe('KeyService', () => {
     });
 
     it('should return key if found', async () => {
-      const mockKey = {
-        id: '1',
-        algorithm: 'RS256',
-        certificate: 'mockCertificate1',
-        expiry: 1681942800,
-        createdAt: new Date(),
-        issuer: 'Issuer1',
-        kid: 'kid1',
-        updatedAt: new Date(),
-        name: 'KeyName1',
-        privateKey: 'mockPrivateKey1',
-        publicKey: 'mockPublicKey1',
-        secret: 'mockSecret1',
-        type: 'RSA',
-      };
       jest
         .spyOn(headerAuthService, 'authorizationHeaderVerifier')
-        .mockResolvedValue({ success: true });
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+          data: mockHeaderKey,
+        });
       jest.spyOn(prismaService.key, 'findUnique').mockResolvedValue(mockKey);
 
       const result = await service.retrieveUniqueKey('1', {
@@ -169,7 +203,11 @@ describe('KeyService', () => {
     it('should throw HttpException if key is not found', async () => {
       jest
         .spyOn(headerAuthService, 'authorizationHeaderVerifier')
-        .mockResolvedValue({ success: true });
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+          data: mockHeaderKey,
+        });
       jest.spyOn(prismaService.key, 'findUnique').mockResolvedValue(null);
 
       await expect(
@@ -180,7 +218,11 @@ describe('KeyService', () => {
     it('should log error and throw InternalServerErrorException if error occurs', async () => {
       jest
         .spyOn(headerAuthService, 'authorizationHeaderVerifier')
-        .mockResolvedValue({ success: true });
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+          data: mockHeaderKey,
+        });
       jest.spyOn(prismaService.key, 'findUnique').mockImplementation(() => {
         throw new Error('Database error');
       });
@@ -191,5 +233,295 @@ describe('KeyService', () => {
     });
   });
 
-  // Add similar tests for updateKey, deleteKey, generateKey methods
+  describe('updateKey', () => {
+    it('should throw UnauthorizedException if authorization header is invalid', async () => {
+      jest
+        .spyOn(headerAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValue({ success: false, message: 'Unauthorized' });
+
+      await expect(
+        service.updateKey('uuid', {name: "updatedKeyName"}, {
+          authorization: 'invalid-token',
+        }),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw BadRequestException if uuid is not provided', async () => {
+      jest
+        .spyOn(headerAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+          data: mockHeaderKey,
+        });
+
+      await expect(
+        service.updateKey(
+          null,
+          { name: 'updatedKeyName' },
+          {
+            authorization: 'valid-token',
+          },
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException if key is not found', async () => {
+      jest
+        .spyOn(headerAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+          data: mockHeaderKey,
+        });
+      jest.spyOn(prismaService.key, 'findUnique').mockResolvedValue(null);
+
+      await expect(
+        service.updateKey(
+          'uuid',
+          { name: 'updatedKeyName' },
+          {
+            authorization: 'valid-token',
+          },
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should update key if valid data is provided', async () => {
+      jest
+        .spyOn(headerAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+          data: mockHeaderKey,
+        });
+      jest
+        .spyOn(prismaService.key, 'findUnique')
+        .mockResolvedValue(mockKey);
+      const mockUpdate = jest
+        .spyOn(prismaService.key, 'update')
+        .mockResolvedValue(mockKey);
+
+      const result = await service.updateKey(
+        'uuid',
+        { name: 'updatedKeyName' },
+        { authorization: 'valid-token' },
+      );
+
+      expect(mockUpdate).toHaveBeenCalledWith({
+        where: { id: 'uuid' },
+        data: { name: 'newName' },
+      });
+      expect(result).toEqual({
+        success: true,
+        message: 'Keyset updated',
+        data: { id: 'uuid', name: 'newName' },
+      });
+    });
+  });
+
+  describe('deleteKey', () => {
+    it('should throw UnauthorizedException if authorization header is invalid', async () => {
+      jest
+        .spyOn(headerAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValue({ success: false, message: 'Unauthorized' });
+
+      await expect(
+        service.deleteKey('uuid', { authorization: 'invalid-token' }),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw BadRequestException if uuid is not provided', async () => {
+      jest
+        .spyOn(headerAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+          data: mockHeaderKey,
+        });
+
+      await expect(
+        service.deleteKey('', { authorization: 'valid-token' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw HttpException if key is not found', async () => {
+      jest
+        .spyOn(headerAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+          data: mockHeaderKey,
+        });
+      jest.spyOn(prismaService.key, 'findUnique').mockResolvedValue(null);
+
+      await expect(
+        service.deleteKey('uuid', { authorization: 'valid-token' }),
+      ).rejects.toThrow(HttpException);
+    });
+
+    it('should delete key if it exists', async () => {
+      jest
+        .spyOn(headerAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+          data: mockHeaderKey,
+        });
+      jest
+        .spyOn(prismaService.key, 'findUnique')
+        .mockResolvedValue(mockKey);
+      const mockDelete = jest
+        .spyOn(prismaService.key, 'delete')
+        .mockResolvedValue(mockKey);
+
+      const result = await service.deleteKey('uuid', {
+        authorization: 'valid-token',
+      });
+
+      expect(mockDelete).toHaveBeenCalledWith({
+        where: { id: 'uuid' },
+      });
+      expect(result).toEqual({
+        success: true,
+        message: 'key deleted successfully',
+        data: { id: 'uuid' },
+      });
+    });
+  });
+
+  describe('generateKey', () => {
+
+    const mockGenerateKeyDTO = {
+      algorithm: 'RS256',
+      issuer: 'issuer',
+      name: 'keyName',
+      length: '2048',
+    }
+
+    it('should throw UnauthorizedException if authorization header is invalid', async () => {
+      jest
+        .spyOn(headerAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValue({ success: false, message: 'Unauthorized' });
+
+      await expect(
+        service.generateKey('uuid', mockGenerateKeyDTO, {
+          authorization: 'invalid-token',
+        }),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw BadRequestException if uuid is not provided', async () => {
+      jest
+        .spyOn(headerAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+          data: mockHeaderKey,
+        });
+
+      await expect(
+        service.generateKey('', mockGenerateKeyDTO, {
+          authorization: 'valid-token',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException if algorithm or name is not provided', async () => {
+      jest
+        .spyOn(headerAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+          data: mockHeaderKey,
+        });
+
+      await expect(
+        service.generateKey('uuid', {
+          algorithm: 'RS256',
+          issuer: 'issuer',
+          name: null,
+          length: '2048',
+        }, 
+        {
+          authorization: 'valid-token',
+        }),
+      ).rejects.toThrow(BadRequestException);
+
+      await expect(
+        service.generateKey('uuid', {
+          algorithm: null,
+          issuer: 'issuer',
+          name: 'keyName',
+          length: '2048',
+        }, {
+          authorization: 'valid-token',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should generate RS256 key', async () => {
+      jest
+        .spyOn(headerAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+          data: mockHeaderKey,
+        });
+      const mockKeyStore = {
+        generate: jest.fn().mockResolvedValue({
+          toJSON: () => ({
+            keys: [
+              {
+                kid: 'kid',
+                alg: 'RS256',
+                kty: 'RSA',
+                use: 'sig',
+              },
+            ],
+          }),
+        }),
+      };
+
+      (jose.JWK.createKeyStore as jest.Mock).mockReturnValue(mockKeyStore);
+      const mockCreate = jest
+        .spyOn(prismaService.key, 'create')
+        .mockResolvedValue({
+          id: 'uuid',
+          algorithm: 'RS256',
+          certificate: 'string',
+          expiry: 1681942800,
+          createdAt: new Date(),
+          issuer: 'issuer',
+          kid: 'kid',
+          updatedAt: new Date(),
+          name: 'keyName',
+          privateKey: 'privateKeyPem',
+          publicKey: 'publicKeyPem',
+          secret: 'string',
+          type: 'RS',
+        });
+
+      const result = await service.generateKey(
+        'uuid',
+        mockGenerateKeyDTO,
+        { authorization: 'valid-token' },
+      );
+
+      expect(mockCreate).toHaveBeenCalledWith({
+        data: {
+          id: 'uuid',
+          algorithm: 'RS256',
+          name: 'keyName',
+          issuer: 'issuer',
+          kid: 'kid',
+          privateKey: 'privateKeyPem',
+          publicKey: 'publicKeyPem',
+          type: 'RS',
+        },
+      });
+      expect(result.success).toBe(true);
+      expect(result.message).toBe('key generated successfully');
+    });
+  });
 });

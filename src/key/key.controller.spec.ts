@@ -205,3 +205,20 @@ describe('KeyController', () => {
     });
   });
 });
+
+
+// UNIT TESTS: KEY CONTROLLER
+// ---------------------------
+// Test Suite: KeyController
+//  Test-1 retrieveAllKey
+//      - should call retrieveAllKey method from KeyService
+//  Test-2 retrieveUniqueKey
+//      - should call retrieveUniqueKey method from KeyService
+//  Test-3 udpatingKey
+//      - should call updateKey method from KeyService
+//  Test-4 deletingKey
+//      - should call deleteKey method from KeyService
+//  Test-5 randomgenerateKey
+//      - should call generateKey method from KeyService with random UUID
+//  Test-6 generateKey
+//      - should call generateKey method from KeyService with provided UUID
