@@ -8,11 +8,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { ResponseTenantDto, ResponseDto } from 'src/dto/response.dto';
+import { ResponseTenantDto, ResponseDto } from '../dto/response.dto';
 import { CreateTenantDto, UpdateTenantDto } from './tenant.dto';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
-import { KeyService } from 'src/key/key.service';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { HeaderAuthService } from '../header-auth/header-auth.service';
+import { KeyService } from '../key/key.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TenantService {

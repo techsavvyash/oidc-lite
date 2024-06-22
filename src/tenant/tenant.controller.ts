@@ -16,7 +16,7 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { ResponseDto } from 'src/dto/response.dto';
+import { ResponseDto } from '../dto/response.dto';
 import { TenantService } from './tenant.service';
 import { CreateTenantDto } from './tenant.dto';
 import { randomUUID } from 'crypto';
