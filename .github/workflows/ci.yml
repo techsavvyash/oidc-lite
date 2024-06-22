@@ -2,42 +2,47 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-      - feat-final
+    branches: [main, feat-final]
   pull_request:
-    branches:
-      - main
-      - feat-final
+    branches: [main, feat-final]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: "18"
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v3
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
-      - name: Run tests and generate coverage reports
-        run: |
-          yarn workspaces run test --coverage
+      - name: Build
+        run: yarn build
 
-      - name: Debug Coverage Files
-        run: |
-          echo "Listing coverage directory contents:"
-          ls -R coverage
+      - name: Test
+        run: yarn test --coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/**/lcov.info
+          files: ./coverage/clover.xml
           flags: unittests
           name: codecov-umbrella

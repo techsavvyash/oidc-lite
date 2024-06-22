@@ -13,7 +13,7 @@ module.exports = {
   collectCoverageFrom: [
     "**/*.(t|j)s"
   ],
-  coverageDirectory: "../coverage",  // Ensures all reports are collected in a central coverage directory
+  coverageDirectory: "../coverage",
   coverageReporters: ["text", "lcov"],
   testEnvironment: "node"
 };
