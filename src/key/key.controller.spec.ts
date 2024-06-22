@@ -92,19 +92,22 @@ describe('KeyController', () => {
 
   describe('udpatingKey', () => {
     it('should call updateKey method from KeyService', async () => {
-      const result = { id: '1', key: 'updated-key' };
       const updateDto: updateDTO = { name: 'updated name' };
       jest.spyOn(keyService, 'updateKey').mockResolvedValue({
         success: true,
         message: 'key retrieved',
-        data: result[0],
+        data: mockResult[0],
       });
 
       expect(
         await keyController.udpatingKey('1', updateDto, {
           authorization: 'Bearer token',
         }),
-      ).toBe(result);
+      ).toStrictEqual({
+        success: true,
+        message: 'key retrieved',
+        data: mockResult[0],
+      });
       expect(keyService.updateKey).toHaveBeenCalledWith('1', updateDto, {
         authorization: 'Bearer token',
       });
@@ -113,16 +116,19 @@ describe('KeyController', () => {
 
   describe('deletingKey', () => {
     it('should call deleteKey method from KeyService', async () => {
-      const result = { id: '1', key: 'deleted-key' };
       jest.spyOn(keyService, 'deleteKey').mockResolvedValue({
         success: true,
         message: 'key retrieved',
-        data: result[0],
+        data: mockResult[0],
       });
 
       expect(
         await keyController.deletingKey('1', { authorization: 'Bearer token' }),
-      ).toBe(result);
+      ).toStrictEqual({
+        success: true,
+        message: 'key retrieved',
+        data: mockResult[0],
+      });
       expect(keyService.deleteKey).toHaveBeenCalledWith('1', {
         authorization: 'Bearer token',
       });
@@ -131,7 +137,6 @@ describe('KeyController', () => {
 
   describe('randomgenerateKey', () => {
     it('should call generateKey method from KeyService with random UUID', async () => {
-      const result = { id: '1', key: 'generated-key' };
       const mockGenerateDto: generateKeyDTO = { 
         algorithm: 'RSA',
         issuer: 'Issuer1',
@@ -142,7 +147,7 @@ describe('KeyController', () => {
         success: true,
         message: 'key retrieved',
         data: 'jkws', //actually it is jkws: any
-        key: result[0],
+        key: mockResult[0],
       });
 
       const uuid = randomUUID();
@@ -150,7 +155,12 @@ describe('KeyController', () => {
         await keyController.randomgenerateKey(mockGenerateDto, {
           authorization: 'Bearer token',
         }),
-      ).toBe(result);
+      ).toStrictEqual({
+        success: true,
+        message: 'key retrieved',
+        data: 'jkws', //actually it is jkws: any
+        key: mockResult[0],
+      });
       expect(keyService.generateKey).toHaveBeenCalledWith(
         expect.any(String),
         mockGenerateDto,
@@ -161,7 +171,6 @@ describe('KeyController', () => {
 
   describe('generateKey', () => {
     it('should call generateKey method from KeyService with provided UUID', async () => {
-      const result = { id: '1', key: 'generated-key' };
       const mockGenerateDto: generateKeyDTO = {
         algorithm: 'RSA',
         issuer: 'Issuer1',
@@ -172,7 +181,7 @@ describe('KeyController', () => {
         success: true,
         message: 'key retrieved',
         data: 'jkws', //actually it is jkws: any
-        key: result[0],
+        key: mockResult[0],
       });
 
       const uuid = randomUUID();
@@ -180,7 +189,12 @@ describe('KeyController', () => {
         await keyController.generateKey(uuid, mockGenerateDto, {
           authorization: 'Bearer token',
         }),
-      ).toBe(result);
+      ).toStrictEqual({
+        success: true,
+        message: 'key retrieved',
+        data: 'jkws', //actually it is jkws: any
+        key: mockResult[0],
+      });
       expect(keyService.generateKey).toHaveBeenCalledWith(
         uuid,
         mockGenerateDto,
