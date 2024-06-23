@@ -5,16 +5,16 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApplicationRolesService } from 'src/application/application-roles/application-roles.service';
-import { ApplicationScopesService } from 'src/application/application-scopes/application-scopes.service';
+import { ApplicationRolesService } from './application-roles/application-roles.service';
+import { ApplicationScopesService } from './application-scopes/application-scopes.service';
 import {
   ApplicationDataDto,
   CreateApplicationDto,
   UpdateApplicationDto,
 } from 'src/application/application.dto';
-import { ResponseDto } from 'src/dto/response.dto';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { ResponseDto } from '../dto/response.dto';
+import { HeaderAuthService } from '../header-auth/header-auth.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ApplicationService {
