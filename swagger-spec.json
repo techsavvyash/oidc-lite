@@ -2512,7 +2512,7 @@
           }
         },
         "tags": [
-          "group"
+          "Group"
         ]
       },
       "get": {
@@ -2547,7 +2547,7 @@
           }
         },
         "tags": [
-          "group"
+          "Group"
         ]
       }
     },
@@ -2600,7 +2600,7 @@
           }
         },
         "tags": [
-          "group"
+          "Group"
         ]
       },
       "get": {
@@ -2641,7 +2641,7 @@
           }
         },
         "tags": [
-          "group"
+          "Group"
         ]
       },
       "put": {
@@ -2692,7 +2692,7 @@
           }
         },
         "tags": [
-          "group"
+          "Group"
         ]
       },
       "delete": {
@@ -2733,7 +2733,7 @@
           }
         },
         "tags": [
-          "group"
+          "Group"
         ]
       }
     },
@@ -2786,7 +2786,7 @@
           }
         },
         "tags": [
-          "group"
+          "Group"
         ]
       },
       "delete": {
@@ -2821,7 +2821,7 @@
           }
         },
         "tags": [
-          "group"
+          "Group"
         ]
       }
     },
@@ -2859,7 +2859,7 @@
           }
         },
         "tags": [
-          "group"
+          "Group"
         ]
       },
       "delete": {
@@ -2895,7 +2895,7 @@
           }
         },
         "tags": [
-          "group"
+          "Group"
         ]
       }
     },
@@ -2951,7 +2951,7 @@
           }
         },
         "tags": [
-          "group"
+          "Group"
         ]
       },
       "delete": {
@@ -2995,7 +2995,7 @@
           }
         },
         "tags": [
-          "group"
+          "Group"
         ]
       }
     }

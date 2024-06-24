@@ -18,7 +18,7 @@ import { ResponseDto } from 'src/dto/response.dto';
 import { GroupAppRoleService } from './group-Application-role/gpApplicationRole.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam, ApiHeader, ApiHeaders } from '@nestjs/swagger';
 
-@ApiTags('group')
+@ApiTags('Group')
 @Controller('group')
 export class GroupsController {
   constructor(
