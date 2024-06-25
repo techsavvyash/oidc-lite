@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { ResponseDto } from 'src/dto/response.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { ApiKeyResponseDto, Permissions } from 'src/api-keys/apiKey.dto';
+import { ResponseDto } from '../dto/response.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { ApiKeyResponseDto, Permissions } from '../api-keys/apiKey.dto';
 
 @Injectable()
 export class HeaderAuthService {

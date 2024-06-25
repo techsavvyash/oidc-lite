@@ -7,7 +7,8 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ResponseTenantDto, ResponseDto } from 'src/dto/response.dto';
+import { randomUUID } from 'crypto';
+import { ResponseTenantDto, ResponseDto } from '../dto/response.dto';
 import { CreateTenantDto, UpdateTenantDto } from './tenant.dto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';

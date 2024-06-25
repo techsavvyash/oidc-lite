@@ -8,11 +8,11 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { generateKeyDTO, updateDTO } from 'src/key/key.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { generateKeyDTO, updateDTO } from './key.dto';
+import { PrismaService } from '../prisma/prisma.service';
 import * as jose from 'node-jose';
 import * as jwkToPem from 'jwk-to-pem';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
+import { HeaderAuthService } from '../header-auth/header-auth.service';
 
 @Injectable()
 export class KeyService {
@@ -57,8 +57,10 @@ export class KeyService {
         };
       }
     } catch (error) {
-      this.logger.log('error happened from retrieving all key', error);
-      HttpStatus.NOT_FOUND;
+      throw new InternalServerErrorException({
+        success: false,
+        message: 'error while retrieving keys',
+      })
     }
   }
 
@@ -221,8 +223,6 @@ export class KeyService {
       });
     }
     const keyStore = jose.JWK.createKeyStore();
-    const keyStore2 = jose.JWK.createKeyStore();
-    const keyStore3 = jose.JWK.createKeyStore();
 
     try {
       if (algorithm === 'RS256') {
@@ -267,12 +267,12 @@ export class KeyService {
           key: key,
         };
       } else if (algorithm === 'ES256') {
-        await keyStore2
+        await keyStore
           .generate('EC', 'P-256', { alg: 'ES256', use: 'sig' })
           .then(() => {
-            const eckey = JSON.stringify(keyStore2.toJSON(true), null, 2);
+            const eckey = JSON.stringify(keyStore.toJSON(true), null, 2);
           });
-        const jwks = keyStore2.toJSON(true);
+        const jwks = keyStore.toJSON(true);
         const publicKeyPem = jwkToPem(jwks.keys[0]);
         const privateKeyPem = jwkToPem(jwks.keys[0], { private: true });
         delete jwks.keys[0].d;
@@ -302,14 +302,13 @@ export class KeyService {
           key: key,
         };
       } else if (algorithm === 'HS256') { // gotta remove?
-        await keyStore3
+        await keyStore
           .generate('oct', 256, { alg: 'HS256', use: 'sig' })
           .then(() => {
-            const hskey = JSON.stringify(keyStore3.toJSON(true), null, 2);
+            const hskey = JSON.stringify(keyStore.toJSON(true), null, 2);
             this.logger.log('HS key generated successfully');
           });
-        const jwks = keyStore3.toJSON(true);
-
+        const jwks = keyStore.toJSON(true);
         const key = await this.prismaService.key.create({
           data: {
             id: uuid,
