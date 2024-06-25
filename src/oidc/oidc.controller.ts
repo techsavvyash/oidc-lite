@@ -66,8 +66,9 @@ export class OidcController {
     @Body() data: LoginDto,
     @Query() query: OIDCAuthQuery,
     @Headers() headers: object,
+    @Res() res: Response
   ) {
-    return await this.oidcService.postAuthorize(data, query, headers);
+    return await this.oidcService.postAuthorize(data, query, headers,res);
   }
 
   @ApiOperation({ summary: 'OIDC Token Endpoint' })
@@ -81,7 +82,7 @@ export class OidcController {
   async returnToken(
     @Headers() headers: object,
     @Body() data: TokenDto,
-  ): Promise<ResponseDto> {
+  ){
     return await this.oidcService.returnToken(data, headers);
   }
 

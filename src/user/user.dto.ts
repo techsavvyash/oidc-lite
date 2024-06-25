@@ -107,8 +107,8 @@ export class CreateUserRegistrationDto {
   @IsUUID()
   registrationId?: string;
 
-  @ApiProperty() 
-  @IsString({ each:true })
+  @ApiProperty()
+  @IsString({ each: true })
   roles: string[];
 }
 
@@ -119,7 +119,7 @@ export class UpdateUserRegistrationDto {
 
   @ApiProperty()
   @IsOptional()
-  @IsString({ each:true })
+  @IsString({ each: true })
   roles?: string[];
 }
 
@@ -156,4 +156,10 @@ export class UserDto {
 
   @IsEmail()
   email: string;
+}
+
+export class UserRegistrationData {
+  @ApiProperty() code_challenge: string;
+  @ApiProperty() code_challenge_method: string;
+  @ApiProperty() scope: string;
 }

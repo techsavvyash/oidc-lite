@@ -46,7 +46,7 @@ export class ApiKeysController {
   })
   @ApiResponse({
     status: 201,
-    description: 'Api key successfully generated',
+    description: 'Api key successwfully generated',
     type: ApiKeyResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })

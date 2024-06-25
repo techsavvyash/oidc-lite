@@ -26,14 +26,13 @@ export class DomainPinningService {
           checkServerIdentity: (hostname, cert) => {
             const rawCert = cert.raw.toString('base64');
             const pemCert = `-----BEGIN CERTIFICATE-----\n${rawCert.match(/.{1,64}/g).join('\n')}\n-----END CERTIFICATE-----`;
-            console.log("Extracted certificate",pemCert);
             const pubKey = crypto.createPublicKey(pemCert);
             const pubKeyPem = pubKey
               .export({ type: 'spki', format: 'pem' })
               .toString()
               .trim();
-
-              if (this.trustedPubKey !== pubKeyPem) {
+            console.log(pubKeyPem)
+            if (this.trustedPubKey !== pubKeyPem) {
               reject(new Error('Public key does not match'));
             }
             return undefined;

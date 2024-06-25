@@ -6,4 +6,7 @@ export class OIDCAuthQuery {
   @ApiProperty() response_type: string;
   @ApiProperty() tenantId: string;
   @ApiProperty() scope: string;
+  @ApiProperty() state: string;
+  @ApiProperty() code_challenge: string;
+  @ApiProperty() code_challenge_method: string;
 }

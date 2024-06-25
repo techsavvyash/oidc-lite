@@ -72,10 +72,9 @@ export class RefreshTokensService {
       const applicationData: ApplicationDataDto = JSON.parse(application.data);
       const refreshTokenSeconds =
         applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes *
-        60 *
-        1000;
+        60;
       const { exp, iss } = refreshTokenDecoded as RefreshTokenDto;
-      const now = new Date().getTime();
+      const now = Math.floor(Date.now() / 1000);
       if (exp < now) {
         throw new BadRequestException({
           success: false,
@@ -102,11 +101,12 @@ export class RefreshTokensService {
         active: true,
         applicationId: application.id,
         iat: now,
-        exp: now + applicationData.jwtConfiguration.timeToLiveInSeconds * 1000,
+        exp: now + applicationData.jwtConfiguration.timeToLiveInSeconds,
         iss,
         sub,
         scope,
         roles,
+        aud: application.id,
       };
       const newAccessToken = jwt.sign(accessTokenPayload, refreshSecret, {
         algorithm: refreshTokenSigningKey.algorithm as jwt.Algorithm,
@@ -150,12 +150,14 @@ export class RefreshTokensService {
         message: 'x-stencil-tenantid missing',
       });
     }
-    const tenant = await this.prismaService.tenant.findUnique({where: {id: tenantId}});
-    if(!tenant){
+    const tenant = await this.prismaService.tenant.findUnique({
+      where: { id: tenantId },
+    });
+    if (!tenant) {
       throw new BadRequestException({
         success: false,
-        message: "No tenant with given id exists"
-      })
+        message: 'No tenant with given id exists',
+      });
     }
     if (!id) {
       throw new BadRequestException({
@@ -256,7 +258,7 @@ export class RefreshTokensService {
       });
     }
   }
-  
+
   async deleteViaAppID(applicationId: string, headers: object) {
     if (!applicationId) {
       throw new BadRequestException({

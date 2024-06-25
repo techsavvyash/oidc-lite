@@ -30,6 +30,20 @@
         ]
       }
     },
+    "/.well-known/openid-configuration": {
+      "get": {
+        "operationId": "AppController_returnConfigs",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC Wrapper"
+        ]
+      }
+    },
     "/tenant": {
       "post": {
         "operationId": "TenantController_createATenantWithRandomUUID",
@@ -328,7 +342,7 @@
         },
         "responses": {
           "201": {
-            "description": "Api key successfully generated",
+            "description": "Api key successwfully generated",
             "content": {
               "application/json": {
                 "schema": {
@@ -623,6 +637,30 @@
             }
           },
           {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge_method",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "authorization",
             "in": "header",
             "required": false,
@@ -678,6 +716,30 @@
           },
           {
             "name": "scope",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge_method",
             "required": true,
             "in": "query",
             "schema": {
@@ -3015,12 +3077,32 @@
           },
           "applicationId": {
             "type": "string"
+          },
+          "redirect_uri": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "code_challenge": {
+            "type": "string"
+          },
+          "code_challenge_method": {
+            "type": "string"
           }
         },
         "required": [
           "loginId",
           "password",
-          "applicationId"
+          "applicationId",
+          "redirect_uri",
+          "scope",
+          "state",
+          "code_challenge",
+          "code_challenge_method"
         ]
       },
       "TokenDto": {
@@ -3041,6 +3123,9 @@
           "password": {
             "type": "string"
           },
+          "code_verifier": {
+            "type": "string"
+          },
           "grant_type": {
             "type": "string"
           },
@@ -3054,6 +3139,7 @@
           "code",
           "loginId",
           "password",
+          "code_verifier",
           "grant_type",
           "redirect_uri"
         ]

@@ -133,36 +133,45 @@ export class LoginService {
       (role) => role !== undefined,
     );
     const roles = filteredFlattenedRoles; // for now
-    const now = new Date().getTime();
+    const now = Math.floor(Date.now() /1000);
     const applicationData: ApplicationDataDto = JSON.parse(application.data);
     const refreshTokenSeconds =
       applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes *
-      60 *
-      1000;
+      60;
     const accessTokenSeconds =
-      applicationData.jwtConfiguration.timeToLiveInSeconds * 1000;
+      applicationData.jwtConfiguration.timeToLiveInSeconds ;
 
     const refreshTokenPayload: RefreshTokenDto = {
       active: true,
       applicationId: application.id,
       iat: now,
-      iss: 'Stencil Service',
+      iss: process.env.HOST_NAME,
       exp: now + refreshTokenSeconds,
     };
     const refreshToken = jwt.sign(refreshTokenPayload, accessSecret, {
       algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,
+      header:{
+        kid: accessTokenSigningKey.kid,
+        alg: accessTokenSigningKey.algorithm
+      }
     });
     const accessTokenPayload: AccessTokenDto = {
       active: true,
       applicationId: application.id,
       sub: user.id,
       iat: now,
-      iss: 'Stencil Service',
+      iss: process.env.HOST_NAME,
+      aud: application.id,
       exp: now + accessTokenSeconds,
       roles: roles,
     };
     const accessToken = jwt.sign(accessTokenPayload, accessSecret, {
       algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,
+      header: {
+        typ: 'JWT',
+        alg: accessTokenSigningKey.algorithm,
+        kid: accessTokenSigningKey.kid
+      }
     });
     const saveToken = await this.prismaService.refreshToken.create({
       data: {

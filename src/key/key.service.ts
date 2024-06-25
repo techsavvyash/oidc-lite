@@ -100,8 +100,8 @@ export class KeyService {
       HttpStatus.INTERNAL_SERVER_ERROR;
       throw new InternalServerErrorException({
         success: false,
-        message: 'no such key exists'
-      })
+        message: 'no such key exists',
+      });
     }
   }
 
@@ -146,7 +146,7 @@ export class KeyService {
       success: true,
       message: 'Keyset updated',
       data: udpated_key,
-    }
+    };
   }
 
   async deleteKey(uuid: string, headers: object) {
@@ -227,7 +227,7 @@ export class KeyService {
     try {
       if (algorithm === 'RS256') {
         await keyStore
-          .generate('RSA', 2048, { alg: 'HS256', use: 'sig' })
+          .generate('RSA', 2048, { alg: 'RS256', use: 'sig' })
           .then(() => {
             const rskey = JSON.stringify(keyStore.toJSON(true), null, 2);
             this.logger.log('RS key generated successfully');
@@ -235,6 +235,12 @@ export class KeyService {
         const jwks = keyStore.toJSON(true);
         const publicKeyPem = jwkToPem(jwks.keys[0]);
         const privateKeyPem = jwkToPem(jwks.keys[0], { private: true });
+        delete jwks.keys[0].d;
+        delete jwks.keys[0].p;
+        delete jwks.keys[0].q;
+        delete jwks.keys[0].dp;
+        delete jwks.keys[0].dq;
+        delete jwks.keys[0].qi;
         const key = await this.prismaService.key.create({
           data: {
             id: uuid,
@@ -245,6 +251,7 @@ export class KeyService {
             privateKey: privateKeyPem,
             publicKey: publicKeyPem,
             type: 'RS',
+            data: JSON.stringify(jwks.keys[0]),
           },
         });
         this.logger.log(
@@ -268,6 +275,7 @@ export class KeyService {
         const jwks = keyStore2.toJSON(true);
         const publicKeyPem = jwkToPem(jwks.keys[0]);
         const privateKeyPem = jwkToPem(jwks.keys[0], { private: true });
+        delete jwks.keys[0].d;
         const key = await this.prismaService.key.create({
           data: {
             id: uuid,
@@ -278,6 +286,7 @@ export class KeyService {
             privateKey: privateKeyPem,
             publicKey: publicKeyPem,
             type: 'EC',
+            data: JSON.stringify(jwks.keys[0]),
           },
         });
         this.logger.log(
@@ -292,7 +301,7 @@ export class KeyService {
           data: jwks,
           key: key,
         };
-      } else if (algorithm === 'HS256') {
+      } else if (algorithm === 'HS256') { // gotta remove?
         await keyStore3
           .generate('oct', 256, { alg: 'HS256', use: 'sig' })
           .then(() => {
@@ -300,6 +309,7 @@ export class KeyService {
             this.logger.log('HS key generated successfully');
           });
         const jwks = keyStore3.toJSON(true);
+
         const key = await this.prismaService.key.create({
           data: {
             id: uuid,
@@ -309,6 +319,12 @@ export class KeyService {
             kid: jwks.keys[0].kid,
             secret: jwks.keys[0].k,
             type: 'HS',
+            data: JSON.stringify({
+              kty: jwks.keys[0].kty,
+              alg: jwks.keys[0].alg,
+              kid: jwks.keys[0].kid,
+              use: jwks.keys[0].sig,
+            }),
           },
         });
         this.logger.log('HS key generated successfully', jwks.keys[0].k);

@@ -97,7 +97,7 @@ export class UserRegistrationService {
         return findRole?.name;
       }),
     );
-    const filteredRoles = roles.map(i => i);
+    const filteredRoles = roles.map((i) => i);
     const additionalData = data.data;
     const password: string | null = (await JSON.parse(user.data))?.userData
       ?.password;
@@ -124,21 +124,26 @@ export class UserRegistrationService {
       const accessSecret = accessToken.privateKey
         ? accessToken.privateKey
         : accessToken.secret;
-      const now = new Date().getTime();
+      const now = Math.floor(Date.now() / 1000);
       const applicationData: ApplicationDataDto = JSON.parse(application.data);
       const accessTokenSeconds =
-        applicationData.jwtConfiguration.timeToLiveInSeconds * 1000;
+        applicationData.jwtConfiguration.timeToLiveInSeconds;
       const accessTokenPayload: AccessTokenDto = {
         active: true,
         applicationId: application.id,
         iat: now,
-        iss: 'Stencil Service',
+        iss: process.env.HOST_NAME,
         exp: now + accessTokenSeconds,
         roles: filteredRoles,
         sub: user.id,
+        aud: application.id,
       };
       const token_acess_token = jwt.sign(accessTokenPayload, accessSecret, {
         algorithm: accessToken.algorithm as jwt.Algorithm,
+        header: {
+          kid: accessToken.kid,
+          alg: accessToken.algorithm,
+        },
       });
       return {
         success: true,
@@ -438,23 +443,26 @@ export class UserRegistrationService {
         const accessSecret = accessToken.privateKey
           ? accessToken.privateKey
           : accessToken.secret;
-        const now = new Date().getTime();
+        const now = Math.floor(Date.now() / 1000);
         const applicationData: ApplicationDataDto = JSON.parse(
           application.data,
         );
         const refreshTokenSeconds =
           applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes *
-          60 *
-          1000;
+          60;
         const refreshTokenPayload: RefreshTokenDto = {
           active: true,
           applicationId: application.id,
           iat: now,
-          iss: 'Stencil service',
+          iss: process.env.HOST_NAME,
           exp: now + refreshTokenSeconds,
         };
         const refreshToken = jwt.sign(refreshTokenPayload, accessSecret, {
           algorithm: accessToken.algorithm as jwt.Algorithm,
+          header: {
+            kid: accessToken.kid,
+            alg: accessToken.algorithm,
+          },
         });
         const saveToken = await this.prismaService.refreshToken.create({
           data: {
