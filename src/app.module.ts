@@ -26,6 +26,11 @@ import { KeyService } from './key/key.service';
 import { TestUsersController } from './test-users/test-users.controller';
 import { TestUsersService } from './test-users/test-users.service';
 import { DomainPinningService } from './domain-pinning/domain-pinning.service';
+import { OtpService } from './otp/otp.service';
+import { OtpController } from './otp/otp.controller';
+import { OtpModule } from './otp/otp.module';
+import { OtpAdaptersService } from './otp/otp-adapters/otp-adapters.service';
+import { OtpManagerService } from './otp/otp-manager/otp-manager.service';
 
 @Module({
   imports: [
@@ -43,12 +48,14 @@ import { DomainPinningService } from './domain-pinning/domain-pinning.service';
     RefreshTokenModule,
     LoginModule, GroupModule,
     GroupModule,
+    OtpModule,
   ],
   controllers: [
     AppController,
     TenantController,
     ApiKeysController,
     TestUsersController,
+    OtpController,
   ],
   providers: [
     AppService,
@@ -63,7 +70,10 @@ import { DomainPinningService } from './domain-pinning/domain-pinning.service';
     HeaderAuthService,
     KeyService,
     TestUsersService,
-    DomainPinningService
+    DomainPinningService,
+    OtpService,
+    OtpAdaptersService,
+    OtpManagerService
   ],
 })
 export class AppModule {}

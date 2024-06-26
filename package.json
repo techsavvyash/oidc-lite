@@ -30,6 +30,7 @@
     "@nestjs/schedule": "^4.0.2",
     "@nestjs/swagger": "^7.3.1",
     "@prisma/client": "^5.14.0",
+    "@samagra-x/uci-adapters-factory": "^1.1.6",
     "@types/jwk-to-pem": "^2.0.3",
     "@types/oidc-provider": "^8.4.4",
     "axios": "^1.7.2",
