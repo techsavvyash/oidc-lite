@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDate,
@@ -9,9 +10,10 @@ import {
   IsUUID,
   Matches,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
 
-export class UserData {
+export class UserDataDto {
   @ApiProperty()
   @MinLength(2, { message: 'Username must be atleast 2 characters' })
   username: string;
@@ -23,10 +25,6 @@ export class UserData {
   @ApiProperty()
   @IsOptional()
   lastname?: string;
-
-  @ApiProperty()
-  @IsEmail()
-  email: string;
 
   @ApiProperty()
   @Matches(
@@ -59,7 +57,9 @@ export class CreateUserDto {
   membership: string[];
 
   @ApiProperty()
-  userData: UserData;
+  @ValidateNested()
+  @Type(() => UserDataDto)
+  userData: UserDataDto;
 
   @ApiProperty()
   @IsEmail()
@@ -85,7 +85,7 @@ export class UpdateUserDto {
   membership?: string[];
 
   @ApiProperty()
-  userData: UserData;
+  userData: UserDataDto;
 }
 
 export class CreateUserRegistrationDto {
@@ -162,4 +162,9 @@ export class UserRegistrationData {
   @ApiProperty() code_challenge: string;
   @ApiProperty() code_challenge_method: string;
   @ApiProperty() scope: string;
+}
+
+export class UserData {
+  @ApiProperty() userData: UserDataDto;
+  @ApiProperty() additionalData?: object | string;
 }

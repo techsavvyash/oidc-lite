@@ -775,6 +775,172 @@
         ]
       }
     },
+    "/oidc/register": {
+      "get": {
+        "operationId": "OidcController_registerAUser",
+        "parameters": [
+          {
+            "name": "client_id",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "redirect_uri",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "response_type",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge_method",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
+      },
+      "post": {
+        "operationId": "OidcController_postRegisterAUser",
+        "parameters": [
+          {
+            "name": "client_id",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "redirect_uri",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "response_type",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge_method",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
+      }
+    },
     "/oidc/token": {
       "post": {
         "operationId": "OidcController_returnToken",
@@ -3105,6 +3271,57 @@
           "code_challenge_method"
         ]
       },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "firstname": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "loginId": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "redirect_uri": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "code_challenge": {
+            "type": "string"
+          },
+          "code_challenge_method": {
+            "type": "string"
+          },
+          "response_type": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "firstname",
+          "lastname",
+          "username",
+          "loginId",
+          "password",
+          "redirect_uri",
+          "state",
+          "code_challenge",
+          "code_challenge_method",
+          "response_type",
+          "scope"
+        ]
+      },
       "TokenDto": {
         "type": "object",
         "properties": {
@@ -3163,7 +3380,7 @@
           "token"
         ]
       },
-      "UserData": {
+      "UserDataDto": {
         "type": "object",
         "properties": {
           "username": {
@@ -3175,9 +3392,6 @@
           "lastname": {
             "type": "string"
           },
-          "email": {
-            "type": "string"
-          },
           "password": {
             "type": "string"
           }
@@ -3186,7 +3400,6 @@
           "username",
           "firstname",
           "lastname",
-          "email",
           "password"
         ]
       },
@@ -3209,7 +3422,7 @@
             }
           },
           "userData": {
-            "$ref": "#/components/schemas/UserData"
+            "$ref": "#/components/schemas/UserDataDto"
           },
           "email": {
             "type": "string"
@@ -3243,7 +3456,7 @@
             }
           },
           "userData": {
-            "$ref": "#/components/schemas/UserData"
+            "$ref": "#/components/schemas/UserDataDto"
           }
         },
         "required": [

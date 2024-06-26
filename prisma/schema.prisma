@@ -190,7 +190,7 @@ model UserRegistration {
 model User {
   id        String   @id @default(uuid())
   active    Boolean
-  data      String?
+  data      String
   expiry    Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

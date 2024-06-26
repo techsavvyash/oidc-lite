@@ -36,6 +36,7 @@
 
       input[type='email'],
       input[type='password'],
+      input[type='text'],
       button {
         width: 100%;
         padding: 10px;
@@ -62,15 +63,22 @@
     </style>
   </head>
   <body>
-    <h1>Stencil login page</h1>
+    <h1>Stencil register page</h1>
     <form
-      action="<%= host %>/oidc/auth?client_id=<%= applicationId %>"
+      action="<%= host %>/oidc/register?client_id=<%= applicationId %>"
       method="post"
     >
-      <label for="email">Email:</label>
+      <label for="firstname">Firstname: </label>
+      <input type="text" id="firstname" name="firstname" />
+      <label for="lastname">Lastname: </label>
+      <input type="text" id="lastname" name="lastname" />
+      <label for="username">Username *: </label>
+      <input type="text" id="username" name="username" required />
+      <br />
+      <label for="email">Email *:</label>
       <input type="email" id="email" name="loginId" required />
       <br />
-      <label for="password">Password:</label>
+      <label for="password">Password *:</label>
       <input type="password" id="password" name="password" required />
       <input
         type="hidden"
@@ -117,12 +125,11 @@
         class="hidden"
       />
       <br />
-      <button type="submit">Login</button>
+      <button type="submit">Register</button>
     </form>
     <a
-      href="<%= host %>/oidc/register?client_id=<%= applicationId %>&redirect_uri=<%= redirect_uri %>&state=<%= state %>&code_challenge=<%= code_challenge %>&code_challenge_method=<%= code_challenge_method %>&response_type=<%= response_type %>&scope=<%= scope %> offline_access"
-      >New User?</a
+      href="<%= host %>/oidc/auth?client_id=<%= applicationId %>&redirect_uri=<%= redirect_uri %>&state=<%= state %>&code_challenge=<%= code_challenge %>&code_challenge_method=<%= code_challenge_method %>&response_type=<%= response_type %>&scope=<%= scope %>"
+      >Already registered?</a
     >
-    <!-- scope might be offline access -->
   </body>
 </html>

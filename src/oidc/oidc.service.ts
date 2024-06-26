@@ -9,7 +9,7 @@ import {
 import { Request, Response } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { OIDCAuthQuery } from './dto/oidc.auth.dto';
-import { LoginDto } from 'src/login/login.dto';
+import { LoginDto, RegisterDto } from 'src/login/login.dto';
 import { randomUUID } from 'crypto';
 import {
   AccessTokenDto,
@@ -20,7 +20,12 @@ import {
 } from './dto/oidc.token.dto';
 import * as jwt from 'jsonwebtoken';
 import { ApplicationDataDto } from 'src/application/application.dto';
-import { UserDto, UserRegistrationData } from 'src/user/user.dto';
+import {
+  UserData,
+  UserDataDto,
+  UserDto,
+  UserRegistrationData,
+} from 'src/user/user.dto';
 import { UtilsService } from 'src/utils/utils.service';
 import { ResponseDto } from 'src/dto/response.dto';
 
@@ -128,6 +133,13 @@ export class OidcService {
       });
     }
     const authenticationToken = randomUUID();
+    const userData: UserData = JSON.parse(user.data);
+    if (userData.userData?.password !== password) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'Invalid user credentials',
+      });
+    }
     try {
       const alreadyRegisterd =
         await this.prismaService.userRegistration.findUnique({
@@ -154,17 +166,10 @@ export class OidcService {
               }),
             },
           });
-        return {
-          success: true,
-          message: 'Authentication successfull',
-          data: userRegistration.authenticationToken,
-        };
-      }
-      if (alreadyRegisterd.password !== password) {
-        throw new UnauthorizedException({
-          success: false,
-          message: 'Not authorized',
-        });
+        this.logger.log('A user authenticated', user);
+        return res.redirect(
+          `${redirect_uri}?code=${userRegistration.authenticationToken}&state=${state}`,
+        );
       }
       const updateRegistration =
         await this.prismaService.userRegistration.update({
@@ -191,6 +196,147 @@ export class OidcService {
         message: 'Error occured while registering',
       });
     }
+  }
+
+  async registerAUser(
+    req: Request,
+    res: Response,
+    query: OIDCAuthQuery,
+    headers: object,
+  ) {
+    const {
+      client_id,
+      tenantId,
+      redirect_uri,
+      response_type,
+      scope,
+      state,
+      code_challenge,
+      code_challenge_method,
+    } = query;
+    if (!client_id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No client/application id given',
+      });
+    }
+    if (!redirect_uri) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No redirect uri given',
+      });
+    }
+    if (!scope) {
+      // verify scopes in application, give only those scopes that are registered for the application
+      throw new BadRequestException({
+        success: false,
+        message: 'Scopes not given',
+      });
+    }
+    if (!response_type) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No response type given',
+      });
+    }
+    res.render('signup', {
+      host: `${process.env.HOST_NAME}:${process.env.HOST_PORT}`,
+      applicationId: client_id,
+      tenantId,
+      redirect_uri,
+      state,
+      scope,
+      response_type,
+      code_challenge,
+      code_challenge_method,
+    });
+  }
+
+  async postRegisterAUser(
+    data: RegisterDto,
+    query: OIDCAuthQuery,
+    headers: object,
+    res: Response,
+  ) {
+    if (!data || !data.loginId || !data.password) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No data given',
+      });
+    }
+    const {
+      redirect_uri,
+      response_type,
+      scope,
+      state,
+      code_challenge,
+      code_challenge_method,
+      password,
+      loginId,
+      firstname,
+      lastname,
+      username,
+    } = data;
+    const { client_id } = query;
+    if (!client_id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No application id given',
+      });
+    }
+    const application = await this.prismaService.application.findUnique({
+      where: { id: client_id },
+    });
+    if (!application) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No such application exists',
+      });
+    }
+    const oldUser = await this.prismaService.user.findUnique({
+      where: { email: loginId },
+    });
+    if (oldUser) {
+      throw new BadRequestException({
+        success: false,
+        message: 'such user already exists',
+      });
+    }
+    const authenticationToken = randomUUID();
+    const userData: UserDataDto = {
+      username,
+      firstname,
+      lastname,
+      password,
+    };
+    const userInfo = { userData };
+    const user = await this.prismaService.user.create({
+      data: {
+        email: loginId,
+        tenantId: application.tenantId,
+        groupId: '',
+        active: true,
+        data: JSON.stringify(userInfo),
+      },
+    });
+    const userRegistration = await this.prismaService.userRegistration.create({
+      data: {
+        applicationsId: application.id,
+        authenticationToken,
+        password,
+        usersId: user.id,
+        data: JSON.stringify({
+          code_challenge: code_challenge === '' ? null : code_challenge,
+          code_challenge_method:
+            code_challenge_method === '' ? null : code_challenge_method,
+          scope,
+        }),
+      },
+    });
+    this.logger.log('A user authenticated', user);
+    return res.redirect(
+      `${redirect_uri}?code=${userRegistration.authenticationToken}&state=${state}`,
+    );
   }
 
   async returnToken(data: TokenDto, headers: object) {
