@@ -33,7 +33,7 @@ export class OtpService {
         message: 'OTP sent successfully',
       };
     } catch (e) {
-      await this.otpManagerService.timeOutOtp();
+      // await this.otpManagerService.timeOutOtp();
       console.error(e);
       return {
         success: false,
@@ -45,7 +45,7 @@ export class OtpService {
   async validateOtp(otp: string) {
     const res = await this.otpManagerService.validateOtp(otp);
 
-    await this.otpManagerService.timeOutOtp();
+    // await this.otpManagerService.timeOutOtp();
 
     if (res) {
       return {
@@ -62,7 +62,7 @@ export class OtpService {
   //   @Timeout(100000)
   async timeOut() {
     setTimeout(() => {
-      this.otpManagerService.timeOutOtp();
+      // this.otpManagerService.timeOutOtp();
     }, this.time*1000);
   }
 }
