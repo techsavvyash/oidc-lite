@@ -35,10 +35,11 @@ export class AppController {
       token_endpoint: `${process.env.HOST_NAME}:${process.env.HOST_PORT}/oidc/token`,
       userinfo_endpoint: `${process.env.HOST_NAME}:${process.env.HOST_PORT}/oidc/userinfo`,
       jwks_uri: `${process.env.HOST_NAME}:${process.env.HOST_PORT}/oidc/.well-known/jwks.json`,
-      scopes_supported: ['scope', 'profile', 'email'],
-      response_types_supported: ['code', 'code token'],
+      scopes_supported: ['openid', 'profile', 'email'],
+      response_types_supported: ['code'],
       grant_types_supported: ['authorization_code', 'password'],
       id_token_signing_alg_values_supported: ['RS256', 'ES256', 'HS256'],
+      code_challenge_methods_supported: ['plain', 'S256'],
     };
   }
 }

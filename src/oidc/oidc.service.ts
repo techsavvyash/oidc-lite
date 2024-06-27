@@ -134,7 +134,12 @@ export class OidcService {
     }
     const authenticationToken = randomUUID();
     const userData: UserData = JSON.parse(user.data);
-    if (userData.userData?.password !== password) {
+    if (
+      (await this.utilService.comparePasswords(
+        password,
+        userData.userData?.password,
+      )) === false
+    ) {
       throw new UnauthorizedException({
         success: false,
         message: 'Invalid user credentials',
@@ -156,7 +161,7 @@ export class OidcService {
             data: {
               applicationsId: application.id,
               authenticationToken,
-              password,
+              password: userData.userData.password,
               usersId: user.id,
               data: JSON.stringify({
                 code_challenge: code_challenge === '' ? null : code_challenge,
@@ -307,7 +312,7 @@ export class OidcService {
       username,
       firstname,
       lastname,
-      password,
+      password: await this.utilService.hashPassword(password),
     };
     const userInfo = { userData };
     const user = await this.prismaService.user.create({
@@ -323,7 +328,7 @@ export class OidcService {
       data: {
         applicationsId: application.id,
         authenticationToken,
-        password,
+        password: userData.password,
         usersId: user.id,
         data: JSON.stringify({
           code_challenge: code_challenge === '' ? null : code_challenge,
@@ -502,7 +507,12 @@ export class OidcService {
           message: 'Not registered with the application',
         });
       }
-      if (foundUserRegistration.password !== password) {
+      if (
+        await this.utilService.comparePasswords(
+          password,
+          foundUserRegistration.password,
+        ) === false
+      ) {
         throw new UnauthorizedException({
           success: false,
           message: 'You are not authorized',
@@ -521,7 +531,7 @@ export class OidcService {
             'Your application does not support grant_type client_credentials',
         });
       }
-      // implementation remaining
+      // implementation remaining, this is used by application to retrieve its own access rights
       throw new NotImplementedException({
         success: false,
         message: 'you reached a part of server that is not yet implemented',
@@ -549,6 +559,7 @@ export class OidcService {
       header: {
         kid: idTokenSigningKey.kid,
         alg: idTokenSigningKey.algorithm,
+        typ: 'JWT',
       },
     });
     const refreshTokenPayload: RefreshTokenDto = {
@@ -563,6 +574,7 @@ export class OidcService {
       header: {
         kid: accessTokenSigningKey.kid,
         alg: accessTokenSigningKey.algorithm,
+        typ: 'JWT',
       },
     });
     const oldtoken = await this.prismaService.refreshToken.findUnique({
@@ -608,6 +620,7 @@ export class OidcService {
       newRefreshToken = updatedToken;
     }
 
+    // can take roles from userRegistration, once it is able to store roles
     const groups = user.groupId.split(' '); // splits all the groups
     const allRoles = await Promise.all(
       groups.map(async (group) => {
@@ -652,6 +665,7 @@ export class OidcService {
       header: {
         kid: accessTokenSigningKey.kid,
         alg: accessTokenSigningKey.algorithm,
+        typ: 'JWT',
       },
     });
     return {

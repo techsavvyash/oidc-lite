@@ -71,8 +71,7 @@ export class RefreshTokensService {
       const accessTokenDecoded = await jwt.verify(accessToken, refreshSecret);
       const applicationData: ApplicationDataDto = JSON.parse(application.data);
       const refreshTokenSeconds =
-        applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes *
-        60;
+        applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
       const { exp, iss } = refreshTokenDecoded as RefreshTokenDto;
       const now = Math.floor(Date.now() / 1000);
       if (exp < now) {
@@ -90,6 +89,11 @@ export class RefreshTokensService {
       };
       const newRefreshToken = jwt.sign(refreshTokenPayload, refreshSecret, {
         algorithm: refreshTokenSigningKey.algorithm as jwt.Algorithm,
+        header: {
+          kid: refreshTokenSigningKey.kid,
+          alg: refreshTokenSigningKey.algorithm,
+          typ: 'JWT',
+        },
       });
       const updateToken = await this.prismaService.refreshToken.update({
         where: { id: foundRefreshToken.id },
@@ -110,14 +114,19 @@ export class RefreshTokensService {
       };
       const newAccessToken = jwt.sign(accessTokenPayload, refreshSecret, {
         algorithm: refreshTokenSigningKey.algorithm as jwt.Algorithm,
+        header: {
+          kid: refreshTokenSigningKey.kid,
+          alg: refreshTokenSigningKey.algorithm,
+          typ: 'JWT',
+        },
       });
       return {
         success: true,
         message: 'Refresh token refreshed',
         data: {
-          refreshToken: newRefreshToken,
+          refresh_token: newRefreshToken,
           refreshTokenId: updateToken.id,
-          accessToken: newAccessToken,
+          access_token: newAccessToken,
         },
       };
     } catch (error) {
