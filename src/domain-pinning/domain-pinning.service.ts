@@ -31,7 +31,6 @@ export class DomainPinningService {
               .export({ type: 'spki', format: 'pem' })
               .toString()
               .trim();
-            console.log(pubKeyPem)
             if (this.trustedPubKey !== pubKeyPem) {
               reject(new Error('Public key does not match'));
             }

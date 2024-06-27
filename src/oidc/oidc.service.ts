@@ -568,6 +568,7 @@ export class OidcService {
       applicationId: application.id,
       iss: process.env.HOST_NAME,
       exp: now + refreshTokenSeconds,
+      sub: user.id
     };
     const refreshToken = jwt.sign(refreshTokenPayload, accessTokenSecret, {
       algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,

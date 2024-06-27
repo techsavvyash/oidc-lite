@@ -2,11 +2,15 @@ import { Controller, Get, Req } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { DomainPinningService } from './domain-pinning/domain-pinning.service';
+import { KickstartService } from './kickstart/kickstart.service';
 
 @ApiTags('OIDC Wrapper')
 @Controller()
 export class AppController {
-  constructor(private readonly domainPinning: DomainPinningService) {}
+  constructor(
+    private readonly domainPinning: DomainPinningService,
+    private readonly kickstartService: KickstartService,
+  ) {}
 
   @Get('/health')
   @ApiOperation({ summary: 'to prove the live status of website' })

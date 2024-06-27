@@ -64,7 +64,7 @@ CREATE TABLE "Group" (
     "name" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
     "permissions" TEXT,
-    "settings" TEXT,
+    "attributes" TEXT,
     CONSTRAINT "Group_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -136,7 +136,7 @@ CREATE TABLE "UserRegistration" (
 CREATE TABLE "User" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "active" BOOLEAN NOT NULL,
-    "data" TEXT,
+    "data" TEXT NOT NULL,
     "expiry" INTEGER,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
@@ -212,6 +212,9 @@ CREATE INDEX "refresh_tokens_i_3" ON "RefreshToken"("usersId");
 
 -- CreateIndex
 CREATE INDEX "refresh_tokens_i_4" ON "RefreshToken"("tenantId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "RefreshToken_applicationsId_usersId_key" ON "RefreshToken"("applicationsId", "usersId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Tenant_name_key" ON "Tenant"("name");

@@ -48,7 +48,7 @@ class OauthConfiguration {
     message: 'There can be at most 100 authorized redirect URLs',
   })
   @IsString({ each: true, message: 'Each URL must be a string' })
-  @IsUrl({}, { each: true, message: 'Each URL must be a valid URL' })
+  // @IsUrl({}, { each: true, message: 'Each URL must be a valid URL' })
   authorizedRedirectURLs: string[];
 
   @ApiProperty({
@@ -77,7 +77,7 @@ class OauthConfiguration {
     example: 'https://example.com/logout',
   })
   @IsString({ message: 'Logout URL must be a string' })
-  @IsUrl({}, { message: 'Logout URL must be a valid URL' })
+  // @IsUrl({}, { message: 'Logout URL must be a valid URL' })
   @IsNotEmpty({ message: 'Logout URL must not be empty' })
   logoutURL: string;
 }

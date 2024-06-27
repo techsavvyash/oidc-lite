@@ -86,6 +86,7 @@ export class RefreshTokensService {
         exp: now + refreshTokenSeconds,
         iss,
         applicationId: application.id,
+        sub: (refreshTokenDecoded as jwt.JwtPayload).sub
       };
       const newRefreshToken = jwt.sign(refreshTokenPayload, refreshSecret, {
         algorithm: refreshTokenSigningKey.algorithm as jwt.Algorithm,

@@ -44,4 +44,5 @@ export class RefreshTokenDto {
   @ApiProperty() iat?: number;
   @ApiProperty() iss?: string;
   @ApiProperty() exp?: number;
+  @ApiProperty() sub: string;
 }

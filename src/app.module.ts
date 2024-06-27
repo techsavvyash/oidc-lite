@@ -27,6 +27,8 @@ import { TestUsersController } from './test-users/test-users.controller';
 import { TestUsersService } from './test-users/test-users.service';
 import { DomainPinningService } from './domain-pinning/domain-pinning.service';
 import { UtilsService } from './utils/utils.service';
+import { KickstartModule } from './kickstart/kickstart.module';
+import { KickstartService } from './kickstart/kickstart.service';
 
 @Module({
   imports: [
@@ -42,8 +44,10 @@ import { UtilsService } from './utils/utils.service';
     ScheduleModule.forRoot(),
     KeyModule,
     RefreshTokenModule,
-    LoginModule, GroupModule,
+    LoginModule,
     GroupModule,
+    GroupModule,
+    KickstartModule,
   ],
   controllers: [
     AppController,
@@ -65,7 +69,8 @@ import { UtilsService } from './utils/utils.service';
     KeyService,
     TestUsersService,
     DomainPinningService,
-    UtilsService
+    UtilsService,
+    KickstartService,
   ],
 })
 export class AppModule {}
