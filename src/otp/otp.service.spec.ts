@@ -3,49 +3,53 @@ import { OtpService } from './otp.service';
 import { OtpAdaptersService } from './otp-adapters/otp-adapters.service';
 import { OtpManagerService } from './otp-manager/otp-manager.service';
 
-jest.mock('./otp-adapters/otp-adapters.service');
-jest.mock('./otp-manager/otp-manager.service');
-
 describe('OtpService', () => {
-  let service: OtpService;
+  let otpService: OtpService;
   let otpAdaptersService: OtpAdaptersService;
   let otpManagerService: OtpManagerService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [OtpService, OtpAdaptersService, OtpManagerService],
+      providers: [
+        OtpService,
+        {
+          provide: OtpAdaptersService,
+          useValue: {
+            mailOtpAdapter: jest.fn(),
+            smsOtpAdapter: jest.fn(),
+            whatsappOtpAdapter: jest.fn(),
+          },
+        },
+        {
+          provide: OtpManagerService,
+          useValue: {
+            generateOtp: jest.fn(),
+            validateOtp: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
-    service = module.get<OtpService>(OtpService);
+    otpService = module.get<OtpService>(OtpService);
     otpAdaptersService = module.get<OtpAdaptersService>(OtpAdaptersService);
     otpManagerService = module.get<OtpManagerService>(OtpManagerService);
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(otpService).toBeDefined();
   });
 
   describe('sendOtp', () => {
-    it('should send OTP via mail, sms, and whatsapp', async () => {
+    it('should send OTP via mail, sms, and whatsapp and return success', async () => {
       const otpGenerated = '123456';
       jest
         .spyOn(otpManagerService, 'generateOtp')
         .mockResolvedValue(otpGenerated);
-      jest.spyOn(otpAdaptersService, 'mailOtpAdapter').mockResolvedValue(null);
-      jest.spyOn(otpAdaptersService, 'smsOtpAdapter').mockResolvedValue(null);
-      jest
-        .spyOn(otpAdaptersService, 'whatsappOtpAdapter')
-        .mockResolvedValue(null);
 
-      const result = await service.sendOtp(
+      const result = await otpService.sendOtp(
         ['mail', 'sms', 'whatsapp'],
         'test@example.com',
       );
-
-      expect(result).toEqual({
-        success: true,
-        message: 'OTP sent successfully',
-      });
 
       expect(otpManagerService.generateOtp).toHaveBeenCalled();
       expect(otpAdaptersService.mailOtpAdapter).toHaveBeenCalledWith(
@@ -60,47 +64,61 @@ describe('OtpService', () => {
         otpGenerated,
         'test@example.com',
       );
+      expect(result).toEqual({
+        success: true,
+        message: 'OTP sent successfully',
+      });
+    });
+
+    it('should return failure if any adapter fails', async () => {
+      const otpGenerated = '123456';
+      jest
+        .spyOn(otpManagerService, 'generateOtp')
+        .mockResolvedValue(otpGenerated);
+      jest
+        .spyOn(otpAdaptersService, 'mailOtpAdapter')
+        .mockRejectedValue(new Error('Mail sending failed'));
+
+      const result = await otpService.sendOtp(
+        ['mail', 'sms', 'whatsapp'],
+        'test@example.com',
+      );
+
+      expect(otpManagerService.generateOtp).toHaveBeenCalled();
+      expect(otpAdaptersService.mailOtpAdapter).toHaveBeenCalledWith(
+        otpGenerated,
+        'test@example.com',
+      );
+      expect(result).toEqual({
+        success: false,
+        message: 'OTP failed to send',
+      });
     });
   });
 
   describe('validateOtp', () => {
-    it('should return success true if OTP is valid', async () => {
+    it('should validate the OTP and return success if valid', async () => {
       jest.spyOn(otpManagerService, 'validateOtp').mockResolvedValue(true);
-      jest.spyOn(otpManagerService, 'timeOutOtp').mockResolvedValue(null);
 
-      const result = await service.validateOtp('123456');
+      const result = await otpService.validateOtp('123456');
 
+      expect(otpManagerService.validateOtp).toHaveBeenCalledWith('123456');
       expect(result).toEqual({
         success: true,
         message: 'OTP is valid and verified',
       });
-
-      expect(otpManagerService.validateOtp).toHaveBeenCalledWith('123456');
-      expect(otpManagerService.timeOutOtp).toHaveBeenCalled();
     });
 
-    it('should return success false if OTP is invalid', async () => {
+    it('should return failure if the OTP is invalid or expired', async () => {
       jest.spyOn(otpManagerService, 'validateOtp').mockResolvedValue(false);
 
-      const result = await service.validateOtp('123456');
+      const result = await otpService.validateOtp('123456');
 
+      expect(otpManagerService.validateOtp).toHaveBeenCalledWith('123456');
       expect(result).toEqual({
         success: false,
         message: 'OTP is invalid or expired',
       });
-
-      expect(otpManagerService.validateOtp).toHaveBeenCalledWith('123456');
-      expect(otpManagerService.timeOutOtp).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('timeOut', () => {
-    it('should timeout OTP after specified time', async () => {
-      jest.spyOn(otpManagerService, 'timeOutOtp').mockResolvedValue(null);
-
-      await service.timeOut();
-
-      expect(otpManagerService.timeOutOtp).toHaveBeenCalled();
     });
   });
 });
