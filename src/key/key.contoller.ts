@@ -18,7 +18,7 @@ import {
   ApiHeader,
 } from '@nestjs/swagger';
 import { KeyService } from './key.service';
-import { generateKeyDTO, updateDTO } from 'src/key/key.dto';
+import { generateKeyDTO, updateDTO } from './key.dto';
 import { randomUUID } from 'crypto';
 
 @ApiTags('Key Management')

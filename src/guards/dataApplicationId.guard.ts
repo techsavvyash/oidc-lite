@@ -34,11 +34,8 @@ export class DataApplicationIdGuard implements CanActivate {
       where: { id: applicationId },
     });
     if (!application) return false;
-    // const applicationData: ApplicationDataDto = JSON.parse(application.data);
-    // const authorizedOriginURLs =
-    //   applicationData?.oauthConfiguration?.authorizedOriginURLs;
     try {
-      const data = await this.domainPinningService.get(`${hostname}`);
+      const data = await this.domainPinningService.get(hostname);
       return true;
     } catch (error) {
       this.logger.log(

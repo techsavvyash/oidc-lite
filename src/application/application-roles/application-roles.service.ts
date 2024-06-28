@@ -6,10 +6,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { RoleDto, UpdateRoleDto } from 'src/application/application.dto';
-import { ResponseDto } from 'src/dto/response.dto';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { RoleDto, UpdateRoleDto } from '../application.dto';
+import { ResponseDto } from '../../dto/response.dto';
+import { HeaderAuthService } from '../../header-auth/header-auth.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class ApplicationRolesService {

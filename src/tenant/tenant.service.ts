@@ -8,10 +8,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { ResponseTenantDto, ResponseDto } from 'src/dto/response.dto';
+import { ResponseTenantDto, ResponseDto } from '../dto/response.dto';
 import { CreateTenantDto, UpdateTenantDto } from './tenant.dto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
-import { KeyService } from 'src/key/key.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -20,7 +19,6 @@ export class TenantService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly headerAuthService: HeaderAuthService,
-    private readonly keyService: KeyService,
   ) {
     this.logger = new Logger(TenantService.name);
   }

@@ -16,11 +16,11 @@ export class LoginController {
     @Res() res: Response,
   ){
     const result = await this.loginService.login(data, headers);
-    res.cookie('refreshToken', result.data.refreshToken.value, {
+    res.cookie('refreshToken', result.refresh_token, {
       secure: true,
       httpOnly: true,
     });
-    res.cookie('accessToken', result.data.accessToken.value, {
+    res.cookie('accessToken', result.access_token, {
       secure: true,
       httpOnly: true,
     });

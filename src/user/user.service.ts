@@ -9,6 +9,7 @@ import { ResponseDto } from 'src/dto/response.dto';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UtilsService } from 'src/utils/utils.service';
 
 @Injectable()
 export class UserService {
@@ -16,6 +17,7 @@ export class UserService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly headerAuthService: HeaderAuthService,
+    private readonly utilService: UtilsService
   ) {
     this.logger = new Logger(UserService.name);
   }
@@ -112,6 +114,7 @@ export class UserService {
       }),
     );
     const groups = existingGroups.join(' ');
+    userData.password = await this.utilService.hashPassword(userData.password);
     const userInfo = {
       userData,
       additionalData,

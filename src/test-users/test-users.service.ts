@@ -31,8 +31,8 @@ interface UserRequest {
 export class TestUsersService {
   private readonly baseUrl = 'http://localhost:3000/user/registration/combined';
   private readonly headers = {
-    Authorization: 'Masterkey3',
-    'x-stencil-tenantid': 'third-tenant',
+    Authorization: 'master',
+    'x-stencil-tenantid': 'minio-tenant',
   };
 
   private generateRandomString(length: number): string {
@@ -53,7 +53,7 @@ export class TestUsersService {
     return {
       data: {
         userInfo: {
-          applicationId: 'fourth-application',
+          applicationId: 'myminioadmin',
           email: email,
           active: true,
           userData: {
@@ -65,7 +65,7 @@ export class TestUsersService {
         },
         registrationInfo: {
           generateAuthenticationToken: true,
-          applicationId: 'fourth-application',
+          applicationId: 'myminioadmin',
           roles: ['admin', 'common'],
         },
       },
@@ -75,7 +75,7 @@ export class TestUsersService {
   public async registerUsers(): Promise<any[]> {
     const requests = [];
     for (let i = 0; i < 100; i++) {
-      const userRequest = this.createUser(2001+i);
+      const userRequest = this.createUser(100+i);
       requests.push(
         axios.post(this.baseUrl, userRequest, { headers: this.headers }),
       );

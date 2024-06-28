@@ -16,9 +16,49 @@
         ]
       }
     },
-    "/cert": {
+    "/": {
       "get": {
-        "operationId": "AppController_getCertificate",
+        "operationId": "AppController_adminPanel",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC Wrapper"
+        ]
+      },
+      "post": {
+        "operationId": "AppController_toggleKeyManager",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC Wrapper"
+        ]
+      }
+    },
+    "/admin": {
+      "post": {
+        "operationId": "AppController_createAdmin",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC Wrapper"
+        ]
+      }
+    },
+    "/.well-known/openid-configuration": {
+      "get": {
+        "operationId": "AppController_returnConfigs",
         "parameters": [],
         "responses": {
           "200": {
@@ -328,7 +368,7 @@
         },
         "responses": {
           "201": {
-            "description": "Api key successfully generated",
+            "description": "Api key successwfully generated",
             "content": {
               "application/json": {
                 "schema": {
@@ -623,6 +663,30 @@
             }
           },
           {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge_method",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "authorization",
             "in": "header",
             "required": false,
@@ -685,6 +749,30 @@
             }
           },
           {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge_method",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "authorization",
             "in": "header",
             "required": false,
@@ -706,6 +794,172 @@
         "responses": {
           "200": {
             "description": "Returns authentication token"
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
+      }
+    },
+    "/oidc/register": {
+      "get": {
+        "operationId": "OidcController_registerAUser",
+        "parameters": [
+          {
+            "name": "client_id",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "redirect_uri",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "response_type",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge_method",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
+      },
+      "post": {
+        "operationId": "OidcController_postRegisterAUser",
+        "parameters": [
+          {
+            "name": "client_id",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "redirect_uri",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "response_type",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge_method",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
           }
         },
         "tags": [
@@ -3015,12 +3269,83 @@
           },
           "applicationId": {
             "type": "string"
+          },
+          "redirect_uri": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "code_challenge": {
+            "type": "string"
+          },
+          "code_challenge_method": {
+            "type": "string"
           }
         },
         "required": [
           "loginId",
           "password",
-          "applicationId"
+          "applicationId",
+          "redirect_uri",
+          "scope",
+          "state",
+          "code_challenge",
+          "code_challenge_method"
+        ]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "firstname": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "loginId": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "redirect_uri": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "code_challenge": {
+            "type": "string"
+          },
+          "code_challenge_method": {
+            "type": "string"
+          },
+          "response_type": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "firstname",
+          "lastname",
+          "username",
+          "loginId",
+          "password",
+          "redirect_uri",
+          "state",
+          "code_challenge",
+          "code_challenge_method",
+          "response_type",
+          "scope"
         ]
       },
       "TokenDto": {
@@ -3041,6 +3366,9 @@
           "password": {
             "type": "string"
           },
+          "code_verifier": {
+            "type": "string"
+          },
           "grant_type": {
             "type": "string"
           },
@@ -3054,6 +3382,7 @@
           "code",
           "loginId",
           "password",
+          "code_verifier",
           "grant_type",
           "redirect_uri"
         ]
@@ -3077,7 +3406,7 @@
           "token"
         ]
       },
-      "UserData": {
+      "UserDataDto": {
         "type": "object",
         "properties": {
           "username": {
@@ -3089,9 +3418,6 @@
           "lastname": {
             "type": "string"
           },
-          "email": {
-            "type": "string"
-          },
           "password": {
             "type": "string"
           }
@@ -3100,7 +3426,6 @@
           "username",
           "firstname",
           "lastname",
-          "email",
           "password"
         ]
       },
@@ -3123,7 +3448,7 @@
             }
           },
           "userData": {
-            "$ref": "#/components/schemas/UserData"
+            "$ref": "#/components/schemas/UserDataDto"
           },
           "email": {
             "type": "string"
@@ -3157,7 +3482,7 @@
             }
           },
           "userData": {
-            "$ref": "#/components/schemas/UserData"
+            "$ref": "#/components/schemas/UserDataDto"
           }
         },
         "required": [

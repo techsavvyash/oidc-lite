@@ -22,7 +22,7 @@ import {
 import { OidcService } from './oidc.service';
 import { Request, Response } from 'express';
 import { OIDCAuthQuery } from './dto/oidc.auth.dto';
-import { LoginDto } from 'src/login/login.dto';
+import { LoginDto, RegisterDto } from 'src/login/login.dto';
 import { IntrospectDto, TokenDto } from './dto/oidc.token.dto';
 import { ResponseDto } from 'src/dto/response.dto';
 import { QueryApplicationIdGuard } from 'src/guards/queryApplicationId.guard';
@@ -66,8 +66,29 @@ export class OidcController {
     @Body() data: LoginDto,
     @Query() query: OIDCAuthQuery,
     @Headers() headers: object,
+    @Res() res: Response
   ) {
-    return await this.oidcService.postAuthorize(data, query, headers);
+    return await this.oidcService.postAuthorize(data, query, headers,res);
+  }
+
+  @Get('/register')
+  async registerAUser(
+    @Query() query: OIDCAuthQuery,
+    @Req() req: Request,
+    @Res() res: Response,
+    @Headers() headers: object,
+  ){
+    return await this.oidcService.registerAUser(req,res,query,headers);
+  }
+
+  @Post('/register')
+  async postRegisterAUser(
+    @Body() data: RegisterDto,
+    @Query() query: OIDCAuthQuery,
+    @Headers() headers: object,
+    @Res() res: Response,
+  ){
+    return await this.oidcService.postRegisterAUser(data,query,headers,res);
   }
 
   @ApiOperation({ summary: 'OIDC Token Endpoint' })
@@ -81,7 +102,7 @@ export class OidcController {
   async returnToken(
     @Headers() headers: object,
     @Body() data: TokenDto,
-  ): Promise<ResponseDto> {
+  ){
     return await this.oidcService.returnToken(data, headers);
   }
 
