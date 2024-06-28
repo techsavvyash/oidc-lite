@@ -8,6 +8,7 @@ import {
   Query,
   Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -20,10 +21,12 @@ import {
 } from '@nestjs/swagger';
 import { OidcService } from './oidc.service';
 import { Request, Response } from 'express';
-import { OIDCAuthQuery } from './oidc.auth.dto';
-import { LoginDto } from 'src/login/login.dto';
-import { IntrospectDto, TokenDto } from './oidc.token.dto';
+import { OIDCAuthQuery } from './dto/oidc.auth.dto';
+import { LoginDto, RegisterDto } from 'src/login/login.dto';
+import { IntrospectDto, TokenDto } from './dto/oidc.token.dto';
 import { ResponseDto } from 'src/dto/response.dto';
+import { QueryApplicationIdGuard } from 'src/guards/queryApplicationId.guard';
+import { DataApplicationIdGuard } from 'src/guards/dataApplicationId.guard';
 
 @ApiTags('OIDC')
 @Controller('oidc')
@@ -42,6 +45,7 @@ export class OidcController {
   })
   @ApiHeader({ name: 'authorization', required: false })
   @Get('auth')
+  @UseGuards(QueryApplicationIdGuard)
   async authorize(
     @Query() query: OIDCAuthQuery,
     @Req() req: Request,
@@ -57,12 +61,34 @@ export class OidcController {
   @ApiResponse({ status: 200, description: 'Returns authentication token' })
   @ApiHeader({ name: 'authorization', required: false })
   @Post('auth')
+  @UseGuards(QueryApplicationIdGuard)
   async postAuthorize(
     @Body() data: LoginDto,
     @Query() query: OIDCAuthQuery,
     @Headers() headers: object,
+    @Res() res: Response
   ) {
-    return await this.oidcService.postAuthorize(data, query, headers);
+    return await this.oidcService.postAuthorize(data, query, headers,res);
+  }
+
+  @Get('/register')
+  async registerAUser(
+    @Query() query: OIDCAuthQuery,
+    @Req() req: Request,
+    @Res() res: Response,
+    @Headers() headers: object,
+  ){
+    return await this.oidcService.registerAUser(req,res,query,headers);
+  }
+
+  @Post('/register')
+  async postRegisterAUser(
+    @Body() data: RegisterDto,
+    @Query() query: OIDCAuthQuery,
+    @Headers() headers: object,
+    @Res() res: Response,
+  ){
+    return await this.oidcService.postRegisterAUser(data,query,headers,res);
   }
 
   @ApiOperation({ summary: 'OIDC Token Endpoint' })
@@ -76,7 +102,7 @@ export class OidcController {
   async returnToken(
     @Headers() headers: object,
     @Body() data: TokenDto,
-  ): Promise<ResponseDto> {
+  ){
     return await this.oidcService.returnToken(data, headers);
   }
 
@@ -104,6 +130,7 @@ export class OidcController {
   @ApiHeader({ name: 'content-type', required: true })
   @ApiHeader({ name: 'authorization', required: false })
   @Post('/introspect')
+  @UseGuards(DataApplicationIdGuard)
   async introspect(@Body() data: IntrospectDto, @Headers() headers: object) {
     return await this.oidcService.introspect(data, headers);
   }

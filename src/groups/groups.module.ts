@@ -10,7 +10,15 @@ import { GroupAppRoleService } from './group-Application-role/gpApplicationRole.
 
 @Module({
   controllers: [GroupsController],
-  providers: [GroupsService, GroupAppRoleService ,PrismaService,createGroupDTO,GroupUserService, KeyService, HeaderAuthService],
-  exports : [createGroupDTO]
+  providers: [
+    GroupsService,
+    GroupAppRoleService,
+    PrismaService,
+    createGroupDTO,
+    GroupUserService,
+    KeyService,
+    HeaderAuthService,
+  ],
+  exports: [createGroupDTO],
 })
 export class GroupModule {}

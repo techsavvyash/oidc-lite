@@ -8,10 +8,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { ScopeDto, UpdateScopeDto } from 'src/application/application.dto';
-import { ResponseDto } from 'src/dto/response.dto';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { ScopeDto, UpdateScopeDto } from '../application.dto';
+import { ResponseDto } from '../../dto/response.dto';
+import { HeaderAuthService } from '../../header-auth/header-auth.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class ApplicationScopesService {
@@ -29,25 +29,14 @@ export class ApplicationScopesService {
     scopeId: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
-      headers,
-      tenant_id,
-      '/application/scope',
-      'POST',
-    );
+    const valid = await this.headerAuthService.validateRoute(headers,'/application/scope','POST');
     if (!valid.success) {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
       });
     }
+    const tenant_id = valid.data.tenantsId? valid.data.tenantsId: headers['x-stencil-tenantid'];
     if (!data) {
       throw new BadRequestException({
         success: false,
@@ -119,25 +108,14 @@ export class ApplicationScopesService {
     id: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
-      headers,
-      tenant_id,
-      '/application/scope',
-      'GET',
-    );
+    const valid = await this.headerAuthService.validateRoute(headers,'/application/scope','GET');
     if (!valid.success) {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
       });
     }
+    const tenant_id = valid.data.tenantsId? valid.data.tenantsId: headers['x-stencil-tenantid'];
     if (!applicationsId) {
       throw new BadRequestException({
         success: false,
@@ -190,25 +168,14 @@ export class ApplicationScopesService {
     data: UpdateScopeDto,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
-      headers,
-      tenant_id,
-      '/application/scope',
-      'PATCH',
-    );
+    const valid = await this.headerAuthService.validateRoute(headers,'/application/scope','PATCH');
     if (!valid.success) {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
       });
     }
+    const tenant_id = valid.data.tenantsId? valid.data.tenantsId: headers['x-stencil-tenantid'];
     if (!data) {
       throw new BadRequestException({
         success: false,
@@ -281,25 +248,14 @@ export class ApplicationScopesService {
     scopeId: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
-      headers,
-      tenant_id,
-      '/application/scope',
-      'DELETE',
-    );
+    const valid = await this.headerAuthService.validateRoute(headers,'/application/scope','DELETE');
     if (!valid.success) {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
       });
     }
+    const tenant_id = valid.data.tenantsId? valid.data.tenantsId: headers['x-stencil-tenantid'];
     if (!id) {
       throw new BadRequestException({
         success: false,

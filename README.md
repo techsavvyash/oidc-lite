@@ -71,3 +71,7 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+
+## Code Coverage 
+[![codecov](https://codecov.io/gh/Zolo-Ryan/stencil-oidc-wrapper/graph/badge.svg?token=EOQ2P3DIM0)](https://codecov.io/gh/Zolo-Ryan/stencil-oidc-wrapper)

@@ -8,6 +8,7 @@ import {
   Headers,
   Query,
   Param,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -29,6 +30,8 @@ import {
 import { randomUUID } from 'crypto';
 import { ResponseDto } from 'src/dto/response.dto';
 import { UserRegistrationService } from './user-registration/user-registration.service';
+import { ParamApplicationIdGuard } from '../guards/paramApplicationId.guard';
+import { DataApplicationIdGuard } from '../guards/dataApplicationId.guard';
 @ApiTags('User')
 @Controller('user')
 export class UserController {
@@ -48,6 +51,7 @@ export class UserController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @Post('/')
+  @UseGuards(DataApplicationIdGuard)
   async createAUserWithRandomUUID(
     @Body('data') data: CreateUserDto,
     @Headers() headers: object,
@@ -68,6 +72,7 @@ export class UserController {
   @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @Post('/:id')
+  @UseGuards(DataApplicationIdGuard)
   async createAUser(
     @Param('id') id: string,
     @Body('data') data: CreateUserDto,
@@ -109,7 +114,7 @@ export class UserController {
   async updateAUser(
     @Param('id') id: string,
     @Headers() headers: object,
-    @Body('data') data: CreateUserDto,
+    @Body('data') data: UpdateUserDto,
   ): Promise<ResponseDto> {
     return await this.userService.updateAUser(id, data, headers);
   }
@@ -139,6 +144,7 @@ export class UserController {
   }
 
   @Post('/registration/combined')
+  @UseGuards(DataApplicationIdGuard)
   async createAUserAndUserRegistration(
     @Body('data') data: CreateUserAndUserRegistration,
     @Headers() headers: object,
@@ -166,6 +172,7 @@ export class UserController {
   @ApiParam({ name: 'userId', description: 'User ID' })
   @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @Post('/registration/:userId')
+  @UseGuards(DataApplicationIdGuard)
   async createAUserRegistration(
     @Param('userId') userId: string,
     @Body('data') data: CreateUserRegistrationDto,
@@ -190,6 +197,7 @@ export class UserController {
   @ApiParam({ name: 'applicationId', description: 'Application ID' })
   @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @Get('/registration/:userId/:applicationId')
+  @UseGuards(ParamApplicationIdGuard)
   async returnAUserRegistration(
     @Param('userId') userId: string,
     @Param('applicationId') applicationId: string,
@@ -218,6 +226,7 @@ export class UserController {
   @ApiParam({ name: 'applicationId', description: 'Application ID' })
   @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @Patch('/registration/:userId/:applicationId')
+  @UseGuards(ParamApplicationIdGuard)
   async updateAUserRegistration(
     @Param('userId') userId: string,
     @Param('applicationId') applicationId: string,
@@ -244,6 +253,7 @@ export class UserController {
   @ApiParam({ name: 'applicationId', description: 'Application ID' })
   @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @Delete('/registration/:userId/:applicationId')
+  @UseGuards(ParamApplicationIdGuard)
   async deleteAUserRegistration(
     @Param('userId') userId: string,
     @Param('applicationId') applicationId: string,
