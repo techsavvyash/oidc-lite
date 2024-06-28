@@ -356,14 +356,6 @@ export class CreateApplicationDto {
   roles: RoleDto[];
 
   @ApiProperty({
-    description: 'JWT configuration',
-    type: JwtConfiguration,
-  })
-  @ValidateNested()
-  @Type(() => JwtConfiguration)
-  jwtConfiguration: JwtConfiguration;
-
-  @ApiProperty({
     description: 'OAuth configuration',
     type: OauthConfiguration,
   })
