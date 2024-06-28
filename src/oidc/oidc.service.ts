@@ -545,7 +545,7 @@ export class OidcService {
     }
     const now = Math.floor(Date.now() / 1000);
     const idTokenPayload = {
-      policy: ['consoleAdmin'], // look into groups matter
+      policy: ['consoleAdmin'], // look into groups matter, for minio added
       active: true,
       iat: now,
       exp: now + refreshTokenSeconds,
