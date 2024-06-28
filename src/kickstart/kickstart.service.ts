@@ -31,7 +31,7 @@ export class KickstartService {
     }
     const file = fs.readFileSync(path.resolve(`./${fileName}`), 'utf8').trim();
     const config = JSON.parse(file);
-    
+
     const variables = config.variables;
     for (const key in variables) {
       if (variables[key] === '#{UUID()}') {
@@ -65,6 +65,20 @@ export class KickstartService {
       }
       return obj;
     };
+    const finalResponse = [];
+    const keyInfo = replaceObjectPlaceholders(config.apiKey,variables);
+    try {
+      const authorizationKey =
+        await this.prismaService.authenticationKey.create({
+          data: { keyManager: true, keyValue: keyInfo.key,metaData: keyInfo.description },
+        });
+      finalResponse.push(authorizationKey);
+    } catch (error) {
+      this.logger.error(
+        'Give key in apiKey in kickstart file to create an authorization key with max privileges',
+      );
+      throw new Error('Kickstart file format error');
+    }
 
     const requests = config.requests.map((request) => {
       return {
@@ -86,6 +100,7 @@ export class KickstartService {
           headers,
           data: body,
         });
+        finalResponse.push(response.data);
         this.logger.log(
           `Request to ${fullUrl} succeeded with status ${response.status}`,
         );
@@ -93,5 +108,6 @@ export class KickstartService {
         this.logger.error(`Request to ${fullUrl} failed`, error.response?.data);
       }
     }
+    return finalResponse;
   }
 }

@@ -1,39 +1,26 @@
 {
   "variables": {
-    "apiKey": "#{UUID()}",
+    "apiKeyValue": "master",
     "jwksKeyId": "#{UUID()}",
     "applicationId": "#{UUID()}",
     "clientSecret": "super-secret-secret-that-you-should-change",
     "defaultTenantId": "#{UUID()}",
-    "adminEmail": "admin@email.com",
+    "adminUsername": "admin",
     "adminPassword": "adminPassword12#",
     "userEmail": "user@email.com",
     "userPassword": "userPassword12#"
   },
-  "apiKeys": [
-    {
-      "key": "master",
-      "description": "Unrestricted API key"
-    }
-  ],
+  "apiKey": {
+    "key": "#{apiKeyValue}",
+    "description": "Unrestricted API key"
+  },
   "requests": [
-    {
-      "method": "POST",
-      "url": "/api-keys",
-      "headers": {
-        "x-stencil-tenantid": "#{defaultTenantId}",
-        "authorization": "master"
-      },
-      "body": {
-        "data": {}
-      }
-    },
     {
       "method": "POST",
       "url": "/key/generate/#{jwksKeyId}",
       "headers": {
         "x-stencil-tenantid": "#{defaultTenantId}",
-        "authorization": "master"
+        "authorization": "#{apiKeyValue}"
       },
       "body": {
         "key": {
@@ -49,7 +36,7 @@
       "url": "/tenant/#{defaultTenantId}",
       "headers": {
         "x-stencil-tenantid": "#{defaultTenantId}",
-        "authorization": "master"
+        "authorization": "#{apiKeyValue}"
       },
       "body": {
         "data": {
@@ -68,7 +55,7 @@
       "url": "/application/#{applicationId}",
       "headers": {
         "x-stencil-tenantid": "#{defaultTenantId}",
-        "authorization": "master"
+        "authorization": "#{apiKeyValue}"
       },
       "body": {
         "data": {
@@ -114,29 +101,10 @@
     },
     {
       "method": "POST",
-      "url": "/user/registration/combined/",
-      "headers": {
-        "x-stencil-tenantid": "#{defaultTenantId}",
-        "authorization": "master"
-      },
+      "url": "/admin",
       "body": {
-        "data": {
-          "userInfo": {
-            "active": true,
-            "applicationId": "#{applicationId}",
-            "membership": ["agroup"],
-            "userData": {
-              "username": "AdminUser",
-              "password": "#{adminPassword}"
-            },
-            "email": "#{adminEmail}"
-          },
-          "registrationInfo": {
-            "generateAuthenticationToken": true,
-            "applicationId": "#{applicationId}",
-            "roles": ["user", "Admin"]
-          }
-        }
+        "password": "#{adminPassword}",
+        "username": "#{adminUsername}"
       }
     },
     {
@@ -144,7 +112,7 @@
       "url": "/user/registration/combined/",
       "headers": {
         "x-stencil-tenantid": "#{defaultTenantId}",
-        "authorization": "master"
+        "authorization": "#{apiKeyValue}"
       },
       "body": {
         "data": {

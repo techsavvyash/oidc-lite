@@ -16,12 +16,38 @@
         ]
       }
     },
-    "/cert": {
+    "/": {
       "get": {
-        "operationId": "AppController_getCertificate",
+        "operationId": "AppController_adminPanel",
         "parameters": [],
         "responses": {
           "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC Wrapper"
+        ]
+      },
+      "post": {
+        "operationId": "AppController_toggleKeyManager",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC Wrapper"
+        ]
+      }
+    },
+    "/admin": {
+      "post": {
+        "operationId": "AppController_createAdmin",
+        "parameters": [],
+        "responses": {
+          "201": {
             "description": ""
           }
         },
