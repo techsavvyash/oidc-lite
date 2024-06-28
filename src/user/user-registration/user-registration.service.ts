@@ -10,14 +10,15 @@ import {
   CreateUserAndUserRegistration,
   CreateUserRegistrationDto,
   UpdateUserRegistrationDto,
+  UserData,
 } from '../user.dto';
-import * as jwt from 'jsonwebtoken';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { randomUUID } from 'crypto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { UserService } from '../user.service';
-import { AccessTokenDto, RefreshTokenDto } from 'src/oidc/oidc.token.dto';
+import { AccessTokenDto, RefreshTokenDto } from '../../oidc/dto/oidc.token.dto';
 import { ApplicationDataDto } from 'src/application/application.dto';
+import { UtilsService } from 'src/utils/utils.service';
 
 @Injectable()
 export class UserRegistrationService {
@@ -26,10 +27,12 @@ export class UserRegistrationService {
     private readonly prismaService: PrismaService,
     private readonly headerAuthService: HeaderAuthService,
     private readonly userService: UserService,
+    private readonly utilService: UtilsService,
   ) {
     this.logger = new Logger(UserRegistrationService.name);
   }
 
+  // save valid roles in user Registration
   async createAUserRegistration(
     userId: string,
     data: CreateUserRegistrationDto,
@@ -97,9 +100,10 @@ export class UserRegistrationService {
         return findRole?.name;
       }),
     );
+    const filteredRoles = roles.map((i) => i); // these must be stored in userRegistration
     const additionalData = data.data;
-    const password: string | null = (await JSON.parse(user.data))?.userData
-      ?.password;
+    const userData: UserData = await JSON.parse(user.data);
+    const password: string | null = userData?.userData?.password;
     // const verified = false; //for now
     // const verifiedInstant = 0;
     try {
@@ -116,33 +120,31 @@ export class UserRegistrationService {
         },
       );
       this.logger.log('A new user registration is made!', userRegistration);
-      const accessTokenSigningKeyId = application.accessTokenSigningKeysId;
-      const accessToken = await this.prismaService.key.findUnique({
-        where: { id: accessTokenSigningKeyId },
-      });
-      const accessSecret = accessToken.privateKey
-        ? accessToken.privateKey
-        : accessToken.secret;
-      const now = new Date().getTime();
+
+      const now = Math.floor(Date.now() / 1000);
       const applicationData: ApplicationDataDto = JSON.parse(application.data);
       const accessTokenSeconds =
-        applicationData.jwtConfiguration.timeToLiveInSeconds * 1000;
+        applicationData.jwtConfiguration.timeToLiveInSeconds;
       const accessTokenPayload: AccessTokenDto = {
         active: true,
         applicationId: application.id,
         iat: now,
-        iss: 'Stencil Service',
+        iss: process.env.HOST_NAME,
         exp: now + accessTokenSeconds,
-        roles: roles,
+        roles: filteredRoles,
         sub: user.id,
+        aud: application.id,
       };
-      const token_acess_token = jwt.sign(accessTokenPayload, accessSecret, {
-        algorithm: accessToken.algorithm as jwt.Algorithm,
-      });
+      const access_token = await this.utilService.createToken(
+        accessTokenPayload,
+        application.id,
+        application.tenantId,
+        'access',
+      );
       return {
         success: true,
-        message: 'User registered',
-        data: { userRegistration, token: token_acess_token },
+        message: 'A user registered',
+        data: { userRegistration, access_token },
       };
     } catch (error) {
       this.logger.log('Error from createAUserRegistration', error);
@@ -172,7 +174,7 @@ export class UserRegistrationService {
       headers,
       tenantId,
       '/user/registration',
-      'POST',
+      'GET',
     );
     if (!valid.success) {
       throw new UnauthorizedException({
@@ -262,8 +264,6 @@ export class UserRegistrationService {
     const additionalData = data.data
       ? JSON.stringify(data.data)
       : oldUserRegistration.data;
-    const token = data.roles ? randomUUID() : null; // genenrate a new token like jwks
-
     try {
       const userRegistration = await this.prismaService.userRegistration.update(
         {
@@ -274,17 +274,16 @@ export class UserRegistrationService {
         },
       );
       this.logger.log('User registration updated', userRegistration);
-
       return {
         success: true,
         message: 'User registration updated',
-        data: { userRegistration, token },
+        data: userRegistration,
       };
     } catch (error) {
       this.logger.log('Error from updateAUserRegistration', error);
       throw new InternalServerErrorException({
         success: false,
-        message: 'Error while updatin user Registration',
+        message: 'Error while updating user Registration',
       });
     }
   }
@@ -308,7 +307,7 @@ export class UserRegistrationService {
       headers,
       tenantId,
       '/user/registration',
-      'POST',
+      'DELETE',
     );
     if (!valid.success) {
       throw new UnauthorizedException({
@@ -356,23 +355,36 @@ export class UserRegistrationService {
     data: CreateUserAndUserRegistration,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenantId = headers['x-stencil-tenantid'];
-    if (!tenantId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header mission',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenantId,
       '/user/registration',
       'POST',
     );
     if (!valid.success) {
       throw new UnauthorizedException({
-        success: false,
+        success: valid.success,
         message: valid.message,
+      });
+    }
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
+    const userInfoApplication = data.userInfo.applicationId;
+    const regiInfoApplication = data.registrationInfo.applicationId;
+    if (userInfoApplication !== regiInfoApplication) {
+      throw new BadRequestException({
+        success: false,
+        message:
+          'mismatch in applicationId provided in userInfo and registrationInfo',
+      });
+    }
+    const application = await this.prismaService.application.findUnique({
+      where: { id: data.userInfo.applicationId },
+    });
+    if (application.tenantId !== tenantId && valid.data.tenantsId !== null) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized enough',
       });
     }
     if (!data || !data.userInfo || !data.registrationInfo) {
@@ -417,40 +429,35 @@ export class UserRegistrationService {
         const application = await this.prismaService.application.findUnique({
           where: { id: applicationId },
         });
-        const accessTokenSigningKeyId = application.accessTokenSigningKeysId;
-        const accessToken = await this.prismaService.key.findUnique({
-          where: { id: accessTokenSigningKeyId },
-        });
-        const accessSecret = accessToken.privateKey
-          ? accessToken.privateKey
-          : accessToken.secret;
-        const now = new Date().getTime();
+        const now = Math.floor(Date.now() / 1000);
         const applicationData: ApplicationDataDto = JSON.parse(
           application.data,
         );
         const refreshTokenSeconds =
-          applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60 * 1000;
+          applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
         const refreshTokenPayload: RefreshTokenDto = {
           active: true,
           applicationId: application.id,
           iat: now,
-          iss: 'Stencil service',
+          iss: process.env.HOST_NAME,
           exp: now + refreshTokenSeconds,
+          sub: userId
         };
-        const refreshToken = jwt.sign(refreshTokenPayload, accessSecret, {
-          algorithm: accessToken.algorithm as jwt.Algorithm,
-        });
-        const saveToken = await this.prismaService.refreshToken.create({
-          data: {
-            applicationsId: application.id,
-            token: refreshToken,
-            tenantId: application.tenantId,
-            usersId: user.data.id,
-            expiry: now + refreshTokenSeconds,
-            startInstant: now,
-            data: '',
-          },
-        });
+        const refreshToken = await this.utilService.createToken(
+          refreshTokenPayload,
+          application.id,
+          application.tenantId,
+          'refresh',
+        );
+        const saveToken = await this.utilService.saveOrUpdateRefreshToken(
+          application.id,
+          refreshToken,
+          user.data.id,
+          application.tenantId,
+          '',
+          now,
+          now + refreshTokenSeconds,
+        );
         this.logger.log('A refersh token is saved!', saveToken);
         return {
           success: true,
@@ -458,14 +465,11 @@ export class UserRegistrationService {
           data: {
             user,
             userRegistration,
-            refreshToken,
+            refresh_token: refreshToken,
             refreshTokenId: saveToken.id,
           },
         };
       } catch (error) {
-        const delCreatedUser = await this.prismaService.user.delete({
-          where: { id: userId },
-        });
         this.logger.log(
           'Error occured while creating User registration',
           error,

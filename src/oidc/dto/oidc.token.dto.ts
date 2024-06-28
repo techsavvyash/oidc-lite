@@ -6,6 +6,7 @@ export class TokenDto {
   @ApiProperty() code?: string;
   @ApiProperty() loginId?: string;
   @ApiProperty() password?: string;
+  @ApiProperty() code_verifier?: string;
   @ApiProperty() grant_type: string;
   @ApiProperty() redirect_uri: string;
 }
@@ -21,6 +22,7 @@ export class IdTokenDto {
   @ApiProperty() iat?: number;
   @ApiProperty() iss?: string;
   @ApiProperty() exp?: number;
+  @ApiProperty() aud: string;
   @ApiProperty() userData?: string | object; // stores user info
 }
 
@@ -33,6 +35,7 @@ export class AccessTokenDto {
   @ApiProperty() applicationId: string;
   @ApiProperty() scope?: string;
   @ApiProperty() roles?: string[];
+  @ApiProperty() aud: string;
 }
 
 export class RefreshTokenDto {
@@ -41,4 +44,5 @@ export class RefreshTokenDto {
   @ApiProperty() iat?: number;
   @ApiProperty() iss?: string;
   @ApiProperty() exp?: number;
+  @ApiProperty() sub: string;
 }

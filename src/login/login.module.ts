@@ -4,9 +4,18 @@ import { LoginService } from './login.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
+import { DomainPinningService } from 'src/domain-pinning/domain-pinning.service';
+import { UtilsService } from 'src/utils/utils.service';
 
 @Module({
   controllers: [LoginController],
-  providers: [LoginService,PrismaService,JwtService,HeaderAuthService]
+  providers: [
+    LoginService,
+    PrismaService,
+    JwtService,
+    HeaderAuthService,
+    DomainPinningService,
+    UtilsService,
+  ],
 })
 export class LoginModule {}

@@ -6,12 +6,11 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { LoginDto } from './login.dto';
-import { ResponseDto } from 'src/dto/response.dto';
-import * as jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { ApplicationDataDto } from 'src/application/application.dto';
-import { AccessTokenDto, RefreshTokenDto } from 'src/oidc/oidc.token.dto';
+import { AccessTokenDto, RefreshTokenDto } from '../oidc/dto/oidc.token.dto';
+import { UtilsService } from 'src/utils/utils.service';
 
 @Injectable()
 export class LoginService {
@@ -19,11 +18,12 @@ export class LoginService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly headerAuthService: HeaderAuthService,
+    private readonly utilService: UtilsService,
   ) {
     this.logger = new Logger(LoginService.name);
   }
 
-  async login(data: LoginDto, headers: object): Promise<ResponseDto> {
+  async login(data: LoginDto, headers: object) {
     if (!data || !data.applicationId || !data.loginId || !data.password) {
       throw new BadRequestException({
         success: false,
@@ -39,9 +39,8 @@ export class LoginService {
         message: 'NO application exists for the given id',
       });
     }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      application.tenantId,
       '/login',
       'POST',
     );
@@ -49,6 +48,13 @@ export class LoginService {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
+      });
+    }
+    const tenant_id = valid.data.tenantsId;
+    if (application.tenantId !== tenant_id && tenant_id !== null) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized to login with given authorization key',
       });
     }
 
@@ -77,86 +83,100 @@ export class LoginService {
         message: 'User not found',
       });
     }
-    if (userRegistration.password !== password) {
+    if (
+      (await this.utilService.comparePasswords(
+        password,
+        userRegistration.password,
+      )) === false
+    ) {
       throw new UnauthorizedException({
         success: false,
         message: 'LoginId or password incorrect',
       });
     }
 
-    const accessTokenSigningKeyId = application.accessTokenSigningKeysId;
-    const idTokenSigningKeysId = application.idTokenSigningKeysId;
-    const accessTokenSigningKey = await this.prismaService.key.findUnique({
-      where: { id: accessTokenSigningKeyId },
-    });
-    const idTokenSigningKey = await this.prismaService.key.findUnique({
-      where: { id: idTokenSigningKeysId },
-    });
-    const accessSecret = accessTokenSigningKey.privateKey
-      ? accessTokenSigningKey.privateKey
-      : accessTokenSigningKey.secret;
-    const idSecret = idTokenSigningKey.privateKey
-      ? idTokenSigningKey.privateKey
-      : idTokenSigningKey.secret; // will be needed in signup cases
+    // will be needed in signup cases
     // groupId.split() => groups => application_role_id => all roles
-    const roles = ['user']; // for now
-    const now = new Date().getTime();
+    const groups = user.groupId.split(' '); // splits all the groups
+    const allRoles = await Promise.all(
+      groups.map(async (group) => {
+        return await this.prismaService.groupApplicationRole.findMany({
+          where: { groupsId: group },
+        });
+      }),
+    );
+    const filterRolesBasedOnCurrentApplication = await Promise.all(
+      allRoles.map(async (group) => {
+        return await Promise.all(
+          group.map(async (role) => {
+            const actualRoleData =
+              await this.prismaService.applicationRole.findUnique({
+                where: { id: role.applicationRolesId },
+              });
+            if (actualRoleData.applicationsId === application.id)
+              return actualRoleData.name;
+            return;
+          }),
+        );
+      }),
+    );
+    const flattenedRoles = filterRolesBasedOnCurrentApplication.flat();
+    const filteredFlattenedRoles = flattenedRoles.filter(
+      (role) => role !== undefined,
+    );
+    const roles = filteredFlattenedRoles; // for now
+    const now = Math.floor(Date.now() / 1000);
     const applicationData: ApplicationDataDto = JSON.parse(application.data);
     const refreshTokenSeconds =
-      applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60 * 1000;
+      applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
     const accessTokenSeconds =
-      applicationData.jwtConfiguration.timeToLiveInSeconds * 1000;
+      applicationData.jwtConfiguration.timeToLiveInSeconds;
 
     const refreshTokenPayload: RefreshTokenDto = {
       active: true,
       applicationId: application.id,
       iat: now,
-      iss: 'Stencil Service',
+      iss: process.env.HOST_NAME,
       exp: now + refreshTokenSeconds,
+      sub: user.id
     };
-    const refreshToken = jwt.sign(refreshTokenPayload, accessSecret, {
-      algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,
-    });
+    const refreshToken = await this.utilService.createToken(
+      refreshTokenPayload,
+      application.id,
+      application.tenantId,
+      'refresh',
+    );
     const accessTokenPayload: AccessTokenDto = {
       active: true,
       applicationId: application.id,
       sub: user.id,
       iat: now,
-      iss: 'Stencil Service',
+      iss: process.env.HOST_NAME,
+      aud: application.id,
       exp: now + accessTokenSeconds,
       roles: roles,
     };
-    const accessToken = jwt.sign(accessTokenPayload, accessSecret, {
-      algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,
-    });
-    const saveToken = await this.prismaService.refreshToken.create({
-      data: {
-        applicationsId: application.id,
-        token: refreshToken,
-        tenantId: application.tenantId,
-        usersId: user.id,
-        expiry: now + refreshTokenSeconds,
-        startInstant: now,
-        data: '',
-      },
-    });
-
+    const accessToken = await this.utilService.createToken(
+      accessTokenPayload,
+      application.id,
+      application.tenantId,
+      'access',
+    );
+    const saveToken = await this.utilService.saveOrUpdateRefreshToken(
+      application.id,
+      refreshToken,
+      user.id,
+      application.tenantId,
+      '',
+      now,
+      now + refreshTokenSeconds,
+    );
     this.logger.log('A refresh token created', refreshToken);
     return {
-      success: true,
-      message: 'User logged in!',
-      data: {
-        user,
-        refreshToken: {
-          value: refreshToken,
-          publicKey: accessTokenSigningKey.publicKey,
-          id: saveToken.id,
-        },
-        accessToken: {
-          value: accessToken,
-          publicKey: accessTokenSigningKey.publicKey,
-        },
-      },
+      id_token: null, // id token comes here
+      refresh_token: refreshToken,
+      refreshTokenId: saveToken.id,
+      access_token: accessToken,
     };
   }
 

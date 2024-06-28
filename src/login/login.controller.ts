@@ -1,24 +1,26 @@
-import { Body, Controller, Get, Headers, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { LoginDto } from './login.dto';
 import { LoginService } from './login.service';
 import { Response,Request } from 'express';
+import { DataApplicationIdGuard } from 'src/guards/dataApplicationId.guard';
 
 @Controller('login')
 export class LoginController {
   constructor(private readonly loginService: LoginService) {}
 
   @Post('/')
+  @UseGuards(DataApplicationIdGuard)
   async login(
     @Body('data') data: LoginDto,
     @Headers() headers: object,
     @Res() res: Response,
   ){
     const result = await this.loginService.login(data, headers);
-    res.cookie('refreshToken', result.data.refreshToken.value, {
+    res.cookie('refreshToken', result.refresh_token, {
       secure: true,
       httpOnly: true,
     });
-    res.cookie('accessToken', result.data.accessToken.value, {
+    res.cookie('accessToken', result.access_token, {
       secure: true,
       httpOnly: true,
     });

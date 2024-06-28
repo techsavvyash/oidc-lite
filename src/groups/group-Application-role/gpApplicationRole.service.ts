@@ -74,7 +74,6 @@ export class GroupAppRoleService {
       });
     }
     const { description, name, isDefault, isSuperRole } = data;
-    console.log(data);
     let id = null;
     if (data.id) {
       id = data.id;
@@ -83,7 +82,6 @@ export class GroupAppRoleService {
     } else {
       id = randomUUID();
     }
-    console.log(randomUUID());
     try {
       const newRole = await this.prismaService.applicationRole.create({
         data: {

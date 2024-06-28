@@ -7,7 +7,13 @@ import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 
 @Module({
   controllers: [KeyController],
-  providers: [KeyService,PrismaService, updateDTO, generateKeyDTO,HeaderAuthService],
-  exports : [updateDTO, generateKeyDTO]
+  providers: [
+    KeyService,
+    PrismaService,
+    updateDTO,
+    generateKeyDTO,
+    HeaderAuthService,
+  ],
+  exports: [updateDTO, generateKeyDTO],
 })
 export class KeyModule {}

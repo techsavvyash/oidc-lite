@@ -7,6 +7,7 @@ import * as bodyParser from 'body-parser';
 import * as fs from 'fs';
 import * as cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
+import { KickstartService } from './kickstart/kickstart.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -26,11 +27,21 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  // saving the swagger file
   fs.writeFileSync('./swagger-spec.json', JSON.stringify(document, null, 2), {
     encoding: 'utf8',
   });
 
-  await app.listen(3000);
+  await app.listen(process.env.HOST_PORT);
 }
-bootstrap();
+
+bootstrap()
+  .then(async () => {
+    const kickstartService = new KickstartService();
+    await kickstartService.setupService();
+    console.log(
+      `Service started at ${process.env.HOST_NAME}:${process.env.HOST_PORT}`,
+    );
+  })
+  .catch((err) => {
+    console.error(err);
+  });

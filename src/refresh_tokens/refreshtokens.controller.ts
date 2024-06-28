@@ -121,6 +121,7 @@ export class RefreshTokensController {
     required: true,
     description: 'Tenant ID',
   })
+  // change it properly as per docs and add guard
   async deletereftoken(
     @Body('applicationId') appid: string,
     @Body('usersId') userid: string,

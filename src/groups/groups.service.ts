@@ -78,7 +78,13 @@ export class GroupsService {
           tenantId: tenant.id,
         },
       });
-      this.logger.log('A new group created', group);
+      const applicationRoles = await Promise.all(finalRoles.map(async (role) => {
+        return await this.prismaService.groupApplicationRole.create({data: {
+          applicationRolesId: role.applicationRole.id,
+          groupsId: group.id,
+        }})
+      }));
+      this.logger.log('A new group created', group,applicationRoles);
       return {
         success: true,
         message: 'Group created successfully',

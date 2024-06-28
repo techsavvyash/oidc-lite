@@ -1,0 +1,138 @@
+{
+  "variables": {
+    "apiKeyValue": "master",
+    "jwksKeyId": "#{UUID()}",
+    "applicationId": "#{UUID()}",
+    "clientSecret": "super-secret-secret-that-you-should-change",
+    "defaultTenantId": "#{UUID()}",
+    "adminUsername": "admin",
+    "adminPassword": "adminPassword12#",
+    "userEmail": "user@email.com",
+    "userPassword": "userPassword12#"
+  },
+  "apiKey": {
+    "key": "#{apiKeyValue}",
+    "description": "Unrestricted API key"
+  },
+  "requests": [
+    {
+      "method": "POST",
+      "url": "/key/generate/#{jwksKeyId}",
+      "headers": {
+        "x-stencil-tenantid": "#{defaultTenantId}",
+        "authorization": "#{apiKeyValue}"
+      },
+      "body": {
+        "key": {
+          "algorithm": "RS256",
+          "issuer": "Stencil Service",
+          "name": "First jwks",
+          "length": 256
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "/tenant/#{defaultTenantId}",
+      "headers": {
+        "x-stencil-tenantid": "#{defaultTenantId}",
+        "authorization": "#{apiKeyValue}"
+      },
+      "body": {
+        "data": {
+          "name": "First tenant",
+          "jwtConfiguration": {
+            "accessTokenKeyID": "#{jwksKeyId}",
+            "refreshTokenTimeToLiveInMinutes": 3600,
+            "timeToLiveInSeconds": 60,
+            "idTokenKeyID": "#{jwksKeyId}"
+          }
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "/application/#{applicationId}",
+      "headers": {
+        "x-stencil-tenantid": "#{defaultTenantId}",
+        "authorization": "#{apiKeyValue}"
+      },
+      "body": {
+        "data": {
+          "active": true,
+          "name": "First Stencil application",
+          "scopes": [
+            {
+              "name": "calender:read",
+              "defaultConsentDetail": "Your calendar data will be used to provide you enhanced reminders",
+              "defaultConsentMessage": "Read your calendar",
+              "required": false
+            }
+          ],
+          "roles": [
+            {
+              "name": "Admin",
+              "description": "This is admin role",
+              "isDefault": false,
+              "isSuperRole": true
+            },
+            {
+              "name": "user",
+              "description": "This is user role",
+              "isDefault": true,
+              "isSuperRole": false
+            }
+          ],
+          "jwtConfiguration": {
+            "accessTokenSigningKeysID": "#{jwksKeyId}",
+            "refreshTokenTimeToLiveInMinutes": 3600,
+            "timeToLiveInSeconds": 60,
+            "idTokenSigningKeysID": "#{jwksKeyId}"
+          },
+          "oauthConfiguration": {
+            "authorizedOriginURLs": ["http://localhost:3000"],
+            "authorizedRedirectURLs": ["http://localhost:9001/oauth_callback"],
+            "clientSecret": "#{clientSecret}",
+            "enabledGrants": ["authorization_code", "refresh_token"],
+            "logoutURL": "http://localhost:3000/logout"
+          }
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "/admin",
+      "body": {
+        "password": "#{adminPassword}",
+        "username": "#{adminUsername}"
+      }
+    },
+    {
+      "method": "POST",
+      "url": "/user/registration/combined/",
+      "headers": {
+        "x-stencil-tenantid": "#{defaultTenantId}",
+        "authorization": "#{apiKeyValue}"
+      },
+      "body": {
+        "data": {
+          "userInfo": {
+            "active": true,
+            "applicationId": "#{applicationId}",
+            "membership": ["agroup"],
+            "userData": {
+              "username": "AdminUser",
+              "password": "#{userPassword}"
+            },
+            "email": "#{userEmail}"
+          },
+          "registrationInfo": {
+            "generateAuthenticationToken": true,
+            "applicationId": "#{applicationId}",
+            "roles": ["user"]
+          }
+        }
+      }
+    }
+  ]
+}

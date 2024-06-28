@@ -24,7 +24,6 @@ export class DomainPinningService {
         method: 'GET',
         agent: new https.Agent({
           checkServerIdentity: (hostname, cert) => {
-            console.log("hi:,",cert.raw);
             const rawCert = cert.raw.toString('base64');
             const pemCert = `-----BEGIN CERTIFICATE-----\n${rawCert.match(/.{1,64}/g).join('\n')}\n-----END CERTIFICATE-----`;
             const pubKey = crypto.createPublicKey(pemCert);
@@ -32,7 +31,6 @@ export class DomainPinningService {
               .export({ type: 'spki', format: 'pem' })
               .toString()
               .trim();
-            console.log('hi', pubKeyPem);
             if (this.trustedPubKey !== pubKeyPem) {
               reject(new Error('Public key does not match'));
             }
