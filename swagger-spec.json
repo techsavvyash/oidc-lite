@@ -70,553 +70,6 @@
         ]
       }
     },
-    "/tenant": {
-      "post": {
-        "operationId": "TenantController_createATenantWithRandomUUID",
-        "summary": "Create a tenant with random UUID",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "description": "Tenant data to create",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateTenantDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Tenant created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        },
-        "tags": [
-          "Tenant"
-        ]
-      },
-      "get": {
-        "operationId": "TenantController_returnAllTenants",
-        "summary": "Get all tenants",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Tenants found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        },
-        "tags": [
-          "Tenant"
-        ]
-      }
-    },
-    "/tenant/{id}": {
-      "get": {
-        "operationId": "TenantController_returnATenant",
-        "summary": "Get a tenant by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Tenant ID",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Tenant found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        },
-        "tags": [
-          "Tenant"
-        ]
-      },
-      "post": {
-        "operationId": "TenantController_createATenant",
-        "summary": "Create a tenant with specified ID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Tenant ID",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "description": "Tenant data to create",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateTenantDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Tenant created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        },
-        "tags": [
-          "Tenant"
-        ]
-      },
-      "patch": {
-        "operationId": "TenantController_updateATenant",
-        "summary": "Update a tenant",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Tenant ID",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "description": "Tenant data to update",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateTenantDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tenant updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        },
-        "tags": [
-          "Tenant"
-        ]
-      },
-      "delete": {
-        "operationId": "TenantController_deleteATenant",
-        "summary": "Delete a tenant",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Tenant ID",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Tenant deleted successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        },
-        "tags": [
-          "Tenant"
-        ]
-      }
-    },
-    "/api-keys": {
-      "post": {
-        "operationId": "ApiKeysController_createAnApiKeyWithRandomUUID",
-        "summary": "Create an API Key with a random UUID",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateApiKeyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Api key successwfully generated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiKeyResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "tags": [
-          "Authentication keys"
-        ]
-      }
-    },
-    "/api-keys/{id}": {
-      "post": {
-        "operationId": "ApiKeysController_createAnApiKey",
-        "summary": "Create an API Key with the given UUID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "ID of the API Key",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateApiKeyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Api key successfully generated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiKeyResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "tags": [
-          "Authentication keys"
-        ]
-      },
-      "get": {
-        "operationId": "ApiKeysController_returnAnApiKey",
-        "summary": "Return an API Key by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "ID of the API Key",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Api key successfully returned",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiKeyResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "tags": [
-          "Authentication keys"
-        ]
-      },
-      "patch": {
-        "operationId": "ApiKeysController_updateAnApiKey",
-        "summary": "Update an API Key by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "ID of the API Key",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateApiKeyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Key updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiKeyResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "tags": [
-          "Authentication keys"
-        ]
-      },
-      "delete": {
-        "operationId": "ApiKeysController_deleteAnApiKey",
-        "summary": "Delete an API Key by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "ID of the API Key",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Api key successfully deleted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiKeyResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "tags": [
-          "Authentication keys"
-        ]
-      }
-    },
-    "/test-users/register": {
-      "get": {
-        "operationId": "TestUsersController_registerUsers",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
     "/oidc/auth": {
       "get": {
         "operationId": "OidcController_authorize",
@@ -3039,6 +2492,595 @@
           }
         }
       }
+    },
+    "/otp/send": {
+      "post": {
+        "operationId": "OtpController_sendOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/otp/verify": {
+      "post": {
+        "operationId": "OtpController_verifyOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/tenant": {
+      "post": {
+        "operationId": "TenantController_createATenantWithRandomUUID",
+        "summary": "Create a tenant with random UUID",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Tenant data to create",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tenant created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "Tenant"
+        ]
+      },
+      "get": {
+        "operationId": "TenantController_returnAllTenants",
+        "summary": "Get all tenants",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenants found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "Tenant"
+        ]
+      }
+    },
+    "/tenant/{id}": {
+      "get": {
+        "operationId": "TenantController_returnATenant",
+        "summary": "Get a tenant by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Tenant ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "Tenant"
+        ]
+      },
+      "post": {
+        "operationId": "TenantController_createATenant",
+        "summary": "Create a tenant with specified ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Tenant ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Tenant data to create",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tenant created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "Tenant"
+        ]
+      },
+      "patch": {
+        "operationId": "TenantController_updateATenant",
+        "summary": "Update a tenant",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Tenant ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Tenant data to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tenant updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "Tenant"
+        ]
+      },
+      "delete": {
+        "operationId": "TenantController_deleteATenant",
+        "summary": "Delete a tenant",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Tenant ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "Tenant"
+        ]
+      }
+    },
+    "/api-keys": {
+      "post": {
+        "operationId": "ApiKeysController_createAnApiKeyWithRandomUUID",
+        "summary": "Create an API Key with a random UUID",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateApiKeyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Api key successwfully generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "Authentication keys"
+        ]
+      }
+    },
+    "/api-keys/{id}": {
+      "post": {
+        "operationId": "ApiKeysController_createAnApiKey",
+        "summary": "Create an API Key with the given UUID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID of the API Key",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateApiKeyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Api key successfully generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "Authentication keys"
+        ]
+      },
+      "get": {
+        "operationId": "ApiKeysController_returnAnApiKey",
+        "summary": "Return an API Key by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID of the API Key",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Api key successfully returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "Authentication keys"
+        ]
+      },
+      "patch": {
+        "operationId": "ApiKeysController_updateAnApiKey",
+        "summary": "Update an API Key by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID of the API Key",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateApiKeyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Key updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "Authentication keys"
+        ]
+      },
+      "delete": {
+        "operationId": "ApiKeysController_deleteAnApiKey",
+        "summary": "Delete an API Key by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID of the API Key",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Api key successfully deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "Authentication keys"
+        ]
+      }
+    },
+    "/test-users/register": {
+      "get": {
+        "operationId": "TestUsersController_registerUsers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "info": {
@@ -3051,213 +3093,6 @@
   "servers": [],
   "components": {
     "schemas": {
-      "JwtConfiguration": {
-        "type": "object",
-        "properties": {
-          "accessTokenKeyID": {
-            "type": "string",
-            "description": "ID for the access token signing keys",
-            "example": "access-key-id-123"
-          },
-          "refreshTokenTimeToLiveInMinutes": {
-            "type": "number",
-            "description": "Time to live for refresh tokens in minutes",
-            "example": 1440
-          },
-          "timeToLiveInSeconds": {
-            "type": "number",
-            "description": "Time to live for access tokens in seconds",
-            "example": 3600
-          },
-          "idTokenKeyID": {
-            "type": "string",
-            "description": "ID for the ID token signing keys",
-            "example": "id-key-id-456"
-          }
-        },
-        "required": [
-          "accessTokenKeyID",
-          "refreshTokenTimeToLiveInMinutes",
-          "timeToLiveInSeconds",
-          "idTokenKeyID"
-        ]
-      },
-      "CreateTenantDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Name of the tenant",
-            "example": "TenantName"
-          },
-          "jwtConfiguration": {
-            "description": "JWT configuration for the tenant",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/JwtConfiguration"
-              }
-            ]
-          },
-          "data": {
-            "type": "string | JSON",
-            "description": "Additional data for the tenant",
-            "example": "{\"key\": \"value\"}"
-          }
-        },
-        "required": [
-          "name",
-          "jwtConfiguration"
-        ]
-      },
-      "ResponseDto": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string"
-          },
-          "data": {
-            "type": "object"
-          }
-        },
-        "required": [
-          "success",
-          "message",
-          "data"
-        ]
-      },
-      "Permissions": {
-        "type": "object",
-        "properties": {
-          "endpoints": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "endpoints"
-        ]
-      },
-      "CreateApiKeyDto": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/Permissions"
-          },
-          "metaData": {
-            "type": "object"
-          },
-          "tenantId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "key",
-          "permissions",
-          "metaData",
-          "tenantId"
-        ]
-      },
-      "ApiKey": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "updatedAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "keyManager": {
-            "type": "boolean"
-          },
-          "keyValue": {
-            "type": "string"
-          },
-          "permissions": {
-            "type": "object"
-          },
-          "metaData": {
-            "type": "string"
-          },
-          "tenantsId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "createdAt",
-          "updatedAt",
-          "keyManager",
-          "keyValue",
-          "permissions",
-          "metaData",
-          "tenantsId"
-        ]
-      },
-      "ApiKeyResponseDto": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/ApiKey"
-          }
-        },
-        "required": [
-          "success",
-          "message",
-          "data"
-        ]
-      },
-      "UpdataPermissionsDto": {
-        "type": "object",
-        "properties": {
-          "endpoints": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "endpoints"
-        ]
-      },
-      "UpdateApiKeyDto": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/UpdataPermissionsDto"
-          },
-          "metaData": {
-            "type": "object"
-          }
-        },
-        "required": [
-          "key",
-          "permissions",
-          "metaData"
-        ]
-      },
       "LoginDto": {
         "type": "object",
         "properties": {
@@ -3463,6 +3298,25 @@
           "email"
         ]
       },
+      "ResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "data"
+        ]
+      },
       "UpdateUserDto": {
         "type": "object",
         "properties": {
@@ -3611,6 +3465,37 @@
           "isDefault",
           "isSuperRole",
           "name"
+        ]
+      },
+      "JwtConfiguration": {
+        "type": "object",
+        "properties": {
+          "accessTokenSigningKeysID": {
+            "type": "string",
+            "description": "ID for the access token signing keys",
+            "example": "access-key-id-123"
+          },
+          "refreshTokenTimeToLiveInMinutes": {
+            "type": "number",
+            "description": "Time to live for refresh tokens in minutes",
+            "example": 1440
+          },
+          "timeToLiveInSeconds": {
+            "type": "number",
+            "description": "Time to live for access tokens in seconds",
+            "example": 3600
+          },
+          "idTokenSigningKeysID": {
+            "type": "string",
+            "description": "ID for the ID token signing keys",
+            "example": "id-key-id-456"
+          }
+        },
+        "required": [
+          "accessTokenSigningKeysID",
+          "refreshTokenTimeToLiveInMinutes",
+          "timeToLiveInSeconds",
+          "idTokenSigningKeysID"
         ]
       },
       "OauthConfiguration": {
@@ -3864,6 +3749,171 @@
       "addUserDTO": {
         "type": "object",
         "properties": {}
+      },
+      "OtpDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "VerifyOtpDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateTenantDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the tenant",
+            "example": "TenantName"
+          },
+          "jwtConfiguration": {
+            "description": "JWT configuration for the tenant",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/JwtConfiguration"
+              }
+            ]
+          },
+          "data": {
+            "type": "string | JSON",
+            "description": "Additional data for the tenant",
+            "example": "{\"key\": \"value\"}"
+          }
+        },
+        "required": [
+          "name",
+          "jwtConfiguration"
+        ]
+      },
+      "Permissions": {
+        "type": "object",
+        "properties": {
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "endpoints"
+        ]
+      },
+      "CreateApiKeyDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/Permissions"
+          },
+          "metaData": {
+            "type": "object"
+          },
+          "tenantId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "permissions",
+          "metaData",
+          "tenantId"
+        ]
+      },
+      "ApiKey": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "keyManager": {
+            "type": "boolean"
+          },
+          "keyValue": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "object"
+          },
+          "metaData": {
+            "type": "string"
+          },
+          "tenantsId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "keyManager",
+          "keyValue",
+          "permissions",
+          "metaData",
+          "tenantsId"
+        ]
+      },
+      "ApiKeyResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ApiKey"
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "data"
+        ]
+      },
+      "UpdataPermissionsDto": {
+        "type": "object",
+        "properties": {
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "endpoints"
+        ]
+      },
+      "UpdateApiKeyDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/UpdataPermissionsDto"
+          },
+          "metaData": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "key",
+          "permissions",
+          "metaData"
+        ]
       }
     }
   }

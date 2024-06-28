@@ -10,6 +10,14 @@ import { DomainPinningService } from 'src/domain-pinning/domain-pinning.service'
 
 @Module({
   controllers: [ApplicationController],
-  providers: [PrismaService, ApplicationService,ApplicationRolesService,ApplicationScopesService,DomainPinningService,HeaderAuthService,KeyService]
+  providers: [
+    PrismaService,
+    ApplicationService,
+    ApplicationRolesService,
+    ApplicationScopesService,
+    DomainPinningService,
+    HeaderAuthService,
+    KeyService,
+  ],
 })
 export class ApplicationModule {}
