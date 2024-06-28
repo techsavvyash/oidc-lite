@@ -18,31 +18,20 @@ export class ApiKeysService {
   }
 
   async createAnApiKey(id: string, data: CreateApiKeyDto, headers: object) {
-    const adminVerification =
-      data?.adminPassword && data?.adminUsername ? true : false;
     const token = headers['authorization'];
-    if (!token && !adminVerification) {
+    if (!token) {
       throw new BadRequestException({
         message: 'Authorization header required',
       });
     }
-    const headerKey = adminVerification === false ? await this.prismaService.authenticationKey.findUnique({
+    const headerKey = await this.prismaService.authenticationKey.findUnique({
       where: {
         keyValue: token,
       },
-    }): null;
-    if ((!headerKey || !headerKey?.keyManager) && !adminVerification) {
+    });
+    if (!headerKey || !headerKey.keyManager) {
       throw new UnauthorizedException({
         message: 'You are not authorized enough',
-      });
-    }
-    const admin = await this.prismaService.admin.findUnique({
-      where: { username: data.adminUsername, password: data.adminPassword },
-    });
-    if (!admin) {
-      throw new UnauthorizedException({
-        success: false,
-        message: 'You are not authorized',
       });
     }
     if (!id) {
@@ -87,7 +76,7 @@ export class ApiKeysService {
     const permissions = data.permissions
       ? JSON.stringify(data.permissions)
       : null; // null implies all endpoints and all the methods
-    const keyManager = adminVerification ? true : false;
+    const keyManager = false; // the value can't be changed from this route. Also these routes need to be protected from an api key with keyManager = true. Will need to hardcode one of the keys to run this route
     const keyValue = data.key ? data.key : randomUUID();
     try {
       const apiKey = await this.prismaService.authenticationKey.create({
