@@ -24,17 +24,12 @@ export class OtpService {
       if (type.includes('whatsapp')) {
         await this.otpAdaptersService.whatsappOtpAdapter(otpGenerated, to);
       }
-      
-      // Start the timer for the OTP
-      this.timeOut();
 
       return {
         success: true,
         message: 'OTP sent successfully',
       };
     } catch (e) {
-      // await this.otpManagerService.timeOutOtp();
-      console.error(e);
       return {
         success: false,
         message: 'OTP failed to send',
@@ -44,8 +39,6 @@ export class OtpService {
 
   async validateOtp(otp: string) {
     const res = await this.otpManagerService.validateOtp(otp);
-
-    // await this.otpManagerService.timeOutOtp();
 
     if (res) {
       return {
@@ -57,12 +50,5 @@ export class OtpService {
       success: false,
       message: 'OTP is invalid or expired',
     };
-  }
-
-  //   @Timeout(100000)
-  async timeOut() {
-    setTimeout(() => {
-      // this.otpManagerService.timeOutOtp();
-    }, this.time*1000);
   }
 }

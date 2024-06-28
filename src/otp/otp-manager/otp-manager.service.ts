@@ -5,11 +5,11 @@ import * as crypto from 'crypto';
 export class OtpManagerService {
   private otpStore: Map<string, number> = new Map(); // Stores OTP and its expiration time
 
-  timeOut: number = parseInt(process.env.OTP_TIMEOUT);
+  timeOut: number = parseInt(process.env.OTP_TIMEOUT) || 300; // OTP valid for 5 minutes default otherwise from env
 
   async generateOtp(length: number = 6): Promise<string> {
     const otp = this.generateSecureOtp(length);
-    const expirationTime = Date.now() + (this.timeOut * 1000); // OTP valid for 5 minutes
+    const expirationTime = Date.now() + this.timeOut * 1000;
     this.otpStore.set(otp, expirationTime);
     return otp;
   }
