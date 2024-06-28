@@ -6,7 +6,7 @@ CREATE TABLE "ApplicationOauthScope" (
     "updatedAt" DATETIME NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    CONSTRAINT "ApplicationOauthScope_applicationsId_fkey" FOREIGN KEY ("applicationsId") REFERENCES "Application" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "ApplicationOauthScope_applicationsId_fkey" FOREIGN KEY ("applicationsId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -17,9 +17,9 @@ CREATE TABLE "ApplicationRole" (
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "isDefault" BOOLEAN NOT NULL,
     "isSuperRole" BOOLEAN NOT NULL,
-    "updatedAt" DATETIME NOT NULL,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "name" TEXT NOT NULL,
-    CONSTRAINT "ApplicationRole_applicationsId_fkey" FOREIGN KEY ("applicationsId") REFERENCES "Application" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "ApplicationRole_applicationsId_fkey" FOREIGN KEY ("applicationsId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -33,7 +33,7 @@ CREATE TABLE "Application" (
     "updatedAt" DATETIME NOT NULL,
     "name" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
-    CONSTRAINT "Application_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Application_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "Application_accessTokenSigningKeysId_fkey" FOREIGN KEY ("accessTokenSigningKeysId") REFERENCES "Key" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "Application_idTokenSigningKeysId_fkey" FOREIGN KEY ("idTokenSigningKeysId") REFERENCES "Key" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
@@ -42,8 +42,8 @@ CREATE TABLE "Application" (
 CREATE TABLE "GroupApplicationRole" (
     "applicationRolesId" TEXT NOT NULL,
     "groupsId" TEXT NOT NULL,
-    CONSTRAINT "GroupApplicationRole_applicationRolesId_fkey" FOREIGN KEY ("applicationRolesId") REFERENCES "ApplicationRole" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "GroupApplicationRole_groupsId_fkey" FOREIGN KEY ("groupsId") REFERENCES "Group" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "GroupApplicationRole_applicationRolesId_fkey" FOREIGN KEY ("applicationRolesId") REFERENCES "ApplicationRole" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "GroupApplicationRole_groupsId_fkey" FOREIGN KEY ("groupsId") REFERENCES "Group" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -52,7 +52,7 @@ CREATE TABLE "GroupMember" (
     "groupId" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "userId" TEXT NOT NULL,
-    CONSTRAINT "GroupMember_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "GroupMember_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Group" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "GroupMember_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -65,7 +65,7 @@ CREATE TABLE "Group" (
     "tenantId" TEXT NOT NULL,
     "permissions" TEXT,
     "attributes" TEXT,
-    CONSTRAINT "Group_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "Group_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -99,8 +99,8 @@ CREATE TABLE "RefreshToken" (
     "tokenHash" TEXT,
     "tokenText" TEXT,
     "usersId" TEXT NOT NULL,
-    CONSTRAINT "RefreshToken_applicationsId_fkey" FOREIGN KEY ("applicationsId") REFERENCES "Application" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "RefreshToken_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "RefreshToken_applicationsId_fkey" FOREIGN KEY ("applicationsId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "RefreshToken_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "RefreshToken_usersId_fkey" FOREIGN KEY ("usersId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -128,7 +128,7 @@ CREATE TABLE "UserRegistration" (
     "lastLoginInstant" DATETIME,
     "updatedAt" DATETIME NOT NULL,
     "usersId" TEXT NOT NULL,
-    CONSTRAINT "UserRegistration_applicationsId_fkey" FOREIGN KEY ("applicationsId") REFERENCES "Application" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "UserRegistration_applicationsId_fkey" FOREIGN KEY ("applicationsId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "UserRegistration_usersId_fkey" FOREIGN KEY ("usersId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -143,7 +143,7 @@ CREATE TABLE "User" (
     "tenantId" TEXT NOT NULL,
     "groupId" TEXT,
     "email" TEXT NOT NULL,
-    CONSTRAINT "User_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "User_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -156,13 +156,22 @@ CREATE TABLE "AuthenticationKey" (
     "permissions" TEXT,
     "metaData" TEXT,
     "tenantsId" TEXT,
-    CONSTRAINT "AuthenticationKey_tenantsId_fkey" FOREIGN KEY ("tenantsId") REFERENCES "Tenant" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT "AuthenticationKey_tenantsId_fkey" FOREIGN KEY ("tenantsId") REFERENCES "Tenant" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "Admin" (
     "username" TEXT NOT NULL,
     "password" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "PublicKeys" (
+    "id" TEXT NOT NULL,
+    "applicationId" TEXT NOT NULL,
+    "hostname" TEXT NOT NULL,
+    "publicKey" TEXT NOT NULL,
+    CONSTRAINT "PublicKeys_applicationId_fkey" FOREIGN KEY ("applicationId") REFERENCES "Application" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateIndex
@@ -239,3 +248,9 @@ CREATE UNIQUE INDEX "Admin_username_key" ON "Admin"("username");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Admin_password_key" ON "Admin"("password");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PublicKeys_id_key" ON "PublicKeys"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PublicKeys_applicationId_hostname_key" ON "PublicKeys"("applicationId", "hostname");

@@ -10,11 +10,13 @@ import { ApplicationScopesService } from './application-scopes/application-scope
 import {
   ApplicationDataDto,
   CreateApplicationDto,
+  JwtConfiguration,
   UpdateApplicationDto,
 } from 'src/application/application.dto';
 import { ResponseDto } from '../dto/response.dto';
 import { HeaderAuthService } from '../header-auth/header-auth.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { UtilsService } from 'src/utils/utils.service';
 
 @Injectable()
 export class ApplicationService {
@@ -24,6 +26,7 @@ export class ApplicationService {
     private readonly applicationRoles: ApplicationRolesService,
     private readonly applicationScopes: ApplicationScopesService,
     private readonly headerAuthService: HeaderAuthService,
+    private readonly utilService: UtilsService,
   ) {
     this.logger = new Logger(ApplicationService.name);
   }
@@ -75,12 +78,6 @@ export class ApplicationService {
         message: 'No data given',
       });
     }
-    if (!data.jwtConfiguration) {
-      throw new BadRequestException({
-        success: false,
-        message: 'jwtConfiguration not provided',
-      });
-    }
     const tenant = await this.prismaService.tenant.findUnique({
       where: { id: tenant_id },
     });
@@ -90,7 +87,7 @@ export class ApplicationService {
         message: 'No such tenant exists',
       });
     }
-    const jwtConfiguration = data.jwtConfiguration;
+    const jwtConfiguration: JwtConfiguration = JSON.parse(tenant.data);
     const accessTokenSigningKeysId = jwtConfiguration.accessTokenSigningKeysID;
     const idTokenSigningKeysId = jwtConfiguration.idTokenSigningKeysID;
     if (
@@ -120,7 +117,7 @@ export class ApplicationService {
     const tenantId = tenant.id;
     const configurations = JSON.stringify({
       oauthConfiguration: data.oauthConfiguration,
-      jwtConfiguration: data.jwtConfiguration,
+      jwtConfiguration: jwtConfiguration,
     });
 
     try {
@@ -135,7 +132,14 @@ export class ApplicationService {
           data: configurations,
         },
       });
-
+      const publicKeys = await this.storePublicKeys(
+        data.oauthConfiguration.authorizedOriginURLs,
+        application.id,
+      );
+      this.logger.log(
+        `Following public keys added for ${application.id}`,
+        publicKeys,
+      );
       try {
         roles.forEach((value) =>
           this.applicationRoles.createRole(
@@ -177,6 +181,7 @@ export class ApplicationService {
     }
   }
 
+  // publicKeys set kr isme
   async patchApplication(
     id: string,
     newData: UpdateApplicationDto,
@@ -462,5 +467,35 @@ export class ApplicationService {
       message: "Application's configurations are as follows",
       data: JSON.parse(application.data),
     };
+  }
+
+  private async storePublicKeys(
+    authorizedOriginURLS: string[],
+    applicationId: string,
+  ) {
+    if (authorizedOriginURLS.length <= 0) {
+      return null;
+    }
+    const result = await Promise.all(
+      authorizedOriginURLS.map(async (url) => {
+        const hostname = new URL(url).hostname;
+        const pubKey = await this.utilService.getPublicKey(hostname);
+        if (pubKey.success) return { pubKey: pubKey.data, hostname };
+        return null;
+      }),
+    );
+    const filterResults = result.filter((i) => i);
+    const addPublicKeys = await Promise.all(
+      filterResults.map(async (pubKey) => {
+        return await this.prismaService.publicKeys.create({
+          data: {
+            hostname: pubKey.hostname,
+            publicKey: pubKey.pubKey,
+            applicationId,
+          },
+        });
+      }),
+    );
+    return addPublicKeys;
   }
 }

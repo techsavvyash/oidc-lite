@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AppService } from './app.service';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 @ApiTags('OIDC Wrapper')
 @Controller()

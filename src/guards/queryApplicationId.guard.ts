@@ -5,33 +5,33 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { DomainPinningService } from 'src/domain-pinning/domain-pinning.service';
+import { UtilsService } from 'src/utils/utils.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class QueryApplicationIdGuard implements CanActivate {
   private readonly logger: Logger;
-  constructor(private readonly prismaService: PrismaService,private readonly domainPinningService: DomainPinningService) {
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly utilService: UtilsService,
+  ) {
     this.logger = new Logger(QueryApplicationIdGuard.name);
   }
-  async canActivate(
-    context: ExecutionContext,
-  ): Promise<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
-    const {query,hostname} = request;
-    if(!query) return false;
+    const { query, hostname } = request;
+    const forwardedHost = request.headers['x-forwarded-host'];
+    if (!query) return false;
     const applicationId = query.client_id;
-    if(!applicationId) return false;
-    const application = await this.prismaService.application.findUnique({where: {id: applicationId as string}});
+    if (!applicationId) return false;
+    const application = await this.prismaService.application.findUnique({
+      where: { id: applicationId as string },
+    });
     if (!application) return false;
-    try {
-      const data = await this.domainPinningService.get(hostname);
-      return true;
-    } catch (error) {
-      this.logger.log(
-        `Unauthorized access attempt on ${application.id} by ${hostname}`,
-      );
-      return false;
-    }
+    return await this.utilService.checkHostPublicKeyWithSavedPublicKeys(
+      forwardedHost,
+      hostname,
+      application.id,
+    );
   }
 }
