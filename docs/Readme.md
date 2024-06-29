@@ -34,6 +34,9 @@ This auth service addresses memory management issues, effectively managing resou
 - **Refresh Tokens APIs**: Used to perform CRUD operations on access tokens and JWT. For more details, refer to the [Refresh Token documentation](refreshToken.md).
 - **Groups APIs**: Used to organize users into groups. For more details, refer to the [Group APIs documentation](Group.md).
 - **Tenants**: Named objects representing discrete namespaces for Users, Applications, and Groups. For more details, refer to the [Tenant documentation](Tenants.md).
+- **Users** : Used to manage features provided regarding Users. For more details, refer to [User docs](User.md)
+- **Application** : Used to manage application CRUD operations. For more details, refer to [Application docs](Application.md)
+- **OTP** : Used to perform authentication using OTP. For more details, refer to [OTP docs](OTP.md)
 
 ## Application and Significance
 
