@@ -2,9 +2,9 @@
   "variables": {
     "apiKeyValue": "master",
     "jwksKeyId": "#{UUID()}",
-    "applicationId": "#{UUID()}",
-    "clientSecret": "super-secret-secret-that-you-should-change",
-    "defaultTenantId": "#{UUID()}",
+    "applicationId": "myminioadmin",
+    "clientSecret": "minio-secret-key-change-me",
+    "defaultTenantId": "minio-tenant",
     "adminUsername": "admin",
     "adminPassword": "adminPassword12#",
     "userEmail": "user@email.com",
@@ -26,8 +26,7 @@
         "key": {
           "algorithm": "RS256",
           "issuer": "Stencil Service",
-          "name": "First jwks",
-          "length": 256
+          "name": "First jwks"
         }
       }
     },
@@ -86,7 +85,7 @@
           "oauthConfiguration": {
             "authorizedOriginURLs": [
               "https://www.google.com",
-              "https://www.yahoo.com/search?keyword=hi",
+              "https://search.yahoo.com",
               "http://localhost:3000",
               "https://strong-chairs-fall.loca.lt",
               "https://jl4spt7t-3000.inc1.devtunnels.ms/"

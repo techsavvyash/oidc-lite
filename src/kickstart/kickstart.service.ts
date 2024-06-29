@@ -22,7 +22,7 @@ export class KickstartService {
       return;
     }
     const fileName = process.env.KICKSTART_FILE_NAME;
-    const hostName = `${process.env.HOST_NAME}:${process.env.HOST_PORT}`;
+    const hostName = `${process.env.FULL_URL}`;
 
     if (!fileName || !hostName) {
       throw new Error(

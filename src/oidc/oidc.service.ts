@@ -81,7 +81,7 @@ export class OidcService {
       });
     }
     res.render('login', {
-      host: `${process.env.HOST_NAME}:${process.env.HOST_PORT}`,
+      host: `${process.env.FULL_URL}`,
       applicationId: client_id,
       redirect_uri,
       state,
@@ -245,7 +245,7 @@ export class OidcService {
       });
     }
     res.render('signup', {
-      host: `${process.env.HOST_NAME}:${process.env.HOST_PORT}`,
+      host: `${process.env.FULL_URL}`,
       applicationId: client_id,
       tenantId,
       redirect_uri,

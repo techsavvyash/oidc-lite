@@ -8,7 +8,7 @@ export class generateKeyDTO {
   @ApiProperty() algorithm: string;
   @ApiProperty() issuer: string;
   @ApiProperty() name: string;
-  @ApiProperty() length: string;
+  @ApiProperty() length: number;
 }
 
 export class KeyDto {

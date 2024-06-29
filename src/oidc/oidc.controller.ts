@@ -66,29 +66,39 @@ export class OidcController {
     @Body() data: LoginDto,
     @Query() query: OIDCAuthQuery,
     @Headers() headers: object,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
-    return await this.oidcService.postAuthorize(data, query, headers,res);
+    return await this.oidcService.postAuthorize(data, query, headers, res);
   }
 
   @Get('/register')
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiQuery({ name: 'client_id', required: true })
+  @ApiQuery({ name: 'redirect_uri', required: true })
+  @ApiQuery({ name: 'response_type', required: true })
+  @ApiQuery({ name: 'scope', required: true })
+  @ApiQuery({ name: 'state', required: false })
+  @ApiQuery({ name: 'code_challenge', required: false })
+  @ApiQuery({ name: 'code_challenge_method', required: false })
   async registerAUser(
     @Query() query: OIDCAuthQuery,
     @Req() req: Request,
     @Res() res: Response,
     @Headers() headers: object,
-  ){
-    return await this.oidcService.registerAUser(req,res,query,headers);
+  ) {
+    return await this.oidcService.registerAUser(req, res, query, headers);
   }
 
   @Post('/register')
+  @ApiOperation({ summary: 'Post registration' })
+  @ApiBody({ type: RegisterDto })
   async postRegisterAUser(
     @Body() data: RegisterDto,
     @Query() query: OIDCAuthQuery,
     @Headers() headers: object,
     @Res() res: Response,
-  ){
-    return await this.oidcService.postRegisterAUser(data,query,headers,res);
+  ) {
+    return await this.oidcService.postRegisterAUser(data, query, headers, res);
   }
 
   @ApiOperation({ summary: 'OIDC Token Endpoint' })
@@ -99,10 +109,7 @@ export class OidcController {
   })
   @ApiHeader({ name: 'authorization', required: true })
   @Post('token')
-  async returnToken(
-    @Headers() headers: object,
-    @Body() data: TokenDto,
-  ){
+  async returnToken(@Headers() headers: object, @Body() data: TokenDto) {
     return await this.oidcService.returnToken(data, headers);
   }
 
@@ -136,7 +143,31 @@ export class OidcController {
   }
 
   @Post('userinfo')
-  async returnClaimsOfEndUser(@Headers() headers: object){
+  @ApiOperation({ summary: 'Return claims of end user' })
+  async returnClaimsOfEndUser(@Headers() headers: object) {
     return await this.oidcService.returnClaimsOfEndUser(headers);
+  }
+
+  @Get('.well-known/openid-configuration')
+  async returnConfigs() {
+    return {
+      issuer: `${process.env.FULL_URL}`,
+      authorization_endpoint: `${process.env.FULL_URL}/oidc/auth`,
+      token_endpoint: `${process.env.FULL_URL}/oidc/token`,
+      userinfo_endpoint: `${process.env.FULL_URL}/oidc/userinfo`,
+      jwks_uri: `${process.env.FULL_URL}/oidc/.well-known/jwks.json`,
+      scopes_supported: ['openid', 'profile', 'email'],
+      response_types_supported: ['code'],
+      grant_types_supported: ['authorization_code', 'password'],
+      id_token_signing_alg_values_supported: [
+        'RS256',
+        'RS384',
+        'RS512',
+        'ES256',
+        'ES384',
+        'ES512',
+      ],
+      code_challenge_methods_supported: ['plain', 'S256'],
+    };
   }
 }

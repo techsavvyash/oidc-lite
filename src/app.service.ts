@@ -11,7 +11,7 @@ export class AppService {
 
   async adminPanel(res: Response) {
     return res.render('admin', {
-      hostname: `${process.env.HOST_NAME}:${process.env.HOST_PORT}`,
+      hostname: `${process.env.FULL_URL}`,
     });
   }
 

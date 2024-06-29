@@ -56,20 +56,6 @@
         ]
       }
     },
-    "/.well-known/openid-configuration": {
-      "get": {
-        "operationId": "AppController_returnConfigs",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "OIDC Wrapper"
-        ]
-      }
-    },
     "/oidc/auth": {
       "get": {
         "operationId": "OidcController_authorize",
@@ -257,6 +243,7 @@
     "/oidc/register": {
       "get": {
         "operationId": "OidcController_registerAUser",
+        "summary": "Register a new user",
         "parameters": [
           {
             "name": "client_id",
@@ -300,7 +287,7 @@
           },
           {
             "name": "state",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -308,7 +295,7 @@
           },
           {
             "name": "code_challenge",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -316,7 +303,7 @@
           },
           {
             "name": "code_challenge_method",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -334,6 +321,7 @@
       },
       "post": {
         "operationId": "OidcController_postRegisterAUser",
+        "summary": "Post registration",
         "parameters": [
           {
             "name": "client_id",
@@ -538,9 +526,24 @@
     "/oidc/userinfo": {
       "post": {
         "operationId": "OidcController_returnClaimsOfEndUser",
+        "summary": "Return claims of end user",
         "parameters": [],
         "responses": {
           "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
+      }
+    },
+    "/oidc/.well-known/openid-configuration": {
+      "get": {
+        "operationId": "OidcController_returnConfigs",
+        "parameters": [],
+        "responses": {
+          "200": {
             "description": ""
           }
         },
@@ -3712,7 +3715,7 @@
             "type": "string"
           },
           "length": {
-            "type": "string"
+            "type": "number"
           }
         },
         "required": [
