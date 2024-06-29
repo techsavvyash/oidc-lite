@@ -398,21 +398,6 @@ export class OidcService {
         message: 'No such client with given id and secret exists',
       });
     }
-    const idTokenSigningKeysId = application.idTokenSigningKeysId;
-    const accessTokenSigningKeysId = application.accessTokenSigningKeysId;
-
-    const idTokenSigningKey = await this.prismaService.key.findUnique({
-      where: { id: idTokenSigningKeysId },
-    });
-    const accessTokenSigningKey = await this.prismaService.key.findUnique({
-      where: { id: accessTokenSigningKeysId },
-    });
-    const idTokenSecret = idTokenSigningKey.privateKey
-      ? idTokenSigningKey.privateKey
-      : idTokenSigningKey.secret;
-    const accessTokenSecret = accessTokenSigningKey.privateKey
-      ? accessTokenSigningKey.privateKey
-      : accessTokenSigningKey.secret;
     const refreshTokenSeconds =
       applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
     const accessTokenSeconds =
@@ -500,7 +485,6 @@ export class OidcService {
           },
         });
       if (!foundUserRegistration) {
-        // create registration
         throw new BadRequestException({
           success: false,
           message: 'Not registered with the application',
@@ -553,14 +537,12 @@ export class OidcService {
       sub: user.id,
       userData: { ...JSON.parse(user.data) },
     };
-    const idToken = jwt.sign(idTokenPayload, idTokenSecret, {
-      algorithm: idTokenSigningKey.algorithm as jwt.Algorithm,
-      header: {
-        kid: idTokenSigningKey.kid,
-        alg: idTokenSigningKey.algorithm,
-        typ: 'JWT',
-      },
-    });
+    const idToken = await this.utilService.createToken(
+      idTokenPayload,
+      application.id,
+      application.tenantId,
+      'id',
+    );
     const refreshTokenPayload: RefreshTokenDto = {
       active: true,
       iat: now,
@@ -569,88 +551,36 @@ export class OidcService {
       exp: now + refreshTokenSeconds,
       sub: user.id,
     };
-    const refreshToken = jwt.sign(refreshTokenPayload, accessTokenSecret, {
-      algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,
-      header: {
-        kid: accessTokenSigningKey.kid,
-        alg: accessTokenSigningKey.algorithm,
-        typ: 'JWT',
-      },
-    });
-    const oldtoken = await this.prismaService.refreshToken.findUnique({
-      where: {
-        unique_applications_users_uk_1: {
-          applicationsId: application.id,
-          usersId: user.id,
-        },
-      },
-    });
-    let newRefreshToken = null;
-    if (!oldtoken) {
-      const saveToken = await this.prismaService.refreshToken.create({
-        data: {
-          applicationsId: application.id,
-          token: refreshToken,
-          tenantId: application.tenantId,
-          usersId: user.id,
-          expiry: now + refreshTokenSeconds,
-          startInstant: now,
-          data: '',
-        },
-      });
-      newRefreshToken = saveToken;
-    } else {
-      const updatedToken = await this.prismaService.refreshToken.update({
-        where: {
-          unique_applications_users_uk_1: {
-            applicationsId: application.id,
-            usersId: user.id,
-          },
-        },
-        data: {
-          applicationsId: application.id,
-          token: refreshToken,
-          tenantId: application.tenantId,
-          usersId: user.id,
-          expiry: now + refreshTokenSeconds,
-          startInstant: now,
-          data: '',
-        },
-      });
-      newRefreshToken = updatedToken;
-    }
+    const refreshToken = await this.utilService.createToken(
+      refreshTokenPayload,
+      application.id,
+      application.tenantId,
+      'refresh',
+    );
 
-    // can take roles from userRegistration, once it is able to store roles
-    // const groups = user.groupId.split(' '); // splits all the groups
-    const groups = ['change this code'];
-    const allRoles = await Promise.all(
-      groups.map(async (group) => {
-        return await this.prismaService.groupApplicationRole.findMany({
-          where: { groupsId: group },
+    const newRefreshToken = await this.utilService.saveOrUpdateRefreshToken(
+      application.id,
+      refreshToken,
+      user.id,
+      application.tenantId,
+      '',
+      now,
+      now + refreshTokenSeconds,
+    );
+
+    const rolesIds =
+      await this.utilService.returnRolesForAGivenUserIdAndApplicationId(
+        user.id,
+        application.id,
+      );
+    const roles = await Promise.all(
+      rolesIds.map(async (roleId) => {
+        const role = await this.prismaService.applicationRole.findUnique({
+          where: { id: roleId },
         });
+        return role.name;
       }),
     );
-    const filterRolesBasedOnCurrentApplication = await Promise.all(
-      allRoles.map(async (group) => {
-        return await Promise.all(
-          group.map(async (role) => {
-            const actualRoleData =
-              await this.prismaService.applicationRole.findUnique({
-                where: {
-                  id: role.applicationRolesId,
-                  applicationsId: application.id,
-                },
-              });
-            return actualRoleData?.name;
-          }),
-        );
-      }),
-    );
-    const flattenedRoles = filterRolesBasedOnCurrentApplication.flat();
-    const filteredFlattenedRoles = flattenedRoles.filter(
-      (role) => role !== undefined,
-    );
-    const roles = filteredFlattenedRoles;
     const accessTokenPayload: AccessTokenDto = {
       active: true,
       roles,
@@ -661,14 +591,13 @@ export class OidcService {
       aud: clientId,
       applicationId: application.id,
     };
-    const accessToken = jwt.sign(accessTokenPayload, accessTokenSecret, {
-      algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,
-      header: {
-        kid: accessTokenSigningKey.kid,
-        alg: accessTokenSigningKey.algorithm,
-        typ: 'JWT',
-      },
-    });
+    const accessToken = await this.utilService.createToken(
+      accessTokenPayload,
+      application.id,
+      application.tenantId,
+      'access',
+    );
+    console.log(accessToken);
     return {
       id_token: idToken,
       access_token: accessToken,
@@ -680,11 +609,8 @@ export class OidcService {
   }
 
   async returnAllPublicJwks() {
-    // here
     const results = await this.prismaService.key.findMany();
     const filteredResults = results.map((result, i) => {
-      delete result.privateKey;
-      delete result.secret;
       return JSON.parse(result.data);
     });
     return {
@@ -708,15 +634,12 @@ export class OidcService {
     const idTokenSigningKey = await this.prismaService.key.findUnique({
       where: { id: tenant.idTokenSigningKeysId },
     });
-    delete accessTokenSigningKey.privateKey;
-    delete accessTokenSigningKey.secret;
-    delete idTokenSigningKey.privateKey;
-    delete idTokenSigningKey.secret;
-    const result = {
-      accessTokenSigningKey,
-      idTokenSigningKey,
+    const keys = [];
+    keys.push(JSON.parse(accessTokenSigningKey.data));
+    keys.push(JSON.parse(idTokenSigningKey.data));
+    return {
+      keys,
     };
-    return result;
   }
 
   async introspect(data: IntrospectDto, headers: object) {
@@ -799,7 +722,6 @@ export class OidcService {
     try {
       const payload = jwt.decode(authorization);
       const userid = payload.sub;
-      const applicationId = (payload as AccessTokenDto).applicationId;
       const user = await this.prismaService.user.findUnique({
         where: { id: userid as string },
       });
@@ -823,7 +745,7 @@ export class OidcService {
     if (!code_challenge || !code_challenge_method) {
       return {
         success: true,
-        message: 'Pkce was not sent',
+        message: 'Pkce was not set',
       };
     }
     // apply code_challenge_method on code_verifier === code_challenge

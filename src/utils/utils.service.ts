@@ -121,7 +121,7 @@ export class UtilsService {
 
   async saveOrUpdateRefreshToken(
     applicationId: string,
-    token: string,
+    refreshToken: string,
     userId: string,
     tenantId: string,
     additionalData: string,
@@ -140,7 +140,7 @@ export class UtilsService {
       return await this.prismaService.refreshToken.update({
         where: { id: oldRefreshToken.id },
         data: {
-          token,
+          token: refreshToken,
           data: additionalData,
           startInstant,
           expiry,
@@ -151,7 +151,7 @@ export class UtilsService {
       data: {
         applicationsId: applicationId,
         usersId: userId,
-        token,
+        token: refreshToken,
         tenantId,
         data: additionalData,
         expiry,
@@ -320,7 +320,7 @@ export class UtilsService {
     );
     const filterRoles = roles.filter((i) => i);
     const defaultRoles = await this.prismaService.applicationRole.findMany({
-      where: { id: applicationId, isDefault: true },
+      where: { applicationsId: applicationId, isDefault: true },
     });
     const defaultRoleIds = defaultRoles.map((role) => role.id);
     const combinedRoles = [...new Set([...filterRoles, ...defaultRoleIds])];
