@@ -9,7 +9,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-class JwtConfiguration {
+export class JwtConfiguration {
   @ApiProperty({
     description: 'ID for the access token signing keys',
     type: String,
@@ -17,7 +17,7 @@ class JwtConfiguration {
   })
   @IsString({ message: 'Access token signing keys ID must be a string' })
   @IsNotEmpty({ message: 'Access token signing keys ID must not be empty' })
-  accessTokenKeyID: string;
+  accessTokenSigningKeysID: string;
 
   @ApiProperty({
     description: 'Time to live for refresh tokens in minutes',
@@ -44,7 +44,7 @@ class JwtConfiguration {
   })
   @IsString({ message: 'ID token signing keys ID must be a string' })
   @IsNotEmpty({ message: 'ID token signing keys ID must not be empty' })
-  idTokenKeyID: string;
+  idTokenSigningKeysID: string;
 }
 
 export class CreateTenantDto {
@@ -64,16 +64,6 @@ export class CreateTenantDto {
   @ValidateNested()
   @Type(() => JwtConfiguration)
   jwtConfiguration: JwtConfiguration;
-
-  @ApiProperty({
-    description: 'Additional data for the tenant',
-    type: 'string | JSON',
-    example: '{"key": "value"}',
-    required: false,
-  })
-  @IsOptional()
-  @IsString({ message: 'Data must be a string' })
-  data?: string | JSON;
 }
 
 export class UpdateTenantDto {

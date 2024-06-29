@@ -7,6 +7,7 @@ import { ApplicationScopesService } from 'src/application/application-scopes/app
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { KeyService } from 'src/key/key.service';
 import { DomainPinningService } from 'src/domain-pinning/domain-pinning.service';
+import { UtilsService } from 'src/utils/utils.service';
 
 @Module({
   controllers: [ApplicationController],
@@ -18,6 +19,7 @@ import { DomainPinningService } from 'src/domain-pinning/domain-pinning.service'
     DomainPinningService,
     HeaderAuthService,
     KeyService,
+    UtilsService
   ],
 })
 export class ApplicationModule {}

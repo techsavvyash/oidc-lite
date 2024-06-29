@@ -42,10 +42,10 @@
         "data": {
           "name": "First tenant",
           "jwtConfiguration": {
-            "accessTokenKeyID": "#{jwksKeyId}",
+            "accessTokenSigningKeysID": "#{jwksKeyId}",
             "refreshTokenTimeToLiveInMinutes": 3600,
             "timeToLiveInSeconds": 60,
-            "idTokenKeyID": "#{jwksKeyId}"
+            "idTokenSigningKeysID": "#{jwksKeyId}"
           }
         }
       }
@@ -83,14 +83,14 @@
               "isSuperRole": false
             }
           ],
-          "jwtConfiguration": {
-            "accessTokenSigningKeysID": "#{jwksKeyId}",
-            "refreshTokenTimeToLiveInMinutes": 3600,
-            "timeToLiveInSeconds": 60,
-            "idTokenSigningKeysID": "#{jwksKeyId}"
-          },
           "oauthConfiguration": {
-            "authorizedOriginURLs": ["http://localhost:3000"],
+            "authorizedOriginURLs": [
+              "https://www.google.com",
+              "https://www.yahoo.com/search?keyword=hi",
+              "http://localhost:3000",
+              "https://strong-chairs-fall.loca.lt",
+              "https://jl4spt7t-3000.inc1.devtunnels.ms/"
+            ],
             "authorizedRedirectURLs": ["http://localhost:9001/oauth_callback"],
             "clientSecret": "#{clientSecret}",
             "enabledGrants": ["authorization_code", "refresh_token"],

@@ -5,23 +5,23 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { DomainPinningService } from 'src/domain-pinning/domain-pinning.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UtilsService } from 'src/utils/utils.service';
 
 @Injectable()
 export class DataApplicationIdGuard implements CanActivate {
   private readonly logger: Logger;
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly domainPinningService: DomainPinningService,
+    private readonly utilService: UtilsService,
   ) {
     this.logger = new Logger(DataApplicationIdGuard.name);
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    return true;
     const request: Request = context.switchToHttp().getRequest();
     const { hostname, body } = request;
+    const forwardedHost = request.headers['x-forwarded-host'];
     if (!body) return false;
     const data = body.data;
     if (!data) return false;
@@ -35,14 +35,10 @@ export class DataApplicationIdGuard implements CanActivate {
       where: { id: applicationId },
     });
     if (!application) return false;
-    try {
-      const data = await this.domainPinningService.get(hostname);
-      return true;
-    } catch (error) {
-      this.logger.log(
-        `Unauthorized access attempt on ${application.id} by ${hostname}`,
-      );
-      return false;
-    }
+    return await this.utilService.checkHostPublicKeyWithSavedPublicKeys(
+      forwardedHost,
+      hostname,
+      application.id,
+    );
   }
 }
