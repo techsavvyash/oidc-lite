@@ -89,8 +89,6 @@ model Group {
   updatedAt   DateTime @updatedAt
   name        String
   tenantId    String
-  permissions String?
-  attributes  String?
 
   tenant           Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   members          GroupMember[]

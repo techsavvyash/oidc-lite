@@ -49,7 +49,6 @@ export class CreateUserDto {
   additionalData?: object | string;
 
   @ApiProperty()
-  @IsUUID()
   applicationId: string;
 
   @ApiProperty()

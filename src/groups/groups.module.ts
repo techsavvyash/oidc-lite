@@ -6,13 +6,11 @@ import { createGroupDTO } from './dtos/groups.dto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { GroupUserService } from 'src/groups/gpUser.service';
 import { KeyService } from 'src/key/key.service';
-import { GroupAppRoleService } from './group-Application-role/gpApplicationRole.service';
 
 @Module({
   controllers: [GroupsController],
   providers: [
     GroupsService,
-    GroupAppRoleService,
     PrismaService,
     createGroupDTO,
     GroupUserService,

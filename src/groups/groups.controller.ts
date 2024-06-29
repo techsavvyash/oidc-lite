@@ -8,20 +8,18 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { GroupsService } from './groups.service';
 import { randomUUID } from 'crypto';
-import { RoleDto, createGroupDTO } from './dtos/groups.dto';
+import { createGroupDTO } from './dtos/groups.dto';
 import { addUserDTO, deleteMemberDTO } from './dtos/gpUser.dto';
 import { GroupUserService } from 'src/groups/gpUser.service';
-import { ResponseDto } from 'src/dto/response.dto';
-import { GroupAppRoleService } from './group-Application-role/gpApplicationRole.service';
 
 @Controller('group')
 export class GroupsController {
   constructor(
     private readonly groupService: GroupsService,
-    private readonly groupAppRoleService: GroupAppRoleService,
     private readonly groupUserService: GroupUserService,
   ) {}
 
@@ -32,6 +30,14 @@ export class GroupsController {
   ) {
     const uuid = randomUUID();
     return await this.groupService.createGroup(data, uuid, headers);
+  }
+
+  @Post('/member')
+  async addUserToGP(
+    @Body('members') data: addUserDTO,
+    @Headers() headers: object,
+  ) {
+    return this.groupUserService.addUser(data, headers);
   }
 
   @Post('/:id')
@@ -67,30 +73,22 @@ export class GroupsController {
     return await this.groupService.deleteGroup(id, headers);
   }
 
-  @Post('member/:uuid')
-  async addUserToGP(
-    @Body() data: addUserDTO,
-    @Param('uuid') uuid: string,
+  @Put('/member')
+  async updateUser(
+    @Body('members') data: addUserDTO,
     @Headers() headers: object,
   ) {
-    if (!uuid) {
-      uuid = randomUUID();
-    }
-    return this.groupUserService.addUser(data, headers);
-  }
-  @Put('member')
-  async updateUser(@Body() data: addUserDTO, @Headers() headers: object) {
     return this.groupUserService.addUser(data, headers);
   }
 
-  @Delete('member/:id')
+  @Delete('/member/:id')
   async delete(@Param('id') id: string, @Headers() headers: object) {
     return this.groupUserService.deleteByMemberId(id, headers);
   }
-  @Delete('member')
+  @Delete('/member')
   async deleteUser(
-    @Body('groupId') gpId: string,
-    @Body('userId') userId: string,
+    @Query('groupId') gpId: string,
+    @Query('userId') userId: string,
     @Body('memberIds') members: deleteMemberDTO,
     @Headers() headers: object,
   ) {
@@ -106,23 +104,5 @@ export class GroupsController {
         message: 'invalid parameters',
       });
     }
-  }
-  
-  @Post('/:id/role/:roleId')
-  async createRole(
-    @Param('id') id: string,
-    @Param('roleId') roleId: string,
-    @Body('data') data: RoleDto,
-    @Headers() headers: object,
-  ): Promise<ResponseDto> {
-    return await this.groupAppRoleService.createRole(data, id, roleId, headers);
-  }
-  @Delete('/:id/role/:roleId')
-  async deleteRole(
-    @Param('id') id: string,
-    @Param('roleId') roleId: string,
-    @Headers() headers: object,
-  ): Promise<ResponseDto> {
-    return await this.groupAppRoleService.deleteRole(id, roleId, headers);
   }
 }

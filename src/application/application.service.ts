@@ -132,6 +132,7 @@ export class ApplicationService {
           data: configurations,
         },
       });
+      // removed await from here?, letting publicKeys to generate after fxn is done.
       const publicKeys = await this.storePublicKeys(
         data.oauthConfiguration.authorizedOriginURLs,
         application.id,
