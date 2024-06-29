@@ -32,7 +32,6 @@ export class UserRegistrationService {
     this.logger = new Logger(UserRegistrationService.name);
   }
 
-  // save valid roles in user Registration
   async createAUserRegistration(
     userId: string,
     data: CreateUserRegistrationDto,
@@ -75,33 +74,12 @@ export class UserRegistrationService {
         message: 'No such user exists',
       });
     }
-    if (!data.roles || data.roles.length === 0) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No roles provided',
-      });
-    }
     const registrationId = data.registrationId
       ? data.registrationId
       : randomUUID();
     const authenticationToken = data.generateAuthenticationToken
       ? randomUUID()
       : null;
-    const roles = await Promise.all(
-      data.roles.map(async (role) => {
-        const findRole = await this.prismaService.applicationRole.findUnique({
-          where: {
-            application_roles_uk_1: {
-              applicationsId: application.id,
-              name: role,
-            },
-          },
-        });
-        return findRole?.name;
-      }),
-    );
-    const filteredRoles = roles.map((i) => i); // these must be stored in userRegistration
-    const additionalData = data.data;
     const userData: UserData = await JSON.parse(user.data);
     const password: string | null = userData?.userData?.password;
     // const verified = false; //for now
@@ -112,7 +90,6 @@ export class UserRegistrationService {
           data: {
             id: registrationId,
             authenticationToken,
-            data: JSON.stringify(additionalData),
             usersId: userId,
             applicationsId: application.id,
             password,
@@ -120,7 +97,19 @@ export class UserRegistrationService {
         },
       );
       this.logger.log('A new user registration is made!', userRegistration);
-
+      const roleIds =
+        await this.utilService.returnRolesForAGivenUserIdAndApplicationId(
+          user.id,
+          application.id,
+        );
+      const filteredRoles = await Promise.all(
+        roleIds.map(async (roleId) => {
+          const role = await this.prismaService.applicationRole.findUnique({
+            where: { id: roleId },
+          });
+          return role.name;
+        }),
+      );
       const now = Math.floor(Date.now() / 1000);
       const applicationData: ApplicationDataDto = JSON.parse(application.data);
       const accessTokenSeconds =
@@ -129,7 +118,7 @@ export class UserRegistrationService {
         active: true,
         applicationId: application.id,
         iat: now,
-        iss: process.env.HOST_NAME,
+        iss: process.env.FULL_URL,
         exp: now + accessTokenSeconds,
         roles: filteredRoles,
         sub: user.id,
@@ -369,17 +358,8 @@ export class UserRegistrationService {
     const tenantId = valid.data.tenantsId
       ? valid.data.tenantsId
       : headers['x-stencil-tenantid'];
-    const userInfoApplication = data.userInfo.applicationId;
-    const regiInfoApplication = data.registrationInfo.applicationId;
-    if (userInfoApplication !== regiInfoApplication) {
-      throw new BadRequestException({
-        success: false,
-        message:
-          'mismatch in applicationId provided in userInfo and registrationInfo',
-      });
-    }
     const application = await this.prismaService.application.findUnique({
-      where: { id: data.userInfo.applicationId },
+      where: { id: data.registrationInfo.applicationId },
     });
     if (application.tenantId !== tenantId && valid.data.tenantsId !== null) {
       throw new UnauthorizedException({
@@ -394,23 +374,15 @@ export class UserRegistrationService {
       });
     }
     const { userInfo, registrationInfo } = data;
-    if (!registrationInfo.roles || registrationInfo.roles.length === 0) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No roles provided',
-      });
-    }
     if (
       !userInfo.active ||
-      !userInfo.applicationId ||
       !userInfo.membership ||
       !userInfo.userData ||
       !userInfo.email
     ) {
       throw new BadRequestException({
         success: false,
-        message:
-          'Data missing active, applicationId, membership array, email or userData',
+        message: 'Data missing active, membership array, email or userData',
       });
     }
     try {
@@ -425,7 +397,7 @@ export class UserRegistrationService {
           registrationInfo,
           headers,
         );
-        const applicationId = userInfo.applicationId;
+        const applicationId = registrationInfo.applicationId;
         const application = await this.prismaService.application.findUnique({
           where: { id: applicationId },
         });
@@ -439,9 +411,9 @@ export class UserRegistrationService {
           active: true,
           applicationId: application.id,
           iat: now,
-          iss: process.env.HOST_NAME,
+          iss: process.env.FULL_URL,
           exp: now + refreshTokenSeconds,
-          sub: userId
+          sub: userId,
         };
         const refreshToken = await this.utilService.createToken(
           refreshTokenPayload,

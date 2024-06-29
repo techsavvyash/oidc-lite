@@ -253,4 +253,77 @@ export class UtilsService {
       return false;
     }
   }
+
+  async returnRolesForAGivenUserIdAndTenantId(
+    userId: string,
+    tenantId: string,
+  ) {
+    const tenant = await this.prismaService.tenant.findUnique({
+      where: { id: tenantId },
+    });
+    if (!tenant) return null;
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) return null;
+    const membership = await this.prismaService.groupMember.findMany({
+      where: { userId },
+    });
+    const groupIds = membership.map((member) => member.groupId);
+    const filterGroupIds = await Promise.all(
+      groupIds.map(async (groupId) => {
+        const group = await this.prismaService.group.findUnique({
+          where: { id: groupId, tenantId },
+        });
+        if (group) return group.id;
+        return null;
+      }),
+    );
+    const removeNullGroupIds = filterGroupIds.filter((i) => i);
+    const roleIds = await Promise.all(
+      removeNullGroupIds.map(async (groupId) => {
+        const groupApplicationRole =
+          await this.prismaService.groupApplicationRole.findMany({
+            where: { groupsId: groupId },
+          });
+        return groupApplicationRole.map((role) => role.applicationRolesId);
+      }),
+    );
+    const flatRoleIds = roleIds.flat();
+    return flatRoleIds;
+  }
+
+  async returnRolesForAGivenUserIdAndApplicationId(
+    userId: string,
+    applicationId: string,
+  ) {
+    const application = await this.prismaService.application.findUnique({
+      where: { id: applicationId },
+    });
+    if (!application) return null;
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) return null;
+    const rolesInTenant = await this.returnRolesForAGivenUserIdAndTenantId(
+      userId,
+      application.tenantId,
+    );
+    const roles = await Promise.all(
+      rolesInTenant.map(async (roleId) => {
+        const role = await this.prismaService.applicationRole.findUnique({
+          where: { id: roleId, applicationsId: application.id },
+        });
+        if (role) return role.id;
+        return null;
+      }),
+    );
+    const filterRoles = roles.filter((i) => i);
+    const defaultRoles = await this.prismaService.applicationRole.findMany({
+      where: { id: applicationId, isDefault: true },
+    });
+    const defaultRoleIds = defaultRoles.map((role) => role.id);
+    const combinedRoles = [...new Set([...filterRoles, ...defaultRoleIds])];
+    return combinedRoles;
+  }
 }

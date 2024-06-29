@@ -187,7 +187,6 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   tenantId  String
-  groupId   String?
   email     String   @unique
 
   tenant            Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)

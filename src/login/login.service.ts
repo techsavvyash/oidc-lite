@@ -97,7 +97,8 @@ export class LoginService {
 
     // will be needed in signup cases
     // groupId.split() => groups => application_role_id => all roles
-    const groups = user.groupId.split(' '); // splits all the groups
+    // const groups = user.groupId.split(' '); // splits all the groups
+    const groups = ["change the code"];
     const allRoles = await Promise.all(
       groups.map(async (group) => {
         return await this.prismaService.groupApplicationRole.findMany({
@@ -136,7 +137,7 @@ export class LoginService {
       active: true,
       applicationId: application.id,
       iat: now,
-      iss: process.env.HOST_NAME,
+      iss: process.env.FULL_URL,
       exp: now + refreshTokenSeconds,
       sub: user.id
     };
@@ -151,7 +152,7 @@ export class LoginService {
       applicationId: application.id,
       sub: user.id,
       iat: now,
-      iss: process.env.HOST_NAME,
+      iss: process.env.FULL_URL,
       aud: application.id,
       exp: now + accessTokenSeconds,
       roles: roles,

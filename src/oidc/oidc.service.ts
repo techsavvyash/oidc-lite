@@ -319,7 +319,6 @@ export class OidcService {
       data: {
         email: loginId,
         tenantId: application.tenantId,
-        groupId: '',
         active: true,
         data: JSON.stringify(userInfo),
       },
@@ -508,10 +507,10 @@ export class OidcService {
         });
       }
       if (
-        await this.utilService.comparePasswords(
+        (await this.utilService.comparePasswords(
           password,
           foundUserRegistration.password,
-        ) === false
+        )) === false
       ) {
         throw new UnauthorizedException({
           success: false,
@@ -549,7 +548,7 @@ export class OidcService {
       active: true,
       iat: now,
       exp: now + refreshTokenSeconds,
-      iss: process.env.HOST_NAME,
+      iss: process.env.FULL_URL,
       aud: clientId,
       sub: user.id,
       userData: { ...JSON.parse(user.data) },
@@ -566,9 +565,9 @@ export class OidcService {
       active: true,
       iat: now,
       applicationId: application.id,
-      iss: process.env.HOST_NAME,
+      iss: process.env.FULL_URL,
       exp: now + refreshTokenSeconds,
-      sub: user.id
+      sub: user.id,
     };
     const refreshToken = jwt.sign(refreshTokenPayload, accessTokenSecret, {
       algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,
@@ -622,7 +621,8 @@ export class OidcService {
     }
 
     // can take roles from userRegistration, once it is able to store roles
-    const groups = user.groupId.split(' '); // splits all the groups
+    // const groups = user.groupId.split(' '); // splits all the groups
+    const groups = ['change this code'];
     const allRoles = await Promise.all(
       groups.map(async (group) => {
         return await this.prismaService.groupApplicationRole.findMany({
@@ -656,7 +656,7 @@ export class OidcService {
       roles,
       iat: now,
       exp: now + accessTokenSeconds,
-      iss: process.env.HOST_NAME,
+      iss: process.env.FULL_URL,
       sub: user.id,
       aud: clientId,
       applicationId: application.id,

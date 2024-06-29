@@ -49,9 +49,6 @@ export class CreateUserDto {
   additionalData?: object | string;
 
   @ApiProperty()
-  applicationId: string;
-
-  @ApiProperty()
   @IsString({ each: true })
   membership: string[];
 
@@ -73,10 +70,6 @@ export class UpdateUserDto {
   @ApiProperty()
   @IsOptional()
   additionalData?: object | string;
-
-  @ApiProperty()
-  @IsUUID()
-  applicationId: string;
 
   @ApiProperty()
   @IsOptional()
@@ -105,16 +98,18 @@ export class CreateUserRegistrationDto {
   @IsOptional()
   @IsUUID()
   registrationId?: string;
+}
 
-  @ApiProperty()
-  @IsString({ each: true })
-  roles: string[];
+export class UserRegistrationData {
+  @ApiProperty() code_challenge: string;
+  @ApiProperty() code_challenge_method: string;
+  @ApiProperty() scope: string;
 }
 
 export class UpdateUserRegistrationDto {
   @ApiProperty()
   @IsOptional()
-  data?: string | JSON | object;
+  data?: UserRegistrationData;
 
   @ApiProperty()
   @IsOptional()
@@ -150,17 +145,8 @@ export class UserDto {
   @IsString()
   tenantId: string;
 
-  @IsUUID()
-  groupId: string;
-
   @IsEmail()
   email: string;
-}
-
-export class UserRegistrationData {
-  @ApiProperty() code_challenge: string;
-  @ApiProperty() code_challenge_method: string;
-  @ApiProperty() scope: string;
 }
 
 export class UserData {

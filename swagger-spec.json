@@ -3208,9 +3208,6 @@
           "additionalData": {
             "type": "object"
           },
-          "applicationId": {
-            "type": "string"
-          },
           "membership": {
             "type": "array",
             "items": {
@@ -3227,7 +3224,6 @@
         "required": [
           "active",
           "additionalData",
-          "applicationId",
           "membership",
           "userData",
           "email"
@@ -3261,9 +3257,6 @@
           "additionalData": {
             "type": "object"
           },
-          "applicationId": {
-            "type": "string"
-          },
           "membership": {
             "type": "array",
             "items": {
@@ -3277,7 +3270,6 @@
         "required": [
           "active",
           "additionalData",
-          "applicationId",
           "membership",
           "userData"
         ]
@@ -3296,27 +3288,39 @@
           },
           "registrationId": {
             "type": "string"
-          },
-          "roles": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           }
         },
         "required": [
           "generateAuthenticationToken",
           "applicationId",
           "data",
-          "registrationId",
-          "roles"
+          "registrationId"
+        ]
+      },
+      "UserRegistrationData": {
+        "type": "object",
+        "properties": {
+          "code_challenge": {
+            "type": "string"
+          },
+          "code_challenge_method": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code_challenge",
+          "code_challenge_method",
+          "scope"
         ]
       },
       "UpdateUserRegistrationDto": {
         "type": "object",
         "properties": {
           "data": {
-            "type": "object"
+            "$ref": "#/components/schemas/UserRegistrationData"
           },
           "roles": {
             "type": "array",

@@ -6,7 +6,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ResponseDto } from 'src/dto/response.dto';
-import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { CreateUserDto, UpdateUserDto, UserDataDto } from './user.dto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UtilsService } from 'src/utils/utils.service';
@@ -17,7 +17,7 @@ export class UserService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly headerAuthService: HeaderAuthService,
-    private readonly utilService: UtilsService
+    private readonly utilService: UtilsService,
   ) {
     this.logger = new Logger(UserService.name);
   }
@@ -70,17 +70,10 @@ export class UserService {
       });
     }
 
-    if (
-      !data.active ||
-      !data.applicationId ||
-      !data.membership ||
-      !data.userData ||
-      !data.email
-    ) {
+    if (!data.active || !data.membership || !data.userData || !data.email) {
       throw new BadRequestException({
         success: false,
-        message:
-          'Data missing active, applicationId, membership array, email or userData',
+        message: 'Data missing active, membership array, email or userData',
       });
     }
 
@@ -96,24 +89,13 @@ export class UserService {
       });
     }
 
-    const { active, applicationId, additionalData, membership, userData } =
-      data;
+    const { active, additionalData, membership, userData } = data;
     if (membership.length === 0) {
       throw new BadRequestException({
         success: false,
         message: 'User must be a member of one group',
       });
     }
-    // which grps to join? grps having the correct application id or any gps?
-    const existingGroups = await Promise.all(
-      membership.map(async (val) => {
-        const groups = await this.prismaService.group.findUnique({
-          where: { id: val },
-        });
-        return groups?.id;
-      }),
-    );
-    const groups = existingGroups.join(' ');
     userData.password = await this.utilService.hashPassword(userData.password);
     const userInfo = {
       userData,
@@ -125,12 +107,27 @@ export class UserService {
           id,
           active,
           tenantId,
-          groupId: groups,
           data: JSON.stringify(userInfo),
           email: data.email,
         },
       });
       this.logger.log('A new user created', user);
+      const existingGroups = await Promise.all(
+        membership?.map(async (val) => {
+          const group = await this.prismaService.group.findUnique({
+            where: { id: val },
+          });
+          if (!group) return;
+          if (group.tenantId !== tenant.id) return;
+          await this.prismaService.groupMember.create({
+            data: {
+              groupId: group.id,
+              userId: user.id,
+            },
+          });
+          return group.id;
+        }),
+      );
       return {
         success: true,
         message: 'New user created',
@@ -244,26 +241,31 @@ export class UserService {
     }
     const active = data.active ? data.active : oldUser.active;
     const oldUserData = JSON.parse(oldUser.data);
-    const userData = data.userData ? data.userData : oldUserData?.userData;
+    const userData: UserDataDto = data.userData
+      ? data.userData
+      : oldUserData?.userData;
     const additionalData = data.additionalData
       ? data.additionalData
       : oldUserData?.additionalData;
-    const applicationId = data.applicationId;
-    let groupId = '';
     if (data.membership && data.membership.length > 0) {
       const membership = data.membership;
       const existingGroups = await Promise.all(
-        membership.map(async (val) => {
-          const groups = await this.prismaService.group.findUnique({
+        membership?.map(async (val) => {
+          const group = await this.prismaService.group.findUnique({
             where: { id: val },
           });
-          return groups.id;
+          if (!group) return;
+          if (group.tenantId !== oldUser.tenantId) return;
+          await this.prismaService.groupMember.create({
+            data: {
+              groupId: group.id,
+              userId: oldUser.id,
+            },
+          });
+          return group.id;
         }),
       );
-      const groups = existingGroups.join(' ');
-      groupId = groups;
     }
-    groupId = groupId !== '' && groupId !== ' ' ? groupId : oldUser.groupId;
     const userInfo = {
       userData,
       additionalData,
@@ -274,7 +276,6 @@ export class UserService {
         data: {
           active,
           data: JSON.stringify(userInfo),
-          groupId,
         },
       });
       this.logger.log('A User is updated', user);
