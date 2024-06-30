@@ -43,6 +43,7 @@ describe('KeyService', () => {
     publicKey: 'mockPublicKey1',
     secret: 'mockSecret1',
     type: 'RSA',
+    data: 'exampleData',
   };
 
 
@@ -105,6 +106,7 @@ describe('KeyService', () => {
           publicKey: 'mockPublicKey1',
           secret: 'mockSecret1',
           type: 'RSA',
+          data: 'exampleData',
         },
       ];
       jest
