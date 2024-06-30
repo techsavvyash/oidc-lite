@@ -24,3 +24,6 @@ The OTP (One-Time Password) Service is part of a NestJS application that handles
 All endpoints return a standardized response object containing:
 - `success`: Boolean indicating operation success
 - `message`: Descriptive message about the operation result
+
+## Error Handling
+The service includes comprehensive error handling, throwing appropriate HTTP exceptions for various scenarios such as unauthorized access, bad requests, or internal server errors.

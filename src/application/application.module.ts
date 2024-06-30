@@ -19,7 +19,7 @@ import { UtilsService } from 'src/utils/utils.service';
     DomainPinningService,
     HeaderAuthService,
     KeyService,
-    UtilsService
+    UtilsService,
   ],
 })
 export class ApplicationModule {}

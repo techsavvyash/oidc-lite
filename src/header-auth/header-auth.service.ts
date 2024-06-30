@@ -6,7 +6,7 @@ import { ApiKeyResponseDto, Permissions } from '../api-keys/apiKey.dto';
 @Injectable()
 export class HeaderAuthService {
   constructor(private readonly prismaService: PrismaService) {}
-  
+
   /** Takes headers and check if the tenantID, requestedUrl and requestedMethods matches with the headerKey if available */
   async authorizationHeaderVerifier(
     headers: object,

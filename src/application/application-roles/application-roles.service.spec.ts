@@ -80,7 +80,9 @@ describe('ApplicationRolesService', () => {
         data: { tenantsId: null },
         message: 'Valid',
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValue(mockApplicationRes);
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplicationRes);
       jest.spyOn(prismaService.applicationRole, 'create').mockResolvedValue({
         id: mockRoleId,
         description: 'Test role',

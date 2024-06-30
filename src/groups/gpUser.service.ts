@@ -81,14 +81,16 @@ export class GroupUserService {
                   message: 'User id is not found in db',
                 };
               }
-              
-              const group = await this.prismaService.group.findUnique({where: {id: member.groupId}});
-              if(group.tenantId !== tenantId) return;
+
+              const group = await this.prismaService.group.findUnique({
+                where: { id: member.groupId },
+              });
+              if (group.tenantId !== tenantId) return;
 
               const membership = await this.prismaService.groupMember.create({
                 data: {
-                    userId,
-                    groupId: member.groupId,
+                  userId,
+                  groupId: member.groupId,
                 },
               });
 
@@ -96,8 +98,7 @@ export class GroupUserService {
             }),
           );
 
-          if(addUsers.length > 0)
-            return addUsers;
+          if (addUsers.length > 0) return addUsers;
           return;
         }),
       );

@@ -441,7 +441,7 @@ export class UserRegistrationService {
           iat: now,
           iss: process.env.HOST_NAME,
           exp: now + refreshTokenSeconds,
-          sub: userId
+          sub: userId,
         };
         const refreshToken = await this.utilService.createToken(
           refreshTokenPayload,

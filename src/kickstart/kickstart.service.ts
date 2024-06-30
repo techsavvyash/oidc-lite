@@ -66,11 +66,15 @@ export class KickstartService {
       return obj;
     };
     const finalResponse = [];
-    const keyInfo = replaceObjectPlaceholders(config.apiKey,variables);
+    const keyInfo = replaceObjectPlaceholders(config.apiKey, variables);
     try {
       const authorizationKey =
         await this.prismaService.authenticationKey.create({
-          data: { keyManager: true, keyValue: keyInfo.key,metaData: keyInfo.description },
+          data: {
+            keyManager: true,
+            keyValue: keyInfo.key,
+            metaData: keyInfo.description,
+          },
         });
       finalResponse.push(authorizationKey);
     } catch (error) {

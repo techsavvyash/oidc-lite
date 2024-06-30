@@ -508,10 +508,10 @@ export class OidcService {
         });
       }
       if (
-        await this.utilService.comparePasswords(
+        (await this.utilService.comparePasswords(
           password,
           foundUserRegistration.password,
-        ) === false
+        )) === false
       ) {
         throw new UnauthorizedException({
           success: false,
@@ -568,7 +568,7 @@ export class OidcService {
       applicationId: application.id,
       iss: process.env.HOST_NAME,
       exp: now + refreshTokenSeconds,
-      sub: user.id
+      sub: user.id,
     };
     const refreshToken = jwt.sign(refreshTokenPayload, accessTokenSecret, {
       algorithm: accessTokenSigningKey.algorithm as jwt.Algorithm,

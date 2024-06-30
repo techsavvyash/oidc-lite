@@ -107,7 +107,7 @@ export class GroupsController {
       });
     }
   }
-  
+
   @Post('/:id/role/:roleId')
   async createRole(
     @Param('id') id: string,

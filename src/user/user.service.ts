@@ -17,7 +17,7 @@ export class UserService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly headerAuthService: HeaderAuthService,
-    private readonly utilService: UtilsService
+    private readonly utilService: UtilsService,
   ) {
     this.logger = new Logger(UserService.name);
   }

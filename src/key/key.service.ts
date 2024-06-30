@@ -60,7 +60,7 @@ export class KeyService {
       throw new InternalServerErrorException({
         success: false,
         message: 'error while retrieving keys',
-      })
+      });
     }
   }
 
@@ -301,7 +301,8 @@ export class KeyService {
           data: jwks,
           key: key,
         };
-      } else if (algorithm === 'HS256') { // gotta remove?
+      } else if (algorithm === 'HS256') {
+        // gotta remove?
         await keyStore
           .generate('oct', 256, { alg: 'HS256', use: 'sig' })
           .then(() => {

@@ -5,7 +5,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { GroupPermissions, UpdateGroupDto, createGroupDTO } from './dtos/groups.dto';
+import {
+  GroupPermissions,
+  UpdateGroupDto,
+  createGroupDTO,
+} from './dtos/groups.dto';
 import { Prisma } from '@prisma/client';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { ResponseDto } from 'src/dto/response.dto';
@@ -78,13 +82,17 @@ export class GroupsService {
           tenantId: tenant.id,
         },
       });
-      const applicationRoles = await Promise.all(finalRoles.map(async (role) => {
-        return await this.prismaService.groupApplicationRole.create({data: {
-          applicationRolesId: role.applicationRole.id,
-          groupsId: group.id,
-        }})
-      }));
-      this.logger.log('A new group created', group,applicationRoles);
+      const applicationRoles = await Promise.all(
+        finalRoles.map(async (role) => {
+          return await this.prismaService.groupApplicationRole.create({
+            data: {
+              applicationRolesId: role.applicationRole.id,
+              groupsId: group.id,
+            },
+          });
+        }),
+      );
+      this.logger.log('A new group created', group, applicationRoles);
       return {
         success: true,
         message: 'Group created successfully',

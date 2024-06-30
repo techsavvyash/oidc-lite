@@ -2,6 +2,6 @@ import { Module } from '@nestjs/common';
 import { KickstartService } from './kickstart.service';
 
 @Module({
-  providers: [KickstartService]
+  providers: [KickstartService],
 })
 export class KickstartModule {}

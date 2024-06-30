@@ -225,7 +225,8 @@ export class UtilsService {
     hostname: string,
     applicationId: string,
   ): Promise<boolean> {
-    if (process.env.MODE === 'DEV' && hostname === 'localhost') // 
+    if (process.env.MODE === 'DEV' && hostname === 'localhost')
+      //
       return true;
     try {
       const hostsToCheck = forwardedHost

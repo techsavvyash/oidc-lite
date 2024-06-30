@@ -6,7 +6,7 @@ import { DomainPinningService } from 'src/domain-pinning/domain-pinning.service'
 import { UtilsService } from 'src/utils/utils.service';
 
 @Module({
-  providers: [OidcService,PrismaService,DomainPinningService,UtilsService],
-  controllers: [OidcController]
+  providers: [OidcService, PrismaService, DomainPinningService, UtilsService],
+  controllers: [OidcController],
 })
 export class OidcModule {}

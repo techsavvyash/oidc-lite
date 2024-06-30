@@ -129,7 +129,11 @@ export class RefreshTokensController {
     @Headers() headers: object,
   ) {
     if (appid && userid) {
-      return await this.refreshService.deleteViaUserAndAppID(userid, appid, headers);
+      return await this.refreshService.deleteViaUserAndAppID(
+        userid,
+        appid,
+        headers,
+      );
     } else if (appid) {
       return await this.refreshService.deleteViaAppID(appid, headers);
     } else if (userid) {

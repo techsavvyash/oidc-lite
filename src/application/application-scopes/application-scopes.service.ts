@@ -29,14 +29,20 @@ export class ApplicationScopesService {
     scopeId: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const valid = await this.headerAuthService.validateRoute(headers,'/application/scope','POST');
+    const valid = await this.headerAuthService.validateRoute(
+      headers,
+      '/application/scope',
+      'POST',
+    );
     if (!valid.success) {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
       });
     }
-    const tenant_id = valid.data.tenantsId? valid.data.tenantsId: headers['x-stencil-tenantid'];
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!data) {
       throw new BadRequestException({
         success: false,
@@ -108,14 +114,20 @@ export class ApplicationScopesService {
     id: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const valid = await this.headerAuthService.validateRoute(headers,'/application/scope','GET');
+    const valid = await this.headerAuthService.validateRoute(
+      headers,
+      '/application/scope',
+      'GET',
+    );
     if (!valid.success) {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
       });
     }
-    const tenant_id = valid.data.tenantsId? valid.data.tenantsId: headers['x-stencil-tenantid'];
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!applicationsId) {
       throw new BadRequestException({
         success: false,
@@ -168,14 +180,20 @@ export class ApplicationScopesService {
     data: UpdateScopeDto,
     headers: object,
   ): Promise<ResponseDto> {
-    const valid = await this.headerAuthService.validateRoute(headers,'/application/scope','PATCH');
+    const valid = await this.headerAuthService.validateRoute(
+      headers,
+      '/application/scope',
+      'PATCH',
+    );
     if (!valid.success) {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
       });
     }
-    const tenant_id = valid.data.tenantsId? valid.data.tenantsId: headers['x-stencil-tenantid'];
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!data) {
       throw new BadRequestException({
         success: false,
@@ -248,14 +266,20 @@ export class ApplicationScopesService {
     scopeId: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const valid = await this.headerAuthService.validateRoute(headers,'/application/scope','DELETE');
+    const valid = await this.headerAuthService.validateRoute(
+      headers,
+      '/application/scope',
+      'DELETE',
+    );
     if (!valid.success) {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
       });
     }
-    const tenant_id = valid.data.tenantsId? valid.data.tenantsId: headers['x-stencil-tenantid'];
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!id) {
       throw new BadRequestException({
         success: false,

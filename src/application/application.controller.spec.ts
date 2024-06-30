@@ -61,7 +61,6 @@ describe('ApplicationController', () => {
     },
   };
 
-
   const mockApplicationService = {
     returnAllApplications: jest.fn(),
     createApplication: jest.fn(),
@@ -139,9 +138,12 @@ describe('ApplicationController', () => {
         .spyOn(applicationService, 'createApplication')
         .mockResolvedValue(result);
 
-      expect(await controller.createAnApplicationWithRandomUUID(mockCreateApplicationDto, {})).toBe(
-        result,
-      );
+      expect(
+        await controller.createAnApplicationWithRandomUUID(
+          mockCreateApplicationDto,
+          {},
+        ),
+      ).toBe(result);
     });
   });
 
@@ -171,9 +173,13 @@ describe('ApplicationController', () => {
         .spyOn(applicationService, 'createApplication')
         .mockResolvedValue(result);
 
-      expect(await controller.createAnApplication(mockCreateApplicationDto, 'given-id', {})).toBe(
-        result,
-      );
+      expect(
+        await controller.createAnApplication(
+          mockCreateApplicationDto,
+          'given-id',
+          {},
+        ),
+      ).toBe(result);
     });
   });
 
@@ -188,9 +194,13 @@ describe('ApplicationController', () => {
         .spyOn(applicationService, 'patchApplication')
         .mockResolvedValue(result);
 
-      expect(await controller.updateApplication('given-id', mockCreateApplicationDto, {})).toBe(
-        result,
-      );
+      expect(
+        await controller.updateApplication(
+          'given-id',
+          mockCreateApplicationDto,
+          {},
+        ),
+      ).toBe(result);
     });
   });
 
@@ -219,7 +229,6 @@ describe('ApplicationController', () => {
     id: '550e8400-e29b-41d4-a716-446655440000',
   };
 
-
   describe('createRoleWithRandomUUID', () => {
     it('should create a role with random UUID', async () => {
       const result: ResponseDto = {
@@ -231,9 +240,9 @@ describe('ApplicationController', () => {
         .spyOn(applicationRolesService, 'createRole')
         .mockResolvedValue(result);
 
-      expect(await controller.createRoleWithRandomUUID('app-id', mockRoleDto, {})).toBe(
-        result,
-      );
+      expect(
+        await controller.createRoleWithRandomUUID('app-id', mockRoleDto, {}),
+      ).toBe(result);
     });
   });
 
@@ -325,7 +334,12 @@ describe('ApplicationController', () => {
         .mockResolvedValue(result);
 
       expect(
-        await controller.createScope('app-id', 'given-scope-id', mockScopeDto, {}),
+        await controller.createScope(
+          'app-id',
+          'given-scope-id',
+          mockScopeDto,
+          {},
+        ),
       ).toBe(result);
     });
   });
@@ -359,7 +373,12 @@ describe('ApplicationController', () => {
         .mockResolvedValue(result);
 
       expect(
-        await controller.updateScope('app-id', 'given-scope-id', mockScopeDto, {}),
+        await controller.updateScope(
+          'app-id',
+          'given-scope-id',
+          mockScopeDto,
+          {},
+        ),
       ).toBe(result);
     });
   });
@@ -447,4 +466,3 @@ describe('ApplicationController', () => {
 // 1. Call returnOauthConfiguration method
 // 2. Expect returnOauthConfiguration method to have been called
 // 3. Expect the return value to be the same as the mocked result
-

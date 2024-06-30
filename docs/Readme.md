@@ -26,16 +26,21 @@ This auth service is essentially a lightweight version of FusionAuth, providing 
 
 ## Issues Resolved by This Auth Service
 
-This auth service addresses memory management issues, effectively managing resources even when registering a large number of users (e.g., using 117 MB for registering 100 users).
+- This auth service addresses memory management issues, effectively managing resources even when registering a large number of users (e.g., using 117 MB for registering 100 users).
 
 ## Key Features
 
 - **Key APIs**: Used to manage cryptographic keys for authentication. For more details, refer to the [Key-API documentation](key-api-readme.md).
+
 - **Refresh Tokens APIs**: Used to perform CRUD operations on access tokens and JWT. For more details, refer to the [Refresh Token documentation](refreshToken.md).
-- **Groups APIs**: Used to organize users into groups. For more details, refer to the [Group APIs documentation](Group.md).
+
+- **Groups APIs**: Used to organize users into groups. For more details, refer to the [Group APIs documentation](Group.md) and to [Group Diagram](https://drive.google.com/file/d/185s3XVx5HdGO2ItTXmZDDBVj3CIylVhI/view?usp=sharing)
+
 - **Tenants**: Named objects representing discrete namespaces for Users, Applications, and Groups. For more details, refer to the [Tenant documentation](Tenants.md).
-- **Users** : Used to manage features provided regarding Users. For more details, refer to [User docs](User.md)
-- **Application** : Used to manage application CRUD operations. For more details, refer to [Application docs](Application.md)
+- **Users** : Used to manage features provided regarding Users. For more details, refer to [User docs](User.md) and to [User Diagram](https://drive.google.com/file/d/1xXhFhM5WwMYZE9QaD47STtHsJcOsNliO/view?usp=sharing).
+
+- **Application** : Used to manage application CRUD operations. For more details, refer to [Application docs](Application.md) and to [Application diagrams](https://drive.google.com/file/d/1xnLQehVQc22FkDvubRN7tJR0fOQUdYKI/view?usp=sharing).
+
 - **OTP** : Used to perform authentication using OTP. For more details, refer to [OTP docs](OTP.md)
 
 ## Application and Significance
