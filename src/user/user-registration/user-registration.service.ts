@@ -123,6 +123,7 @@ export class UserRegistrationService {
         roles: filteredRoles,
         sub: user.id,
         aud: application.id,
+        scope: 'openid'
       };
       const access_token = await this.utilService.createToken(
         accessTokenPayload,

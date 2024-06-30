@@ -139,6 +139,7 @@ export class LoginService {
       aud: application.id,
       exp: now + accessTokenSeconds,
       roles: roles,
+      scope: 'openid offline_access'
     };
     const accessToken = await this.utilService.createToken(
       accessTokenPayload,

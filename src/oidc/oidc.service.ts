@@ -123,6 +123,16 @@ export class OidcService {
         message: 'No such application exists',
       });
     }
+    const applicationData: ApplicationDataDto = JSON.parse(application.data);
+    const redirectUrls =
+      applicationData.oauthConfiguration.authorizedRedirectURLs;
+    if (!redirectUrls.includes(redirect_uri)) {
+      throw new UnauthorizedException({
+        success: false,
+        message:
+          'The given redirect_uri doesnt match with the registered redirect uris',
+      });
+    }
     const user = await this.prismaService.user.findUnique({
       where: { email: loginId },
     });
@@ -296,6 +306,16 @@ export class OidcService {
       throw new BadRequestException({
         success: false,
         message: 'No such application exists',
+      });
+    }
+    const applicationData: ApplicationDataDto = JSON.parse(application.data);
+    const redirectUrls =
+      applicationData.oauthConfiguration.authorizedRedirectURLs;
+    if (!redirectUrls.includes(redirect_uri)) {
+      throw new UnauthorizedException({
+        success: false,
+        message:
+          'The given redirect_uri doesnt match with the registered redirect uris',
       });
     }
     const oldUser = await this.prismaService.user.findUnique({
@@ -540,26 +560,29 @@ export class OidcService {
         message: 'No user found!',
       });
     }
-    
-    const profileAllowed = validScopes.includes('profile');
-    const emailAllowed = validScopes.includes('email');
-    const offline_accessAllowed = validScopes.includes('offline_access');
+
+    const profileAllowed =
+      validScopes.includes('profile') && scopes.includes('profile');
+    const emailAllowed =
+      validScopes.includes('email') && scopes.includes('email');
+    const offline_accessAllowed =
+      validScopes.includes('offline_access') &&
+      scopes.includes('offline_access');
     const now = Math.floor(Date.now() / 1000);
     const userData: UserData = JSON.parse(user.data);
     const { username, firstname, lastname } = userData.userData;
     const idTokenPayload = {
-      policy: ['consoleAdmin'], // look into groups matter, for minio added
+      policy: ['consoleAdmin'],
       active: true,
       iat: now,
       exp: now + refreshTokenSeconds,
       iss: process.env.FULL_URL,
       aud: clientId,
       sub: user.id,
-      userData:
-        scopes.includes('profile') && profileAllowed
-          ? { username: username, firstname: firstname, lastname: lastname }
-          : null,
-      email: scopes.includes('email') && emailAllowed ? user.email : null,
+      userData: profileAllowed
+        ? { username: username, firstname: firstname, lastname: lastname }
+        : null,
+      email: emailAllowed ? user.email : null,
     };
     const idToken = await this.utilService.createToken(
       idTokenPayload,
@@ -614,6 +637,7 @@ export class OidcService {
       sub: user.id,
       aud: clientId,
       applicationId: application.id,
+      scope: `openid ${profileAllowed ? 'profile' : ''} ${emailAllowed ? 'email' : ''} ${offline_accessAllowed ? 'offline_access' : ''}`,
     };
     const accessToken = await this.utilService.createToken(
       accessTokenPayload,
@@ -624,14 +648,8 @@ export class OidcService {
     return {
       id_token: idToken,
       access_token: accessToken,
-      refresh_token:
-        scopes.includes('offline_access') && offline_accessAllowed
-          ? refreshToken
-          : null,
-      refreshTokenId:
-        scopes.includes('offline_access') && offline_accessAllowed
-          ? newRefreshToken.id
-          : null,
+      refresh_token: offline_accessAllowed ? refreshToken : null,
+      refreshTokenId: offline_accessAllowed ? newRefreshToken.id : null,
       userId: user.id,
       token_type: 'Bearer',
     };

@@ -111,7 +111,7 @@
               "https://strong-chairs-fall.loca.lt",
               "https://jl4spt7t-3000.inc1.devtunnels.ms/"
             ],
-            "authorizedRedirectURLs": ["http://localhost:9001/oauth_callback"],
+            "authorizedRedirectURLs": ["http://localhost:9001/oauth_callback","http://192.168.233.157:9001/oauth_callback"],
             "clientSecret": "#{clientSecret}",
             "enabledGrants": ["authorization_code", "password"],
             "logoutURL": "http://localhost:3000/logout"
