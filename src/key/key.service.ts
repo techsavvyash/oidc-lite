@@ -61,7 +61,6 @@ export class KeyService {
         success: false,
         message: 'error while retrieving keys',
       });
-      });
     }
   }
 
