@@ -6,7 +6,6 @@ import { ApplicationRolesService } from 'src/application/application-roles/appli
 import { ApplicationScopesService } from 'src/application/application-scopes/application-scopes.service';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { KeyService } from 'src/key/key.service';
-import { DomainPinningService } from 'src/domain-pinning/domain-pinning.service';
 import { UtilsService } from 'src/utils/utils.service';
 
 @Module({
@@ -16,7 +15,6 @@ import { UtilsService } from 'src/utils/utils.service';
     ApplicationService,
     ApplicationRolesService,
     ApplicationScopesService,
-    DomainPinningService,
     HeaderAuthService,
     KeyService,
     UtilsService,

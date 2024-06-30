@@ -95,37 +95,20 @@ export class LoginService {
       });
     }
 
-    // will be needed in signup cases
-    // groupId.split() => groups => application_role_id => all roles
-    // const groups = user.groupId.split(' '); // splits all the groups
-    const groups = ["change the code"];
+    const roleIds =
+      await this.utilService.returnRolesForAGivenUserIdAndApplicationId(
+        user.id,
+        application.id,
+      );
     const allRoles = await Promise.all(
-      groups.map(async (group) => {
-        return await this.prismaService.groupApplicationRole.findMany({
-          where: { groupsId: group },
+      roleIds.map(async (roleId) => {
+        const role = await this.prismaService.applicationRole.findUnique({
+          where: { id: roleId },
         });
+        if (role) return role.name;
       }),
     );
-    const filterRolesBasedOnCurrentApplication = await Promise.all(
-      allRoles.map(async (group) => {
-        return await Promise.all(
-          group.map(async (role) => {
-            const actualRoleData =
-              await this.prismaService.applicationRole.findUnique({
-                where: { id: role.applicationRolesId },
-              });
-            if (actualRoleData.applicationsId === application.id)
-              return actualRoleData.name;
-            return;
-          }),
-        );
-      }),
-    );
-    const flattenedRoles = filterRolesBasedOnCurrentApplication.flat();
-    const filteredFlattenedRoles = flattenedRoles.filter(
-      (role) => role !== undefined,
-    );
-    const roles = filteredFlattenedRoles; // for now
+    const roles = allRoles.filter((i) => i);
     const now = Math.floor(Date.now() / 1000);
     const applicationData: ApplicationDataDto = JSON.parse(application.data);
     const refreshTokenSeconds =

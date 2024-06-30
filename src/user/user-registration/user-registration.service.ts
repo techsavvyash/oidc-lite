@@ -209,7 +209,7 @@ export class UserRegistrationService {
     data: UpdateUserRegistrationDto,
     headers: object,
   ): Promise<ResponseDto> {
-    if (!data || applicationId || !userId) {
+    if (!data || !applicationId || !userId) {
       throw new BadRequestException({
         success: false,
         message: 'No data given for registration',
@@ -256,7 +256,7 @@ export class UserRegistrationService {
     try {
       const userRegistration = await this.prismaService.userRegistration.update(
         {
-          where: { ...oldUserRegistration },
+          where: { id: oldUserRegistration.id },
           data: {
             data: additionalData,
           },
@@ -322,7 +322,7 @@ export class UserRegistrationService {
     }
     try {
       const userRegistration = await this.prismaService.userRegistration.delete(
-        { where: { ...oldUserRegistration } },
+        { where: { id: oldUserRegistration.id } },
       );
       this.logger.log('A user registration is deleted', userRegistration);
       return {

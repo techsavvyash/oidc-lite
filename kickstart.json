@@ -84,15 +84,13 @@
           ],
           "oauthConfiguration": {
             "authorizedOriginURLs": [
-              "https://www.google.com",
-              "https://search.yahoo.com",
-              "http://localhost:3000",
+              "*",
               "https://strong-chairs-fall.loca.lt",
               "https://jl4spt7t-3000.inc1.devtunnels.ms/"
             ],
             "authorizedRedirectURLs": ["http://localhost:9001/oauth_callback"],
             "clientSecret": "#{clientSecret}",
-            "enabledGrants": ["authorization_code", "refresh_token"],
+            "enabledGrants": ["authorization_code", "password"],
             "logoutURL": "http://localhost:3000/logout"
           }
         }
