@@ -10,6 +10,7 @@ import {
   RefreshTokenDto,
 } from 'src/oidc/dto/oidc.token.dto';
 import { KeyDto } from 'src/key/key.dto';
+import { ApplicationDataDto } from 'src/application/application.dto';
 
 @Injectable()
 export class UtilsService {
@@ -226,6 +227,12 @@ export class UtilsService {
     applicationId: string,
   ): Promise<boolean> {
     try {
+      const application = await this.prismaService.application.findUnique({
+        where: { id: applicationId },
+      });
+      const applicationData: ApplicationDataDto = JSON.parse(application.data);
+      const urls = applicationData.oauthConfiguration.authorizedOriginURLs;
+      if(urls.includes("*")) return true; // allowed from anywhere
       const hostsToCheck = forwardedHost
         ? Array.isArray(forwardedHost)
           ? forwardedHost

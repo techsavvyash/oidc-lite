@@ -317,9 +317,7 @@ export class KeyService {
     });
 
     this.logger.log(
-      `${keyType} key generated successfully`,
-      fields.publicKey,
-      fields.privateKey,
+      `${storedKey.id} key generated successfully`,
     );
     return { jwks, storedKey };
   }
