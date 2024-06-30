@@ -2257,7 +2257,7 @@
         }
       }
     },
-    "/login/logout": {
+    "/logout": {
       "get": {
         "operationId": "LoginController_logout",
         "parameters": [],

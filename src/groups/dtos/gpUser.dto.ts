@@ -1,10 +1,6 @@
 import {
-  IsUUID,
-  IsObject,
-  ValidateNested,
   IsString,
   IsArray,
-  isArray,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 

@@ -5,10 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import {
-  UpdateGroupDto,
-  createGroupDTO,
-} from './dtos/groups.dto';
+import { UpdateGroupDto, createGroupDTO } from './dtos/groups.dto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { ResponseDto } from 'src/dto/response.dto';
 
@@ -70,6 +67,7 @@ export class GroupsService {
     try {
       const group = await this.prismaService.group.create({
         data: {
+          id: uuid,
           name: data.name,
           tenantId: tenant.id,
         },

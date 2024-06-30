@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { randomInt } from 'crypto';
 
 interface UserInfo {
   applicationId: string;
@@ -17,7 +16,6 @@ interface UserInfo {
 interface RegistrationInfo {
   generateAuthenticationToken: boolean;
   applicationId: string;
-  roles: string[];
 }
 
 interface UserRequest {
@@ -29,7 +27,7 @@ interface UserRequest {
 
 @Injectable()
 export class TestUsersService {
-  private readonly baseUrl = 'http://localhost:3000/user/registration/combined';
+  private readonly baseUrl = `${process.env.FULL_URL}/user/registration/combined`;
   private readonly headers = {
     Authorization: 'master',
     'x-stencil-tenantid': 'minio-tenant',
@@ -62,12 +60,11 @@ export class TestUsersService {
             email: email,
             password: password,
           },
-          membership: ['first-group', 'second-group'],
+          membership: ['agroup'],
         },
         registrationInfo: {
           generateAuthenticationToken: true,
           applicationId: 'myminioadmin',
-          roles: ['admin', 'common'],
         },
       },
     };

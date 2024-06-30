@@ -24,7 +24,6 @@ import { Request, Response } from 'express';
 import { OIDCAuthQuery } from './dto/oidc.auth.dto';
 import { LoginDto, RegisterDto } from 'src/login/login.dto';
 import { IntrospectDto, TokenDto } from './dto/oidc.token.dto';
-import { ResponseDto } from 'src/dto/response.dto';
 import { QueryApplicationIdGuard } from 'src/guards/queryApplicationId.guard';
 import { DataApplicationIdGuard } from 'src/guards/dataApplicationId.guard';
 
@@ -156,7 +155,7 @@ export class OidcController {
       token_endpoint: `${process.env.FULL_URL}/oidc/token`,
       userinfo_endpoint: `${process.env.FULL_URL}/oidc/userinfo`,
       jwks_uri: `${process.env.FULL_URL}/oidc/.well-known/jwks.json`,
-      scopes_supported: ['openid', 'profile', 'email'],
+      scopes_supported: ['openid', 'profile', 'email','offline_access'],
       response_types_supported: ['code'],
       grant_types_supported: ['authorization_code', 'password'],
       id_token_signing_alg_values_supported: [

@@ -483,9 +483,13 @@ export class ApplicationService {
     }
     const result = await Promise.all(
       authorizedOriginURLS.map(async (url) => {
-        const hostname = new URL(url).hostname;
-        const pubKey = await this.utilService.getPublicKey(hostname);
-        if (pubKey.success) return { pubKey: pubKey.data, hostname };
+        try {
+          const hostname = new URL(url).hostname;
+          const pubKey = await this.utilService.getPublicKey(hostname);
+          if (pubKey.success) return { pubKey: pubKey.data, hostname };
+        } catch (error) {
+          this.logger.error(`Error on ${url} while getting public key`);
+        }
         return null;
       }),
     );

@@ -424,7 +424,7 @@ export class UserRegistrationService {
         const saveToken = await this.utilService.saveOrUpdateRefreshToken(
           application.id,
           refreshToken,
-          user.data.id,
+          userId,
           application.tenantId,
           '',
           now,

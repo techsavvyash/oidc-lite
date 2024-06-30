@@ -232,7 +232,7 @@ export class UtilsService {
       });
       const applicationData: ApplicationDataDto = JSON.parse(application.data);
       const urls = applicationData.oauthConfiguration.authorizedOriginURLs;
-      if(urls.includes("*")) return true; // allowed from anywhere
+      if (urls.includes('*')) return true; // allowed from anywhere
       const hostsToCheck = forwardedHost
         ? Array.isArray(forwardedHost)
           ? forwardedHost
@@ -332,5 +332,13 @@ export class UtilsService {
     const defaultRoleIds = defaultRoles.map((role) => role.id);
     const combinedRoles = [...new Set([...filterRoles, ...defaultRoleIds])];
     return combinedRoles;
+  }
+
+  async returnScopesForAGivenApplicationId(applicationId: string) {
+    const scopesData = await this.prismaService.applicationOauthScope.findMany({
+      where: { applicationsId: applicationId },
+    });
+    const scope = scopesData.map((scope) => scope.name);
+    return scope;
   }
 }

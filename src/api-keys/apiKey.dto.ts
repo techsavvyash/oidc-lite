@@ -6,7 +6,6 @@ import {
   IsEnum,
   IsOptional,
   IsString,
-  IsUUID,
   IsUrl,
 } from 'class-validator';
 
@@ -70,7 +69,6 @@ export class UpdateApiKeyDto {
 
 class ApiKey {
   @ApiProperty()
-  @IsUUID()
   id: string;
 
   @ApiProperty()

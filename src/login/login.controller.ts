@@ -13,11 +13,11 @@ import { LoginService } from './login.service';
 import { Response, Request } from 'express';
 import { DataApplicationIdGuard } from 'src/guards/dataApplicationId.guard';
 
-@Controller('login')
+@Controller('/')
 export class LoginController {
   constructor(private readonly loginService: LoginService) {}
 
-  @Post('/')
+  @Post('/login')
   @UseGuards(DataApplicationIdGuard)
   async login(
     @Body('data') data: LoginDto,

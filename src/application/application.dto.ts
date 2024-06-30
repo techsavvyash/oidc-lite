@@ -10,7 +10,6 @@ import {
   IsNotEmpty,
   IsInt,
   Min,
-  IsUUID,
   IsOptional,
   IsBoolean,
 } from 'class-validator';
@@ -162,7 +161,6 @@ export class RoleDto {
     required: false,
   })
   @IsOptional()
-  @IsUUID('4', { message: 'ID must be a valid UUID' })
   id?: string;
 }
 
@@ -214,7 +212,6 @@ export class UpdateRoleDto {
     required: false,
   })
   @IsOptional()
-  @IsUUID('4', { message: 'ID must be a valid UUID' })
   id?: string;
 }
 
@@ -244,7 +241,6 @@ export class ScopeDto {
     required: false,
   })
   @IsOptional()
-  @IsUUID('4', { message: 'ID must be a valid UUID' })
   id?: string;
 
   @ApiProperty({
@@ -293,7 +289,6 @@ export class UpdateScopeDto {
     required: false,
   })
   @IsOptional()
-  @IsUUID('4', { message: 'ID must be a valid UUID' })
   id?: string;
 
   @ApiProperty({

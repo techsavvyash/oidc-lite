@@ -7,7 +7,6 @@ import {
   IsEnum,
   IsOptional,
   IsString,
-  IsUUID,
   Matches,
   MinLength,
   ValidateNested,
@@ -87,7 +86,6 @@ export class CreateUserRegistrationDto {
   generateAuthenticationToken?: boolean;
 
   @ApiProperty()
-  @IsUUID()
   applicationId: string;
 
   @ApiProperty()
@@ -96,7 +94,6 @@ export class CreateUserRegistrationDto {
 
   @ApiProperty()
   @IsOptional()
-  @IsUUID()
   registrationId?: string;
 }
 
@@ -126,7 +123,6 @@ export class CreateUserAndUserRegistration {
 }
 
 export class UserDto {
-  @IsUUID()
   id: string;
 
   @IsBoolean()

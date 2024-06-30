@@ -6,7 +6,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { ResponseDto } from 'src/dto/response.dto';
-import { CreateUserDto, UpdateUserDto, UserDataDto } from './user.dto';
+import { CreateUserDto, UpdateUserDto, UserData } from './user.dto';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UtilsService } from 'src/utils/utils.service';
@@ -90,12 +90,6 @@ export class UserService {
     }
 
     const { active, additionalData, membership, userData } = data;
-    if (membership.length === 0) {
-      throw new BadRequestException({
-        success: false,
-        message: 'User must be a member of one group',
-      });
-    }
     userData.password = await this.utilService.hashPassword(userData.password);
     const userInfo = {
       userData,
@@ -128,10 +122,11 @@ export class UserService {
           return group.id;
         }),
       );
+      const groups = existingGroups.filter((i) => i);
       return {
         success: true,
         message: 'New user created',
-        data: user,
+        data: { user, groups },
       };
     } catch (error) {
       this.logger.log('Error occured in createAUser', error);
@@ -241,7 +236,7 @@ export class UserService {
     }
     const active = data.active ? data.active : oldUser.active;
     const oldUserData = JSON.parse(oldUser.data);
-    const userData: UserDataDto = data.userData
+    const userData: UserData = data.userData
       ? data.userData
       : oldUserData?.userData;
     const additionalData = data.additionalData

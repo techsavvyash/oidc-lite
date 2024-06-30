@@ -403,7 +403,7 @@ export class OidcService {
     const accessTokenSeconds =
       applicationData.jwtConfiguration.timeToLiveInSeconds;
     let user: UserDto = null;
-
+    let scope: string | null = null;
     if (grant_type === 'authorization_code') {
       if (
         !applicationData.oauthConfiguration.enabledGrants.includes(
@@ -450,6 +450,7 @@ export class OidcService {
       const foundUser = await this.prismaService.user.findUnique({
         where: { id: userRegistration.usersId },
       });
+      scope = scope === null ? userRegistrationData.scope : null;
       user = user === null ? foundUser : null;
     } else if (grant_type === 'password') {
       if (
@@ -490,6 +491,9 @@ export class OidcService {
           message: 'Not registered with the application',
         });
       }
+      const foundUserRegistrationData: UserRegistrationData = JSON.parse(
+        foundUserRegistration.data,
+      );
       if (
         (await this.utilService.comparePasswords(
           password,
@@ -501,6 +505,7 @@ export class OidcService {
           message: 'You are not authorized',
         });
       }
+      scope = scope === null ? foundUserRegistrationData.scope : null;
       user = user === null ? foundUser : null;
     } else if (grant_type === 'client_credentials') {
       if (
@@ -520,13 +525,28 @@ export class OidcService {
         message: 'you reached a part of server that is not yet implemented',
       });
     }
+    const scopes: string[] | null = scope?.split(' ');
+    const validScopes =
+      await this.utilService.returnScopesForAGivenApplicationId(application.id);
+    if (!scopes.includes('openid')) {
+      throw new BadRequestException({
+        success: false,
+        message: 'openid scope required',
+      });
+    }
     if (!user) {
       throw new BadRequestException({
         success: false,
         message: 'No user found!',
       });
     }
+    
+    const profileAllowed = validScopes.includes('profile');
+    const emailAllowed = validScopes.includes('email');
+    const offline_accessAllowed = validScopes.includes('offline_access');
     const now = Math.floor(Date.now() / 1000);
+    const userData: UserData = JSON.parse(user.data);
+    const { username, firstname, lastname } = userData.userData;
     const idTokenPayload = {
       policy: ['consoleAdmin'], // look into groups matter, for minio added
       active: true,
@@ -535,7 +555,11 @@ export class OidcService {
       iss: process.env.FULL_URL,
       aud: clientId,
       sub: user.id,
-      userData: { ...JSON.parse(user.data) },
+      userData:
+        scopes.includes('profile') && profileAllowed
+          ? { username: username, firstname: firstname, lastname: lastname }
+          : null,
+      email: scopes.includes('email') && emailAllowed ? user.email : null,
     };
     const idToken = await this.utilService.createToken(
       idTokenPayload,
@@ -597,12 +621,17 @@ export class OidcService {
       application.tenantId,
       'access',
     );
-    console.log(accessToken);
     return {
       id_token: idToken,
       access_token: accessToken,
-      refresh_token: refreshToken,
-      refreshTokenId: newRefreshToken.id,
+      refresh_token:
+        scopes.includes('offline_access') && offline_accessAllowed
+          ? refreshToken
+          : null,
+      refreshTokenId:
+        scopes.includes('offline_access') && offline_accessAllowed
+          ? newRefreshToken.id
+          : null,
       userId: user.id,
       token_type: 'Bearer',
     };
