@@ -12,11 +12,11 @@ import {
   CreateApplicationDto,
   JwtConfiguration,
   UpdateApplicationDto,
-} from 'src/application/application.dto';
+} from './application.dto';
 import { ResponseDto } from '../dto/response.dto';
 import { HeaderAuthService } from '../header-auth/header-auth.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { UtilsService } from 'src/utils/utils.service';
+import { UtilsService } from '../utils/utils.service';
 
 @Injectable()
 export class ApplicationService {

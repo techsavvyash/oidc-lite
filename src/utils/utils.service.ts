@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
@@ -8,8 +8,8 @@ import {
   AccessTokenDto,
   IdTokenDto,
   RefreshTokenDto,
-} from 'src/oidc/dto/oidc.token.dto';
-import { KeyDto } from 'src/key/key.dto';
+} from '../oidc/dto/oidc.token.dto';
+import { KeyDto } from '../key/key.dto';
 
 @Injectable()
 export class UtilsService {
