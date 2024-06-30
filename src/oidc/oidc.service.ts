@@ -572,7 +572,6 @@ export class OidcService {
     const userData: UserData = JSON.parse(user.data);
     const { username, firstname, lastname } = userData.userData;
     const idTokenPayload = {
-      policy: ['consoleAdmin'],
       active: true,
       iat: now,
       exp: now + refreshTokenSeconds,
@@ -768,13 +767,48 @@ export class OidcService {
     }
     try {
       const payload = jwt.decode(authorization);
-      const userid = payload.sub;
+      const accessPayload = payload as AccessTokenDto;
+      const scopes = accessPayload.scope.split(' ');
+      if (!scopes.includes('openid')) {
+        return {
+          success: false,
+          message: 'openid scope missing in token',
+        };
+      }
+      const userid = accessPayload.sub;
       const user = await this.prismaService.user.findUnique({
         where: { id: userid as string },
       });
-      const userData = JSON.parse(user.data);
-      delete userData.userData.password;
-      return { ...userData };
+      const userData: UserData = JSON.parse(user.data);
+      const actualUserData: UserDataDto = userData.userData;
+      delete actualUserData.password;
+      const emailClaim = scopes.includes('email') ? user.email : null;
+      const userDataClaim: UserDataDto | null = scopes.includes('profile')
+        ? actualUserData
+        : null;
+      const roleIds =
+        await this.utilService.returnRolesForAGivenUserIdAndApplicationId(
+          user.id,
+          accessPayload.applicationId,
+        );
+      const allRoles = await Promise.all(
+        roleIds.map(async (roleId) => {
+          const role = await this.prismaService.applicationRole.findUnique({
+            where: { id: roleId },
+          });
+          return role?.name;
+        }),
+      );
+      const roles = allRoles.filter((i) => i);
+      return {
+        applicationId: accessPayload.applicationId,
+        email: emailClaim,
+        sub: accessPayload.sub,
+        roles,
+        firstname: userDataClaim?.firstname,
+        lastname: userDataClaim?.lastname,
+        username: userDataClaim?.username,
+      };
     } catch (error) {
       this.logger.log('Error occured in returnClaimsOfEndUser', error);
       throw new InternalServerErrorException({

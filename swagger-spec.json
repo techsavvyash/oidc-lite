@@ -536,6 +536,19 @@
         "tags": [
           "OIDC"
         ]
+      },
+      "get": {
+        "operationId": "OidcController_returnClaimsOfEndUserGet",
+        "summary": "Return claims of end user via GET",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
       }
     },
     "/oidc/.well-known/openid-configuration": {

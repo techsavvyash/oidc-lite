@@ -146,6 +146,11 @@ export class OidcController {
   async returnClaimsOfEndUser(@Headers() headers: object) {
     return await this.oidcService.returnClaimsOfEndUser(headers);
   }
+  @Get('userinfo')
+  @ApiOperation({ summary: 'Return claims of end user via GET' })
+  async returnClaimsOfEndUserGet(@Headers() headers: object) {
+    return await this.oidcService.returnClaimsOfEndUser(headers);
+  }
 
   @Get('.well-known/openid-configuration')
   async returnConfigs() {
@@ -155,7 +160,7 @@ export class OidcController {
       token_endpoint: `${process.env.FULL_URL}/oidc/token`,
       userinfo_endpoint: `${process.env.FULL_URL}/oidc/userinfo`,
       jwks_uri: `${process.env.FULL_URL}/oidc/.well-known/jwks.json`,
-      scopes_supported: ['openid', 'profile', 'email','offline_access'],
+      scopes_supported: ['openid', 'profile', 'email', 'offline_access'],
       response_types_supported: ['code'],
       grant_types_supported: ['authorization_code', 'password'],
       id_token_signing_alg_values_supported: [
