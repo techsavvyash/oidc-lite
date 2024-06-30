@@ -36,7 +36,8 @@ export class TestUsersService {
   };
 
   private generateRandomString(length: number): string {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     const charactersLength = characters.length;
     for (let i = 0; i < length; i++) {
@@ -75,7 +76,7 @@ export class TestUsersService {
   public async registerUsers(): Promise<any[]> {
     const requests = [];
     for (let i = 0; i < 100; i++) {
-      const userRequest = this.createUser(100+i);
+      const userRequest = this.createUser(100 + i);
       requests.push(
         axios.post(this.baseUrl, userRequest, { headers: this.headers }),
       );

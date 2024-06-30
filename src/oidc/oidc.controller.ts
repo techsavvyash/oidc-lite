@@ -67,7 +67,9 @@ export class OidcController {
     @Query() query: OIDCAuthQuery,
     @Headers() headers: object,
     @Res() res: Response,
+    @Res() res: Response,
   ) {
+    return await this.oidcService.postAuthorize(data, query, headers, res);
     return await this.oidcService.postAuthorize(data, query, headers, res);
   }
 
@@ -87,6 +89,8 @@ export class OidcController {
     @Headers() headers: object,
   ) {
     return await this.oidcService.registerAUser(req, res, query, headers);
+  ) {
+    return await this.oidcService.registerAUser(req, res, query, headers);
   }
 
   @Post('/register')
@@ -99,6 +103,8 @@ export class OidcController {
     @Res() res: Response,
   ) {
     return await this.oidcService.postRegisterAUser(data, query, headers, res);
+  ) {
+    return await this.oidcService.postRegisterAUser(data, query, headers, res);
   }
 
   @ApiOperation({ summary: 'OIDC Token Endpoint' })
@@ -109,6 +115,7 @@ export class OidcController {
   })
   @ApiHeader({ name: 'authorization', required: true })
   @Post('token')
+  async returnToken(@Headers() headers: object, @Body() data: TokenDto) {
   async returnToken(@Headers() headers: object, @Body() data: TokenDto) {
     return await this.oidcService.returnToken(data, headers);
   }

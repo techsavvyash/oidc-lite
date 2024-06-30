@@ -45,7 +45,6 @@ describe('KeyService', () => {
     type: 'RSA',
   };
 
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -238,9 +237,13 @@ describe('KeyService', () => {
         .mockResolvedValue({ success: false, message: 'Unauthorized' });
 
       await expect(
-        service.updateKey('uuid', {name: "updatedKeyName"}, {
-          authorization: 'invalid-token',
-        }),
+        service.updateKey(
+          'uuid',
+          { name: 'updatedKeyName' },
+          {
+            authorization: 'invalid-token',
+          },
+        ),
       ).rejects.toThrow(UnauthorizedException);
     });
 
@@ -293,9 +296,7 @@ describe('KeyService', () => {
           message: 'Authorized',
           data: mockHeaderKey,
         });
-      jest
-        .spyOn(prismaService.key, 'findUnique')
-        .mockResolvedValue(mockKey);
+      jest.spyOn(prismaService.key, 'findUnique').mockResolvedValue(mockKey);
       const mockUpdate = jest
         .spyOn(prismaService.key, 'update')
         .mockResolvedValue(mockKey);
@@ -366,9 +367,7 @@ describe('KeyService', () => {
           message: 'Authorized',
           data: mockHeaderKey,
         });
-      jest
-        .spyOn(prismaService.key, 'findUnique')
-        .mockResolvedValue(mockKey);
+      jest.spyOn(prismaService.key, 'findUnique').mockResolvedValue(mockKey);
       const mockDelete = jest
         .spyOn(prismaService.key, 'delete')
         .mockResolvedValue(mockKey);
@@ -389,13 +388,12 @@ describe('KeyService', () => {
   });
 
   describe('generateKey', () => {
-
     const mockGenerateKeyDTO = {
       algorithm: 'RS256',
       issuer: 'issuer',
       name: 'keyName',
       length: '2048',
-    }
+    };
 
     it('should throw UnauthorizedException if authorization header is invalid', async () => {
       jest
@@ -435,26 +433,33 @@ describe('KeyService', () => {
         });
 
       await expect(
-        service.generateKey('uuid', {
-          algorithm: 'RS256',
-          issuer: 'issuer',
-          name: null,
-          length: '2048',
-        }, 
-        {
-          authorization: 'valid-token',
-        }),
+        service.generateKey(
+          'uuid',
+          {
+            algorithm: 'RS256',
+            issuer: 'issuer',
+            name: null,
+            length: '2048',
+          },
+          {
+            authorization: 'valid-token',
+          },
+        ),
       ).rejects.toThrow(BadRequestException);
 
       await expect(
-        service.generateKey('uuid', {
-          algorithm: null,
-          issuer: 'issuer',
-          name: 'keyName',
-          length: '2048',
-        }, {
-          authorization: 'valid-token',
-        }),
+        service.generateKey(
+          'uuid',
+          {
+            algorithm: null,
+            issuer: 'issuer',
+            name: 'keyName',
+            length: '2048',
+          },
+          {
+            authorization: 'valid-token',
+          },
+        ),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -471,11 +476,9 @@ describe('KeyService', () => {
         .spyOn(prismaService.key, 'create')
         .mockResolvedValue(mockKey);
 
-      const result = await service.generateKey(
-        'uuid',
-        mockGenerateKeyDTO,
-        { authorization: 'valid-token' },
-      );
+      const result = await service.generateKey('uuid', mockGenerateKeyDTO, {
+        authorization: 'valid-token',
+      });
 
       expect(mockCreate).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -492,11 +495,10 @@ describe('KeyService', () => {
 
       expect(result.success).toBe(true);
       expect(result.message).toBe('key generated successfully');
-      expect(result.key).toMatchObject(mockKey)
+      expect(result.key).toMatchObject(mockKey);
     });
   });
 });
-
 
 // UNIT TESTS : KEY SERVICE
 // -------------------------

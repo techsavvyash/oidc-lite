@@ -139,7 +139,7 @@ export class LoginService {
       iat: now,
       iss: process.env.FULL_URL,
       exp: now + refreshTokenSeconds,
-      sub: user.id
+      sub: user.id,
     };
     const refreshToken = await this.utilService.createToken(
       refreshTokenPayload,

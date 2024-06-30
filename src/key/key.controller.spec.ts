@@ -137,7 +137,7 @@ describe('KeyController', () => {
 
   describe('randomgenerateKey', () => {
     it('should call generateKey method from KeyService with random UUID', async () => {
-      const mockGenerateDto: generateKeyDTO = { 
+      const mockGenerateDto: generateKeyDTO = {
         algorithm: 'RSA',
         issuer: 'Issuer1',
         name: 'KeyName1',
@@ -205,7 +205,6 @@ describe('KeyController', () => {
     });
   });
 });
-
 
 // UNIT TESTS: KEY CONTROLLER
 // ---------------------------

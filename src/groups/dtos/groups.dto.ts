@@ -1,8 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsString,
-} from 'class-validator';
+import { IsArray, IsString } from 'class-validator';
 
 export class createGroupDTO {
   @ApiProperty()
@@ -20,9 +17,9 @@ export class UpdateGroupDto {
 }
 
 export class RoleDto {
-    @ApiProperty() description: string;
-    @ApiProperty() isDefault: boolean;
-    @ApiProperty() isSuperRole: boolean;
-    @ApiProperty() name: string;
-    @ApiProperty() id?: string;
-  }
+  @ApiProperty() description: string;
+  @ApiProperty() isDefault: boolean;
+  @ApiProperty() isSuperRole: boolean;
+  @ApiProperty() name: string;
+  @ApiProperty() id?: string;
+}

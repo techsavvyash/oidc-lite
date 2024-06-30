@@ -78,6 +78,7 @@ export class GroupUserService {
           );
 
           if (addUsers.length > 0) return addUsers;
+          if (addUsers.length > 0) return addUsers;
           return;
         }),
       );
