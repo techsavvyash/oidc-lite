@@ -32,6 +32,7 @@ import { ResponseDto } from 'src/dto/response.dto';
 import { UserRegistrationService } from './user-registration/user-registration.service';
 import { ParamApplicationIdGuard } from '../guards/paramApplicationId.guard';
 import { DataApplicationIdGuard } from '../guards/dataApplicationId.guard';
+
 @ApiTags('User')
 @Controller('user')
 export class UserController {
@@ -51,7 +52,6 @@ export class UserController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @Post('/')
-  @UseGuards(DataApplicationIdGuard)
   async createAUserWithRandomUUID(
     @Body('data') data: CreateUserDto,
     @Headers() headers: object,
@@ -72,7 +72,6 @@ export class UserController {
   @ApiHeader({ name: 'authorization', description: 'Authorization token' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @Post('/:id')
-  @UseGuards(DataApplicationIdGuard)
   async createAUser(
     @Param('id') id: string,
     @Body('data') data: CreateUserDto,

@@ -39,7 +39,7 @@ bootstrap()
     const kickstartService = new KickstartService();
     await kickstartService.setupService();
     console.log(
-      `Service started at ${process.env.HOST_NAME}:${process.env.HOST_PORT}`,
+      `Service started at ${process.env.FULL_URL}`,
     );
   })
   .catch((err) => {

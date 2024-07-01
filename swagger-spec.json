@@ -56,20 +56,6 @@
         ]
       }
     },
-    "/.well-known/openid-configuration": {
-      "get": {
-        "operationId": "AppController_returnConfigs",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "OIDC Wrapper"
-        ]
-      }
-    },
     "/oidc/auth": {
       "get": {
         "operationId": "OidcController_authorize",
@@ -257,6 +243,7 @@
     "/oidc/register": {
       "get": {
         "operationId": "OidcController_registerAUser",
+        "summary": "Register a new user",
         "parameters": [
           {
             "name": "client_id",
@@ -300,7 +287,7 @@
           },
           {
             "name": "state",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -308,7 +295,7 @@
           },
           {
             "name": "code_challenge",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -316,7 +303,7 @@
           },
           {
             "name": "code_challenge_method",
-            "required": true,
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -334,6 +321,7 @@
       },
       "post": {
         "operationId": "OidcController_postRegisterAUser",
+        "summary": "Post registration",
         "parameters": [
           {
             "name": "client_id",
@@ -538,9 +526,37 @@
     "/oidc/userinfo": {
       "post": {
         "operationId": "OidcController_returnClaimsOfEndUser",
+        "summary": "Return claims of end user",
         "parameters": [],
         "responses": {
           "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
+      },
+      "get": {
+        "operationId": "OidcController_returnClaimsOfEndUserGet",
+        "summary": "Return claims of end user via GET",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
+      }
+    },
+    "/oidc/.well-known/openid-configuration": {
+      "get": {
+        "operationId": "OidcController_returnConfigs",
+        "parameters": [],
+        "responses": {
+          "200": {
             "description": ""
           }
         },
@@ -2254,7 +2270,7 @@
         }
       }
     },
-    "/login/logout": {
+    "/logout": {
       "get": {
         "operationId": "LoginController_logout",
         "parameters": [],
@@ -2278,6 +2294,52 @@
       "get": {
         "operationId": "GroupsController_retrieveAllGroup",
         "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/group/member": {
+      "post": {
+        "operationId": "GroupsController_addUserToGP",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "operationId": "GroupsController_updateUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "GroupsController_deleteUser",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -2359,126 +2421,12 @@
         }
       }
     },
-    "/group/member/{uuid}": {
-      "post": {
-        "operationId": "GroupsController_addUserToGP",
-        "parameters": [
-          {
-            "name": "uuid",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/addUserDTO"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/group/member": {
-      "put": {
-        "operationId": "GroupsController_updateUser",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/addUserDTO"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "operationId": "GroupsController_deleteUser",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
     "/group/member/{id}": {
       "delete": {
         "operationId": "GroupsController_delete",
         "parameters": [
           {
             "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/group/{id}/role/{roleId}": {
-      "post": {
-        "operationId": "GroupsController_createRole",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "roleId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "operationId": "GroupsController_deleteRole",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "roleId",
             "required": true,
             "in": "path",
             "schema": {
@@ -3273,9 +3221,6 @@
           "additionalData": {
             "type": "object"
           },
-          "applicationId": {
-            "type": "string"
-          },
           "membership": {
             "type": "array",
             "items": {
@@ -3292,7 +3237,6 @@
         "required": [
           "active",
           "additionalData",
-          "applicationId",
           "membership",
           "userData",
           "email"
@@ -3326,9 +3270,6 @@
           "additionalData": {
             "type": "object"
           },
-          "applicationId": {
-            "type": "string"
-          },
           "membership": {
             "type": "array",
             "items": {
@@ -3342,7 +3283,6 @@
         "required": [
           "active",
           "additionalData",
-          "applicationId",
           "membership",
           "userData"
         ]
@@ -3361,27 +3301,39 @@
           },
           "registrationId": {
             "type": "string"
-          },
-          "roles": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           }
         },
         "required": [
           "generateAuthenticationToken",
           "applicationId",
           "data",
-          "registrationId",
-          "roles"
+          "registrationId"
+        ]
+      },
+      "UserRegistrationData": {
+        "type": "object",
+        "properties": {
+          "code_challenge": {
+            "type": "string"
+          },
+          "code_challenge_method": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code_challenge",
+          "code_challenge_method",
+          "scope"
         ]
       },
       "UpdateUserRegistrationDto": {
         "type": "object",
         "properties": {
           "data": {
-            "type": "object"
+            "$ref": "#/components/schemas/UserRegistrationData"
           },
           "roles": {
             "type": "array",
@@ -3712,7 +3664,7 @@
             "type": "string"
           },
           "length": {
-            "type": "string"
+            "type": "number"
           }
         },
         "required": [
@@ -3736,10 +3688,6 @@
           "refreshToken",
           "token"
         ]
-      },
-      "addUserDTO": {
-        "type": "object",
-        "properties": {}
       },
       "OtpDto": {
         "type": "object",

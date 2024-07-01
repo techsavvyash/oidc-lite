@@ -7,7 +7,6 @@ import {
   IsEnum,
   IsOptional,
   IsString,
-  IsUUID,
   Matches,
   MinLength,
   ValidateNested,
@@ -49,10 +48,6 @@ export class CreateUserDto {
   additionalData?: object | string;
 
   @ApiProperty()
-  @IsUUID()
-  applicationId: string;
-
-  @ApiProperty()
   @IsString({ each: true })
   membership: string[];
 
@@ -76,10 +71,6 @@ export class UpdateUserDto {
   additionalData?: object | string;
 
   @ApiProperty()
-  @IsUUID()
-  applicationId: string;
-
-  @ApiProperty()
   @IsOptional()
   @IsString({ each: true })
   membership?: string[];
@@ -95,7 +86,6 @@ export class CreateUserRegistrationDto {
   generateAuthenticationToken?: boolean;
 
   @ApiProperty()
-  @IsUUID()
   applicationId: string;
 
   @ApiProperty()
@@ -104,18 +94,19 @@ export class CreateUserRegistrationDto {
 
   @ApiProperty()
   @IsOptional()
-  @IsUUID()
   registrationId?: string;
+}
 
-  @ApiProperty()
-  @IsString({ each: true })
-  roles: string[];
+export class UserRegistrationData {
+  @ApiProperty() code_challenge: string;
+  @ApiProperty() code_challenge_method: string;
+  @ApiProperty() scope: string;
 }
 
 export class UpdateUserRegistrationDto {
   @ApiProperty()
   @IsOptional()
-  data?: string | JSON | object;
+  data?: UserRegistrationData;
 
   @ApiProperty()
   @IsOptional()
@@ -132,7 +123,6 @@ export class CreateUserAndUserRegistration {
 }
 
 export class UserDto {
-  @IsUUID()
   id: string;
 
   @IsBoolean()
@@ -151,17 +141,8 @@ export class UserDto {
   @IsString()
   tenantId: string;
 
-  @IsUUID()
-  groupId: string;
-
   @IsEmail()
   email: string;
-}
-
-export class UserRegistrationData {
-  @ApiProperty() code_challenge: string;
-  @ApiProperty() code_challenge_method: string;
-  @ApiProperty() scope: string;
 }
 
 export class UserData {

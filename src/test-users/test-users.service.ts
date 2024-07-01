@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { randomInt } from 'crypto';
 
 interface UserInfo {
   applicationId: string;
@@ -17,7 +16,6 @@ interface UserInfo {
 interface RegistrationInfo {
   generateAuthenticationToken: boolean;
   applicationId: string;
-  roles: string[];
 }
 
 interface UserRequest {
@@ -29,14 +27,15 @@ interface UserRequest {
 
 @Injectable()
 export class TestUsersService {
-  private readonly baseUrl = 'http://localhost:3000/user/registration/combined';
+  private readonly baseUrl = `${process.env.FULL_URL}/user/registration/combined`;
   private readonly headers = {
     Authorization: 'master',
     'x-stencil-tenantid': 'minio-tenant',
   };
 
   private generateRandomString(length: number): string {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     const charactersLength = characters.length;
     for (let i = 0; i < length; i++) {
@@ -61,12 +60,11 @@ export class TestUsersService {
             email: email,
             password: password,
           },
-          membership: ['first-group', 'second-group'],
+          membership: ['agroup'],
         },
         registrationInfo: {
           generateAuthenticationToken: true,
           applicationId: 'myminioadmin',
-          roles: ['admin', 'common'],
         },
       },
     };
@@ -75,7 +73,7 @@ export class TestUsersService {
   public async registerUsers(): Promise<any[]> {
     const requests = [];
     for (let i = 0; i < 100; i++) {
-      const userRequest = this.createUser(100+i);
+      const userRequest = this.createUser(100 + i);
       requests.push(
         axios.post(this.baseUrl, userRequest, { headers: this.headers }),
       );

@@ -40,6 +40,7 @@ CREATE TABLE "Application" (
 
 -- CreateTable
 CREATE TABLE "GroupApplicationRole" (
+    "id" TEXT NOT NULL PRIMARY KEY,
     "applicationRolesId" TEXT NOT NULL,
     "groupsId" TEXT NOT NULL,
     CONSTRAINT "GroupApplicationRole_applicationRolesId_fkey" FOREIGN KEY ("applicationRolesId") REFERENCES "ApplicationRole" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
@@ -63,8 +64,6 @@ CREATE TABLE "Group" (
     "updatedAt" DATETIME NOT NULL,
     "name" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
-    "permissions" TEXT,
-    "attributes" TEXT,
     CONSTRAINT "Group_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -141,7 +140,6 @@ CREATE TABLE "User" (
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "tenantId" TEXT NOT NULL,
-    "groupId" TEXT,
     "email" TEXT NOT NULL,
     CONSTRAINT "User_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );

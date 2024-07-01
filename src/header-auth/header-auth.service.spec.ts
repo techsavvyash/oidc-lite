@@ -228,7 +228,6 @@ describe('HeaderAuthService', () => {
   });
 });
 
-
 // UNIT TESTS: HEADER AUTH SERVICE
 // ------------------------------
 // Test 1: "authorizationHeaderVerifier"

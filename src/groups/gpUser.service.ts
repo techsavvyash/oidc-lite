@@ -18,26 +18,10 @@ export class GroupUserService {
   ) {
     this.logger = new Logger(GroupUserService.name);
   }
+  
   async addUser(data: addUserDTO, headers: object) {
-    const tenantId = headers['x-stencil-tenantid'];
-    if (!tenantId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const tenant = await this.prismaService.tenant.findUnique({
-      where: { id: tenantId },
-    });
-    if (!tenant) {
-      throw new BadRequestException({
-        success: false,
-        message: 'no such tenant exists',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant.id,
       '/group',
       'POST',
     );
@@ -47,10 +31,22 @@ export class GroupUserService {
         message: valid.message,
       });
     }
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
+    if (tenantId) {
+      const tenant = await this.prismaService.tenant.findUnique({
+        where: { id: tenantId },
+      });
+      if (!tenant) {
+        throw new BadRequestException({
+          success: false,
+          message: 'no such tenant exists',
+        });
+      }
+    }
     try {
-      const response = [];
-
-      await Promise.all(
+      const response = await Promise.all(
         data.members.map(async (member) => {
           if (!member.groupId) {
             return {
@@ -58,7 +54,6 @@ export class GroupUserService {
               message: 'Please send group id',
             };
           }
-
           const group = await this.prismaService.group.findUnique({
             where: { id: member.groupId },
           });
@@ -68,47 +63,40 @@ export class GroupUserService {
               message: 'Group id does not exist in db',
             };
           }
-
-          const addUsers = await Promise.all(
-            member.userIds.map(async (userId) => {
-              const user = await this.prismaService.user.findUnique({
-                where: { id: String(userId) },
-              });
-
-              if (!user) {
-                return {
-                  success: false,
-                  message: 'User id is not found in db',
-                };
-              }
-              
-              const group = await this.prismaService.group.findUnique({where: {id: member.groupId}});
-              if(group.tenantId !== tenantId) return;
-
-              const membership = await this.prismaService.groupMember.create({
-                data: {
-                    userId,
-                    groupId: member.groupId,
-                },
-              });
-
-              return membership;
-            }),
+          if (group.tenantId !== tenantId && valid.data.tenantsId !== null) {
+            return {
+              success: false,
+              message: 'You are not authorized enough',
+            };
+          }
+          const addUsers = await this.addUsersInAGroup(
+            member.userIds,
+            group.id,
+            group.tenantId,
+            tenantId,
+            valid.data.tenantsId,
           );
 
-          if(addUsers.length > 0)
-            return addUsers;
+          if (addUsers.length > 0) return addUsers;
+          if (addUsers.length > 0) return addUsers;
           return;
         }),
       );
-
+      const finalResponse = response.filter((i) => i);
+      if (finalResponse.length <= 0) {
+        return {
+          success: false,
+          message:
+            'No valid userId and groupId given to add users to their given groups',
+        };
+      }
       return {
         success: true,
-        message: 'All given users added to their groups',
-        data: response,
+        message: 'All given users added to their valid groups',
+        data: finalResponse,
       };
     } catch (error) {
-      this.logger.log(error);
+      this.logger.error(error);
       throw new BadRequestException({
         success: false,
         message: 'error occured while adding user',
@@ -116,50 +104,9 @@ export class GroupUserService {
     }
   }
 
-  async updateUser(data: addUserDTO, headers: object) {
-    await Promise.all(
-      data.members.map(async (member) => {
-        if (!member.groupId) {
-          throw new BadRequestException({
-            success: false,
-            message: 'Please send group id',
-          });
-        }
-
-        const group = await this.prismaService.group.findUnique({
-          where: { id: member.groupId },
-        });
-
-        if (!group) {
-          throw new BadRequestException({
-            success: false,
-            message: 'Group id does not exist in db',
-          });
-        }
-      }),
-    );
-  }
-
   async deleteByMemberId(uuid: string, headers: object): Promise<ResponseDto> {
-    const tenantId = headers['x-stencil-tenantid'];
-    if (!tenantId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const tenant = await this.prismaService.tenant.findUnique({
-      where: { id: tenantId },
-    });
-    if (!tenant) {
-      throw new BadRequestException({
-        success: false,
-        message: 'no such tenant exists',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant.id,
       '/group/member',
       'DELETE',
     );
@@ -169,6 +116,9 @@ export class GroupUserService {
         message: valid.message,
       });
     }
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!uuid) {
       throw new BadRequestException({
         success: false,
@@ -216,25 +166,8 @@ export class GroupUserService {
     gpId: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenantId = headers['x-stencil-tenantid'];
-    if (!tenantId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const tenant = await this.prismaService.tenant.findUnique({
-      where: { id: tenantId },
-    });
-    if (!tenant) {
-      throw new BadRequestException({
-        success: false,
-        message: 'no such tenant exists',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant.id,
       '/group/member',
       'DELETE',
     );
@@ -244,10 +177,28 @@ export class GroupUserService {
         message: valid.message,
       });
     }
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!userId || !gpId) {
       throw new BadRequestException({
         success: false,
         message: 'pls send user id and gp id both',
+      });
+    }
+    const group = await this.prismaService.group.findUnique({
+      where: { id: gpId },
+    });
+    if (!group) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No such group exists',
+      });
+    }
+    if (group.tenantId !== tenantId && valid.data.tenantsId !== null) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized enough',
       });
     }
     const membership = await this.prismaService.groupMember.findUnique({
@@ -278,25 +229,8 @@ export class GroupUserService {
   }
 
   async deleteAllUser(gpId: string, headers: object): Promise<ResponseDto> {
-    const tenantId = headers['x-stencil-tenantid'];
-    if (!tenantId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const tenant = await this.prismaService.tenant.findUnique({
-      where: { id: tenantId },
-    });
-    if (!tenant) {
-      throw new BadRequestException({
-        success: false,
-        message: 'no such tenant exists',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant.id,
       '/group',
       'POST',
     );
@@ -306,6 +240,9 @@ export class GroupUserService {
         message: valid.message,
       });
     }
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!gpId) {
       throw new BadRequestException({
         success: false,
@@ -319,6 +256,12 @@ export class GroupUserService {
       throw new BadRequestException({
         success: false,
         message: 'no such grp exists in given tenant',
+      });
+    }
+    if (group.tenantId !== tenantId && valid.data.tenantsId !== null) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized enough',
       });
     }
     try {
@@ -342,25 +285,8 @@ export class GroupUserService {
   }
 
   async deleteMembers(data: deleteMemberDTO, headers: object) {
-    const tenantId = headers['x-stencil-tenantid'];
-    if (!tenantId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const tenant = await this.prismaService.tenant.findUnique({
-      where: { id: tenantId },
-    });
-    if (!tenant) {
-      throw new BadRequestException({
-        success: false,
-        message: 'no such tenant exists',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant.id,
       '/group',
       'POST',
     );
@@ -370,9 +296,12 @@ export class GroupUserService {
         message: valid.message,
       });
     }
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     try {
       const members = await Promise.all(
-        data.members?.map(async (member) => {
+        data.members.map(async (member) => {
           const membership = await this.prismaService.groupMember.findUnique({
             where: { id: member },
           });
@@ -380,7 +309,8 @@ export class GroupUserService {
           const group = await this.prismaService.group.findUnique({
             where: { id: membership.groupId },
           });
-          if (group.tenantId !== tenant.id) return;
+          if (group.tenantId !== tenantId && valid.data.tenantsId !== null)
+            return;
           const delMember = await this.prismaService.groupMember.delete({
             where: { ...membership },
           });
@@ -399,5 +329,47 @@ export class GroupUserService {
         message: 'error occured from deleting members via member array',
       });
     }
+  }
+
+  private async addUsersInAGroup(
+    userIds: string[],
+    groupId: string,
+    groupTenantId: string,
+    tenantId: string,
+    validTenantId: string,
+  ) {
+    const result = await Promise.all(
+      userIds.map(async (userId) => {
+        const user = await this.prismaService.user.findUnique({
+          where: { id: userId },
+        });
+        if (!user) {
+          return {
+            success: false,
+            message: 'User id is not found in db',
+          };
+        }
+        if (user.tenantId !== tenantId && validTenantId !== null) {
+          return {
+            success: false,
+            message: 'You are not authorized',
+          };
+        }
+        if (user.tenantId !== groupTenantId) return;
+        const oldMembership = await this.prismaService.groupMember.findUnique({
+          where: { group_members_uk_1: { groupId, userId } },
+        });
+        if (oldMembership) return;
+        const membership = await this.prismaService.groupMember.create({
+          data: {
+            userId,
+            groupId: groupId,
+          },
+        });
+        return membership;
+      }),
+    );
+    const finalResult = result.filter((i) => i);
+    return finalResult;
   }
 }

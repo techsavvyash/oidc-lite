@@ -1,20 +1,29 @@
-import { Body, Controller, Get, Headers, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { LoginDto } from './login.dto';
 import { LoginService } from './login.service';
-import { Response,Request } from 'express';
+import { Response, Request } from 'express';
 import { DataApplicationIdGuard } from 'src/guards/dataApplicationId.guard';
 
-@Controller('login')
+@Controller('/')
 export class LoginController {
   constructor(private readonly loginService: LoginService) {}
 
-  @Post('/')
+  @Post('/login')
   @UseGuards(DataApplicationIdGuard)
   async login(
     @Body('data') data: LoginDto,
     @Headers() headers: object,
     @Res() res: Response,
-  ){
+  ) {
     const result = await this.loginService.login(data, headers);
     res.cookie('refreshToken', result.refresh_token, {
       secure: true,
@@ -29,7 +38,7 @@ export class LoginController {
   }
 
   @Get('/logout')
-  async logout(@Res() res: Response,@Req() req: Request){
-    return await this.loginService.logout(res,req);
+  async logout(@Res() res: Response, @Req() req: Request) {
+    return await this.loginService.logout(res, req);
   }
 }

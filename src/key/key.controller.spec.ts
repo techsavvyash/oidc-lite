@@ -128,7 +128,7 @@ describe('KeyController', () => {
         algorithm: 'RSA',
         issuer: 'Issuer1',
         name: 'KeyName1',
-        length: '2048',
+        length: 2048,
       };
       const mockHeaders = { authorization: 'Bearer token' };
       const mockResponse = {
@@ -158,7 +158,7 @@ describe('KeyController', () => {
         algorithm: 'RSA',
         issuer: 'Issuer1',
         name: 'KeyName1',
-        length: '2048',
+        length: 2048,
       };
       const mockHeaders = { authorization: 'Bearer token' };
       const mockResponse = {

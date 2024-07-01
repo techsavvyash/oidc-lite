@@ -1,74 +1,74 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsDate, IsEnum, IsOptional, IsString, IsUUID, IsUrl } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 
 class Endpoints {
-
   @ApiProperty()
-  @IsUrl() 
+  @IsUrl()
   url: string;
 
-  @ApiProperty() 
-  @IsEnum(
-    ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    {
-      message: 'Invalid HTTP method. Must be one of GET, POST, PUT, DELETE, PATCH'
-    }
-  )
+  @ApiProperty()
+  @IsEnum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], {
+    message:
+      'Invalid HTTP method. Must be one of GET, POST, PUT, DELETE, PATCH',
+  })
   methods: string;
 }
 
 export class Permissions {
-
-  @ApiProperty() 
+  @ApiProperty()
   @IsArray()
   endpoints: Endpoints[];
 }
 
 export class CreateApiKeyDto {
-
-  @ApiProperty() 
+  @ApiProperty()
   @IsString()
   @IsOptional()
   key?: string;
 
-  @ApiProperty() 
+  @ApiProperty()
   permissions?: Permissions;
 
   @ApiProperty()
-  @IsOptional() 
+  @IsOptional()
   metaData?: string | JSON;
 
   @ApiProperty()
   @IsString()
-  @IsOptional() 
+  @IsOptional()
   tenantId?: string;
 }
 class UpdataPermissionsDto {
-
-  @ApiProperty() 
+  @ApiProperty()
   @IsArray()
   @IsOptional()
   endpoints?: Endpoints[];
 }
 export class UpdateApiKeyDto {
-
-  @ApiProperty() 
+  @ApiProperty()
   @IsString()
   @IsOptional()
   key?: string;
 
-  @ApiProperty() 
+  @ApiProperty()
   @IsOptional()
   permissions?: UpdataPermissionsDto;
 
   @ApiProperty()
-  @IsOptional() 
+  @IsOptional()
   metaData?: string | JSON;
 }
 
 class ApiKey {
   @ApiProperty()
-  @IsUUID()
   id: string;
 
   @ApiProperty()
@@ -103,11 +103,11 @@ export class ApiKeyResponseDto {
   @IsBoolean()
   success: boolean;
 
-  @ApiProperty() 
+  @ApiProperty()
   @IsString()
   message: string;
 
-  @ApiProperty() 
+  @ApiProperty()
   @IsOptional()
   data?: ApiKey;
 }
