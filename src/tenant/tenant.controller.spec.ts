@@ -38,12 +38,11 @@ describe('TenantController', () => {
       const createTenantDto = {
         name: 'TenantName',
         jwtConfiguration: {
-          accessTokenKeyID: 'access-key-id-123',
+          accessTokenSigningKeysID: 'access-key-id-123',
           refreshTokenTimeToLiveInMinutes: 1440,
           timeToLiveInSeconds: 3600,
-          idTokenKeyID: 'id-key-id-456',
+          idTokenSigningKeysID: 'id-key-id-456',
         },
-        data: '{"key": "value"}', // This can be a string or JSON
       };
 
       const id = 'a0f7c111-3b15-45bd-bd37-e86bfcb9a5fb';
@@ -81,12 +80,11 @@ describe('TenantController', () => {
       const createTenantDto = {
         name: 'TenantName',
         jwtConfiguration: {
-          accessTokenKeyID: 'access-key-id-123',
+          accessTokenSigningKeysID: 'access-key-id-123',
           refreshTokenTimeToLiveInMinutes: 1440,
           timeToLiveInSeconds: 3600,
-          idTokenKeyID: 'id-key-id-456',
+          idTokenSigningKeysID: 'id-key-id-456',
         },
-        data: '{"key": "value"}', // This can be a string or JSON
       };
       const id = 'test-id';
       const headers = { authorization: 'token' };
@@ -106,12 +104,11 @@ describe('TenantController', () => {
       const createTenantDto = {
         name: 'TenantName',
         jwtConfiguration: {
-          accessTokenKeyID: 'access-key-id-123',
+          accessTokenSigningKeysID: 'access-key-id-123',
           refreshTokenTimeToLiveInMinutes: 1440,
           timeToLiveInSeconds: 3600,
-          idTokenKeyID: 'id-key-id-456',
+          idTokenSigningKeysID: 'id-key-id-456',
         },
-        data: '{"key": "value"}', // This can be a string or JSON
       };
       await controller.updateATenant(id, createTenantDto, headers);
       expect(service.updateATenant).toHaveBeenCalledWith(

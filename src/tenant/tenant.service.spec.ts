@@ -62,12 +62,11 @@ describe('TenantService', () => {
       const createTenantDto: CreateTenantDto = {
         name: 'TenantName',
         jwtConfiguration: {
-          accessTokenKeyID: 'access-key-id-123',
+          accessTokenSigningKeysID: 'access-key-id-123',
           refreshTokenTimeToLiveInMinutes: 1440,
           timeToLiveInSeconds: 3600,
-          idTokenKeyID: 'id-key-id-456',
+          idTokenSigningKeysID: 'id-key-id-456',
         },
-        data: '{"key": "value"}',
       };
       await expect(
         service.createATenant('random-id', createTenantDto, {}),
@@ -81,12 +80,11 @@ describe('TenantService', () => {
       const createTenantDto: CreateTenantDto = {
         name: 'TenantName',
         jwtConfiguration: {
-          accessTokenKeyID: 'access-key-id-123',
+          accessTokenSigningKeysID: 'access-key-id-123',
           refreshTokenTimeToLiveInMinutes: 1440,
           timeToLiveInSeconds: 3600,
-          idTokenKeyID: 'id-key-id-456',
+          idTokenSigningKeysID: 'id-key-id-456',
         },
-        data: '{"key": "value"}',
       };
       await expect(
         service.createATenant(null, createTenantDto, {}),
@@ -103,12 +101,11 @@ describe('TenantService', () => {
       const createTenantDto: CreateTenantDto = {
         name: 'TenantName',
         jwtConfiguration: {
-          accessTokenKeyID: 'access-key-id-123',
+          accessTokenSigningKeysID: 'access-key-id-123',
           refreshTokenTimeToLiveInMinutes: 1440,
           timeToLiveInSeconds: 3600,
-          idTokenKeyID: 'id-key-id-456',
+          idTokenSigningKeysID: 'id-key-id-456',
         },
-        data: '{"key": "value"}',
       };
       await expect(
         service.createATenant('random-id', createTenantDto, {}),
@@ -123,7 +120,6 @@ describe('TenantService', () => {
       const createTenantDto: CreateTenantDto = {
         name: '',
         jwtConfiguration: null,
-        data: null,
       };
       await expect(
         service.createATenant('random-id', createTenantDto, {}),
@@ -148,12 +144,11 @@ describe('TenantService', () => {
       const createTenantDto: CreateTenantDto = {
         name: 'TenantName',
         jwtConfiguration: {
-          accessTokenKeyID: 'access-key-id-123',
+          accessTokenSigningKeysID: 'access-key-id-123',
           refreshTokenTimeToLiveInMinutes: 1440,
           timeToLiveInSeconds: 3600,
-          idTokenKeyID: 'id-key-id-456',
+          idTokenSigningKeysID: 'id-key-id-456',
         },
-        data: '{"key": "value"}',
       };
 
       const result = await service.createATenant(

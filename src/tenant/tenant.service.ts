@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common';
 import { ResponseTenantDto, ResponseDto } from '../dto/response.dto';
 import { CreateTenantDto, UpdateTenantDto } from './tenant.dto';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { HeaderAuthService } from '../header-auth/header-auth.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TenantService {
