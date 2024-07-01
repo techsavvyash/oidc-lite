@@ -5,8 +5,8 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { UtilsService } from 'src/utils/utils.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { UtilsService } from '../utils/utils.service';
 
 @Injectable()
 export class DataApplicationIdGuard implements CanActivate {
