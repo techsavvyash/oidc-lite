@@ -7,10 +7,10 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { refreshCookiesDTO, refreshDTO } from './refreshToken.dto';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
-import { ApplicationDataDto } from 'src/application/application.dto';
+import { HeaderAuthService } from '../header-auth/header-auth.service';
+import { ApplicationDataDto } from '../application/application.dto';
 import * as jwt from 'jsonwebtoken';
 import { AccessTokenDto, RefreshTokenDto } from '../oidc/dto/oidc.token.dto';
 @Injectable()
