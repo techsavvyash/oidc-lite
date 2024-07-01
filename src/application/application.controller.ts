@@ -9,6 +9,7 @@ import {
   Delete,
   Headers,
   UseGuards,
+  Res,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -32,6 +33,7 @@ import { randomUUID } from 'crypto';
 import { ApplicationRolesService } from './application-roles/application-roles.service';
 import { ApplicationScopesService } from './application-scopes/application-scopes.service';
 import { ParamApplicationIdGuard } from '../guards/paramApplicationId.guard';
+import { Response } from 'express';
 
 @ApiTags('Applications')
 @Controller('application')
@@ -67,9 +69,15 @@ export class ApplicationController {
   async createAnApplicationWithRandomUUID(
     @Body('data') data: CreateApplicationDto,
     @Headers() headers: object,
-  ): Promise<ResponseDto> {
+    @Res() res: Response,
+  ) {
     const uuid = randomUUID();
-    return await this.applicationService.createApplication(uuid, data, headers);
+    return await this.applicationService.createApplication(
+      uuid,
+      data,
+      headers,
+      res,
+    );
   }
 
   @Get('/:applicationId')
@@ -104,8 +112,14 @@ export class ApplicationController {
     @Body('data') data: CreateApplicationDto,
     @Param('applicationId') id: string,
     @Headers() headers: object,
-  ): Promise<ResponseDto> {
-    return await this.applicationService.createApplication(id, data, headers);
+    @Res() res: Response,
+  ) {
+    return await this.applicationService.createApplication(
+      id,
+      data,
+      headers,
+      res,
+    );
   }
 
   @ApiOperation({ summary: 'Update an existing application' })
@@ -124,8 +138,14 @@ export class ApplicationController {
     @Param('applicationId') id: string,
     @Body('data') data: UpdateApplicationDto,
     @Headers() headers: object,
-  ): Promise<ResponseDto> {
-    return await this.applicationService.patchApplication(id, data, headers);
+    @Res() res: Response,
+  ) {
+    return await this.applicationService.patchApplication(
+      id,
+      data,
+      headers,
+      res,
+    );
   }
 
   @ApiOperation({ summary: 'Delete an application by ID' })

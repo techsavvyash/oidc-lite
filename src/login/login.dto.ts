@@ -11,7 +11,7 @@ export class LoginDto {
   @ApiProperty() code_challenge_method?: string;
 }
 
-export class RegisterDto{
+export class RegisterDto {
   @ApiProperty() firstname?: string;
   @ApiProperty() lastname?: string;
   @ApiProperty() username: string;

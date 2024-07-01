@@ -2,9 +2,11 @@
   "variables": {
     "apiKeyValue": "master",
     "jwksKeyId": "#{UUID()}",
-    "applicationId": "#{UUID()}",
-    "clientSecret": "super-secret-secret-that-you-should-change",
-    "defaultTenantId": "#{UUID()}",
+    "applicationId": "myminioadmin",
+    "clientSecret": "minio-secret-key-change-me",
+    "tenantId": "minio-tenant",
+    "roleId": "adminRoleId",
+    "groupId": "agroup",
     "adminUsername": "admin",
     "adminPassword": "adminPassword12#",
     "userEmail": "user@email.com",
@@ -17,25 +19,32 @@
   "requests": [
     {
       "method": "POST",
+      "url": "/admin",
+      "body": {
+        "password": "#{adminPassword}",
+        "username": "#{adminUsername}"
+      }
+    },
+    {
+      "method": "POST",
       "url": "/key/generate/#{jwksKeyId}",
       "headers": {
-        "x-stencil-tenantid": "#{defaultTenantId}",
+        "x-stencil-tenantid": "#{tenantId}",
         "authorization": "#{apiKeyValue}"
       },
       "body": {
         "key": {
           "algorithm": "RS256",
           "issuer": "Stencil Service",
-          "name": "First jwks",
-          "length": 256
+          "name": "First jwks"
         }
       }
     },
     {
       "method": "POST",
-      "url": "/tenant/#{defaultTenantId}",
+      "url": "/tenant/#{tenantId}",
       "headers": {
-        "x-stencil-tenantid": "#{defaultTenantId}",
+        "x-stencil-tenantid": "#{tenantId}",
         "authorization": "#{apiKeyValue}"
       },
       "body": {
@@ -54,7 +63,7 @@
       "method": "POST",
       "url": "/application/#{applicationId}",
       "headers": {
-        "x-stencil-tenantid": "#{defaultTenantId}",
+        "x-stencil-tenantid": "#{tenantId}",
         "authorization": "#{apiKeyValue}"
       },
       "body": {
@@ -63,9 +72,21 @@
           "name": "First Stencil application",
           "scopes": [
             {
-              "name": "calender:read",
-              "defaultConsentDetail": "Your calendar data will be used to provide you enhanced reminders",
-              "defaultConsentMessage": "Read your calendar",
+              "name": "offline_access",
+              "defaultConsentDetail": "Required for getting access token",
+              "defaultConsentMessage": "Perform actions from your behalf",
+              "required": false
+            },
+            {
+              "name": "profile",
+              "defaultConsentDetail": "Your username, firstname and lastname will be shared",
+              "defaultConsentMessage": "Access to your profile data",
+              "required": false
+            },
+            {
+              "name": "email",
+              "defaultConsentDetail": "Your email will be shared",
+              "defaultConsentMessage": "Access to your email",
               "required": false
             }
           ],
@@ -74,7 +95,8 @@
               "name": "Admin",
               "description": "This is admin role",
               "isDefault": false,
-              "isSuperRole": true
+              "isSuperRole": true,
+              "id": "#{roleId}"
             },
             {
               "name": "user",
@@ -85,15 +107,13 @@
           ],
           "oauthConfiguration": {
             "authorizedOriginURLs": [
-              "https://www.google.com",
-              "https://www.yahoo.com/search?keyword=hi",
-              "http://localhost:3000",
+              "*",
               "https://strong-chairs-fall.loca.lt",
               "https://jl4spt7t-3000.inc1.devtunnels.ms/"
             ],
-            "authorizedRedirectURLs": ["http://localhost:9001/oauth_callback"],
+            "authorizedRedirectURLs": ["http://localhost:9001/oauth_callback","http://192.168.233.157:9001/oauth_callback"],
             "clientSecret": "#{clientSecret}",
-            "enabledGrants": ["authorization_code", "refresh_token"],
+            "enabledGrants": ["authorization_code", "password"],
             "logoutURL": "http://localhost:3000/logout"
           }
         }
@@ -101,17 +121,23 @@
     },
     {
       "method": "POST",
-      "url": "/admin",
+      "url": "/group/#{groupId}",
+      "headers": {
+        "authorization": "#{apiKeyValue}",
+        "x-stencil-tenantid": "#{tenantId}"
+      },
       "body": {
-        "password": "#{adminPassword}",
-        "username": "#{adminUsername}"
+        "group": {
+          "name": "Admin group",
+          "roleIDs": ["#{roleId}"]
+        }
       }
     },
     {
       "method": "POST",
       "url": "/user/registration/combined/",
       "headers": {
-        "x-stencil-tenantid": "#{defaultTenantId}",
+        "x-stencil-tenantid": "#{tenantId}",
         "authorization": "#{apiKeyValue}"
       },
       "body": {
@@ -119,7 +145,7 @@
           "userInfo": {
             "active": true,
             "applicationId": "#{applicationId}",
-            "membership": ["agroup"],
+            "membership": ["#{groupId}"],
             "userData": {
               "username": "AdminUser",
               "password": "#{userPassword}"

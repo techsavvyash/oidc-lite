@@ -1,10 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ApiKeysService } from './api-keys.service';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  BadRequestException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 
 describe('ApiKeysService', () => {
   let service: ApiKeysService;
@@ -14,8 +11,8 @@ describe('ApiKeysService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ApiKeysService,
-        { 
-          provide: PrismaService, 
+        {
+          provide: PrismaService,
           useValue: {
             authenticationKey: {
               findUnique: jest.fn(),
@@ -26,7 +23,7 @@ describe('ApiKeysService', () => {
             tenant: {
               findUnique: jest.fn(),
             },
-          }
+          },
         },
       ],
     }).compile();
@@ -47,7 +44,9 @@ describe('ApiKeysService', () => {
     });
 
     it('should throw UnauthorizedEnauthorized', async () => {
-      jest.spyOn(prismaService.authenticationKey, 'findUnique').mockResolvedValue(null);
+      jest
+        .spyOn(prismaService.authenticationKey, 'findUnique')
+        .mockResolvedValue(null);
 
       await expect(
         service.createAnApiKey(
@@ -59,17 +58,16 @@ describe('ApiKeysService', () => {
     });
 
     it('should throw BadRequestException if id is not provided', async () => {
-
       const mockFindUniqueRes = {
-        id: "string",
+        id: 'string',
         createdAt: new Date(),
         updatedAt: new Date(),
         keyManager: true,
-        keyValue: "string",
-        permissions: "string",
-        metaData: "string",
-        tenantsId: "string"
-      }
+        keyValue: 'string',
+        permissions: 'string',
+        metaData: 'string',
+        tenantsId: 'string',
+      };
 
       jest
         .spyOn(prismaService.authenticationKey, 'findUnique')
@@ -166,9 +164,7 @@ describe('ApiKeysService', () => {
       jest
         .spyOn(prismaService.authenticationKey, 'findUnique')
         .mockResolvedValue(mockFindUniqueRes);
-      jest
-        .spyOn(prismaService.tenant, 'findUnique')
-        .mockResolvedValue(null);
+      jest.spyOn(prismaService.tenant, 'findUnique').mockResolvedValue(null);
 
       await expect(
         service.createAnApiKey(
@@ -243,9 +239,9 @@ describe('ApiKeysService', () => {
         .spyOn(prismaService.authenticationKey, 'findUnique')
         .mockResolvedValue(mockFindUniqueRes);
 
-      await expect(service.returnAnApiKey(null, { authorization: 'token' })).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.returnAnApiKey(null, { authorization: 'token' }),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should return an API key successfully', async () => {
@@ -439,7 +435,6 @@ describe('ApiKeysService', () => {
   });
 });
 
-
 // API KEYS SERVICE : TESTS
 // ------------------------
 // - createAnApiKey
@@ -451,13 +446,13 @@ describe('ApiKeysService', () => {
 //  - should throw BadRequestException if the key with the provided id already exists
 //  - should throw BadRequestException if the tenant with the given tenant id does not exist
 //  - should create an API key successfully
-// 
+//
 // - returnAnApiKey
 //  - should throw BadRequestException if authorization header is missing
 //  - should throw UnauthorizedException if the key manager is not found or is unauthorized
 //  - should throw BadRequestException if id is not provided
 //  - should return an API key successfully
-//  
+//
 // - updateAnApiKey
 //  - should throw BadRequestException if authorization header is missing
 //  - should throw UnauthorizedException if the headerKey is not found or is unauthorized

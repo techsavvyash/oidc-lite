@@ -22,7 +22,7 @@ export class KickstartService {
       return;
     }
     const fileName = process.env.KICKSTART_FILE_NAME;
-    const hostName = `${process.env.HOST_NAME}:${process.env.HOST_PORT}`;
+    const hostName = `${process.env.FULL_URL}`;
 
     if (!fileName || !hostName) {
       throw new Error(
@@ -66,11 +66,15 @@ export class KickstartService {
       return obj;
     };
     const finalResponse = [];
-    const keyInfo = replaceObjectPlaceholders(config.apiKey,variables);
+    const keyInfo = replaceObjectPlaceholders(config.apiKey, variables);
     try {
       const authorizationKey =
         await this.prismaService.authenticationKey.create({
-          data: { keyManager: true, keyValue: keyInfo.key,metaData: keyInfo.description },
+          data: {
+            keyManager: true,
+            keyValue: keyInfo.key,
+            metaData: keyInfo.description,
+          },
         });
       finalResponse.push(authorizationKey);
     } catch (error) {

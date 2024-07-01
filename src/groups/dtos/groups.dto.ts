@@ -1,8 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsString,
-} from 'class-validator';
+import { IsArray, IsString } from 'class-validator';
 
 export class createGroupDTO {
   @ApiProperty()
@@ -10,7 +7,6 @@ export class createGroupDTO {
   @IsString({ each: true })
   roleIDs: string[];
   name: string;
-  tenantId: string;
 }
 export class UpdateGroupDto {
   @ApiProperty()
@@ -20,24 +16,10 @@ export class UpdateGroupDto {
   name?: string;
 }
 
-export class GroupPermissions {
-  @ApiProperty() applicationId: string;
-  @ApiProperty() applicationRole: {
-    id: string;
-    applicationsId: string;
-    description: string;
-    createdAt: Date;
-    isDefault: boolean;
-    isSuperRole: boolean;
-    updatedAt: Date;
-    name: string;
-  };
-}
-
 export class RoleDto {
-    @ApiProperty() description: string;
-    @ApiProperty() isDefault: boolean;
-    @ApiProperty() isSuperRole: boolean;
-    @ApiProperty() name: string;
-    @ApiProperty() id?: string;
-  }
+  @ApiProperty() description: string;
+  @ApiProperty() isDefault: boolean;
+  @ApiProperty() isSuperRole: boolean;
+  @ApiProperty() name: string;
+  @ApiProperty() id?: string;
+}

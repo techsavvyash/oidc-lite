@@ -31,7 +31,7 @@ export class ApiKeysController {
 
   /**
    * Create an API Key with a random UUID
-   * 
+   *
    * @param data - The data for creating the API Key
    * @param headers - The headers object containing the authorization header
    * @returns The generated API Key response
@@ -62,7 +62,7 @@ export class ApiKeysController {
 
   /**
    * Create an API Key with the given UUID
-   * 
+   *
    * @param id - The ID of the API Key
    * @param data - The data for creating the API Key
    * @param headers - The headers object containing the authorization header
@@ -95,7 +95,7 @@ export class ApiKeysController {
 
   /**
    * Return an API Key by ID
-   * 
+   *
    * @param id - The ID of the API Key
    * @param headers - The headers object containing the authorization header
    * @returns The API Key response
@@ -122,7 +122,7 @@ export class ApiKeysController {
 
   /**
    * Update an API Key by ID
-   * 
+   *
    * @param id - The ID of the API Key
    * @param data - The data for updating the API Key
    * @param headers - The headers object containing the authorization header
@@ -155,7 +155,7 @@ export class ApiKeysController {
 
   /**
    * Delete an API Key by ID
-   * 
+   *
    * @param id - The ID of the API Key
    * @param headers - The headers object containing the authorization header
    * @returns The deleted API Key response
@@ -183,7 +183,7 @@ export class ApiKeysController {
 
 /**
  * Tests performed in the `ApiKeysController` class:
- * 
+ *
  * - Create an API Key with a random UUID
  * - Create an API Key with the given UUID
  * - Return an API Key by ID

@@ -17,6 +17,7 @@ import { ResponseDto } from '../dto/response.dto';
 import { HeaderAuthService } from '../header-auth/header-auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UtilsService } from 'src/utils/utils.service';
+import { Response } from 'express';
 
 @Injectable()
 export class ApplicationService {
@@ -35,7 +36,8 @@ export class ApplicationService {
     uuid: string,
     data: CreateApplicationDto,
     headers: object,
-  ): Promise<ResponseDto> {
+    res: Response,
+  ) {
     const valid = await this.headerAuthService.validateRoute(
       headers,
       '/application',
@@ -132,14 +134,6 @@ export class ApplicationService {
           data: configurations,
         },
       });
-      const publicKeys = await this.storePublicKeys(
-        data.oauthConfiguration.authorizedOriginURLs,
-        application.id,
-      );
-      this.logger.log(
-        `Following public keys added for ${application.id}`,
-        publicKeys,
-      );
       try {
         roles.forEach((value) =>
           this.applicationRoles.createRole(
@@ -167,11 +161,16 @@ export class ApplicationService {
 
       this.logger.log('New application registred!', application);
 
-      return {
+      res.send({
         success: true,
         message: 'Application created successfully!',
         data: application,
-      };
+      });
+
+      const publicKeys = await this.storePublicKeys(
+        data.oauthConfiguration.authorizedOriginURLs,
+        application.id,
+      );
     } catch (error) {
       this.logger.log('Error occured in createApplication', error);
       throw new InternalServerErrorException({
@@ -186,7 +185,8 @@ export class ApplicationService {
     id: string,
     newData: UpdateApplicationDto,
     headers: object,
-  ): Promise<ResponseDto> {
+    res: Response,
+  ) {
     if (!id) {
       throw new BadRequestException({
         success: false,
@@ -254,11 +254,17 @@ export class ApplicationService {
           data: JSON.stringify(newApplicationData),
         },
       });
-      return {
+      res.send({
         success: true,
         message: 'Application updated successfully!',
         data: application,
-      };
+      });
+      const authorizedOriginURLS =
+        newApplicationData.oauthConfiguration.authorizedOriginURLs;
+      await this.prismaService.publicKeys.deleteMany({
+        where: { applicationId: application.id },
+      });
+      await this.storePublicKeys(authorizedOriginURLS, application.id);
     } catch (error) {
       this.logger.log('Error from patchApplication', error);
       throw new InternalServerErrorException({
@@ -410,11 +416,10 @@ export class ApplicationService {
         });
       }
     } else {
-      const application = await this.patchApplication(
-        id,
-        { active: false },
-        headers,
-      );
+      const application = await this.prismaService.application.update({
+        where: { id },
+        data: { active: false },
+      });
       return {
         success: true,
         message: 'Application soft deleted/inactive',
@@ -478,9 +483,13 @@ export class ApplicationService {
     }
     const result = await Promise.all(
       authorizedOriginURLS.map(async (url) => {
-        const hostname = new URL(url).hostname;
-        const pubKey = await this.utilService.getPublicKey(hostname);
-        if (pubKey.success) return { pubKey: pubKey.data, hostname };
+        try {
+          const hostname = new URL(url).hostname;
+          const pubKey = await this.utilService.getPublicKey(hostname);
+          if (pubKey.success) return { pubKey: pubKey.data, hostname };
+        } catch (error) {
+          this.logger.error(`Error on ${url} while getting public key`);
+        }
         return null;
       }),
     );
