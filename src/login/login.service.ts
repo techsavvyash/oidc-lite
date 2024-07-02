@@ -4,13 +4,13 @@ import {
   UnauthorizedException,
   BadRequestException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './login.dto';
 import { Request, Response } from 'express';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
-import { ApplicationDataDto } from 'src/application/application.dto';
+import { HeaderAuthService } from '../header-auth/header-auth.service';
+import { ApplicationDataDto } from '../application/application.dto';
 import { AccessTokenDto, RefreshTokenDto } from '../oidc/dto/oidc.token.dto';
-import { UtilsService } from 'src/utils/utils.service';
+import { UtilsService } from '../utils/utils.service';
 
 @Injectable()
 export class LoginService {

@@ -11,7 +11,7 @@ import {
 import { LoginDto } from './login.dto';
 import { LoginService } from './login.service';
 import { Response, Request } from 'express';
-import { DataApplicationIdGuard } from 'src/guards/dataApplicationId.guard';
+import { DataApplicationIdGuard } from '../guards/dataApplicationId.guard';
 
 @Controller('/')
 export class LoginController {
