@@ -17,7 +17,6 @@ import { KickstartModule } from './kickstart/kickstart.module';
 import { OtpModule } from './otp/otp.module';
 import { TenantModule } from './tenant/tenant.module';
 import { ApiKeysModule } from './api-keys/api-keys.module';
-import { TestUsersModule } from './test-users/test-users.module';
 
 @Module({
   imports: [
@@ -39,7 +38,6 @@ import { TestUsersModule } from './test-users/test-users.module';
     OtpModule,
     TenantModule,
     ApiKeysModule,
-    TestUsersModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, MemoryMonitorService],

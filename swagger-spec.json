@@ -3018,17 +3018,6 @@
           "Authentication keys"
         ]
       }
-    },
-    "/test-users/register": {
-      "get": {
-        "operationId": "TestUsersController_registerUsers",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
     }
   },
   "info": {

@@ -4,10 +4,10 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { addUserDTO, deleteMemberDTO } from './dtos/gpUser.dto';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
-import { ResponseDto } from 'src/dto/response.dto';
+import { HeaderAuthService } from '../header-auth/header-auth.service';
+import { ResponseDto } from '../dto/response.dto';
 
 @Injectable()
 export class GroupUserService {
@@ -18,7 +18,7 @@ export class GroupUserService {
   ) {
     this.logger = new Logger(GroupUserService.name);
   }
-  
+
   async addUser(data: addUserDTO, headers: object) {
     const valid = await this.headerAuthService.validateRoute(
       headers,
@@ -47,7 +47,7 @@ export class GroupUserService {
     }
     try {
       const response = await Promise.all(
-        data.members.map(async (member) => {
+        data?.members?.map(async (member) => {
           if (!member.groupId) {
             return {
               success: false,
@@ -77,12 +77,16 @@ export class GroupUserService {
             valid.data.tenantsId,
           );
 
-          if (addUsers.length > 0) return addUsers;
-          if (addUsers.length > 0) return addUsers;
+          if (addUsers.length > 0)
+            return {
+              success: true,
+              message: `users added in ${group.id}`,
+              addUsers,
+            };
           return;
         }),
       );
-      const finalResponse = response.filter((i) => i);
+      const finalResponse = response?.filter((i) => i.success);
       if (finalResponse.length <= 0) {
         return {
           success: false,
