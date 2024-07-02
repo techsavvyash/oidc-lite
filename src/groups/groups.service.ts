@@ -4,10 +4,10 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { UpdateGroupDto, createGroupDTO } from './dtos/groups.dto';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
-import { ResponseDto } from 'src/dto/response.dto';
+import { HeaderAuthService } from '../header-auth/header-auth.service';
+import { ResponseDto } from '../dto/response.dto';
 
 @Injectable()
 export class GroupsService {
@@ -64,6 +64,15 @@ export class GroupsService {
       data.roleIDs,
       tenantId,
     );
+    const existingGroup = await this.prismaService.group.findUnique({
+      where: { groups_uk_1: { name: data.name, tenantId } },
+    });
+    if (existingGroup) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Group with the same name already exists for this tenant',
+      });
+    }
     try {
       const group = await this.prismaService.group.create({
         data: {
@@ -73,10 +82,10 @@ export class GroupsService {
         },
       });
       const applicationRoles = await Promise.all(
-        finalRoles.map(async (role) => {
+        finalRoles?.map(async (role) => {
           return await this.saveGroupApplicationRole(
             group.id,
-            role.applicationRole.id,
+            role?.applicationRole.id,
           );
         }),
       );
@@ -87,6 +96,7 @@ export class GroupsService {
         data: group,
       };
     } catch (error) {
+      console.log(error);
       this.logger.log(error);
       throw new BadRequestException({
         success: false,
@@ -158,21 +168,22 @@ export class GroupsService {
         message: 'please send group id while sending reqeust',
       });
     }
-    try {
-      const group = await this.prismaService.group.findUnique({
-        where: { id: id },
+    const group = await this.prismaService.group.findUnique({
+      where: { id: id },
+    });
+    if (!group) {
+      throw new BadRequestException({
+        success: false,
+        message: 'group not found with given id',
       });
+    }
+    try {
       if (group.tenantId === tenantId || valid.data.tenantsId === null) {
         return {
           success: true,
           message: 'group retrieved by given id',
           data: group,
         };
-      } else {
-        throw new BadRequestException({
-          success: false,
-          message: 'group not found with given id',
-        });
       }
     } catch (error) {
       this.logger.error(error);
@@ -181,6 +192,10 @@ export class GroupsService {
         message: 'error occured while finding the group',
       });
     }
+    return{
+      success: false,
+      message: 'group not found with given id',
+    };
   }
 
   async updateGp(
@@ -205,7 +220,7 @@ export class GroupsService {
     if (!uuid) {
       throw new BadRequestException({
         success: false,
-        message: 'please send id alogn with request',
+        message: 'please send id along with request',
       });
     }
     const oldGroup = await this.prismaService.group.findUnique({
@@ -276,11 +291,11 @@ export class GroupsService {
     if (!uuid) {
       throw new BadRequestException({
         success: false,
-        message: 'please send id alogn with request',
+        message: 'please send id along with request',
       });
     }
     const group = await this.prismaService.group.findUnique({
-      where: { id: uuid, tenantId },
+      where: { id: uuid},
     });
     if (!group) {
       throw new BadRequestException({

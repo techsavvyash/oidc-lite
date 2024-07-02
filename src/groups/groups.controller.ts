@@ -14,7 +14,7 @@ import { GroupsService } from './groups.service';
 import { randomUUID } from 'crypto';
 import { createGroupDTO } from './dtos/groups.dto';
 import { addUserDTO, deleteMemberDTO } from './dtos/gpUser.dto';
-import { GroupUserService } from 'src/groups/gpUser.service';
+import { GroupUserService } from './gpUser.service';
 
 @Controller('group')
 export class GroupsController {
