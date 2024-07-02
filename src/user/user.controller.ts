@@ -28,7 +28,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
-import { ResponseDto } from 'src/dto/response.dto';
+import { ResponseDto } from '../dto/response.dto';
 import { UserRegistrationService } from './user-registration/user-registration.service';
 import { ParamApplicationIdGuard } from '../guards/paramApplicationId.guard';
 import { DataApplicationIdGuard } from '../guards/dataApplicationId.guard';

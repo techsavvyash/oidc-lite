@@ -5,20 +5,20 @@ import {
   UnauthorizedException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { ResponseDto } from 'src/dto/response.dto';
+import { ResponseDto } from '../../dto/response.dto';
 import {
   CreateUserAndUserRegistration,
   CreateUserRegistrationDto,
   UpdateUserRegistrationDto,
   UserData,
 } from '../user.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { randomUUID } from 'crypto';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
+import { HeaderAuthService } from '../../header-auth/header-auth.service';
 import { UserService } from '../user.service';
 import { AccessTokenDto, RefreshTokenDto } from '../../oidc/dto/oidc.token.dto';
-import { ApplicationDataDto } from 'src/application/application.dto';
-import { UtilsService } from 'src/utils/utils.service';
+import { ApplicationDataDto } from '../../application/application.dto';
+import { UtilsService } from '../../utils/utils.service';
 
 @Injectable()
 export class UserRegistrationService {
