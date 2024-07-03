@@ -7,9 +7,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { OIDCAuthQuery } from './dto/oidc.auth.dto';
-import { LoginDto, RegisterDto } from 'src/login/login.dto';
+import { LoginDto, RegisterDto } from '../login/login.dto';
 import { randomUUID } from 'crypto';
 import {
   AccessTokenDto,
@@ -19,15 +19,15 @@ import {
   TokenDto,
 } from './dto/oidc.token.dto';
 import * as jwt from 'jsonwebtoken';
-import { ApplicationDataDto } from 'src/application/application.dto';
+import { ApplicationDataDto } from '../application/application.dto';
 import {
   UserData,
   UserDataDto,
   UserDto,
   UserRegistrationData,
 } from 'src/user/user.dto';
-import { UtilsService } from 'src/utils/utils.service';
-import { ResponseDto } from 'src/dto/response.dto';
+import { UtilsService } from '../utils/utils.service';
+import { ResponseDto } from '../dto/response.dto';
 
 @Injectable()
 export class OidcService {

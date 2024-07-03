@@ -22,10 +22,10 @@ import {
 import { OidcService } from './oidc.service';
 import { Request, Response } from 'express';
 import { OIDCAuthQuery } from './dto/oidc.auth.dto';
-import { LoginDto, RegisterDto } from 'src/login/login.dto';
+import { LoginDto, RegisterDto } from '../login/login.dto';
 import { IntrospectDto, TokenDto } from './dto/oidc.token.dto';
-import { QueryApplicationIdGuard } from 'src/guards/queryApplicationId.guard';
-import { DataApplicationIdGuard } from 'src/guards/dataApplicationId.guard';
+import { QueryApplicationIdGuard } from '../guards/queryApplicationId.guard';
+import { DataApplicationIdGuard } from '../guards/dataApplicationId.guard';
 
 @ApiTags('OIDC')
 @Controller('oidc')
