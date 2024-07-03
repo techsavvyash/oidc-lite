@@ -85,7 +85,7 @@ class ApiKey {
 
   @ApiProperty()
   @IsString()
-  keyValue: string; //check 1
+  keyValue: string;
 
   @ApiProperty()
   permissions: string | Permissions; //check 2
