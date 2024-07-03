@@ -291,7 +291,7 @@ export class UserService {
   async deleteAUser(
     id: string,
     headers: object,
-    hardDelete: string,
+    hardDelete: boolean,
   ): Promise<ResponseDto> {
     const valid = await this.headerAuthService.validateRoute(
       headers,
@@ -323,7 +323,7 @@ export class UserService {
     if (!user) {
       throw new BadRequestException({
         success: false,
-        message: 'user with the given id dont exists',
+        message: "user with the given id don't exists",
       });
     }
     if (user.tenantId !== tenantId && valid.data.tenantsId !== null) {
@@ -332,29 +332,37 @@ export class UserService {
         message: 'You are not authorized',
       });
     }
-    if (hardDelete) {
-      const delUser = await this.prismaService.user.delete({
-        where: { ...user },
+    try {
+      if (hardDelete) {
+        const delUser = await this.prismaService.user.delete({
+          where: { ...user },
+        });
+        this.logger.log('A user deleted permanently', delUser);
+        return {
+          success: true,
+          message: 'User deleted permanently',
+          data: delUser,
+        };
+      } else {
+        const delUser = await this.prismaService.user.update({
+          where: { id },
+          data: {
+            active: false,
+          },
+        });
+        this.logger.log('A user inactivated', delUser);
+        return {
+          success: true,
+          message: 'User inactivated',
+          data: delUser,
+        };
+      }
+    } catch (error) {
+      this.logger.log('Error occurred in deleteAUser', error);
+      throw new InternalServerErrorException({
+        success: false,
+        message: 'Error occurred while deleting/inactivating the user',
       });
-      this.logger.log('A user deleted permanently', delUser);
-      return {
-        success: true,
-        message: 'User deleted permanently',
-        data: delUser,
-      };
-    } else {
-      const delUser = await this.prismaService.user.update({
-        where: { id },
-        data: {
-          active: false,
-        },
-      });
-      this.logger.log('A user inactivated', delUser);
-      return {
-        success: true,
-        message: 'User inactivated',
-        data: delUser,
-      };
     }
   }
 }

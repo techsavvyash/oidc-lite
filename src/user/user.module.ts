@@ -3,8 +3,8 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserRegistrationService } from './user-registration/user-registration.service';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
-import { UtilsService } from 'src/utils/utils.service';
+import { HeaderAuthService } from '../header-auth/header-auth.service';
+import { UtilsService } from '../utils/utils.service';
 
 @Module({
   controllers: [UserController],

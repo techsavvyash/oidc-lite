@@ -198,7 +198,7 @@ describe('UserController', () => {
     it('should delete a user by ID', async () => {
       const mockId = '123';
       const mockHeaders = {}; // mock headers
-      const mockHardDelete = 'true';
+      const mockHardDelete = true;
       const mockResponseDto: ResponseDto = {
         success: true,
         message: 'User deleted successfully',

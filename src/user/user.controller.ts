@@ -137,7 +137,7 @@ export class UserController {
   async deleteAUser(
     @Param('id') id: string,
     @Headers() headers: object,
-    @Query('hardDelete') hardDelete: string,
+    @Query('hardDelete') hardDelete: boolean,
   ): Promise<ResponseDto> {
     return await this.userService.deleteAUser(id, headers, hardDelete);
   }
