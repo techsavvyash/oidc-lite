@@ -379,17 +379,17 @@ export class OidcService {
       );
       [client_id, client_secret] = credentials.split(':');
     }
+    if (!data) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No data given',
+      });
+    }
     const { code, grant_type, redirect_uri, loginId, password } = data;
     if (!code || !grant_type || !redirect_uri) {
       throw new BadRequestException({
         success: false,
         message: 'either of code,grant_type,redirect_uri missing',
-      });
-    }
-    if (!data) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No data given',
       });
     }
     const clientId = client_id ? client_id : data?.client_id;
@@ -683,8 +683,12 @@ export class OidcService {
     const keys = [];
     keys.push(JSON.parse(accessTokenSigningKey.data));
     keys.push(JSON.parse(idTokenSigningKey.data));
+
+    // Ensure each key object contains a "key" field directly
+    const parsedKeys = keys.map((key) => JSON.parse(key.data));
+
     return {
-      keys,
+      keys: parsedKeys,
     };
   }
 

@@ -178,11 +178,19 @@ export class UserRegistrationService {
         message: 'No user id given',
       });
     }
+    let userRegistration;
     try {
-      const userRegistration =
+      userRegistration =
         await this.prismaService.userRegistration.findFirst({
           where: { usersId: userId, applicationsId: applicationId },
         });
+    } catch (error) {
+      this.logger.log('Error from returnAUserRegistration', error);
+      throw new InternalServerErrorException({
+        success: false,
+        message: 'Internal server error while returning the user Registration',
+      });
+    }
       if (!userRegistration) {
         throw new BadRequestException({
           success: false,
@@ -195,13 +203,7 @@ export class UserRegistrationService {
         message: 'User registration found successfully',
         data: userRegistration,
       };
-    } catch (error) {
-      this.logger.log('Error from returnAUserRegistration', error);
-      throw new InternalServerErrorException({
-        success: false,
-        message: 'Internal server error while returning the user Registration',
-      });
-    }
+    
   }
 
   async updateAUserRegistration(
