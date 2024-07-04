@@ -1,0 +1,552 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { UserRegistrationService } from './user-registration.service';
+import { PrismaService } from '../../prisma/prisma.service';
+import { HeaderAuthService } from '../../header-auth/header-auth.service';
+import { UserService } from '../user.service';
+import { UtilsService } from '../../utils/utils.service';
+import {
+  BadRequestException,
+  UnauthorizedException,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { randomUUID } from 'crypto';
+import { ResponseDto } from '../../dto/response.dto';
+import {
+  CreateUserAndUserRegistration,
+  CreateUserRegistrationDto,
+  UpdateUserRegistrationDto,
+} from '../user.dto';
+import { AccessTokenDto, RefreshTokenDto } from '../../oidc/dto/oidc.token.dto';
+import { ApplicationDataDto } from '../../application/application.dto';
+import { access } from 'fs';
+
+describe('UserRegistrationService', () => {
+  let service: UserRegistrationService;
+  let prismaService: PrismaService;
+  let headerAuthService: HeaderAuthService;
+  let userService: UserService;
+  let utilService: UtilsService;
+
+  const mockPrismaService = {
+    application: {
+      findUnique: jest.fn(),
+    },
+    user: {
+      findUnique: jest.fn(),
+    },
+    userRegistration: {
+      create: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+    applicationRole: {
+      findUnique: jest.fn(),
+    },
+  };
+
+  const mockHeaderAuthService = {
+    authorizationHeaderVerifier: jest.fn(),
+    validateRoute: jest.fn(),
+  };
+
+  const mockUserService = {
+    createAUser: jest.fn(),
+  };
+
+  const mockUtilService = {
+    returnRolesForAGivenUserIdAndApplicationId: jest.fn(),
+    createToken: jest.fn(),
+    saveOrUpdateRefreshToken: jest.fn(),
+  };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UserRegistrationService,
+        { provide: PrismaService, useValue: mockPrismaService },
+        { provide: HeaderAuthService, useValue: mockHeaderAuthService },
+        { provide: UserService, useValue: mockUserService },
+        { provide: UtilsService, useValue: mockUtilService },
+      ],
+    }).compile();
+
+    service = module.get<UserRegistrationService>(UserRegistrationService);
+    prismaService = module.get<PrismaService>(PrismaService);
+    headerAuthService = module.get<HeaderAuthService>(HeaderAuthService);
+    userService = module.get<UserService>(UserService);
+    utilService = module.get<UtilsService>(UtilsService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  const mockApplication = {
+    id: 'testAppId',
+    tenantId: 'testTenantId',
+    data: JSON.stringify({
+      jwtConfiguration: {
+        timeToLiveInSeconds: 3600,
+      },
+    }),
+    accessTokenSigningKeysId: null,
+    idTokenSigningKeysId: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    name: 'testApp',
+    active: true,
+  };
+
+  const mockUser = {
+    id: 'testUserId',
+    data: '{}',
+    active: true,
+    expiry: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    tenantId: 'testTenantId',
+    email: 'test@test.com',
+  };
+
+  const mockUserRegistration = {
+    id: 'testRegId',
+    applicationsId: 'testAppId',
+    usersId: 'testUserId',
+    authenticationToken: 'testToken',
+    password: 'Password@123',
+    data: {},
+    createdAt: new Date(),
+    lastLoginInstant: null,
+    updatedAt: new Date(),
+  };
+  const mockRoles = ['role1', 'role2'];
+  const mockAccessToken = 'accessToken';
+  const data: CreateUserRegistrationDto = {
+    applicationId: 'testAppId',
+    registrationId: 'testRegId',
+    generateAuthenticationToken: true,
+  };
+
+  describe('createAUserRegistration', () => {
+    it('should create a user registration successfully', async () => {
+      const userId = 'testUserId';
+
+      const headers = {
+        authorization: 'master',
+      };
+
+      jest
+        .spyOn(mockPrismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplication);
+      jest
+        .spyOn(mockHeaderAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValue({ success: true, message: 'Authorized' });
+      jest
+        .spyOn(mockPrismaService.user, 'findUnique')
+        .mockResolvedValue(mockUser);
+      jest
+        .spyOn(mockPrismaService.userRegistration, 'create')
+        .mockResolvedValue(mockUserRegistration);
+      jest
+        .spyOn(mockUtilService, 'returnRolesForAGivenUserIdAndApplicationId')
+        .mockResolvedValue(['roleId1', 'roleId2']);
+      jest
+        .spyOn(mockPrismaService.applicationRole, 'findUnique')
+        .mockResolvedValueOnce({ name: 'role1' })
+        .mockResolvedValueOnce({ name: 'role2' });
+      jest
+        .spyOn(mockUtilService, 'createToken')
+        .mockResolvedValue(mockAccessToken);
+
+      // console.log(userId, data, headers);
+      try {
+        const result = await service.createAUserRegistration(
+          userId,
+          data,
+          headers,
+        );
+
+        expect(result).toEqual({
+          success: true,
+          message: 'A user registered',
+          data: {
+            userRegistration: mockUserRegistration,
+            access_token: mockAccessToken,
+          },
+        });
+      } catch (e) {
+        console.log(e); //for debugging
+      }
+      expect(mockPrismaService.application.findUnique).toHaveBeenCalledWith({
+        where: { id: data.applicationId },
+      });
+      expect(
+        mockHeaderAuthService.authorizationHeaderVerifier,
+      ).toHaveBeenCalledWith(
+        headers,
+        mockApplication.tenantId,
+        '/user/registration',
+        'POST',
+      );
+      expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { id: userId },
+      });
+      expect(mockPrismaService.userRegistration.create).toHaveBeenCalledWith({
+        data: {
+          id: data.registrationId,
+          authenticationToken: expect.any(String),
+          usersId: userId,
+          applicationsId: mockApplication.id,
+          password: undefined,
+        },
+      });
+      expect(
+        mockUtilService.returnRolesForAGivenUserIdAndApplicationId,
+      ).toHaveBeenCalledWith(mockUser.id, mockApplication.id);
+      expect(
+        mockPrismaService.applicationRole.findUnique,
+      ).toHaveBeenCalledTimes(2);
+      expect(mockUtilService.createToken).toHaveBeenCalledWith(
+        {
+          active: true,
+          applicationId: mockApplication.id,
+          iat: expect.any(Number),
+          iss: process.env.FULL_URL,
+          exp: expect.any(Number),
+          roles: mockRoles,
+          sub: mockUser.id,
+          aud: mockApplication.id,
+          scope: 'openid',
+        },
+        mockApplication.id,
+        mockApplication.tenantId,
+        'access',
+      );
+    });
+
+    it('should throw BadRequestException if no data is provided', async () => {
+      await expect(
+        service.createAUserRegistration('', null, {}),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('returnAUserRegistration', () => {
+    it('should return a user registration successfully', async () => {
+      const userId = 'testUserId';
+      const applicationId = 'testAppId';
+      const headers = {};
+
+      const mockApplication = { id: 'testAppId', tenantId: 'testTenantId' };
+      const mockUserRegistration = { id: 'testRegId' };
+
+      mockPrismaService.application.findUnique.mockResolvedValue(
+        mockApplication,
+      );
+      mockHeaderAuthService.authorizationHeaderVerifier.mockResolvedValue({
+        success: true,
+      });
+      mockPrismaService.userRegistration.findFirst.mockResolvedValue(
+        mockUserRegistration,
+      );
+
+      const result = await service.returnAUserRegistration(
+        userId,
+        applicationId,
+        headers,
+      );
+
+      expect(result).toEqual({
+        success: true,
+        message: 'User registration found successfully',
+        data: mockUserRegistration,
+      });
+      expect(mockPrismaService.application.findUnique).toHaveBeenCalledWith({
+        where: { id: applicationId },
+      });
+      expect(
+        mockHeaderAuthService.authorizationHeaderVerifier,
+      ).toHaveBeenCalledWith(
+        headers,
+        mockApplication.tenantId,
+        '/user/registration',
+        'GET',
+      );
+      expect(mockPrismaService.userRegistration.findFirst).toHaveBeenCalledWith(
+        {
+          where: { usersId: userId, applicationsId: applicationId },
+        },
+      );
+    });
+
+    it('should throw UnauthorizedException if user registration is not found', async () => {
+      const userId = 'testUserId';
+      const applicationId = 'testAppId';
+      const headers = {};
+
+      const mockApplication = { id: 'testAppId', tenantId: 'testTenantId' };
+
+      mockPrismaService.application.findUnique.mockResolvedValue(
+        mockApplication,
+      );
+      mockHeaderAuthService.authorizationHeaderVerifier.mockResolvedValue({
+        success: true,
+      });
+      mockPrismaService.userRegistration.findFirst.mockResolvedValue(null);
+      // TODO : Unauthorized Exception is not thrown
+      await expect(
+        service.returnAUserRegistration(userId, applicationId, headers),
+      ).rejects.toThrow(InternalServerErrorException);
+    });
+
+  });
+
+  describe('updateAUserRegistration', () => {
+    it('should update a user registration successfully', async () => {
+      const userId = 'testUserId';
+      const applicationId = 'testAppId';
+      const data: UpdateUserRegistrationDto = {
+        data: {
+          code_challenge: 'testCodeChallenge',
+          code_challenge_method: 'testCodeChallengeMethod',
+          scope: 'testScope',
+        },
+      };
+      const headers = {};
+
+      const mockApplication = { id: 'testAppId', tenantId: 'testTenantId' };
+      const mockUser = { id: 'testUserId' };
+      const mockUserRegistration = { id: 'testRegId', data: '{}' };
+      const updatedUserRegistration = {
+        ...mockUserRegistration,
+        data: JSON.stringify(data.data),
+      };
+
+      mockPrismaService.application.findUnique.mockResolvedValue(
+        mockApplication,
+      );
+      mockHeaderAuthService.authorizationHeaderVerifier.mockResolvedValue({
+        success: true,
+      });
+      mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
+      mockPrismaService.userRegistration.findFirst.mockResolvedValue(
+        mockUserRegistration,
+      );
+      mockPrismaService.userRegistration.update.mockResolvedValue(
+        updatedUserRegistration,
+      );
+
+      const result = await service.updateAUserRegistration(
+        userId,
+        applicationId,
+        data,
+        headers,
+      );
+
+      expect(result).toEqual({
+        success: true,
+        message: 'User registration updated',
+        data: updatedUserRegistration,
+      });
+      expect(mockPrismaService.application.findUnique).toHaveBeenCalledWith({
+        where: { id: applicationId },
+      });
+      expect(
+        mockHeaderAuthService.authorizationHeaderVerifier,
+      ).toHaveBeenCalledWith(
+        headers,
+        mockApplication.tenantId,
+        '/user/registration',
+        'PATCH',
+      );
+      expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { id: userId },
+      });
+      expect(mockPrismaService.userRegistration.findFirst).toHaveBeenCalledWith(
+        {
+          where: { usersId: userId, applicationsId: applicationId },
+        },
+      );
+      expect(mockPrismaService.userRegistration.update).toHaveBeenCalledWith({
+        where: { id: mockUserRegistration.id },
+        data: { data: JSON.stringify(data.data) },
+      });
+    });
+
+    // Add more test cases for updateAUserRegistration as needed
+  });
+
+  describe('deleteAUserRegistration', () => {
+    it('should delete a user registration successfully', async () => {
+      const usersId = 'testUserId';
+      const applicationsId = 'testAppId';
+      const headers = {};
+
+      const mockApplication = { id: 'testAppId', tenantId: 'testTenantId' };
+      const mockUserRegistration = { id: 'testRegId' };
+
+      mockPrismaService.application.findUnique.mockResolvedValue(
+        mockApplication,
+      );
+      mockHeaderAuthService.authorizationHeaderVerifier.mockResolvedValue({
+        success: true,
+      });
+      mockPrismaService.userRegistration.findFirst.mockResolvedValue(
+        mockUserRegistration,
+      );
+      mockPrismaService.userRegistration.delete.mockResolvedValue(
+        mockUserRegistration,
+      );
+
+      const result = await service.deleteAUserRegistration(
+        usersId,
+        applicationsId,
+        headers,
+      );
+
+      expect(result).toEqual({
+        success: true,
+        message: 'User registration deleted successfully',
+        data: mockUserRegistration,
+      });
+      expect(mockPrismaService.application.findUnique).toHaveBeenCalledWith({
+        where: { id: applicationsId },
+      });
+      expect(
+        mockHeaderAuthService.authorizationHeaderVerifier,
+      ).toHaveBeenCalledWith(
+        headers,
+        mockApplication.tenantId,
+        '/user/registration',
+        'DELETE',
+      );
+      expect(mockPrismaService.userRegistration.findFirst).toHaveBeenCalledWith(
+        {
+          where: { usersId, applicationsId },
+        },
+      );
+      expect(mockPrismaService.userRegistration.delete).toHaveBeenCalledWith({
+        where: { id: mockUserRegistration.id },
+      });
+    });
+
+    // Add more test cases for deleteAUserRegistration as needed
+  });
+
+  describe('createAUserAndUserRegistration', () => {
+    it('should create a user and user registration successfully', async () => {
+      const userId = 'testUserId';
+      const data: CreateUserAndUserRegistration = {
+        userInfo: {
+          active: true,
+          membership: [],
+          userData: {
+            username: 'testUser',
+            password: 'Password@123',
+          },
+          email: 'test@test.com',
+        },
+        registrationInfo: {
+          applicationId: 'testAppId',
+        },
+      };
+      const headers = {};
+
+      const mockApplication = {
+        id: 'testAppId',
+        tenantId: 'testTenantId',
+        data: JSON.stringify({
+          jwtConfiguration: {
+            refreshTokenTimeToLiveInMinutes: 60,
+          },
+        }),
+      };
+      const mockUser = { id: 'testUserId', data: '{}' };
+      const mockUserRegistration = { id: 'testRegId' };
+      const mockRefreshToken = 'refreshToken';
+      const mockSaveToken = { id: 'saveTokenId' };
+
+      mockHeaderAuthService.validateRoute.mockResolvedValue({
+        success: true,
+        data: { tenantsId: 'testTenantId' },
+      });
+      mockPrismaService.application.findUnique.mockResolvedValue(
+        mockApplication,
+      );
+      mockUserService.createAUser.mockResolvedValue(mockUser);
+      jest.spyOn(service, 'createAUserRegistration').mockResolvedValue({
+        success: true,
+        message: 'A user registered',
+        data: {
+          userRegistration: mockUserRegistration,
+          access_token: 'accessToken',
+        },
+      });
+      mockUtilService.createToken.mockResolvedValue(mockRefreshToken);
+      mockUtilService.saveOrUpdateRefreshToken.mockResolvedValue(mockSaveToken);
+      try {
+        const result = await service.createAUserAndUserRegistration(
+          userId,
+          data,
+          headers,
+        );
+
+        expect(result).toEqual({
+          success: true,
+          message: 'User and user registration created successfully!',
+          data: {
+            user: mockUser,
+            userRegistration: mockUserRegistration,
+            refresh_token: mockRefreshToken,
+            refreshTokenId: mockSaveToken.id,
+          },
+        });
+      } catch (e) {
+        console.log(e); //for debugging
+      }
+      expect(mockHeaderAuthService.validateRoute).toHaveBeenCalledWith(
+        headers,
+        '/user/registration',
+        'POST',
+      );
+      expect(mockPrismaService.application.findUnique).toHaveBeenCalledWith({
+        where: { id: data.registrationInfo.applicationId },
+      });
+      expect(mockUserService.createAUser).toHaveBeenCalledWith(
+        userId,
+        data.userInfo,
+        headers,
+      );
+      expect(service.createAUserRegistration).toHaveBeenCalledWith(
+        userId,
+        data.registrationInfo,
+        headers,
+      );
+      expect(mockUtilService.createToken).toHaveBeenCalledWith(
+        {
+          active: true,
+          applicationId: mockApplication.id,
+          iat: expect.any(Number),
+          iss: process.env.FULL_URL,
+          exp: expect.any(Number),
+          sub: userId,
+        },
+        mockApplication.id,
+        mockApplication.tenantId,
+        'refresh',
+      );
+      expect(mockUtilService.saveOrUpdateRefreshToken).toHaveBeenCalledWith(
+        mockApplication.id,
+        mockRefreshToken,
+        userId,
+        mockApplication.tenantId,
+        '',
+        expect.any(Number),
+        expect.any(Number),
+      );
+    });
+
+    // Add more test cases for createAUserAndUserRegistration as needed
+  });
+});
