@@ -1,0 +1,97 @@
+yarn run v1.22.22
+$ jest --config jest.config.js
+------------------------------------|---------|----------|---------|---------|----------------------------------------------------------------------------------------------------------------------
+File                                | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                    
+------------------------------------|---------|----------|---------|---------|----------------------------------------------------------------------------------------------------------------------
+All files                           |   66.18 |     54.5 |   68.62 |   66.41 |                                                                                                                      
+ src                                |       0 |        0 |       0 |       0 |                                                                                                                      
+  app.controller.ts                 |       0 |      100 |       0 |       0 | 1-34                                                                                                                 
+  app.module.ts                     |       0 |      100 |     100 |       0 | 1-45                                                                                                                 
+  app.service.ts                    |       0 |        0 |       0 |       0 | 1-65                                                                                                                 
+  main.ts                           |       0 |      100 |       0 |       0 | 1-46                                                                                                                 
+ src/api-keys                       |   85.61 |    54.34 |     100 |   86.42 |                                                                                                                      
+  api-keys.controller.ts            |     100 |      100 |     100 |     100 |                                                                                                                      
+  api-keys.module.ts                |       0 |      100 |     100 |       0 | 1-10                                                                                                                 
+  api-keys.service.ts               |   84.61 |    54.34 |     100 |   84.26 | 52,59,65-69,99-100,136,147,205,234-235,262,277                                                                       
+  apiKey.dto.ts                     |     100 |      100 |     100 |     100 |                                                                                                                      
+ src/application                    |       0 |        0 |       0 |       0 |                                                                                                                      
+  application.controller.ts         |       0 |      100 |       0 |       0 | 1-400                                                                                                                
+  application.dto.ts                |       0 |      100 |       0 |       0 | 1-419                                                                                                                
+  application.module.ts             |       0 |      100 |     100 |       0 | 1-23                                                                                                                 
+  application.service.ts            |       0 |        0 |       0 |       0 | 1-508                                                                                                                
+ src/application/application-roles  |       0 |        0 |       0 |       0 |                                                                                                                      
+  application-roles.service.ts      |       0 |        0 |       0 |       0 | 1-300                                                                                                                
+ src/application/application-scopes |       0 |        0 |       0 |       0 |                                                                                                                      
+  application-scopes.service.ts     |       0 |        0 |       0 |       0 | 1-321                                                                                                                
+ src/dto                            |     100 |      100 |     100 |     100 |                                                                                                                      
+  response.dto.ts                   |     100 |      100 |     100 |     100 |                                                                                                                      
+ src/groups                         |   87.97 |    79.62 |   91.66 |   89.59 |                                                                                                                      
+  gpUser.service.ts                 |    87.7 |    70.37 |     100 |   89.56 | 86,103-104,145,203,212,266,317,330-331,351,357                                                                       
+  groups.controller.ts              |     100 |      100 |     100 |     100 |                                                                                                                      
+  groups.module.ts                  |       0 |      100 |     100 |       0 | 1-22                                                                                                                 
+  groups.service.ts                 |    92.5 |    86.95 |   76.92 |   93.57 | 86,99-101,189-190,247                                                                                                
+ src/groups/dtos                    |      95 |      100 |       0 |      95 |                                                                                                                      
+  gpUser.dto.ts                     |    87.5 |      100 |       0 |    87.5 | 15                                                                                                                   
+  groups.dto.ts                     |     100 |      100 |     100 |     100 |                                                                                                                      
+ src/guards                         |     100 |     92.3 |     100 |     100 |                                                                                                                      
+  dataApplicationId.guard.ts        |     100 |     87.5 |     100 |     100 | 30                                                                                                                   
+  paramApplicationId.guard.ts       |     100 |      100 |     100 |     100 |                                                                                                                      
+  queryApplicationId.guard.ts       |     100 |      100 |     100 |     100 |                                                                                                                      
+ src/header-auth                    |   95.74 |    80.76 |     100 |   95.55 |                                                                                                                      
+  header-auth.service.ts            |   95.74 |    80.76 |     100 |   95.55 | 45,119                                                                                                               
+ src/key                            |   82.53 |    61.76 |   85.71 |   83.54 |                                                                                                                      
+  key.contoller.ts                  |     100 |      100 |     100 |     100 |                                                                                                                      
+  key.dto.ts                        |     100 |      100 |     100 |     100 |                                                                                                                      
+  key.module.ts                     |       0 |      100 |     100 |       0 | 1-19                                                                                                                 
+  key.service.ts                    |   82.14 |    61.76 |   78.57 |    82.4 | 43,245-246,283-296,330-350,363-364                                                                                   
+ src/kickstart                      |       0 |        0 |       0 |       0 |                                                                                                                      
+  kickstart.module.ts               |       0 |      100 |     100 |       0 | 1-7                                                                                                                  
+  kickstart.service.ts              |       0 |        0 |       0 |       0 | 1-115                                                                                                                
+ src/login                          |   90.29 |      100 |     100 |   91.57 |                                                                                                                      
+  login.controller.ts               |     100 |      100 |     100 |     100 |                                                                                                                      
+  login.dto.ts                      |     100 |      100 |     100 |     100 |                                                                                                                      
+  login.module.ts                   |       0 |      100 |     100 |       0 | 1-19                                                                                                                 
+  login.service.ts                  |     100 |      100 |     100 |     100 |                                                                                                                      
+ src/memory-monitor                 |       0 |      100 |       0 |       0 |                                                                                                                      
+  memory-monitor.service.ts         |       0 |      100 |       0 |       0 | 1-19                                                                                                                 
+ src/oidc                           |   73.64 |    45.38 |      90 |   73.61 |                                                                                                                      
+  oidc.controller.ts                |     100 |      100 |     100 |     100 |                                                                                                                      
+  oidc.module.ts                    |       0 |      100 |     100 |       0 | 1-11                                                                                                                 
+  oidc.service.ts                   |   72.44 |    45.38 |   83.33 |      72 | 65,72,78,130,140,153,190-209,377-380,433,440,470-474,479,485,494,509,528-647,714,732,740,746,777,817-818,831,849-873 
+ src/oidc/dto                       |     100 |      100 |     100 |     100 |                                                                                                                      
+  oidc.auth.dto.ts                  |     100 |      100 |     100 |     100 |                                                                                                                      
+  oidc.token.dto.ts                 |     100 |      100 |     100 |     100 |                                                                                                                      
+ src/otp                            |      84 |      100 |     100 |   86.36 |                                                                                                                      
+  otp.controller.ts                 |     100 |      100 |     100 |     100 |                                                                                                                      
+  otp.dto.ts                        |     100 |      100 |     100 |     100 |                                                                                                                      
+  otp.module.ts                     |       0 |      100 |     100 |       0 | 1-11                                                                                                                 
+  otp.service.ts                    |     100 |      100 |     100 |     100 |                                                                                                                      
+ src/otp/otp-adapters               |      85 |      100 |     100 |   83.33 |                                                                                                                      
+  otp-adapter.dto.ts                |       0 |      100 |     100 |       0 | 1-18                                                                                                                 
+  otp-adapters.service.ts           |     100 |      100 |     100 |     100 |                                                                                                                      
+ src/otp/otp-manager                |     100 |    83.33 |     100 |     100 |                                                                                                                      
+  otp-manager.service.ts            |     100 |    83.33 |     100 |     100 | 8                                                                                                                    
+ src/prisma                         |   41.66 |      100 |       0 |    37.5 |                                                                                                                      
+  prisma.module.ts                  |       0 |      100 |     100 |       0 | 1-7                                                                                                                  
+  prisma.service.ts                 |   71.42 |      100 |       0 |      60 | 10-13                                                                                                                
+ src/refresh_tokens                 |   82.14 |     80.7 |     100 |   82.63 |                                                                                                                      
+  refreshToken.dto.ts               |     100 |      100 |     100 |     100 |                                                                                                                      
+  refreshtokens.controller.ts       |     100 |      100 |     100 |     100 |                                                                                                                      
+  refreshtokens.module.ts           |       0 |      100 |     100 |       0 | 1-19                                                                                                                 
+  refreshtokens.service.ts          |   83.11 |    76.59 |     100 |   82.89 | 31,41,71-124,158,173,235,248,264-265,312-313,363-364                                                                 
+ src/tenant                         |    86.4 |    83.87 |   86.66 |   87.39 |                                                                                                                      
+  tenant.controller.ts              |     100 |      100 |     100 |     100 |                                                                                                                      
+  tenant.dto.ts                     |   88.23 |      100 |       0 |   88.23 | 65,77                                                                                                                
+  tenant.module.ts                  |       0 |      100 |     100 |       0 | 1-12                                                                                                                 
+  tenant.service.ts                 |    90.9 |    83.87 |     100 |   90.66 | 71,86,110-111,142,187-188                                                                                            
+ src/user                           |   87.37 |    67.92 |      90 |   89.74 |                                                                                                                      
+  user.controller.ts                |     100 |      100 |     100 |     100 |                                                                                                                      
+  user.dto.ts                       |   97.77 |      100 |       0 |   97.77 | 56                                                                                                                   
+  user.module.ts                    |       0 |      100 |     100 |       0 | 1-19                                                                                                                 
+  user.service.ts                   |   86.95 |    67.92 |    87.5 |   89.81 | 51,67,86,214,246-260                                                                                                 
+ src/user/user-registration         |   95.34 |    86.04 |     100 |   95.27 |                                                                                                                      
+  user-registration.service.ts      |   95.34 |    86.04 |     100 |   95.27 | 157,170,176,188-189,374                                                                                              
+ src/utils                          |   85.07 |    85.71 |      75 |   84.03 |                                                                                                                      
+  utils.service.ts                  |   85.07 |    85.71 |      75 |   84.03 | 165-203,286                                                                                                          
+------------------------------------|---------|----------|---------|---------|----------------------------------------------------------------------------------------------------------------------
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
