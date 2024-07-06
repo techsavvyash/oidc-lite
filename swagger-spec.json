@@ -787,7 +787,7 @@
             "in": "query",
             "description": "Hard delete flag",
             "schema": {
-              "type": "string"
+              "type": "boolean"
             }
           },
           {

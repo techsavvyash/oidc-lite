@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AppService } from './app.service';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 @ApiTags('OIDC Wrapper')
 @Controller()
@@ -11,7 +11,8 @@ export class AppController {
   @Get('/health')
   @ApiOperation({ summary: 'to prove the live status of website' })
   @ApiResponse({ status: 200, description: 'live status confirmed' })
-  async getRoutesInfo() {
+  async getRoutesInfo(@Req() req: Request) {
+    console.log(req.headers);
     return {
       status: 'live',
     };

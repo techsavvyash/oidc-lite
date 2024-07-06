@@ -120,7 +120,7 @@ export class LoginService {
       active: true,
       applicationId: application.id,
       iat: now,
-      iss: process.env.FULL_URL,
+      iss: process.env.ISSUER_URL,
       exp: now + refreshTokenSeconds,
       sub: user.id,
     };
@@ -135,7 +135,7 @@ export class LoginService {
       applicationId: application.id,
       sub: user.id,
       iat: now,
-      iss: process.env.FULL_URL,
+      iss: process.env.ISSUER_URL,
       aud: application.id,
       exp: now + accessTokenSeconds,
       roles: roles,

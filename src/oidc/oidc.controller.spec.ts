@@ -242,7 +242,7 @@ describe('OidcController', () => {
       const configs = await oidcController.returnConfigs();
 
       expect(configs).toEqual({
-        issuer: `${process.env.FULL_URL}`,
+        issuer: `${process.env.ISSUER_URL}`,
         authorization_endpoint: `${process.env.FULL_URL}/oidc/auth`,
         token_endpoint: `${process.env.FULL_URL}/oidc/token`,
         userinfo_endpoint: `${process.env.FULL_URL}/oidc/userinfo`,

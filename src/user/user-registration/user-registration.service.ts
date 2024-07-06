@@ -118,7 +118,7 @@ export class UserRegistrationService {
         active: true,
         applicationId: application.id,
         iat: now,
-        iss: process.env.FULL_URL,
+        iss: process.env.ISSUER_URL,
         exp: now + accessTokenSeconds,
         roles: filteredRoles,
         sub: user.id,
@@ -414,7 +414,7 @@ export class UserRegistrationService {
           active: true,
           applicationId: application.id,
           iat: now,
-          iss: process.env.FULL_URL,
+          iss: process.env.ISSUER_URL,
           exp: now + refreshTokenSeconds,
           sub: userId,
         };

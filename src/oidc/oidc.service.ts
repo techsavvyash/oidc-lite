@@ -575,7 +575,7 @@ export class OidcService {
       active: true,
       iat: now,
       exp: now + refreshTokenSeconds,
-      iss: process.env.FULL_URL,
+      iss: process.env.ISSUER_URL,
       aud: clientId,
       sub: user.id,
       userData: profileAllowed
@@ -593,7 +593,7 @@ export class OidcService {
       active: true,
       iat: now,
       applicationId: application.id,
-      iss: process.env.FULL_URL,
+      iss: process.env.ISSUER_URL,
       exp: now + refreshTokenSeconds,
       sub: user.id,
     };
@@ -632,7 +632,7 @@ export class OidcService {
       roles,
       iat: now,
       exp: now + accessTokenSeconds,
-      iss: process.env.FULL_URL,
+      iss: process.env.ISSUER_URL,
       sub: user.id,
       aud: clientId,
       applicationId: application.id,
