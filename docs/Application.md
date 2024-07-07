@@ -12,7 +12,16 @@ The ApplicationService is a crucial component of our NestJS application, respons
 
 ## Endpoints
 
-### 1. Create Application
+### 1. Create Application with random id 
+- **Endpoint** : Post `/application`
+- **Description** : Creates a new application with the provided details.
+- **Authorization-Header** : Required
+- **Parameters:**
+    - `uuid: string` - Unique identifier for the application
+    - `data: CreateApplicationDto` - Application data
+
+### 1. Create Application with given id 
+- **Endpoint** : Post `/application/:applicationId`
 - **Description** : Creates a new application with the provided details.
 - **Authorization-Header** : Required
 - **Parameters:**
@@ -20,6 +29,7 @@ The ApplicationService is a crucial component of our NestJS application, respons
     - `data: CreateApplicationDto` - Application data
 
 ### 2. Patch Application
+- **Endpoint** : Patch `/application/:applicationId`
 - **Description** : Updates an existing application.
 - **Authorization-Header** : Required
 - **Parameters:**
@@ -27,18 +37,21 @@ The ApplicationService is a crucial component of our NestJS application, respons
     - `newData: UpdateApplicationDto` - Updated application data
 
 ### 3. Return All Applications
+- **Endpoint** : Get `/application`
 - **Description** : Retrieves all applications with their associated roles and scopes.
 - **Authorization-Header** : Required
 - **Parameters:**
     - `headers: object` - Request headers
 
 ### 4. Return An Application
+- **Endpoint** : Get `/application/:applicationId`
 - **Description** : Retrieves a specific application by ID, including its roles and scopes.
 - **Authorization-Header** : Required
 - **Parameters:**
     - `id: string` - Application ID
 
 ### 5. Delete Application
+- **Endpoint** : Get `/application/:applicationId`
 - **Description** : Deletes an application (soft or hard delete).
 - **Authorization-Header** : Required
 - **Parameters:**
@@ -46,6 +59,7 @@ The ApplicationService is a crucial component of our NestJS application, respons
     - `hardDelete: boolean` - Whether to perform a hard delete
 
 ### 6. Return Oauth Configuration
+- **Endpoint** : Get `/application/:applicationId/oauth-configuration`
 - **Description** : Retrieves the OAuth configuration for a specific application.
 - **Authorization-Header** : Required
 - **Parameters:**
@@ -66,7 +80,8 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
 
 ## Endpoints
 
-### 1. Create Scope
+### 1. Create Scope with random id
+- **Endpoint** : Post `/application/:applicationId/scope`
 - **Description** : Creates a new scope for a specific application.
 - **Authorization-Header** : Required
 - **Parameters:**
@@ -74,14 +89,17 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
     - `applicationsId: string` - Application ID
     - `scopeId: string` - Optional scope ID
 
-### 2. Get Scope
-- **Description** : Retrieves a specific scope for an application.
+### 2. Create Scope with given id
+- **Endpoint** : Post `/application/:applicationId/scope/:scopeId`
+- **Description** : Creates a new scope for a specific application.
 - **Authorization-Header** : Required
 - **Parameters:**
+    - `data: ScopeDto` - Scope data
     - `applicationsId: string` - Application ID
-    - `id: string` - Scope ID
+    - `scopeId: string` - Optional scope ID
 
 ### 3. Update Scope
+- **Endpoint** : Patch `/application/:applicationId/scope/:scopeId`
 - **Description** : Updates an existing scope for an application.
 - **Authorization-Header** : Required
 - **Parameters:**
@@ -90,6 +108,7 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
     - `data: UpdateScopeDto` - Updated scope data
 
 ### 4. Delete Scope
+- **Endpoint** : Delete `/application/:applicationId/scope/:scopeId`
 - **Description** : Deletes a scope from an application.
 - **Authorization-Header** : Required
 - **Parameters:**
@@ -111,7 +130,8 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
 
 ## Endpoints
 
-### 1. Create Role
+### 1. Create Role with random id
+- **Endpoint** : Post `/application/:applicationId/role`
 - **Descripiton** : Creates a new role for a specific application.
 - **Authorization-Header** : Required
 - **Parameters:**
@@ -119,15 +139,25 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
     - `applicationsId: string` - Application ID
     - `roleId: string` - Optional role ID
 
-### 2. Get Role
+### 2. Create Role with given id
+- **Endpoint** : Post `/application/:applicationId/role/:roleId`
+- **Descripiton** : Creates a new role for a specific application.
+- **Authorization-Header** : Required
+- **Parameters:**
+    - `data: RoleDto` - Role data
+    - `applicationsId: string` - Application ID
+    - `roleId: string` - Optional role ID
+
+<!-- ### 3. Get Role
 - **Descripiton** : Retrieves a specific role for an application.
 - **Authorization-Header** : Required
 - **Parameters:**
     - `applicationsId: string` - Application ID
-    - `id: string` - Role ID
+    - `id: string` - Role ID -->
 
 
 ### 3. Update Role
+- **Endpoint** : Patch `/application/:applicationId/role/:roleId`
 - **Descripiton** : Updates an existing role for an application.
 - **Authorization-Header** : Required
 - **Parameters:**
@@ -137,6 +167,7 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
 
 
 ### 4. Delete Role
+- **Endpoint** : Delete `/application/:applicationId/role/:roleId`
 - **Descripiton** : Deletes a role from an application.
 - **Authorization-Header** : Required
 - **Parameters:**

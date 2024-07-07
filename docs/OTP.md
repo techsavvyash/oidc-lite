@@ -5,7 +5,7 @@ The OTP (One-Time Password) Service is part of a NestJS application that handles
 ## Endpoints
 
 ### 1. SendOtp
-
+- **Endpoint** : Post `/otp/send`
 - **Description** : Generates and sends an OTP via specified channels.
 
 - **Parameters:**
@@ -13,7 +13,7 @@ The OTP (One-Time Password) Service is part of a NestJS application that handles
     - `to`: string - The recipient's address (email, phone number, etc.)
 
 ### 2. ValidateOtp
-
+- **Endpoint** : Post `/otp/verify`
 - **Description** : Validates a given OTP.
 
 - **Parameters:**

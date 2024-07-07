@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, feat-final]
+    branches: [main, feat-final, feat-test, test-Ashu]
   pull_request:
-    branches: [main, feat-final]
+    branches: [main, feat-final, feat-test, test-Ashu]
 
 jobs:
   build:
@@ -39,10 +39,16 @@ jobs:
       - name: Test
         run: yarn test --coverage
 
+      - name: List coverage directory
+        run: ls -R ./coverage
+
+      - name: Print coverage report
+        run: cat ./coverage/lcov.info
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/clover.xml
+          files: ./coverage/lcov.info
           flags: unittests
           name: codecov-umbrella

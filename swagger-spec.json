@@ -2285,66 +2285,138 @@
       "post": {
         "operationId": "GroupsController_createGroup",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createGroupDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Group created successfully."
+          },
+          "400": {
+            "description": "Invalid input."
           }
-        }
+        },
+        "tags": [
+          "FGroup"
+        ]
       },
       "get": {
         "operationId": "GroupsController_retrieveAllGroup",
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Retrieved all groups successfully."
+          },
+          "400": {
+            "description": "Invalid input."
           }
-        }
+        },
+        "tags": [
+          "FGroup"
+        ]
       }
     },
     "/group/member": {
       "post": {
         "operationId": "GroupsController_addUserToGP",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/addUserDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "User added to group successfully."
+          },
+          "400": {
+            "description": "Invalid input."
           }
-        }
+        },
+        "tags": [
+          "FGroup"
+        ]
       },
       "put": {
         "operationId": "GroupsController_updateUser",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/addUserDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": ""
+            "description": "User updated successfully."
+          },
+          "400": {
+            "description": "Invalid input."
           }
-        }
+        },
+        "tags": [
+          "FGroup"
+        ]
       },
       "delete": {
         "operationId": "GroupsController_deleteUser",
         "parameters": [
           {
             "name": "groupId",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "Group ID",
             "schema": {
               "type": "string"
             }
           },
           {
             "name": "userId",
-            "required": true,
+            "required": false,
             "in": "query",
+            "description": "User ID",
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deleteMemberDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": ""
+            "description": "User(s) deleted successfully."
+          },
+          "400": {
+            "description": "Invalid parameters."
           }
-        }
+        },
+        "tags": [
+          "FGroup"
+        ]
       }
     },
     "/group/{id}": {
@@ -2355,16 +2427,33 @@
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Group ID",
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createGroupDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Group created successfully by ID."
+          },
+          "400": {
+            "description": "Invalid input."
           }
-        }
+        },
+        "tags": [
+          "FGroup"
+        ]
       },
       "get": {
         "operationId": "GroupsController_retrieveGpById",
@@ -2373,6 +2462,7 @@
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Group ID",
             "schema": {
               "type": "string"
             }
@@ -2380,9 +2470,15 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Retrieved group by ID successfully."
+          },
+          "400": {
+            "description": "Invalid input."
           }
-        }
+        },
+        "tags": [
+          "FGroup"
+        ]
       },
       "put": {
         "operationId": "GroupsController_updateGP",
@@ -2391,16 +2487,33 @@
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Group ID",
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createGroupDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": ""
+            "description": "Group updated successfully."
+          },
+          "400": {
+            "description": "Invalid input."
           }
-        }
+        },
+        "tags": [
+          "FGroup"
+        ]
       },
       "delete": {
         "operationId": "GroupsController_deleteGP",
@@ -2409,6 +2522,7 @@
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Group ID",
             "schema": {
               "type": "string"
             }
@@ -2416,9 +2530,15 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Group deleted successfully."
+          },
+          "400": {
+            "description": "Invalid input."
           }
-        }
+        },
+        "tags": [
+          "FGroup"
+        ]
       }
     },
     "/group/member/{id}": {
@@ -2429,6 +2549,7 @@
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Member ID",
             "schema": {
               "type": "string"
             }
@@ -2436,9 +2557,15 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Member deleted successfully."
+          },
+          "400": {
+            "description": "Invalid input."
           }
-        }
+        },
+        "tags": [
+          "FGroup"
+        ]
       }
     },
     "/otp/send": {
@@ -2457,9 +2584,22 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "OTP sent successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OtpResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input."
           }
-        }
+        },
+        "tags": [
+          "OTP"
+        ]
       }
     },
     "/otp/verify": {
@@ -2477,10 +2617,23 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "OTP verified successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OtpResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid OTP."
           }
-        }
+        },
+        "tags": [
+          "OTP"
+        ]
       }
     },
     "/tenant": {
@@ -3678,13 +3831,91 @@
           "token"
         ]
       },
+      "createGroupDTO": {
+        "type": "object",
+        "properties": {
+          "roleIDs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "roleIDs"
+        ]
+      },
+      "addUserDTO": {
+        "type": "object",
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "members"
+        ]
+      },
+      "deleteMemberDTO": {
+        "type": "object",
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "members"
+        ]
+      },
       "OtpDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "to": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "to"
+        ]
+      },
+      "OtpResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "success",
+          "message"
+        ]
       },
       "VerifyOtpDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "otp": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "otp"
+        ]
       },
       "CreateTenantDto": {
         "type": "object",

@@ -148,15 +148,15 @@ describe('LoginService', () => {
     metaData: 'metaData',
     tenantsId: 'tenantId',
   };
-
   const mockUserData = {
     id: 'userId',
     active: true,
-    data: null,
+    data: 'null',
     expiry: 637263796,
     createdAt: new Date(),
     updatedAt: new Date(),
     tenantId: 'tenantId',
+    groupId : 'test-group',
     email: 'test@example.com',
   };
 

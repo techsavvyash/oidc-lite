@@ -610,16 +610,7 @@ describe('UtilsService', () => {
       (prismaService.application.findUnique as jest.Mock).mockResolvedValue({
         tenantId,
       });
-      jest.spyOn(prismaService.user,'findUnique').mockResolvedValue({
-        id: userId,
-        active: true,
-        data: 'test',
-        expiry: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        tenantId: tenantId,
-        email: 'hello@email.com'
-      });
+      jest.spyOn(prismaService.user,'findUnique').mockResolvedValue(null);
       jest
         .spyOn(service, 'returnRolesForAGivenUserIdAndTenantId')
         .mockResolvedValue(rolesInTenant);

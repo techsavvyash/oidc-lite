@@ -14,16 +14,19 @@ Each key type is stored in the database with its relevant information, including
 ## Endpoints
 
 ### 1. Retrieve All Keys
+- **Endpoint** : Get `/key`
 - **Description**: This API is used to retrieve all of the configured Keys.
 - **Authorization-Header**: Required
 
 ### 2. Retrieve Unique Key
+- **Endpoint** : Get `/key/:id`
 - **Description**: This API is used to retrieve a single Key by unique Id or all of the configured Keys.
 - **Authorization-Header**: Required
 - **Parameters**: 
   - `uuid`: The unique id of the key
 
 ### 3. Update Key
+- **Endpoint** : Put `/key/:id`
 - **Description**: This API method is used to update an existing Key.
 Only the name of the Key may be changed; all other fields will remain the same
 - **Authorization-Header**: Required
@@ -32,12 +35,25 @@ Only the name of the Key may be changed; all other fields will remain the same
   - `name`: The new name for the key.
 
 ### 4. Delete Key
+- **Endpoint** : Delete `/key/:id`
 - **Description**: Deletes a specific key by its UUID.
 - **Authorization-Header**: Required
 - **Parameters**: 
   - `uuid`: The unique id of the key
 
-### 5. Generate Key
+### 5. Generate Key with random id
+- **Endpoint** : Post `/key/generate`
+- **Description**: Generates a new cryptographic key with specified parameters.
+- **Authorization-Header**: Required
+- **Parameters**: 
+  - `uuid`: The unique id for the new key
+  - `algorithm`: The algorithm to use (RS256, ES256, or HS256)
+  - `name`: The name of the key
+  - `length`: The key length (for some algorithms)
+  - `issuer`: The issuer of the key
+
+### 6. Generate Key with given id
+- **Endpoint** : Post `/key/generate:id`
 - **Description**: Generates a new cryptographic key with specified parameters.
 - **Authorization-Header**: Required
 - **Parameters**: 

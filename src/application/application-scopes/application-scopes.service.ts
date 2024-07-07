@@ -8,7 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { ScopeDto, UpdateScopeDto } from '../application.dto';
+import { ApplicationDataDto, ScopeDto, UpdateScopeDto } from '../application.dto';
 import { ResponseDto } from '../../dto/response.dto';
 import { HeaderAuthService } from '../../header-auth/header-auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -109,70 +109,6 @@ export class ApplicationScopesService {
     }
   }
 
-  async getScope(
-    applicationsId: string,
-    id: string,
-    headers: object,
-  ): Promise<ResponseDto> {
-    const valid = await this.headerAuthService.validateRoute(
-      headers,
-      '/application/scope',
-      'GET',
-    );
-    if (!valid.success) {
-      throw new UnauthorizedException({
-        success: valid.success,
-        message: valid.message,
-      });
-    }
-    const tenant_id = valid.data.tenantsId
-      ? valid.data.tenantsId
-      : headers['x-stencil-tenantid'];
-    if (!applicationsId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No application id given',
-      });
-    }
-    if (!id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'no id given to find scope',
-      });
-    }
-    const application = await this.prismaService.application.findUnique({
-      where: { id: applicationsId },
-    });
-    if (!application) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No application with the given id exists',
-      });
-    }
-    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
-      throw new UnauthorizedException({
-        success: false,
-        message: 'You are not authorized enough',
-      });
-    }
-    const scope = await this.prismaService.applicationOauthScope.findUnique({
-      where: {
-        id,
-        applicationsId,
-      },
-    });
-    if (!scope) {
-      throw new BadRequestException({
-        success: false,
-        message: 'Asked scope dont exists on given application',
-      });
-    }
-    return {
-      success: true,
-      message: 'Scope found',
-      data: scope,
-    };
-  }
 
   async updateScope(
     id: string,
@@ -239,6 +175,8 @@ export class ApplicationScopesService {
         defaultConsentDetail,
         defaultConsentMessage,
       });
+      console.log(description, " is the description")
+      console.log(name, " is the name")
       const scope = await this.prismaService.applicationOauthScope.update({
         where: { id: scopeId },
         data: {
@@ -254,10 +192,10 @@ export class ApplicationScopesService {
       };
     } catch (error) {
       this.logger.log('Error occured while updating scope', error);
-      throw new HttpException(
-        'Error while updating scope',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new InternalServerErrorException({
+        success: false,
+        message: 'Error while updating scope'
+      });
     }
   }
 
@@ -295,16 +233,16 @@ export class ApplicationScopesService {
         message: 'no application with given id exists',
       });
     }
-    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
-      throw new UnauthorizedException({
-        success: false,
-        message: 'You are not authorized enough',
-      });
-    }
     if (!scopeId) {
       throw new BadRequestException({
         success: false,
         message: 'No scope id provided',
+      });
+    }
+    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized enough',
       });
     }
     try {

@@ -91,7 +91,7 @@ describe('UserService', () => {
     updatedAt: new Date(),
     name: 'tenant',
     }
-
+// Type '{ id: string; active: boolean; type '{ id: string; active: boolean; data: string; expiry: number; createdAt: Date; updatedAt: Date; tenantId: string; groupId: string; email: string; }'
     const mockUser = {
         id: '1',
         active: true,
@@ -100,6 +100,7 @@ describe('UserService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         tenantId: '1',
+        groupId : 'mockGpId',
         email: 'test@test.com',
     }
 
@@ -109,6 +110,8 @@ describe('UserService', () => {
         updatedAt: new Date(),
         name: 'group',
         tenantId: '1',
+        permissions : 'mockPermission',
+        attributes : 'mockAttributes' 
     }
 
     const mockCreateUserDto = {

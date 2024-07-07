@@ -106,70 +106,6 @@ export class ApplicationRolesService {
     }
   }
 
-  async getRole(
-    applicationsId: string,
-    id: string,
-    headers: object,
-  ): Promise<ResponseDto> {
-    const valid = await this.headerAuthService.validateRoute(
-      headers,
-      '/application/role',
-      'GET',
-    );
-    if (!valid.success) {
-      throw new UnauthorizedException({
-        success: valid.success,
-        message: valid.message,
-      });
-    }
-    const tenant_id = valid.data.tenantsId
-      ? valid.data.tenantsId
-      : headers['x-stencil-tenantid'];
-    if (!applicationsId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No application id given',
-      });
-    }
-    if (!id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'no id given to find role',
-      });
-    }
-    const application = await this.prismaService.application.findUnique({
-      where: { id: applicationsId },
-    });
-    if (!application) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No application with the given id exists',
-      });
-    }
-    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
-      throw new UnauthorizedException({
-        success: false,
-        message: 'You are not authorized enough',
-      });
-    }
-    const role = await this.prismaService.applicationRole.findUnique({
-      where: {
-        id,
-        applicationsId,
-      },
-    });
-    if (!role) {
-      throw new BadRequestException({
-        success: false,
-        message: 'Asked role dont exists on given application',
-      });
-    }
-    return {
-      success: true,
-      message: 'role found',
-      data: role,
-    };
-  }
 
   async updateRole(
     id: string,
@@ -280,12 +216,12 @@ export class ApplicationRolesService {
         message: 'You are not authorized enough',
       });
     }
-    if (!roleId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No role id provided',
-      });
-    }
+    // if (!roleId) {
+    //   throw new BadRequestException({
+    //     success: false,
+    //     message: 'No role id provided',
+    //   });
+    // }
     try {
       const role = await this.prismaService.applicationRole.delete({
         where: { id: roleId, applicationsId: id },

@@ -178,6 +178,7 @@ describe('OidcService', () => {
         updatedAt: new Date(),
         tenantId: 'tenant123',
         email: 'user@example.com',
+        groupId : 'mock-gp-id'
       };
 
       const userRegistration = {
@@ -492,6 +493,7 @@ describe('OidcService', () => {
         updatedAt: new Date(),
         tenantId: '',
         email: 'test@example.com',
+        groupId : 'mock-gp-id'
       };
 
       jest
@@ -552,6 +554,7 @@ describe('OidcService', () => {
         updatedAt: new Date(),
         tenantId: '',
         email: '',
+        groupId : 'mock-gp-id'
       };
 
       const userRegistration = {
@@ -901,6 +904,7 @@ describe('OidcService', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
       tenantId: 'tenant123',
+      groupId : 'mock-gp-id'
     };
 
     it('should throw UnauthorizedException if password verification fails', async () => {
@@ -1423,6 +1427,7 @@ describe('OidcService', () => {
         updatedAt: new Date(),
         tenantId: 'tenant123',
         email: 'test@example.com',
+        groupId : 'mock-gp-id'
       };
       const mockRoles = ['role1', 'role2'];
 

@@ -18,6 +18,8 @@ import { HeaderAuthService } from '../header-auth/header-auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UtilsService } from '../utils/utils.service';
 import { Response } from 'express';
+import { access } from 'node:fs';
+import { APP_PIPE } from '@nestjs/core';
 
 @Injectable()
 export class ApplicationService {
@@ -65,6 +67,12 @@ export class ApplicationService {
         message: 'no id given',
       });
     }
+    if (!data) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No data given',
+      });
+    }
     const application = await this.prismaService.application.findUnique({
       where: { id: uuid, name: data.name },
     });
@@ -72,12 +80,6 @@ export class ApplicationService {
       throw new BadRequestException({
         success: false,
         message: 'Application with the provided id/name already exists',
-      });
-    }
-    if (!data) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No data given',
       });
     }
     const tenant = await this.prismaService.tenant.findUnique({
@@ -186,7 +188,7 @@ export class ApplicationService {
     newData: UpdateApplicationDto,
     headers: object,
     res: Response,
-  ) {
+  )  {
     if (!id) {
       throw new BadRequestException({
         success: false,
@@ -383,6 +385,12 @@ export class ApplicationService {
     const oldApplication = await this.prismaService.application.findUnique({
       where: { id },
     });
+    if (!oldApplication) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Application with given id dont exist',
+      });
+    }
     if (
       oldApplication.tenantId !== tenant_id &&
       valid.data.tenantsId !== null
@@ -390,12 +398,6 @@ export class ApplicationService {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',
-      });
-    }
-    if (!oldApplication) {
-      throw new BadRequestException({
-        success: false,
-        message: 'Application with given id dont exist',
       });
     }
     if (hardDelete) {
@@ -470,7 +472,7 @@ export class ApplicationService {
     return {
       success: true,
       message: "Application's configurations are as follows",
-      data: JSON.parse(application.data),
+      data: application,
     };
   }
 
