@@ -572,6 +572,7 @@ export class OidcService {
     const userData: UserData = JSON.parse(user.data);
     const { username, firstname, lastname } = userData.userData;
     const idTokenPayload = {
+      // policy: ['consoleAdmin'],
       active: true,
       iat: now,
       exp: now + refreshTokenSeconds,
