@@ -19,13 +19,32 @@ OIDC Lite is an OIDC compliant authentication solution designed to offer a balan
 
 Please refer to [Docs](docs/README.md) for more info about this service.
 
-## Installation
+## Local setup
+
+### Clone
+
+Clone the repository on your machine using
+```bash
+git clone https://github.com/bharatsahaiyak/bhasai-auth-service
+```
+
+### Install Dependencies
 
 ```bash
 $ yarn install
 ```
 
-## Running the app
+### Setup Environment
+```bash
+cp .env.example .env
+```
+
+### Run Migrations
+```bash
+npx prisma migrate dev
+```
+
+### Running the app
 
 ```bash
 # development
@@ -38,7 +57,7 @@ $ yarn run start:dev
 $ yarn run start:prod
 ```
 
-## Test
+### Test
 
 ```bash
 # unit tests
