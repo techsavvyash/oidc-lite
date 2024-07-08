@@ -407,7 +407,7 @@ describe('GroupUserService', () => {
     it('should handle errors while deleting all users from group', async () => {
       (headerAuthService.validateRoute as jest.Mock).mockResolvedValue({
         success: true,
-        data: {tenantsId: null},
+        data: { tenantsId: null },
       });
       (prismaService.group.findUnique as jest.Mock).mockResolvedValue({
         tenantId: 'tenant-id',
@@ -416,9 +416,9 @@ describe('GroupUserService', () => {
         .spyOn(prismaService.groupMember, 'deleteMany')
         .mockRejectedValue(new Error('Error'));
 
-      await expect(service.deleteAllUser('gp-id', {authorization: 'key-value'})).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.deleteAllUser('gp-id', { authorization: 'key-value' }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 

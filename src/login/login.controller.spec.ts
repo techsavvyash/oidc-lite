@@ -46,7 +46,7 @@ describe('LoginController', () => {
         PrismaService,
         JwtService,
         HeaderAuthService,
-        UtilsService
+        UtilsService,
       ],
     }).compile();
 

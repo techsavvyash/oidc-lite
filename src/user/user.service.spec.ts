@@ -3,7 +3,11 @@ import { UserService } from './user.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { HeaderAuthService } from '../header-auth/header-auth.service';
 import { UtilsService } from '../utils/utils.service';
-import { BadRequestException, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  UnauthorizedException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { UserRegistrationService } from './user-registration/user-registration.service';
 import { permission } from 'process';
@@ -51,11 +55,11 @@ describe('UserService', () => {
           },
         },
         {
-            provide: UserRegistrationService,
-            useValue: {
-              sendRegistrationEmail: jest.fn(),
-            },
-        }
+          provide: UserRegistrationService,
+          useValue: {
+            sendRegistrationEmail: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -74,13 +78,13 @@ describe('UserService', () => {
     permissions: 'permissions',
     tenantsId: '1',
     metaData: 'metaData',
-  }
+  };
 
   const mockApiKeyResponse = {
     success: true,
     message: 'API key found successfully',
     data: mockApiKey,
-  }
+  };
 
   const mockTenant = {
     id: '1',
@@ -90,39 +94,39 @@ describe('UserService', () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     name: 'tenant',
-    }
-// Type '{ id: string; active: boolean; type '{ id: string; active: boolean; data: string; expiry: number; createdAt: Date; updatedAt: Date; tenantId: string; groupId: string; email: string; }'
-    const mockUser = {
-        id: '1',
-        active: true,
-        data: JSON.stringify({ username: 'testuser' }),
-        expiry: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        tenantId: '1',
-        groupId : 'mockGpId',
-        email: 'test@test.com',
-    }
+  };
+  // Type '{ id: string; active: boolean; type '{ id: string; active: boolean; data: string; expiry: number; createdAt: Date; updatedAt: Date; tenantId: string; groupId: string; email: string; }'
+  const mockUser = {
+    id: '1',
+    active: true,
+    data: JSON.stringify({ username: 'testuser' }),
+    expiry: 1,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    tenantId: '1',
+    groupId: 'mockGpId',
+    email: 'test@test.com',
+  };
 
-    const mockGroup = {
-        id: '1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        name: 'group',
-        tenantId: '1',
-        permissions : 'mockPermission',
-        attributes : 'mockAttributes' 
-    }
+  const mockGroup = {
+    id: '1',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    name: 'group',
+    tenantId: '1',
+    permissions: 'mockPermission',
+    attributes: 'mockAttributes',
+  };
 
-    const mockCreateUserDto = {
-        active: true,
-        membership: ['group1'],
-        userData: {
-            username: 'testuser',
-            password: 'Password@123',
-        },
-        email: 'test@test.com'
-    }
+  const mockCreateUserDto = {
+    active: true,
+    membership: ['group1'],
+    userData: {
+      username: 'testuser',
+      password: 'Password@123',
+    },
+    email: 'test@test.com',
+  };
 
   describe('createAUser', () => {
     it('should throw BadRequestException if no data is given', async () => {
@@ -166,7 +170,9 @@ describe('UserService', () => {
       jest
         .spyOn(headerAuthService, 'validateRoute')
         .mockResolvedValue(mockApiKeyResponse);
-      jest.spyOn(prismaService.tenant, 'findUnique').mockResolvedValue(mockTenant);
+      jest
+        .spyOn(prismaService.tenant, 'findUnique')
+        .mockResolvedValue(mockTenant);
       jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(mockUser);
 
       await expect(
@@ -175,11 +181,12 @@ describe('UserService', () => {
     });
 
     it('should create a user successfully', async () => {
-
       jest
         .spyOn(headerAuthService, 'validateRoute')
         .mockResolvedValue(mockApiKeyResponse);
-      jest.spyOn(prismaService.tenant, 'findUnique').mockResolvedValue(mockTenant);
+      jest
+        .spyOn(prismaService.tenant, 'findUnique')
+        .mockResolvedValue(mockTenant);
       jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(null);
       jest
         .spyOn(utilsService, 'hashPassword')
@@ -195,20 +202,21 @@ describe('UserService', () => {
     });
 
     it('should throw InternalServerErrorException on create error', async () => {
-
       jest
         .spyOn(headerAuthService, 'validateRoute')
         .mockResolvedValue(mockApiKeyResponse);
-      jest.spyOn(prismaService.tenant, 'findUnique').mockResolvedValue(mockTenant);
+      jest
+        .spyOn(prismaService.tenant, 'findUnique')
+        .mockResolvedValue(mockTenant);
       jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(null);
       jest
         .spyOn(utilsService, 'hashPassword')
         .mockResolvedValue('hashedPassword');
       jest.spyOn(prismaService.user, 'create').mockRejectedValue(new Error());
 
-      await expect(service.createAUser('1', mockCreateUserDto, {})).rejects.toThrow(
-        InternalServerErrorException,
-      );
+      await expect(
+        service.createAUser('1', mockCreateUserDto, {}),
+      ).rejects.toThrow(InternalServerErrorException);
     });
   });
 
@@ -245,12 +253,11 @@ describe('UserService', () => {
     });
 
     it('should throw UnauthorizedException if user is not authorized', async () => {
-      jest
-        .spyOn(headerAuthService, 'validateRoute')
-        .mockResolvedValue({...mockApiKeyResponse, data: {...mockApiKeyResponse.data ,tenantsId: '2' }});
-      jest
-        .spyOn(prismaService.user, 'findUnique')
-        .mockResolvedValue(mockUser);
+      jest.spyOn(headerAuthService, 'validateRoute').mockResolvedValue({
+        ...mockApiKeyResponse,
+        data: { ...mockApiKeyResponse.data, tenantsId: '2' },
+      });
+      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(mockUser);
 
       await expect(service.returnAUser('1', {})).rejects.toThrow(
         UnauthorizedException,
@@ -261,9 +268,7 @@ describe('UserService', () => {
       jest
         .spyOn(headerAuthService, 'validateRoute')
         .mockResolvedValue(mockApiKeyResponse);
-      jest
-        .spyOn(prismaService.user, 'findUnique')
-        .mockResolvedValue(mockUser);
+      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(mockUser);
 
       const result = await service.returnAUser('1', {});
       expect(result.success).toBe(true);
@@ -304,15 +309,11 @@ describe('UserService', () => {
     });
 
     it('should throw UnauthorizedException if user is not authorized', async () => {
-      jest
-        .spyOn(headerAuthService, 'validateRoute')
-        .mockResolvedValue({
-          ...mockApiKeyResponse,
-          data: { ...mockApiKeyResponse.data, tenantsId: '2' },
-        });
-      jest
-        .spyOn(prismaService.user, 'findUnique')
-        .mockResolvedValue(mockUser);
+      jest.spyOn(headerAuthService, 'validateRoute').mockResolvedValue({
+        ...mockApiKeyResponse,
+        data: { ...mockApiKeyResponse.data, tenantsId: '2' },
+      });
+      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(mockUser);
 
       await expect(
         service.updateAUser('1', new UpdateUserDto(), {}),
@@ -326,9 +327,7 @@ describe('UserService', () => {
       jest
         .spyOn(headerAuthService, 'validateRoute')
         .mockResolvedValue(mockApiKeyResponse);
-      jest
-        .spyOn(prismaService.user, 'findUnique')
-        .mockResolvedValue(mockUser);
+      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(mockUser);
       jest.spyOn(prismaService.user, 'update').mockResolvedValue(mockUser);
 
       const result = await service.updateAUser('1', dto, {});
@@ -343,9 +342,7 @@ describe('UserService', () => {
       jest
         .spyOn(headerAuthService, 'validateRoute')
         .mockResolvedValue(mockApiKeyResponse);
-      jest
-        .spyOn(prismaService.user, 'findUnique')
-        .mockResolvedValue(mockUser);
+      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(mockUser);
       jest.spyOn(prismaService.user, 'update').mockRejectedValue(new Error());
 
       await expect(service.updateAUser('1', dto, {})).rejects.toThrow(
@@ -387,15 +384,11 @@ describe('UserService', () => {
     });
 
     it('should throw UnauthorizedException if user is not authorized', async () => {
-      jest
-        .spyOn(headerAuthService, 'validateRoute')
-        .mockResolvedValue({
-          ...mockApiKeyResponse,
-          data: { ...mockApiKeyResponse.data, tenantsId: '2' },
-        });
-      jest
-        .spyOn(prismaService.user, 'findUnique')
-        .mockResolvedValue(mockUser);
+      jest.spyOn(headerAuthService, 'validateRoute').mockResolvedValue({
+        ...mockApiKeyResponse,
+        data: { ...mockApiKeyResponse.data, tenantsId: '2' },
+      });
+      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(mockUser);
 
       await expect(service.deleteAUser('1', {}, true)).rejects.toThrow(
         UnauthorizedException,
@@ -406,9 +399,7 @@ describe('UserService', () => {
       jest
         .spyOn(headerAuthService, 'validateRoute')
         .mockResolvedValue(mockApiKeyResponse);
-      jest
-        .spyOn(prismaService.user, 'findUnique')
-        .mockResolvedValue(mockUser);
+      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(mockUser);
       jest.spyOn(prismaService.user, 'delete').mockResolvedValue(mockUser);
 
       const result = await service.deleteAUser('1', {}, true);
@@ -420,9 +411,7 @@ describe('UserService', () => {
       jest
         .spyOn(headerAuthService, 'validateRoute')
         .mockResolvedValue(mockApiKeyResponse);
-      jest
-        .spyOn(prismaService.user, 'findUnique')
-        .mockResolvedValue(mockUser);
+      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(mockUser);
       jest.spyOn(prismaService.user, 'update').mockResolvedValue(mockUser);
 
       const result = await service.deleteAUser('1', {}, false);
@@ -434,9 +423,7 @@ describe('UserService', () => {
       jest
         .spyOn(headerAuthService, 'validateRoute')
         .mockResolvedValue(mockApiKeyResponse);
-      jest
-        .spyOn(prismaService.user, 'findUnique')
-        .mockResolvedValue(mockUser);
+      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(mockUser);
       jest.spyOn(prismaService.user, 'delete').mockRejectedValue(new Error());
 
       await expect(service.deleteAUser('1', {}, true)).rejects.toThrow(
@@ -448,9 +435,7 @@ describe('UserService', () => {
       jest
         .spyOn(headerAuthService, 'validateRoute')
         .mockResolvedValue(mockApiKeyResponse);
-      jest
-        .spyOn(prismaService.user, 'findUnique')
-        .mockResolvedValue(mockUser);
+      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(mockUser);
       jest.spyOn(prismaService.user, 'update').mockRejectedValue(new Error());
 
       await expect(service.deleteAUser('1', {}, false)).rejects.toThrow(

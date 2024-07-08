@@ -42,3 +42,5 @@ configurations.md
 tenants_data.md
 samples
 docker-compose.dev.yml
+
+*/**/*.db

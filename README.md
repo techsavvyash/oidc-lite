@@ -4,14 +4,20 @@
 [![CI](https://github.com/Zolo-Ryan/stencil-oidc-wrapper/actions/workflows/ci.yml/badge.svg)](https://github.com/Zolo-Ryan/stencil-oidc-wrapper/actions/workflows/ci.yml)
 [![Discord](https://img.shields.io/badge/Discord-Join-blue.svg)](https://discord.com/channels/1258287843248308234/)
 
+## Overview
 
-## Description
+OIDC Lite is an OIDC compliant authentication solution designed to offer a balance of necessary features from FusionAuth while ensuring efficient resource management and keeping things light weight.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Features
 
-## Docs 
+- OIDC compliant authentication
+- Multi Tenant Approach
+- Efficient memory utilization
+- Simplified setup
 
-Please refer to [Docs](docs/Readme.md) for more info about this service.
+## Documentation 
+
+Please refer to [Docs](docs/README.md) for more info about this service.
 
 ## Installation
 
@@ -45,23 +51,16 @@ $ yarn run test:e2e
 $ yarn run test:cov
 ```
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
 ## License
+OIDC Lite is [MIT licensed](LICENSE).
 
-Nest is [MIT licensed](LICENSE).
-
-## Acknowledgement 
-
-This project is built using : 
+## Acknowledgements 
+### Authors 
+- [Utkarsh](https://github.com/Zolo-Ryan)
+- [Aashutosh](https://github.com/Ashu463) 
+- [Debatreya](https://github.com/Debatreya)
+ 
+### Open Source tools: 
 - [NestJS](https://nestjs.com/)
 - [Prisma](https://www.prisma.io/) 
 - [SQLite](https://www.sqlite.org/)

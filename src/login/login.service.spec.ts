@@ -156,7 +156,7 @@ describe('LoginService', () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     tenantId: 'tenantId',
-    groupId : 'test-group',
+    groupId: 'test-group',
     email: 'test@example.com',
   };
 
@@ -335,7 +335,7 @@ describe('LoginService', () => {
       jest.spyOn(headerAuthService, 'validateRoute').mockResolvedValue({
         success: true,
         message: 'Valid route',
-        data: {...mockApiKey, tenantsId: 'differentTenantId'},
+        data: { ...mockApiKey, tenantsId: 'differentTenantId' },
       });
 
       await expect(loginService.login(mockLoginDto, {})).rejects.toThrow(
@@ -456,5 +456,6 @@ describe('LoginService', () => {
         success: true,
         message: 'Logout successful',
       });
-    });  });
+    });
+  });
 });

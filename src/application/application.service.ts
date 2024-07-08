@@ -188,7 +188,7 @@ export class ApplicationService {
     newData: UpdateApplicationDto,
     headers: object,
     res: Response,
-  )  {
+  ) {
     if (!id) {
       throw new BadRequestException({
         success: false,

@@ -1,14 +1,12 @@
 import {
   BadRequestException,
-  HttpException,
-  HttpStatus,
   Injectable,
   InternalServerErrorException,
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { ApplicationDataDto, ScopeDto, UpdateScopeDto } from '../application.dto';
+import { ScopeDto, UpdateScopeDto } from '../application.dto';
 import { ResponseDto } from '../../dto/response.dto';
 import { HeaderAuthService } from '../../header-auth/header-auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -109,7 +107,6 @@ export class ApplicationScopesService {
     }
   }
 
-
   async updateScope(
     id: string,
     scopeId: string,
@@ -175,8 +172,8 @@ export class ApplicationScopesService {
         defaultConsentDetail,
         defaultConsentMessage,
       });
-      console.log(description, " is the description")
-      console.log(name, " is the name")
+      console.log(description, ' is the description');
+      console.log(name, ' is the name');
       const scope = await this.prismaService.applicationOauthScope.update({
         where: { id: scopeId },
         data: {
@@ -194,7 +191,7 @@ export class ApplicationScopesService {
       this.logger.log('Error occured while updating scope', error);
       throw new InternalServerErrorException({
         success: false,
-        message: 'Error while updating scope'
+        message: 'Error while updating scope',
       });
     }
   }

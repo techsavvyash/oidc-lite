@@ -4,21 +4,16 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { HeaderAuthService } from '../../header-auth/header-auth.service';
 import {
   BadRequestException,
-  ConsoleLogger,
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { RoleDto, UpdateRoleDto } from '../application.dto';
-import { ResponseDto } from '../../dto/response.dto';
-import { Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { updateDTO } from 'src/key/key.dto';
 
 describe('ApplicationRolesService', () => {
   let service: ApplicationRolesService;
   let prismaService: PrismaService;
   let headerAuthService: HeaderAuthService;
-  let mockLogger: jest.Mocked<Logger>;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -92,7 +87,7 @@ describe('ApplicationRolesService', () => {
       applicationsId: mockApplicationId,
       createdAt: new Date(),
       updatedAt: new Date(),
-    }
+    };
 
     it('should create a new role successfully', async () => {
       jest.spyOn(headerAuthService, 'validateRoute').mockResolvedValue({
@@ -109,18 +104,27 @@ describe('ApplicationRolesService', () => {
         },
         message: 'Valid',
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValue(mockApplicationRes);
-      jest.spyOn(prismaService.applicationRole, 'create').mockResolvedValue(mockApplicationResponse);
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplicationRes);
+      jest
+        .spyOn(prismaService.applicationRole, 'create')
+        .mockResolvedValue(mockApplicationResponse);
 
-      const result = await service.createRole(mockRoleDto, mockApplicationId, mockRoleId, mockHeaders);
+      const result = await service.createRole(
+        mockRoleDto,
+        mockApplicationId,
+        mockRoleId,
+        mockHeaders,
+      );
 
       expect(result).toEqual({
         success: true,
         message: 'successfully created a new role',
         data: {
           applicationsId: mockApplicationId,
-          newRole: mockApplicationResponse
-        }
+          newRole: mockApplicationResponse,
+        },
       });
     });
 
@@ -139,12 +143,22 @@ describe('ApplicationRolesService', () => {
         },
         message: 'Valid',
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValue(mockApplicationRes);
-      jest.spyOn(prismaService.applicationRole, 'findUnique').mockResolvedValue(mockApplicationResponse);
-      jest.spyOn(prismaService.applicationRole, 'create').mockResolvedValue(mockApplicationResponse);
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplicationRes);
+      jest
+        .spyOn(prismaService.applicationRole, 'findUnique')
+        .mockResolvedValue(mockApplicationResponse);
+      jest
+        .spyOn(prismaService.applicationRole, 'create')
+        .mockResolvedValue(mockApplicationResponse);
 
-
-      const result = await service.createRole(mockRoleDto, mockApplicationId, mockRoleId, mockHeaders);
+      const result = await service.createRole(
+        mockRoleDto,
+        mockApplicationId,
+        mockRoleId,
+        mockHeaders,
+      );
 
       expect(result).toBeDefined();
     });
@@ -199,11 +213,11 @@ describe('ApplicationRolesService', () => {
           metaData: 'some-metadata',
           tenantsId: 'minio-tenant',
         },
-        message: 'Valid'
+        message: 'Valid',
       });
 
       await expect(
-        service.createRole({} as RoleDto, null, 'roleId', {})
+        service.createRole({} as RoleDto, null, 'roleId', {}),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -220,14 +234,14 @@ describe('ApplicationRolesService', () => {
           metaData: 'some-metadata',
           tenantsId: 'minio-tenant',
         },
-        message: 'Valid'
+        message: 'Valid',
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValueOnce(
-        null
-      );
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValueOnce(null);
 
       await expect(
-        service.createRole(mockRoleDto, 'appId', mockRoleId, mockHeaders)
+        service.createRole(mockRoleDto, 'appId', mockRoleId, mockHeaders),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -246,13 +260,21 @@ describe('ApplicationRolesService', () => {
           tenantsId: 'null',
         },
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValue(mockApplicationRes);
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplicationRes);
 
-      await expect(service.createRole(mockRoleDto, mockApplicationId, mockRoleId, mockHeaders)).rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.createRole(
+          mockRoleDto,
+          mockApplicationId,
+          mockRoleId,
+          mockHeaders,
+        ),
+      ).rejects.toThrow(UnauthorizedException);
     });
 
     it('should return data.id when data.id is present', async () => {
-
       jest.spyOn(headerAuthService, 'validateRoute').mockResolvedValue({
         success: true,
         message: 'Valid',
@@ -267,10 +289,19 @@ describe('ApplicationRolesService', () => {
           tenantsId: 'minio-tenant',
         },
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValue(mockApplicationRes);
-      jest.spyOn(prismaService.applicationRole, 'create').mockResolvedValue(mockApplicationResponse);
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplicationRes);
+      jest
+        .spyOn(prismaService.applicationRole, 'create')
+        .mockResolvedValue(mockApplicationResponse);
 
-      const result = await service.createRole(mockRoleDto, mockApplicationId, null, mockHeaders);
+      const result = await service.createRole(
+        mockRoleDto,
+        mockApplicationId,
+        null,
+        mockHeaders,
+      );
       expect(result.data.newRole.id).toBe(mockRoleDto.id);
     });
 
@@ -289,9 +320,18 @@ describe('ApplicationRolesService', () => {
           tenantsId: 'minio-tenant',
         },
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValue(mockApplicationRes);
-      jest.spyOn(prismaService.applicationRole, 'create').mockResolvedValue(mockApplicationResponse);
-      const result = await service.createRole(mockRoleDtoWithoutId, mockApplicationId, mockRoleId, mockHeaders);
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplicationRes);
+      jest
+        .spyOn(prismaService.applicationRole, 'create')
+        .mockResolvedValue(mockApplicationResponse);
+      const result = await service.createRole(
+        mockRoleDtoWithoutId,
+        mockApplicationId,
+        mockRoleId,
+        mockHeaders,
+      );
       expect(result.data.newRole.id).toBe(mockRoleId);
     });
 
@@ -310,12 +350,20 @@ describe('ApplicationRolesService', () => {
           tenantsId: 'minio-tenant',
         },
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValue(mockApplicationRes);
-      jest.spyOn(prismaService.applicationRole, 'create').mockResolvedValue(mockApplicationResponse);
-      const result = await service.createRole(mockRoleDtoWithoutId, mockApplicationId, null, mockHeaders);
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplicationRes);
+      jest
+        .spyOn(prismaService.applicationRole, 'create')
+        .mockResolvedValue(mockApplicationResponse);
+      const result = await service.createRole(
+        mockRoleDtoWithoutId,
+        mockApplicationId,
+        null,
+        mockHeaders,
+      );
       expect(result.data.newRole.id).toBeDefined();
     });
-
 
     it('should return internal server error creating a new role', async () => {
       jest.spyOn(headerAuthService, 'validateRoute').mockResolvedValue({
@@ -332,15 +380,25 @@ describe('ApplicationRolesService', () => {
           tenantsId: 'minio-tenant',
         },
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValue(mockApplicationRes);
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplicationRes);
 
-      const error = new Error('Unique constraint failed on the fields: (`name`,`applicationsId`)');
-      jest.spyOn(prismaService.applicationRole, 'create').mockRejectedValue(error);
-
-      await expect(service.createRole(mockRoleDto, mockApplicationId, mockRoleId, mockHeaders)).rejects.toThrow(
-        InternalServerErrorException,
+      const error = new Error(
+        'Unique constraint failed on the fields: (`name`,`applicationsId`)',
       );
+      jest
+        .spyOn(prismaService.applicationRole, 'create')
+        .mockRejectedValue(error);
 
+      await expect(
+        service.createRole(
+          mockRoleDto,
+          mockApplicationId,
+          mockRoleId,
+          mockHeaders,
+        ),
+      ).rejects.toThrow(InternalServerErrorException);
     });
     // Add other test cases for different scenarios...
   });
@@ -430,7 +488,6 @@ describe('ApplicationRolesService', () => {
   //     ).rejects.toThrow(BadRequestException);
   //   });
 
-
   //   it('should throw BadRequestException if no id is provided', async () => {
   //     jest.spyOn(headerAuthService, 'validateRoute').mockResolvedValue({
   //       success: true,
@@ -512,7 +569,6 @@ describe('ApplicationRolesService', () => {
   //     await expect(service.getRole(mockApplicationId, 'mockRoleId', mockHeaders)).rejects.toThrow(BadRequestException);
   //   });
 
-
   //   // Add other test cases for different scenarios...
   // });
 
@@ -533,7 +589,7 @@ describe('ApplicationRolesService', () => {
       updatedAt: new Date(),
       name: 'name',
       tenantId: 'tenant-id',
-    }
+    };
     const mockApplicationResponse = {
       id: mockRoleId,
       applicationsId: mockApplicationId,
@@ -543,7 +599,7 @@ describe('ApplicationRolesService', () => {
       isSuperRole: false,
       updatedAt: new Date(),
       name: 'TestRole',
-    }
+    };
     it('should update role successfully', async () => {
       jest.spyOn(headerAuthService, 'validateRoute').mockResolvedValue({
         success: true,
@@ -559,8 +615,12 @@ describe('ApplicationRolesService', () => {
         },
         message: 'Valid',
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValue(mockApplicationRes);
-      jest.spyOn(prismaService.applicationRole, 'update').mockResolvedValue(mockApplicationResponse);
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplicationRes);
+      jest
+        .spyOn(prismaService.applicationRole, 'update')
+        .mockResolvedValue(mockApplicationResponse);
 
       const result = await service.updateRole(
         mockApplicationId,
@@ -572,7 +632,7 @@ describe('ApplicationRolesService', () => {
       expect(result).toEqual({
         success: true,
         message: 'role updated successfully',
-        data: mockApplicationResponse
+        data: mockApplicationResponse,
       });
     });
 
@@ -626,10 +686,12 @@ describe('ApplicationRolesService', () => {
           metaData: 'some-metadata',
           tenantsId: 'minio-tenant',
         },
-        message: 'Valid'
+        message: 'Valid',
       });
 
-      await expect(service.updateRole(null, mockRoleId, mockUpdateRoleDto, mockHeaders)).rejects.toThrow(BadRequestException);
+      await expect(
+        service.updateRole(null, mockRoleId, mockUpdateRoleDto, mockHeaders),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should throw BadRequestException if application is not found', async () => {
@@ -645,13 +707,20 @@ describe('ApplicationRolesService', () => {
           metaData: 'some-metadata',
           tenantsId: 'minio-tenant',
         },
-        message: 'Valid'
+        message: 'Valid',
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValueOnce(
-        null
-      );
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValueOnce(null);
 
-      await expect(service.updateRole('mockApplicationId', mockRoleId, mockUpdateRoleDto, mockHeaders)).rejects.toThrow(BadRequestException);
+      await expect(
+        service.updateRole(
+          'mockApplicationId',
+          mockRoleId,
+          mockUpdateRoleDto,
+          mockHeaders,
+        ),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should throw UnauthorizedException if tenant IDs do not match', async () => {
@@ -669,9 +738,18 @@ describe('ApplicationRolesService', () => {
           tenantsId: 'null',
         },
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValue(mockApplicationRes);
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplicationRes);
 
-      await expect(service.updateRole(mockApplicationId, mockRoleId, mockUpdateRoleDto, mockHeaders)).rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.updateRole(
+          mockApplicationId,
+          mockRoleId,
+          mockUpdateRoleDto,
+          mockHeaders,
+        ),
+      ).rejects.toThrow(UnauthorizedException);
     });
 
     it('should return internal server error creating a new role', async () => {
@@ -689,14 +767,25 @@ describe('ApplicationRolesService', () => {
           tenantsId: null,
         },
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValue(mockApplicationRes);
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplicationRes);
 
-      const error = new Error('Unique constraint failed on the fields: (`name`,`applicationsId`)');
-      jest.spyOn(prismaService.applicationRole, 'update').mockRejectedValue(error);
-
-      await expect(service.updateRole(mockApplicationId, mockRoleId, mockUpdateRoleDto, mockHeaders)).rejects.toThrow(
-        InternalServerErrorException,
+      const error = new Error(
+        'Unique constraint failed on the fields: (`name`,`applicationsId`)',
       );
+      jest
+        .spyOn(prismaService.applicationRole, 'update')
+        .mockRejectedValue(error);
+
+      await expect(
+        service.updateRole(
+          mockApplicationId,
+          mockRoleId,
+          mockUpdateRoleDto,
+          mockHeaders,
+        ),
+      ).rejects.toThrow(InternalServerErrorException);
     });
     // Add other test cases for different scenarios...
   });
@@ -715,7 +804,7 @@ describe('ApplicationRolesService', () => {
       updatedAt: new Date(),
       name: 'name',
       tenantId: 'tenant-id',
-    }
+    };
     // type '{ id: string; applicationsId: string; description: string; createdAt: Date; isDefault: boolean; isSuperRole: boolean; updatedAt: Date; name: string; }': createdAt, updatedAt
     const mockApplicationResponse = {
       id: mockRoleId,
@@ -726,7 +815,7 @@ describe('ApplicationRolesService', () => {
       isSuperRole: false,
       updatedAt: new Date(),
       name: 'TestRole',
-    }
+    };
     it('should delete role successfully', async () => {
       jest.spyOn(headerAuthService, 'validateRoute').mockResolvedValue({
         success: true,
@@ -742,15 +831,23 @@ describe('ApplicationRolesService', () => {
         },
         message: 'Valid',
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValue(mockApplicationRes);
-      jest.spyOn(prismaService.applicationRole, 'delete').mockResolvedValue(mockApplicationResponse);
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplicationRes);
+      jest
+        .spyOn(prismaService.applicationRole, 'delete')
+        .mockResolvedValue(mockApplicationResponse);
 
-      const result = await service.deleteRole(mockApplicationId, mockRoleId, mockHeaders);
+      const result = await service.deleteRole(
+        mockApplicationId,
+        mockRoleId,
+        mockHeaders,
+      );
 
       expect(result).toEqual({
         success: true,
         message: 'role deleted successfully',
-        data: mockApplicationResponse
+        data: mockApplicationResponse,
       });
     });
 
@@ -799,13 +896,15 @@ describe('ApplicationRolesService', () => {
           metaData: 'some-metadata',
           tenantsId: 'minio-tenant',
         },
-        message: 'Valid'
+        message: 'Valid',
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValueOnce(
-        null
-      );
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValueOnce(null);
 
-      await expect(service.deleteRole('mockApplicationId', mockRoleId, mockHeaders)).rejects.toThrow(BadRequestException);
+      await expect(
+        service.deleteRole('mockApplicationId', mockRoleId, mockHeaders),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should throw UnauthorizedException if tenant IDs do not match', async () => {
@@ -823,9 +922,13 @@ describe('ApplicationRolesService', () => {
           tenantsId: 'null',
         },
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValue(mockApplicationRes);
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplicationRes);
 
-      await expect(service.deleteRole(mockApplicationId, mockRoleId, mockHeaders)).rejects.toThrow(UnauthorizedException);
+      await expect(
+        service.deleteRole(mockApplicationId, mockRoleId, mockHeaders),
+      ).rejects.toThrow(UnauthorizedException);
     });
 
     it('should return internal server error creating a new role', async () => {
@@ -843,15 +946,20 @@ describe('ApplicationRolesService', () => {
           tenantsId: null,
         },
       });
-      jest.spyOn(prismaService.application, 'findUnique').mockResolvedValue(mockApplicationRes);
-      const error = new Error('Unique constraint failed on the fields: (`name`,`applicationsId`)');
-      jest.spyOn(prismaService.applicationRole, 'delete').mockRejectedValue(error);
-
-      await expect(service.deleteRole(mockApplicationId, mockRoleId, mockHeaders)).rejects.toThrow(
-        InternalServerErrorException,
+      jest
+        .spyOn(prismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplicationRes);
+      const error = new Error(
+        'Unique constraint failed on the fields: (`name`,`applicationsId`)',
       );
-    });
+      jest
+        .spyOn(prismaService.applicationRole, 'delete')
+        .mockRejectedValue(error);
 
+      await expect(
+        service.deleteRole(mockApplicationId, mockRoleId, mockHeaders),
+      ).rejects.toThrow(InternalServerErrorException);
+    });
 
     // Add other test cases for different scenarios...
   });

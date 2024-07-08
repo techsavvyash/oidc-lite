@@ -123,7 +123,7 @@ export class UserRegistrationService {
         roles: filteredRoles,
         sub: user.id,
         aud: application.id,
-        scope: 'openid'
+        scope: 'openid',
       };
       const access_token = await this.utilService.createToken(
         accessTokenPayload,
@@ -180,10 +180,9 @@ export class UserRegistrationService {
     }
     let userRegistration;
     try {
-      userRegistration =
-        await this.prismaService.userRegistration.findFirst({
-          where: { usersId: userId, applicationsId: applicationId },
-        });
+      userRegistration = await this.prismaService.userRegistration.findFirst({
+        where: { usersId: userId, applicationsId: applicationId },
+      });
     } catch (error) {
       this.logger.log('Error from returnAUserRegistration', error);
       throw new InternalServerErrorException({
@@ -191,19 +190,18 @@ export class UserRegistrationService {
         message: 'Internal server error while returning the user Registration',
       });
     }
-      if (!userRegistration) {
-        throw new BadRequestException({
-          success: false,
-          message:
-            'No user registration exists for the given user id on the application',
-        });
-      }
-      return {
-        success: true,
-        message: 'User registration found successfully',
-        data: userRegistration,
-      };
-    
+    if (!userRegistration) {
+      throw new BadRequestException({
+        success: false,
+        message:
+          'No user registration exists for the given user id on the application',
+      });
+    }
+    return {
+      success: true,
+      message: 'User registration found successfully',
+      data: userRegistration,
+    };
   }
 
   async updateAUserRegistration(

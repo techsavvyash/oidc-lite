@@ -38,9 +38,7 @@ bootstrap()
   .then(async () => {
     const kickstartService = new KickstartService();
     await kickstartService.setupService();
-    console.log(
-      `Service started at ${process.env.FULL_URL}`,
-    );
+    console.log(`Service started at ${process.env.FULL_URL}`);
   })
   .catch((err) => {
     console.error(err);

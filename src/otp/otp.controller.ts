@@ -10,7 +10,11 @@ export class OtpController {
 
   @Post('/send')
   @ApiBody({ type: OtpDto })
-  @ApiResponse({ status: 201, description: 'OTP sent successfully.', type: OtpResponseDto })
+  @ApiResponse({
+    status: 201,
+    description: 'OTP sent successfully.',
+    type: OtpResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Invalid input.' })
   async sendOtp(@Body() body: OtpDto): Promise<OtpResponseDto> {
     // type can be 'mail', 'sms', 'whatsapp' // to is the recipient depending on the type
@@ -19,7 +23,11 @@ export class OtpController {
 
   @Post('/verify')
   @ApiBody({ type: VerifyOtpDto })
-  @ApiResponse({ status: 200, description: 'OTP verified successfully.', type: OtpResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'OTP verified successfully.',
+    type: OtpResponseDto,
+  })
   @ApiResponse({ status: 400, description: 'Invalid OTP.' })
   async verifyOtp(@Body() body: VerifyOtpDto): Promise<OtpResponseDto> {
     return await this.otpService.validateOtp(body.otp);
