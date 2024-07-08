@@ -1,0 +1,838 @@
+{
+	"info": {
+		"_postman_id": "cd940566-7468-4808-9e9b-20a5d419d217",
+		"name": "OIDC Wrapper",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "35320547"
+	},
+	"item": [
+		{
+			"name": "Generating Master key",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "84caafe7-8631-4f35-b85c-ea92d506c7ac",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/api-keys/MasterKey-4",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api-keys",
+						"MasterKey-4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tenant scoped key",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "c01e396e-1bdf-4a22-9fa5-ecbd8245f005"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/api-keys/TenantScoped",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api-keys",
+						"TenantScoped"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generating first jwks",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Masterkey3",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"key\": {\r\n        \"algorithm\": \"HS256\",\r\n        \"issuer\": \"Stencil service\",\r\n        \"name\": \"fifth-jwks\",\r\n        \"length\": 256,\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/key/generate/fifth-jwks",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"key",
+						"generate",
+						"fifth-jwks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generating first tenant",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "c01e396e-1bdf-4a22-9fa5-ecbd8245f005"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \"name\": \"Second tenant\",\r\n        \"jwtConfiguration\": {\r\n            \"accessTokenKeyID\": \"fifth-jwks\",\r\n            \"refreshTokenTimeToLiveInMinutes\": 3600,\r\n            \"timeToLiveInSeconds\": 360,\r\n            \"idTokenKeyID\": \"fifth-jwks\"\r\n        }\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/tenant",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"tenant"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Genenrating api key scoped to first-tenant with permissions",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "c01e396e-1bdf-4a22-9fa5-ecbd8245f005"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \"tenantId\": \"first-tenant\",\r\n        \"permissions\": {\r\n            \"endpoints\": [\r\n                {\r\n                    \"url\": \"/application\",\r\n                    \"methods\": \"POST\"\r\n                }\r\n            ]\r\n        }\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/api-keys/",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api-keys",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generating first application",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "325b7a41-50d2-4bca-88ec-9600a04eca66",
+						"type": "text"
+					},
+					{
+						"key": "x-stencil-tenantid",
+						"value": "first-tenant",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \"active\": true,\r\n        \"name\": \"First application\",\r\n        \"scopes\": [\r\n            {\r\n                \"name\": \"calender:read\",\r\n                \"defaultConsentDetail\": \"Your calendar data will be used to provide you enhanced reminders\",\r\n                \"defaultConsentMessage\": \"Read your calendar\"\r\n            }\r\n        ],\r\n        \"roles\": [\r\n            {\r\n                \"name\": \"Admin\",\r\n                \"description\": \"This is admin role\",\r\n                \"isDefault\": false,\r\n                \"isSuperRole\": true\r\n            },\r\n            {\r\n                \"name\": \"user\",\r\n                \"description\": \"This is user role\",\r\n                \"isDefault\": true,\r\n                \"isSuperRole\": false\r\n            }\r\n        ],\r\n        \"jwtConfiguration\": {\r\n            \"accessTokenSigningKeysID\": \"fifth-jwks\",\r\n            \"refreshTokenTimeToLiveInMinutes\": 60,\r\n            \"timeToLiveInSeconds\": 3600,\r\n            \"idTokenSigningKeysID\": \"fifth-jwks\"\r\n        },\r\n        \"oauthConfiguration\": {\r\n            \"authorizedOriginURLs\": [\r\n                \"http://www.example.com\"\r\n            ],\r\n            \"authorizedRedirectURLs\": [\r\n                \"http://www.example.com/oauth-callback\"\r\n            ],\r\n            \"clientSecret\": \"+fcXet9Iu2kQi61yWD9Tu4ReZ113P6yEAkr32v6WKOQ=\",\r\n            \"enabledGrants\": [\r\n                \"authorization_code\",\r\n                \"refresh_token\"\r\n            ],\r\n            \"logoutURL\": \"http://www.example.com/logout\"\r\n        }\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/application/",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"application",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Creating user and registering simultaneously",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-stencil-tenantid",
+						"value": "first-tenant",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "c473531a-d44a-4736-ba12-0cb25465c8f7",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\":{\r\n        \"userInfo\":{\r\n            \"active\": true,\r\n            \"applicationId\": \"first-application\",\r\n            \"membership\": [\"THis is group\"],\r\n            \"userData\": {\r\n                \"username\": \"user\",\r\n                \"password\": \"user\"\r\n            },\r\n            \"email\": \"user@mail.com\"\r\n        },\r\n        \"registrationInfo\":{\r\n            \"generateAuthenticationToken\": true,\r\n            \"applicationId\": \"first-application\",\r\n            \"roles\": [\"admin\",\"community_helper\"]\r\n        }\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/user/registration/combined",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"registration",
+						"combined"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "logging user in with refresh token and access token as output with public keys using RS256 algo",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "c473531a-d44a-4736-ba12-0cb25465c8f7",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \"loginId\": \"user@mail.com\",\r\n        \"password\": \"user\",\r\n        \"applicationId\": \"first-application\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/login",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Introspecting a token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic Zmlyc3QtYXBwbGljYXRpb246K2ZjWGV0OUl1MmtRaTYxeVdEOVR1NFJlWjExM1A2eUVBa3IzMnY2V0tPUT0=",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBsaWNhdGlvbklkIjoiZmlyc3QtYXBwbGljYXRpb24iLCJpYXQiOjE3MTgzOTAzOTU5ODQsImlzcyI6IlRha2UgZnJvbSBhcHBsaWNhdGlvbi5kYXRhIiwiZXhwIjoxNzE4MzkwNDMxOTg0fQ.NpvGm_wJTcHX-I5mrC_cpZYSBSFZ6xaC0VF7UEIlciXy3rVBAlof2CtLhFGKf8x171F9kxCWkprZrFZq992FVBMPwNRZy5c660GJbrpDOiNcODuv4ORsoj0uDihBC-p0z-eQ-6nuADlma03hpOr0PSAUYk2pgOHcDZ_4PmQC542EQzAE27QMOTbEmKd5N4eRNIx0J68koWJ4zrbuYrI3DT-qDjdgeJpMmKBWb-dx9sURrgfBUmGx3euQ4EfqqOVs8J_fHcbIr1do9CLwwtohLkQh2qK2ZE_TH8407GL49QJxEYLpQFKxQhIgfP2CatfTFG4F6rVOxFUd0hW6CKKpDA",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:3000/oidc/introspect",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"oidc",
+						"introspect"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generating tenant",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Masterkey3",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \"name\": \"third-tenant\",\r\n        \"jwtConfiguration\": {\r\n            \"accessTokenKeyID\": \"second-jwks\",\r\n            \"refreshTokenTimeToLiveInMinutes\": 3600,\r\n            \"timeToLiveInSeconds\": 60,\r\n            \"idTokenKeyID\": \"third-jwks\"\r\n        }\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/tenant/third-tenant",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"tenant",
+						"third-tenant"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generating second app",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Masterkey3",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/application/second-application",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"application",
+						"second-application"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generating tenant",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Masterkey3",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:3000/tenant",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"tenant"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generating fourth application",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Masterkey3",
+						"type": "text"
+					},
+					{
+						"key": "x-stencil-tenantid",
+						"value": "third-tenant",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \"active\": true,\r\n        \"name\": \"fourth-application\",\r\n        \"jwtConfiguration\": {\r\n            \"accessTokenSigningKeysID\": \"second-jwks\",\r\n            \"idTokenSigningKeysID\": \"third-jwks\",\r\n            \"timeToLiveInSeconds\": 60,\r\n            \"refreshTokenTimeToLiveInMinutes\": 10\r\n        },\r\n        \"scopes\": [\r\n            {\r\n                \"defaultConsentDetail\": \"Your calendar data will be used to provide you enhanced reminders\",\r\n                \"defaultConsentMessage\": \"Read your calendar\",\r\n                \"id\": \"b1e5afb2-e18f-44-82c2-1fa775ac598\",\r\n                \"name\": \"calendar:read\",\r\n                \"required\": true\r\n            },\r\n            {\r\n                \"defaultConsentDetail\": \"Create new events to remind you of upcoming discussions\",\r\n                \"defaultConsentMessage\": \"Write your calendar\",\r\n                \"id\": \"a9ae0a21-be87-4f04-80d-20a7020448b\",\r\n                \"name\": \"calendar:write\",\r\n                \"required\": false\r\n            }\r\n        ],\r\n        \"roles\": [\r\n            {\r\n                \"description\": \"Administrators that have access to everything\",\r\n                \"id\": \"ce485a91-06f-4615-af75-8137dc71e90\",\r\n                \"name\": \"admin\",\r\n                \"isDefault\": false,\r\n                \"isSuperRole\": true\r\n            },\r\n            {\r\n                \"description\": \"Normal users that have access to nothing\",\r\n                \"id\": \"ce485a91-906f-4615-af75-8d7dc71e91\",\r\n                \"name\": \"user\",\r\n                \"isDefault\": true,\r\n                \"isSuperRole\": false\r\n            }\r\n        ],\r\n        \"oauthConfiguration\": {\r\n            \"authorizedOriginURLs\": [\r\n                \"http://www.example.com\"\r\n            ],\r\n            \"authorizedRedirectURLs\": [\r\n                \"http://www.example.com/oauth-callback\"\r\n            ],\r\n            \"authorizedURLValidationPolicy\": \"ExactMatch\",\r\n            \"clientAuthenticationPolicy\": \"Required\",\r\n            \"clientSecret\": \"+fcXet9Iu2kQi61yWD9Tu4ReZ113P6yEAkr32v6WKOQ=\",\r\n            \"consentMode\": \"AlwaysPrompt\",\r\n            \"enabledGrants\": [\r\n                \"authorization_code\",\r\n                \"refresh_token\"\r\n            ],\r\n            \"generateRefreshTokens\": true,\r\n            \"logoutBehavior\": \"AllApplications\",\r\n            \"logoutURL\": \"http://www.example.com/logout\",\r\n            \"proofKeyForCodeExchangePolicy\": \"NotRequired\",\r\n            \"relationship\": \"FirstParty\",\r\n            \"scopeHandlingPolicy\": \"Compatibility\",\r\n            \"unknownScopePolicy\": \"Reject\"\r\n        }\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/application/fourth-application",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"application",
+						"fourth-application"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generating application",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Masterkey3",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:3000/application/4515fd28-9d9f-455e-b942-1588d6e44530",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"application",
+						"4515fd28-9d9f-455e-b942-1588d6e44530"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generating first user",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Masterkey3",
+						"type": "text"
+					},
+					{
+						"key": "x-stencil-tenantid",
+						"value": "third-tenant",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \"applicationId\": \"third-application\",\r\n        \"email\": \"user@email.com\",\r\n        \"active\": true,\r\n        \"userData\": {\r\n            \"username\": \"user\",\r\n            \"email\": \"user@email.com\",\r\n            \"password\": \"user\"\r\n        },\r\n        \"membership\": [\"first-group\",\"second-group\"]\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/user/first-user",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"first-user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generating user and registration combined",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Masterkey3",
+						"type": "text"
+					},
+					{
+						"key": "x-stencil-tenantid",
+						"value": "third-tenant",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \"userInfo\": {\r\n            \"applicationId\": \"fourth-application\",\r\n            \"email\": \"new@email.com\",\r\n            \"active\": true,\r\n            \"userData\": {\r\n                \"username\": \"new\",\r\n                \"email\": \"new@email.com\",\r\n                \"password\": \"new\"\r\n            },\r\n            \"membership\": [\r\n                \"first-group\",\r\n                \"second-group\"\r\n            ]\r\n        },\r\n        \"registrationInfo\": {\r\n            \"generateAuthenticationToken\": true,\r\n            \"applicationId\": \"fourth-application\",\r\n            \"roles\": [\r\n                \"admin\",\r\n                \"common\"\r\n            ]\r\n        }\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/user/registration/combined",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"registration",
+						"combined"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generating login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Masterkey3",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"data\": {\r\n        \"loginId\": \"new@email.com\",\r\n        \"password\": \"new\",\r\n        \"applicationId\": \"fourth-application\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/login",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Userinfo route",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY3RpdmUiOnRydWUsImFwcGxpY2F0aW9uSWQiOiJmb3VydGgtYXBwbGljYXRpb24iLCJzdWIiOiJjZDVjMGZiMC1lNjVjLTRmYTMtYTdmZC1mZmYzNTBlNmMxOGUiLCJpYXQiOjE3MTg1NjMwMzI0NjcsImlzcyI6IlN0ZW5jaWwgU2VydmljZSIsImV4cCI6MTcxODU2MzAzMjUyNywicm9sZXMiOlsidXNlciJdfQ.tfnDwC2GAsBh6PDohUFQKFQJn9EceaeOO5k5RX_TY5VixFv18ziD5jzhMenshwBO-pkbG5_KCZkwFmrLI60Gww",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:3000/oidc/userinfo",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"oidc",
+						"userinfo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "token route",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic Zm91cnRoLWFwcGxpY2F0aW9uOitmY1hldDlJdTJrUWk2MXlXRDlUdTRSZVoxMTNQNnlFQWtyMzJ2NldLT1E9",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "code",
+							"value": "60b8613d-7ca7-42f0-9c50-12a0a8169573",
+							"type": "text"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "/",
+							"type": "text"
+						},
+						{
+							"key": "loginId",
+							"value": "new@email.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "new",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:3000/oidc/token",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"oidc",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "fourth applicaiton",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Masterkey3",
+						"type": "text"
+					},
+					{
+						"key": "x-stencil-tenantid",
+						"value": "third-tenant",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:3000/application/fourth-application",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"application",
+						"fourth-application"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "retrieving a user by id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-stencil-tenantid",
+						"value": "third-tenant",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Masterkey3",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:3000/user/cd5c0fb0-e65c-4fa3-a7fd-fff350e6c18e",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"user",
+						"cd5c0fb0-e65c-4fa3-a7fd-fff350e6c18e"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getting all keys",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Masterkey3",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:3000/key",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"key"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "refreshing a token",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-stencil-tenantid",
+						"value": "third-tenant",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Masterkey3",
+						"type": "text"
+					},
+					{
+						"key": "userId",
+						"value": "cd5c0fb0-e65c-4fa3-a7fd-fff350e6c18e",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:3000/jwt/refresh/",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"jwt",
+						"refresh",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "refreshing a token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"refreshToken\": \"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY3RpdmUiOnRydWUsImFwcGxpY2F0aW9uSWQiOiJkYjJmMTEzMy0wNTM3LTQxOWQtOTQ0ZS0yYzk1NjIyNmYwMWMiLCJpYXQiOjE3MTg2ODg5NjE5NjgsImlzcyI6IlN0ZW5jaWwgU2VydmljZSIsImV4cCI6MTcxODkwNDk2MTk2OH0.xe_q3UmPk1PhOEE6OAPrsNz_auRXBtSuo9FEvA4jRjgxQcE_yeKMQ_SLIFglxcrqW2-g5fMtvhXHLCE5qBaF6g\",\r\n    \"token\": \"eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY3RpdmUiOnRydWUsImFwcGxpY2F0aW9uSWQiOiJkYjJmMTEzMy0wNTM3LTQxOWQtOTQ0ZS0yYzk1NjIyNmYwMWMiLCJzdWIiOiI4ZDUxNWY4OS0zYjk1LTQ3MjItODA5OS0xOTQzODMyNTBiNDEiLCJpYXQiOjE3MTg2ODg5NjE5NjgsImlzcyI6IlN0ZW5jaWwgU2VydmljZSIsImV4cCI6MTcxODY4OTMyMTk2OCwicm9sZXMiOlsidXNlciJdfQ.Ngzo_CBPv8a_btv9Vscqi8KSqZ9v1KhRFOihvj2C1885gbYo4duCo0gwTSgH782eCjOkeS0rzFk51k4LXIhWYg\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/jwt/refresh/",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"jwt",
+						"refresh",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
