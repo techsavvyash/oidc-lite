@@ -8,11 +8,11 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { generateKeyDTO, updateDTO } from 'src/key/key.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { generateKeyDTO, updateDTO } from './key.dto';
+import { PrismaService } from '../prisma/prisma.service';
 import * as jose from 'node-jose';
 import * as jwkToPem from 'jwk-to-pem';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
+import { HeaderAuthService } from '../header-auth/header-auth.service';
 
 @Injectable()
 export class KeyService {
@@ -57,8 +57,10 @@ export class KeyService {
         };
       }
     } catch (error) {
-      this.logger.log('error happened from retrieving all key', error);
-      HttpStatus.NOT_FOUND;
+      throw new InternalServerErrorException({
+        success: false,
+        message: 'error while retrieving keys',
+      });
     }
   }
 
@@ -100,8 +102,8 @@ export class KeyService {
       HttpStatus.INTERNAL_SERVER_ERROR;
       throw new InternalServerErrorException({
         success: false,
-        message: 'no such key exists'
-      })
+        message: 'no such key exists',
+      });
     }
   }
 
@@ -146,7 +148,7 @@ export class KeyService {
       success: true,
       message: 'Keyset updated',
       data: udpated_key,
-    }
+    };
   }
 
   async deleteKey(uuid: string, headers: object) {
@@ -207,12 +209,14 @@ export class KeyService {
         message: valid.message,
       });
     }
+
     if (!uuid) {
       throw new BadRequestException({
         success: false,
         message: 'uuid is either not given or is invalid',
       });
     }
+
     const { algorithm, name, length, issuer } = key;
     if (!algorithm || !name) {
       throw new BadRequestException({
@@ -220,110 +224,23 @@ export class KeyService {
         message: 'No algorithm and name provided for key',
       });
     }
+
     const keyStore = jose.JWK.createKeyStore();
-    const keyStore2 = jose.JWK.createKeyStore();
-    const keyStore3 = jose.JWK.createKeyStore();
 
     try {
-      if (algorithm === 'RS256') {
-        await keyStore
-          .generate('RSA', 2048, { alg: 'HS256', use: 'sig' })
-          .then(() => {
-            const rskey = JSON.stringify(keyStore.toJSON(true), null, 2);
-            this.logger.log('RS key generated successfully');
-          });
-        const jwks = keyStore.toJSON(true);
-        const publicKeyPem = jwkToPem(jwks.keys[0]);
-        const privateKeyPem = jwkToPem(jwks.keys[0], { private: true });
-        const key = await this.prismaService.key.create({
-          data: {
-            id: uuid,
-            algorithm,
-            name,
-            issuer,
-            kid: jwks.keys[0].kid,
-            privateKey: privateKeyPem,
-            publicKey: publicKeyPem,
-            type: 'RS',
-          },
-        });
-        this.logger.log(
-          'RS key generated successfully',
-          publicKeyPem,
-          privateKeyPem,
-        );
-
-        return {
-          success: true,
-          message: 'key generated successfully',
-          data: jwks,
-          key: key,
-        };
-      } else if (algorithm === 'ES256') {
-        await keyStore2
-          .generate('EC', 'P-256', { alg: 'ES256', use: 'sig' })
-          .then(() => {
-            const eckey = JSON.stringify(keyStore2.toJSON(true), null, 2);
-          });
-        const jwks = keyStore2.toJSON(true);
-        const publicKeyPem = jwkToPem(jwks.keys[0]);
-        const privateKeyPem = jwkToPem(jwks.keys[0], { private: true });
-        const key = await this.prismaService.key.create({
-          data: {
-            id: uuid,
-            algorithm,
-            name,
-            issuer,
-            kid: jwks.keys[0].kid,
-            privateKey: privateKeyPem,
-            publicKey: publicKeyPem,
-            type: 'EC',
-          },
-        });
-        this.logger.log(
-          'EC key generated successfully',
-          publicKeyPem,
-          privateKeyPem,
-        );
-
-        return {
-          success: true,
-          message: 'key generated successfully',
-          data: jwks,
-          key: key,
-        };
-      } else if (algorithm === 'HS256') {
-        await keyStore3
-          .generate('oct', 256, { alg: 'HS256', use: 'sig' })
-          .then(() => {
-            const hskey = JSON.stringify(keyStore3.toJSON(true), null, 2);
-            this.logger.log('HS key generated successfully');
-          });
-        const jwks = keyStore3.toJSON(true);
-        const key = await this.prismaService.key.create({
-          data: {
-            id: uuid,
-            algorithm,
-            name,
-            issuer,
-            kid: jwks.keys[0].kid,
-            secret: jwks.keys[0].k,
-            type: 'HS',
-          },
-        });
-        this.logger.log('HS key generated successfully', jwks.keys[0].k);
-        return {
-          success: true,
-          message: 'key generated successfully',
-          data: jwks,
-          key: key,
-        };
-      } else {
-        throw new BadRequestException({
-          success: false,
-          message: 'Unknown algorithm provided',
-        });
-      }
+      const keyData = await this.generateAndStoreKey(
+        keyStore,
+        algorithm,
+        uuid,
+        name,
+        issuer,
+      );
+      return {
+        success: true,
+        message: 'key generated successfully',
+        data: keyData.jwks,
+        key: keyData.storedKey,
+      };
     } catch (error) {
       this.logger.log('Error from generateKey', error);
       throw new BadRequestException({
@@ -331,5 +248,119 @@ export class KeyService {
         message: 'error while generating key',
       });
     }
+  }
+
+  private async generateAndStoreKey(
+    keyStore: jose.JWK.KeyStore,
+    algorithm: string,
+    uuid: string,
+    name: string,
+    issuer: string,
+  ) {
+    let keyGenPromise;
+    let keyType: string;
+    let keyFields: any;
+
+    switch (algorithm) {
+      case 'RS256':
+      case 'RS384':
+      case 'RS512':
+        const rsaBits = this.getRsaBits(algorithm);
+        keyGenPromise = keyStore.generate('RSA', rsaBits, {
+          alg: algorithm,
+          use: 'sig',
+        });
+        keyType = 'RS';
+        keyFields = (key: any) => ({
+          privateKey: jwkToPem(key, { private: true }),
+          publicKey: jwkToPem(key),
+          data: JSON.stringify(this.removeSensitiveRSAFields(key)),
+        });
+        break;
+      case 'ES256':
+      case 'ES384':
+      case 'ES512':
+        const ecCurve = this.getEcCurve(algorithm);
+        keyGenPromise = keyStore.generate('EC', ecCurve, {
+          alg: algorithm,
+          use: 'sig',
+        });
+        keyType = 'EC';
+        keyFields = (key: any) => ({
+          privateKey: jwkToPem(key, { private: true }),
+          publicKey: jwkToPem(key),
+          data: JSON.stringify(this.removeSensitiveECFields(key)),
+        });
+        break;
+      default:
+        throw new BadRequestException({
+          success: false,
+          message: 'Unknown algorithm provided',
+        });
+    }
+
+    await keyGenPromise;
+    const jwks = keyStore.toJSON(true);
+    const key = jwks.keys[0];
+    const fields = keyFields(key);
+
+    const storedKey = await this.prismaService.key.create({
+      data: {
+        id: uuid,
+        algorithm,
+        name,
+        issuer,
+        kid: key.kid,
+        ...fields,
+        type: keyType,
+      },
+    });
+
+    this.logger.log(
+      `${storedKey.id} key generated successfully`,
+    );
+    return { jwks, storedKey };
+  }
+
+  private getRsaBits(algorithm: string): number {
+    switch (algorithm) {
+      case 'RS256':
+        return 2048;
+      case 'RS384':
+        return 3072;
+      case 'RS512':
+        return 4096;
+      default:
+        throw new BadRequestException({
+          success: false,
+          message: 'Unknown RSA algorithm provided',
+        });
+    }
+  }
+
+  private getEcCurve(algorithm: string): string {
+    switch (algorithm) {
+      case 'ES256':
+        return 'P-256';
+      case 'ES384':
+        return 'P-384';
+      case 'ES512':
+        return 'P-521';
+      default:
+        throw new BadRequestException({
+          success: false,
+          message: 'Unknown EC algorithm provided',
+        });
+    }
+  }
+
+  private removeSensitiveRSAFields(key: any) {
+    const { d, p, q, dp, dq, qi, ...publicFields } = key;
+    return publicFields;
+  }
+
+  private removeSensitiveECFields(key: any) {
+    const { d, ...publicFields } = key;
+    return publicFields;
   }
 }

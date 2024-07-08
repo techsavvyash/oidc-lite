@@ -6,10 +6,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { RoleDto, UpdateRoleDto } from 'src/application/application.dto';
-import { ResponseDto } from 'src/dto/response.dto';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { RoleDto, UpdateRoleDto } from '../application.dto';
+import { ResponseDto } from '../../dto/response.dto';
+import { HeaderAuthService } from '../../header-auth/header-auth.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class ApplicationRolesService {
@@ -27,16 +27,8 @@ export class ApplicationRolesService {
     roleId: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application/role',
       'POST',
     );
@@ -46,6 +38,9 @@ export class ApplicationRolesService {
         message: valid.message,
       });
     }
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!data) {
       throw new BadRequestException({
         success: false,
@@ -111,75 +106,6 @@ export class ApplicationRolesService {
     }
   }
 
-  async getRole(
-    applicationsId: string,
-    id: string,
-    headers: object,
-  ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
-      headers,
-      tenant_id,
-      '/application/role',
-      'GET',
-    );
-    if (!valid.success) {
-      throw new UnauthorizedException({
-        success: valid.success,
-        message: valid.message,
-      });
-    }
-    if (!applicationsId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No application id given',
-      });
-    }
-    if (!id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'no id given to find role',
-      });
-    }
-    const application = await this.prismaService.application.findUnique({
-      where: { id: applicationsId },
-    });
-    if (!application) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No application with the given id exists',
-      });
-    }
-    if (application.tenantId !== tenant_id && valid.data.tenantsId !== null) {
-      throw new UnauthorizedException({
-        success: false,
-        message: 'You are not authorized enough',
-      });
-    }
-    const role = await this.prismaService.applicationRole.findUnique({
-      where: {
-        id,
-        applicationsId,
-      },
-    });
-    if (!role) {
-      throw new BadRequestException({
-        success: false,
-        message: 'Asked role dont exists on given application',
-      });
-    }
-    return {
-      success: true,
-      message: 'role found',
-      data: role,
-    };
-  }
 
   async updateRole(
     id: string,
@@ -187,16 +113,8 @@ export class ApplicationRolesService {
     data: UpdateRoleDto,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application/role',
       'PATCH',
     );
@@ -206,6 +124,9 @@ export class ApplicationRolesService {
         message: valid.message,
       });
     }
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!data) {
       throw new BadRequestException({
         success: false,
@@ -260,16 +181,8 @@ export class ApplicationRolesService {
     roleId: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application/role',
       'DELETE',
     );
@@ -279,6 +192,9 @@ export class ApplicationRolesService {
         message: valid.message,
       });
     }
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!id) {
       throw new BadRequestException({
         success: false,
@@ -300,12 +216,12 @@ export class ApplicationRolesService {
         message: 'You are not authorized enough',
       });
     }
-    if (!roleId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No role id provided',
-      });
-    }
+    // if (!roleId) {
+    //   throw new BadRequestException({
+    //     success: false,
+    //     message: 'No role id provided',
+    //   });
+    // }
     try {
       const role = await this.prismaService.applicationRole.delete({
         where: { id: roleId, applicationsId: id },

@@ -16,551 +16,44 @@
         ]
       }
     },
-    "/tenant": {
-      "post": {
-        "operationId": "TenantController_createATenantWithRandomUUID",
-        "summary": "Create a tenant with random UUID",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "description": "Tenant data to create",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateTenantDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Tenant created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        },
-        "tags": [
-          "Tenant"
-        ]
-      },
+    "/": {
       "get": {
-        "operationId": "TenantController_returnAllTenants",
-        "summary": "Get all tenants",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Tenants found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        },
-        "tags": [
-          "Tenant"
-        ]
-      }
-    },
-    "/tenant/{id}": {
-      "get": {
-        "operationId": "TenantController_returnATenant",
-        "summary": "Get a tenant by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Tenant ID",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Tenant found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        },
-        "tags": [
-          "Tenant"
-        ]
-      },
-      "post": {
-        "operationId": "TenantController_createATenant",
-        "summary": "Create a tenant with specified ID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Tenant ID",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "description": "Tenant data to create",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateTenantDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Tenant created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        },
-        "tags": [
-          "Tenant"
-        ]
-      },
-      "patch": {
-        "operationId": "TenantController_updateATenant",
-        "summary": "Update a tenant",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Tenant ID",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "description": "Tenant data to update",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateTenantDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tenant updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        },
-        "tags": [
-          "Tenant"
-        ]
-      },
-      "delete": {
-        "operationId": "TenantController_deleteATenant",
-        "summary": "Delete a tenant",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Tenant ID",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Tenant deleted successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        },
-        "tags": [
-          "Tenant"
-        ]
-      }
-    },
-    "/api-keys": {
-      "post": {
-        "operationId": "ApiKeysController_createAnApiKeyWithRandomUUID",
-        "summary": "Create an API Key with a random UUID",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateApiKeyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Api key successfully generated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiKeyResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "tags": [
-          "Authentication keys"
-        ]
-      }
-    },
-    "/api-keys/{id}": {
-      "post": {
-        "operationId": "ApiKeysController_createAnApiKey",
-        "summary": "Create an API Key with the given UUID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "ID of the API Key",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateApiKeyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Api key successfully generated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiKeyResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "tags": [
-          "Authentication keys"
-        ]
-      },
-      "get": {
-        "operationId": "ApiKeysController_returnAnApiKey",
-        "summary": "Return an API Key by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "ID of the API Key",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Api key successfully returned",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiKeyResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "tags": [
-          "Authentication keys"
-        ]
-      },
-      "patch": {
-        "operationId": "ApiKeysController_updateAnApiKey",
-        "summary": "Update an API Key by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "ID of the API Key",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateApiKeyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Key updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiKeyResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "tags": [
-          "Authentication keys"
-        ]
-      },
-      "delete": {
-        "operationId": "ApiKeysController_deleteAnApiKey",
-        "summary": "Delete an API Key by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "ID of the API Key",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "description": "Authorization header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Api key successfully deleted",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiKeyResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "tags": [
-          "Authentication keys"
-        ]
-      }
-    },
-    "/test-users/register": {
-      "get": {
-        "operationId": "TestUsersController_registerUsers",
+        "operationId": "AppController_adminPanel",
         "parameters": [],
         "responses": {
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "OIDC Wrapper"
+        ]
+      },
+      "post": {
+        "operationId": "AppController_toggleKeyManager",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC Wrapper"
+        ]
+      }
+    },
+    "/admin": {
+      "post": {
+        "operationId": "AppController_createAdmin",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC Wrapper"
+        ]
       }
     },
     "/oidc/auth": {
@@ -602,6 +95,30 @@
           },
           {
             "name": "scope",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge_method",
             "required": true,
             "in": "query",
             "schema": {
@@ -671,6 +188,30 @@
             }
           },
           {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge_method",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "authorization",
             "in": "header",
             "required": false,
@@ -692,6 +233,174 @@
         "responses": {
           "200": {
             "description": "Returns authentication token"
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
+      }
+    },
+    "/oidc/register": {
+      "get": {
+        "operationId": "OidcController_registerAUser",
+        "summary": "Register a new user",
+        "parameters": [
+          {
+            "name": "client_id",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "redirect_uri",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "response_type",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge_method",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
+      },
+      "post": {
+        "operationId": "OidcController_postRegisterAUser",
+        "summary": "Post registration",
+        "parameters": [
+          {
+            "name": "client_id",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "redirect_uri",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "response_type",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge_method",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
           }
         },
         "tags": [
@@ -817,9 +526,37 @@
     "/oidc/userinfo": {
       "post": {
         "operationId": "OidcController_returnClaimsOfEndUser",
+        "summary": "Return claims of end user",
         "parameters": [],
         "responses": {
           "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
+      },
+      "get": {
+        "operationId": "OidcController_returnClaimsOfEndUserGet",
+        "summary": "Return claims of end user via GET",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC"
+        ]
+      }
+    },
+    "/oidc/.well-known/openid-configuration": {
+      "get": {
+        "operationId": "OidcController_returnConfigs",
+        "parameters": [],
+        "responses": {
+          "200": {
             "description": ""
           }
         },
@@ -1050,7 +787,7 @@
             "in": "query",
             "description": "Hard delete flag",
             "schema": {
-              "type": "string"
+              "type": "boolean"
             }
           },
           {
@@ -1389,19 +1126,25 @@
         ]
       }
     },
-    "/application/{id}": {
+    "/application/{applicationId}": {
       "get": {
         "operationId": "ApplicationController_getAnApplication",
         "summary": "Get an application by ID",
         "parameters": [
           {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
             "description": "Application ID",
-            "schema": {
-              "type": "string"
-            }
+            "schema": {}
           }
         ],
         "responses": {
@@ -1431,7 +1174,7 @@
         "summary": "Create an Application with given id",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
             "schema": {
@@ -1476,13 +1219,19 @@
         "summary": "Update an existing application",
         "parameters": [
           {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
             "description": "Application ID",
-            "schema": {
-              "type": "string"
-            }
+            "schema": {}
           }
         ],
         "requestBody": {
@@ -1522,10 +1271,9 @@
         "summary": "Delete an application by ID",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
-            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1538,6 +1286,13 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Application ID",
+            "schema": {}
           }
         ],
         "responses": {
@@ -1563,19 +1318,25 @@
         ]
       }
     },
-    "/application/{id}/role": {
+    "/application/{applicationId}/role": {
       "post": {
         "operationId": "ApplicationController_createRoleWithRandomUUID",
         "summary": "Create a new role for an application with a random uuid",
         "parameters": [
           {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
             "description": "Application ID",
-            "schema": {
-              "type": "string"
-            }
+            "schema": {}
           }
         ],
         "requestBody": {
@@ -1611,16 +1372,15 @@
         ]
       }
     },
-    "/application/{id}/role/{roleId}": {
+    "/application/{applicationId}/role/{roleId}": {
       "post": {
         "operationId": "ApplicationController_createRole",
         "summary": "Create a new role for an application with given id",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
-            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1633,6 +1393,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Application ID",
+            "schema": {}
           }
         ],
         "requestBody": {
@@ -1672,10 +1439,9 @@
         "summary": "Delete a role from an application",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
-            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1688,6 +1454,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Application ID",
+            "schema": {}
           }
         ],
         "responses": {
@@ -1717,10 +1490,9 @@
         "summary": "Update a role for an application",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
-            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1733,6 +1505,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Application ID",
+            "schema": {}
           }
         ],
         "requestBody": {
@@ -1769,19 +1548,25 @@
         ]
       }
     },
-    "/application/{id}/scope": {
+    "/application/{applicationId}/scope": {
       "post": {
         "operationId": "ApplicationController_createScopeWithRandomUUID",
         "summary": "Create a new Scope for an application with random uuid",
         "parameters": [
           {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
             "description": "Application ID",
-            "schema": {
-              "type": "string"
-            }
+            "schema": {}
           }
         ],
         "requestBody": {
@@ -1817,16 +1602,15 @@
         ]
       }
     },
-    "/application/{id}/scope/{scopeId}": {
+    "/application/{applicationId}/scope/{scopeId}": {
       "post": {
         "operationId": "ApplicationController_createScope",
         "summary": "Create a new Scope for an application with given id",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
-            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1838,6 +1622,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Application ID",
+            "schema": {}
           }
         ],
         "requestBody": {
@@ -1877,10 +1668,9 @@
         "summary": "Delete a scope from an application",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
-            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1893,6 +1683,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Application ID",
+            "schema": {}
           }
         ],
         "responses": {
@@ -1922,10 +1719,9 @@
         "summary": "Update a Scope for an application",
         "parameters": [
           {
-            "name": "id",
+            "name": "applicationId",
             "required": true,
             "in": "path",
-            "description": "Application ID",
             "schema": {
               "type": "string"
             }
@@ -1943,6 +1739,13 @@
             "required": true,
             "in": "path",
             "description": "Scope ID",
+            "schema": {}
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Application ID",
             "schema": {}
           }
         ],
@@ -1980,19 +1783,25 @@
         ]
       }
     },
-    "/application/{id}/oauth-configuration": {
+    "/application/{applicationId}/oauth-configuration": {
       "get": {
         "operationId": "ApplicationController_returnOauthConfiguration",
         "summary": "Get OAuth configuration for an application by ID",
         "parameters": [
           {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "id",
             "required": true,
             "in": "path",
             "description": "Application ID",
-            "schema": {
-              "type": "string"
-            }
+            "schema": {}
           }
         ],
         "responses": {
@@ -2461,7 +2270,7 @@
         }
       }
     },
-    "/login/logout": {
+    "/logout": {
       "get": {
         "operationId": "LoginController_logout",
         "parameters": [],
@@ -2476,109 +2285,48 @@
       "post": {
         "operationId": "GroupsController_createGroup",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createGroupDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
+            "description": "Group created successfully."
+          },
+          "400": {
+            "description": "Invalid input."
           }
-        }
+        },
+        "tags": [
+          "FGroup"
+        ]
       },
       "get": {
         "operationId": "GroupsController_retrieveAllGroup",
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Retrieved all groups successfully."
+          },
+          "400": {
+            "description": "Invalid input."
           }
-        }
+        },
+        "tags": [
+          "FGroup"
+        ]
       }
     },
-    "/group/{id}": {
-      "post": {
-        "operationId": "GroupsController_createGroupByID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      },
-      "get": {
-        "operationId": "GroupsController_retrieveGpById",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "put": {
-        "operationId": "GroupsController_updateGP",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "operationId": "GroupsController_deleteGP",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/group/member/{uuid}": {
+    "/group/member": {
       "post": {
         "operationId": "GroupsController_addUserToGP",
-        "parameters": [
-          {
-            "name": "uuid",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -2591,12 +2339,16 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "User added to group successfully."
+          },
+          "400": {
+            "description": "Invalid input."
           }
-        }
-      }
-    },
-    "/group/member": {
+        },
+        "tags": [
+          "FGroup"
+        ]
+      },
       "put": {
         "operationId": "GroupsController_updateUser",
         "parameters": [],
@@ -2612,18 +2364,181 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "User updated successfully."
+          },
+          "400": {
+            "description": "Invalid input."
           }
-        }
+        },
+        "tags": [
+          "FGroup"
+        ]
       },
       "delete": {
         "operationId": "GroupsController_deleteUser",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": false,
+            "in": "query",
+            "description": "Group ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": false,
+            "in": "query",
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deleteMemberDTO"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": ""
+            "description": "User(s) deleted successfully."
+          },
+          "400": {
+            "description": "Invalid parameters."
           }
-        }
+        },
+        "tags": [
+          "FGroup"
+        ]
+      }
+    },
+    "/group/{id}": {
+      "post": {
+        "operationId": "GroupsController_createGroupByID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Group ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createGroupDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Group created successfully by ID."
+          },
+          "400": {
+            "description": "Invalid input."
+          }
+        },
+        "tags": [
+          "FGroup"
+        ]
+      },
+      "get": {
+        "operationId": "GroupsController_retrieveGpById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Group ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retrieved group by ID successfully."
+          },
+          "400": {
+            "description": "Invalid input."
+          }
+        },
+        "tags": [
+          "FGroup"
+        ]
+      },
+      "put": {
+        "operationId": "GroupsController_updateGP",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Group ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createGroupDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Group updated successfully."
+          },
+          "400": {
+            "description": "Invalid input."
+          }
+        },
+        "tags": [
+          "FGroup"
+        ]
+      },
+      "delete": {
+        "operationId": "GroupsController_deleteGP",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Group ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Group deleted successfully."
+          },
+          "400": {
+            "description": "Invalid input."
+          }
+        },
+        "tags": [
+          "FGroup"
+        ]
       }
     },
     "/group/member/{id}": {
@@ -2634,6 +2549,7 @@
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "Member ID",
             "schema": {
               "type": "string"
             }
@@ -2641,53 +2557,139 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Member deleted successfully."
+          },
+          "400": {
+            "description": "Invalid input."
           }
-        }
+        },
+        "tags": [
+          "FGroup"
+        ]
       }
     },
-    "/group/{id}/role/{roleId}": {
+    "/otp/send": {
       "post": {
-        "operationId": "GroupsController_createRole",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
+        "operationId": "OtpController_sendOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OtpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OTP sent successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OtpResponseDto"
+                }
+              }
             }
           },
+          "400": {
+            "description": "Invalid input."
+          }
+        },
+        "tags": [
+          "OTP"
+        ]
+      }
+    },
+    "/otp/verify": {
+      "post": {
+        "operationId": "OtpController_verifyOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP verified successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OtpResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid OTP."
+          }
+        },
+        "tags": [
+          "OTP"
+        ]
+      }
+    },
+    "/tenant": {
+      "post": {
+        "operationId": "TenantController_createATenantWithRandomUUID",
+        "summary": "Create a tenant with random UUID",
+        "parameters": [
           {
-            "name": "roleId",
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
             "required": true,
-            "in": "path",
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "description": "Tenant data to create",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "operationId": "GroupsController_deleteRole",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
+            "description": "Tenant created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
             }
           },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "Tenant"
+        ]
+      },
+      "get": {
+        "operationId": "TenantController_returnAllTenants",
+        "summary": "Get all tenants",
+        "parameters": [
           {
-            "name": "roleId",
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
             "required": true,
-            "in": "path",
             "schema": {
               "type": "string"
             }
@@ -2695,9 +2697,479 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Tenants found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
-        }
+        },
+        "tags": [
+          "Tenant"
+        ]
+      }
+    },
+    "/tenant/{id}": {
+      "get": {
+        "operationId": "TenantController_returnATenant",
+        "summary": "Get a tenant by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Tenant ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "Tenant"
+        ]
+      },
+      "post": {
+        "operationId": "TenantController_createATenant",
+        "summary": "Create a tenant with specified ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Tenant ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Tenant data to create",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tenant created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "Tenant"
+        ]
+      },
+      "patch": {
+        "operationId": "TenantController_updateATenant",
+        "summary": "Update a tenant",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Tenant ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Tenant data to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tenant updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "Tenant"
+        ]
+      },
+      "delete": {
+        "operationId": "TenantController_deleteATenant",
+        "summary": "Delete a tenant",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Tenant ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tenant deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "Tenant"
+        ]
+      }
+    },
+    "/api-keys": {
+      "post": {
+        "operationId": "ApiKeysController_createAnApiKeyWithRandomUUID",
+        "summary": "Create an API Key with a random UUID",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateApiKeyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Api key successwfully generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "Authentication keys"
+        ]
+      }
+    },
+    "/api-keys/{id}": {
+      "post": {
+        "operationId": "ApiKeysController_createAnApiKey",
+        "summary": "Create an API Key with the given UUID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID of the API Key",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateApiKeyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Api key successfully generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "Authentication keys"
+        ]
+      },
+      "get": {
+        "operationId": "ApiKeysController_returnAnApiKey",
+        "summary": "Return an API Key by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID of the API Key",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Api key successfully returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "Authentication keys"
+        ]
+      },
+      "patch": {
+        "operationId": "ApiKeysController_updateAnApiKey",
+        "summary": "Update an API Key by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID of the API Key",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateApiKeyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Key updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "Authentication keys"
+        ]
+      },
+      "delete": {
+        "operationId": "ApiKeysController_deleteAnApiKey",
+        "summary": "Delete an API Key by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "ID of the API Key",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "description": "Authorization header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Api key successfully deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "tags": [
+          "Authentication keys"
+        ]
       }
     }
   },
@@ -2711,205 +3183,6 @@
   "servers": [],
   "components": {
     "schemas": {
-      "JwtConfiguration": {
-        "type": "object",
-        "properties": {
-          "accessTokenKeyID": {
-            "type": "string",
-            "description": "ID for the access token signing keys",
-            "example": "access-key-id-123"
-          },
-          "refreshTokenTimeToLiveInMinutes": {
-            "type": "number",
-            "description": "Time to live for refresh tokens in minutes",
-            "example": 1440
-          },
-          "timeToLiveInSeconds": {
-            "type": "number",
-            "description": "Time to live for access tokens in seconds",
-            "example": 3600
-          },
-          "idTokenKeyID": {
-            "type": "string",
-            "description": "ID for the ID token signing keys",
-            "example": "id-key-id-456"
-          }
-        },
-        "required": [
-          "accessTokenKeyID",
-          "refreshTokenTimeToLiveInMinutes",
-          "timeToLiveInSeconds",
-          "idTokenKeyID"
-        ]
-      },
-      "CreateTenantDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Name of the tenant",
-            "example": "TenantName"
-          },
-          "jwtConfiguration": {
-            "description": "JWT configuration for the tenant",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/JwtConfiguration"
-              }
-            ]
-          },
-          "data": {
-            "type": "string | JSON",
-            "description": "Additional data for the tenant",
-            "example": "{\"key\": \"value\"}"
-          }
-        },
-        "required": [
-          "name",
-          "jwtConfiguration"
-        ]
-      },
-      "ResponseDto": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string"
-          },
-          "data": {
-            "type": "object"
-          }
-        },
-        "required": [
-          "success",
-          "message",
-          "data"
-        ]
-      },
-      "Permissions": {
-        "type": "object",
-        "properties": {
-          "endpoints": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "endpoints"
-        ]
-      },
-      "CreateApiKeyDto": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/Permissions"
-          },
-          "metaData": {
-            "type": "object"
-          },
-          "tenantId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "key",
-          "permissions",
-          "metaData",
-          "tenantId"
-        ]
-      },
-      "ApiKey": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "updatedAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "keyManager": {
-            "type": "boolean"
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/Permissions"
-          },
-          "metaData": {
-            "type": "string"
-          },
-          "tenantsId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "createdAt",
-          "updatedAt",
-          "keyManager",
-          "permissions",
-          "metaData",
-          "tenantsId"
-        ]
-      },
-      "ApiKeyResponseDto": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          },
-          "apiKey": {
-            "$ref": "#/components/schemas/ApiKey"
-          }
-        },
-        "required": [
-          "message",
-          "apiKey"
-        ]
-      },
-      "UpdataPermissionsDto": {
-        "type": "object",
-        "properties": {
-          "endpoints": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "endpoints"
-        ]
-      },
-      "UpdateApiKeyDto": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "type": "string"
-          },
-          "permissions": {
-            "$ref": "#/components/schemas/UpdataPermissionsDto"
-          },
-          "metaData": {
-            "type": "object"
-          }
-        },
-        "required": [
-          "key",
-          "permissions",
-          "metaData"
-        ]
-      },
       "LoginDto": {
         "type": "object",
         "properties": {
@@ -2921,12 +3194,83 @@
           },
           "applicationId": {
             "type": "string"
+          },
+          "redirect_uri": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "code_challenge": {
+            "type": "string"
+          },
+          "code_challenge_method": {
+            "type": "string"
           }
         },
         "required": [
           "loginId",
           "password",
-          "applicationId"
+          "applicationId",
+          "redirect_uri",
+          "scope",
+          "state",
+          "code_challenge",
+          "code_challenge_method"
+        ]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "firstname": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "loginId": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "redirect_uri": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "code_challenge": {
+            "type": "string"
+          },
+          "code_challenge_method": {
+            "type": "string"
+          },
+          "response_type": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "firstname",
+          "lastname",
+          "username",
+          "loginId",
+          "password",
+          "redirect_uri",
+          "state",
+          "code_challenge",
+          "code_challenge_method",
+          "response_type",
+          "scope"
         ]
       },
       "TokenDto": {
@@ -2947,6 +3291,9 @@
           "password": {
             "type": "string"
           },
+          "code_verifier": {
+            "type": "string"
+          },
           "grant_type": {
             "type": "string"
           },
@@ -2960,6 +3307,7 @@
           "code",
           "loginId",
           "password",
+          "code_verifier",
           "grant_type",
           "redirect_uri"
         ]
@@ -2983,7 +3331,7 @@
           "token"
         ]
       },
-      "UserData": {
+      "UserDataDto": {
         "type": "object",
         "properties": {
           "username": {
@@ -2995,9 +3343,6 @@
           "lastname": {
             "type": "string"
           },
-          "email": {
-            "type": "string"
-          },
           "password": {
             "type": "string"
           }
@@ -3006,7 +3351,6 @@
           "username",
           "firstname",
           "lastname",
-          "email",
           "password"
         ]
       },
@@ -3019,9 +3363,6 @@
           "additionalData": {
             "type": "object"
           },
-          "applicationId": {
-            "type": "string"
-          },
           "membership": {
             "type": "array",
             "items": {
@@ -3029,7 +3370,7 @@
             }
           },
           "userData": {
-            "$ref": "#/components/schemas/UserData"
+            "$ref": "#/components/schemas/UserDataDto"
           },
           "email": {
             "type": "string"
@@ -3038,10 +3379,28 @@
         "required": [
           "active",
           "additionalData",
-          "applicationId",
           "membership",
           "userData",
           "email"
+        ]
+      },
+      "ResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "data"
         ]
       },
       "UpdateUserDto": {
@@ -3053,9 +3412,6 @@
           "additionalData": {
             "type": "object"
           },
-          "applicationId": {
-            "type": "string"
-          },
           "membership": {
             "type": "array",
             "items": {
@@ -3063,13 +3419,12 @@
             }
           },
           "userData": {
-            "$ref": "#/components/schemas/UserData"
+            "$ref": "#/components/schemas/UserDataDto"
           }
         },
         "required": [
           "active",
           "additionalData",
-          "applicationId",
           "membership",
           "userData"
         ]
@@ -3088,27 +3443,39 @@
           },
           "registrationId": {
             "type": "string"
-          },
-          "roles": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           }
         },
         "required": [
           "generateAuthenticationToken",
           "applicationId",
           "data",
-          "registrationId",
-          "roles"
+          "registrationId"
+        ]
+      },
+      "UserRegistrationData": {
+        "type": "object",
+        "properties": {
+          "code_challenge": {
+            "type": "string"
+          },
+          "code_challenge_method": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code_challenge",
+          "code_challenge_method",
+          "scope"
         ]
       },
       "UpdateUserRegistrationDto": {
         "type": "object",
         "properties": {
           "data": {
-            "type": "object"
+            "$ref": "#/components/schemas/UserRegistrationData"
           },
           "roles": {
             "type": "array",
@@ -3276,14 +3643,6 @@
               "$ref": "#/components/schemas/RoleDto"
             }
           },
-          "jwtConfiguration": {
-            "description": "JWT configuration",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/JwtConfiguration"
-              }
-            ]
-          },
           "oauthConfiguration": {
             "description": "OAuth configuration",
             "allOf": [
@@ -3298,8 +3657,38 @@
           "name",
           "scopes",
           "roles",
-          "jwtConfiguration",
           "oauthConfiguration"
+        ]
+      },
+      "JwtConfiguration": {
+        "type": "object",
+        "properties": {
+          "accessTokenSigningKeysID": {
+            "type": "string",
+            "description": "ID for the access token signing keys",
+            "example": "access-key-id-123"
+          },
+          "refreshTokenTimeToLiveInMinutes": {
+            "type": "number",
+            "description": "Time to live for refresh tokens in minutes",
+            "example": 1440
+          },
+          "timeToLiveInSeconds": {
+            "type": "number",
+            "description": "Time to live for access tokens in seconds",
+            "example": 3600
+          },
+          "idTokenSigningKeysID": {
+            "type": "string",
+            "description": "ID for the ID token signing keys",
+            "example": "id-key-id-456"
+          }
+        },
+        "required": [
+          "accessTokenSigningKeysID",
+          "refreshTokenTimeToLiveInMinutes",
+          "timeToLiveInSeconds",
+          "idTokenSigningKeysID"
         ]
       },
       "UpdateApplicationDto": {
@@ -3417,7 +3806,7 @@
             "type": "string"
           },
           "length": {
-            "type": "string"
+            "type": "number"
           }
         },
         "required": [
@@ -3442,9 +3831,243 @@
           "token"
         ]
       },
+      "createGroupDTO": {
+        "type": "object",
+        "properties": {
+          "roleIDs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "roleIDs"
+        ]
+      },
       "addUserDTO": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "members"
+        ]
+      },
+      "deleteMemberDTO": {
+        "type": "object",
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "members"
+        ]
+      },
+      "OtpDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "to": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "to"
+        ]
+      },
+      "OtpResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "success",
+          "message"
+        ]
+      },
+      "VerifyOtpDto": {
+        "type": "object",
+        "properties": {
+          "otp": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "otp"
+        ]
+      },
+      "CreateTenantDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the tenant",
+            "example": "TenantName"
+          },
+          "jwtConfiguration": {
+            "description": "JWT configuration for the tenant",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/JwtConfiguration"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "jwtConfiguration"
+        ]
+      },
+      "Permissions": {
+        "type": "object",
+        "properties": {
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "endpoints"
+        ]
+      },
+      "CreateApiKeyDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/Permissions"
+          },
+          "metaData": {
+            "type": "object"
+          },
+          "tenantId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "permissions",
+          "metaData",
+          "tenantId"
+        ]
+      },
+      "ApiKey": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "keyManager": {
+            "type": "boolean"
+          },
+          "keyValue": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "object"
+          },
+          "metaData": {
+            "type": "string"
+          },
+          "tenantsId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "keyManager",
+          "keyValue",
+          "permissions",
+          "metaData",
+          "tenantsId"
+        ]
+      },
+      "ApiKeyResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ApiKey"
+          }
+        },
+        "required": [
+          "success",
+          "message",
+          "data"
+        ]
+      },
+      "UpdataPermissionsDto": {
+        "type": "object",
+        "properties": {
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "endpoints"
+        ]
+      },
+      "UpdateApiKeyDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/UpdataPermissionsDto"
+          },
+          "metaData": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "key",
+          "permissions",
+          "metaData"
+        ]
       }
     }
   }

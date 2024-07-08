@@ -10,7 +10,6 @@ import {
   IsNotEmpty,
   IsInt,
   Min,
-  IsUUID,
   IsOptional,
   IsBoolean,
 } from 'class-validator';
@@ -29,7 +28,7 @@ class OauthConfiguration {
     message: 'There can be at most 100 authorized origin URLs',
   })
   @IsString({ each: true, message: 'Each URL must be a string' })
-  @IsUrl({}, { each: true, message: 'Each URL must be a valid URL' })
+  // @IsUrl({}, { each: true, message: 'Each URL must be a valid URL' })
   authorizedOriginURLs: string[];
 
   @ApiProperty({
@@ -48,7 +47,7 @@ class OauthConfiguration {
     message: 'There can be at most 100 authorized redirect URLs',
   })
   @IsString({ each: true, message: 'Each URL must be a string' })
-  @IsUrl({}, { each: true, message: 'Each URL must be a valid URL' })
+  // @IsUrl({}, { each: true, message: 'Each URL must be a valid URL' })
   authorizedRedirectURLs: string[];
 
   @ApiProperty({
@@ -77,7 +76,7 @@ class OauthConfiguration {
     example: 'https://example.com/logout',
   })
   @IsString({ message: 'Logout URL must be a string' })
-  @IsUrl({}, { message: 'Logout URL must be a valid URL' })
+  // @IsUrl({}, { message: 'Logout URL must be a valid URL' })
   @IsNotEmpty({ message: 'Logout URL must not be empty' })
   logoutURL: string;
 }
@@ -162,7 +161,6 @@ export class RoleDto {
     required: false,
   })
   @IsOptional()
-  @IsUUID('4', { message: 'ID must be a valid UUID' })
   id?: string;
 }
 
@@ -214,7 +212,6 @@ export class UpdateRoleDto {
     required: false,
   })
   @IsOptional()
-  @IsUUID('4', { message: 'ID must be a valid UUID' })
   id?: string;
 }
 
@@ -244,7 +241,6 @@ export class ScopeDto {
     required: false,
   })
   @IsOptional()
-  @IsUUID('4', { message: 'ID must be a valid UUID' })
   id?: string;
 
   @ApiProperty({
@@ -293,7 +289,6 @@ export class UpdateScopeDto {
     required: false,
   })
   @IsOptional()
-  @IsUUID('4', { message: 'ID must be a valid UUID' })
   id?: string;
 
   @ApiProperty({
@@ -354,14 +349,6 @@ export class CreateApplicationDto {
   @ValidateNested({ each: true })
   @Type(() => RoleDto)
   roles: RoleDto[];
-
-  @ApiProperty({
-    description: 'JWT configuration',
-    type: JwtConfiguration,
-  })
-  @ValidateNested()
-  @Type(() => JwtConfiguration)
-  jwtConfiguration: JwtConfiguration;
 
   @ApiProperty({
     description: 'OAuth configuration',

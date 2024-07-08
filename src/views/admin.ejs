@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      h1 {
+        color: #333;
+      }
+      p {
+        font-size: 1.1em;
+        color: #666;
+      }
+      form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      label {
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+      }
+      input[type='text'],
+      input[type='password'] {
+        width: 95%;
+        padding: 8px;
+        margin: 5px auto 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      input[type='submit'] {
+        background-color: #28a745;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      input[type='submit']:hover {
+        background-color: #218838;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h1>Welcome to admin panel</h1>
+      <p>
+        Enter the Authorization key value whose key manager you want to toggle
+        along with admin credentials
+      </p>
+      <form action="<%= hostname %>/" method="POST">
+        <label for="username">Username: </label>
+        <input type="text" name="username" id="username" />
+        <label for="password">Password: </label>
+        <input type="password" name="password" id="password" />
+        <label for="key">Authorization keyId: </label>
+        <input type="text" name="key" id="key" />
+        <input type="submit" value="Login" />
+      </form>
+    </div>
+  </body>
+</html>

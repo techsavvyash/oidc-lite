@@ -5,16 +5,21 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApplicationRolesService } from 'src/application/application-roles/application-roles.service';
-import { ApplicationScopesService } from 'src/application/application-scopes/application-scopes.service';
+import { ApplicationRolesService } from './application-roles/application-roles.service';
+import { ApplicationScopesService } from './application-scopes/application-scopes.service';
 import {
   ApplicationDataDto,
   CreateApplicationDto,
+  JwtConfiguration,
   UpdateApplicationDto,
-} from 'src/application/application.dto';
-import { ResponseDto } from 'src/dto/response.dto';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
-import { PrismaService } from 'src/prisma/prisma.service';
+} from './application.dto';
+import { ResponseDto } from '../dto/response.dto';
+import { HeaderAuthService } from '../header-auth/header-auth.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { UtilsService } from '../utils/utils.service';
+import { Response } from 'express';
+import { access } from 'node:fs';
+import { APP_PIPE } from '@nestjs/core';
 
 @Injectable()
 export class ApplicationService {
@@ -24,6 +29,7 @@ export class ApplicationService {
     private readonly applicationRoles: ApplicationRolesService,
     private readonly applicationScopes: ApplicationScopesService,
     private readonly headerAuthService: HeaderAuthService,
+    private readonly utilService: UtilsService,
   ) {
     this.logger = new Logger(ApplicationService.name);
   }
@@ -32,17 +38,10 @@ export class ApplicationService {
     uuid: string,
     data: CreateApplicationDto,
     headers: object,
-  ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    res: Response,
+  ) {
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application',
       'POST',
     );
@@ -52,10 +51,26 @@ export class ApplicationService {
         message: valid.message,
       });
     }
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
+    if (!tenant_id) {
+      throw new BadRequestException({
+        success: false,
+        message:
+          'Provide tenant id in x-stencil-tenantid if the authorization key is tenant scoped',
+      });
+    }
     if (!uuid) {
       throw new BadRequestException({
         success: false,
         message: 'no id given',
+      });
+    }
+    if (!data) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No data given',
       });
     }
     const application = await this.prismaService.application.findUnique({
@@ -67,18 +82,6 @@ export class ApplicationService {
         message: 'Application with the provided id/name already exists',
       });
     }
-    if (!data) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No data given',
-      });
-    }
-    if (!data.jwtConfiguration) {
-      throw new BadRequestException({
-        success: false,
-        message: 'jwtConfiguration not provided',
-      });
-    }
     const tenant = await this.prismaService.tenant.findUnique({
       where: { id: tenant_id },
     });
@@ -88,7 +91,7 @@ export class ApplicationService {
         message: 'No such tenant exists',
       });
     }
-    const jwtConfiguration = data.jwtConfiguration;
+    const jwtConfiguration: JwtConfiguration = JSON.parse(tenant.data);
     const accessTokenSigningKeysId = jwtConfiguration.accessTokenSigningKeysID;
     const idTokenSigningKeysId = jwtConfiguration.idTokenSigningKeysID;
     if (
@@ -118,7 +121,7 @@ export class ApplicationService {
     const tenantId = tenant.id;
     const configurations = JSON.stringify({
       oauthConfiguration: data.oauthConfiguration,
-      jwtConfiguration: data.jwtConfiguration,
+      jwtConfiguration: jwtConfiguration,
     });
 
     try {
@@ -133,7 +136,6 @@ export class ApplicationService {
           data: configurations,
         },
       });
-
       try {
         roles.forEach((value) =>
           this.applicationRoles.createRole(
@@ -161,11 +163,16 @@ export class ApplicationService {
 
       this.logger.log('New application registred!', application);
 
-      return {
+      res.send({
         success: true,
         message: 'Application created successfully!',
         data: application,
-      };
+      });
+
+      const publicKeys = await this.storePublicKeys(
+        data.oauthConfiguration.authorizedOriginURLs,
+        application.id,
+      );
     } catch (error) {
       this.logger.log('Error occured in createApplication', error);
       throw new InternalServerErrorException({
@@ -175,27 +182,21 @@ export class ApplicationService {
     }
   }
 
+  // publicKeys set kr isme
   async patchApplication(
     id: string,
     newData: UpdateApplicationDto,
     headers: object,
-  ): Promise<ResponseDto> {
+    res: Response,
+  )  {
     if (!id) {
       throw new BadRequestException({
         success: false,
         message: 'no id given',
       });
     }
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application',
       'PATCH',
     );
@@ -205,6 +206,9 @@ export class ApplicationService {
         message: valid.message,
       });
     }
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!newData) {
       throw new BadRequestException({
         success: false,
@@ -231,9 +235,17 @@ export class ApplicationService {
     const active =
       newData.active !== null ? newData.active : application.active;
     const oldApplicationData: ApplicationDataDto = JSON.parse(application.data);
-    const newApplicationData: ApplicationDataDto = {jwtConfiguration: newData.jwtConfiguration, oauthConfiguration: newData.oauthConfiguration};
-    newApplicationData.jwtConfiguration = newApplicationData.jwtConfiguration ? newApplicationData.jwtConfiguration: oldApplicationData.jwtConfiguration;
-    newApplicationData.oauthConfiguration = newApplicationData.oauthConfiguration ? newApplicationData.oauthConfiguration: oldApplicationData.oauthConfiguration;
+    const newApplicationData: ApplicationDataDto = {
+      jwtConfiguration: newData.jwtConfiguration,
+      oauthConfiguration: newData.oauthConfiguration,
+    };
+    newApplicationData.jwtConfiguration = newApplicationData.jwtConfiguration
+      ? newApplicationData.jwtConfiguration
+      : oldApplicationData.jwtConfiguration;
+    newApplicationData.oauthConfiguration =
+      newApplicationData.oauthConfiguration
+        ? newApplicationData.oauthConfiguration
+        : oldApplicationData.oauthConfiguration;
     try {
       const application = await this.prismaService.application.update({
         where: { id },
@@ -244,11 +256,17 @@ export class ApplicationService {
           data: JSON.stringify(newApplicationData),
         },
       });
-      return {
+      res.send({
         success: true,
         message: 'Application updated successfully!',
         data: application,
-      };
+      });
+      const authorizedOriginURLS =
+        newApplicationData.oauthConfiguration.authorizedOriginURLs;
+      await this.prismaService.publicKeys.deleteMany({
+        where: { applicationId: application.id },
+      });
+      await this.storePublicKeys(authorizedOriginURLS, application.id);
     } catch (error) {
       this.logger.log('Error from patchApplication', error);
       throw new InternalServerErrorException({
@@ -295,16 +313,8 @@ export class ApplicationService {
   }
 
   async returnAnApplication(id: string, headers: object): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application',
       'GET',
     );
@@ -314,6 +324,9 @@ export class ApplicationService {
         message: valid.message,
       });
     }
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!id) {
       throw new BadRequestException({
         success: false,
@@ -355,16 +368,8 @@ export class ApplicationService {
     hardDelete: boolean,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application',
       'DELETE',
     );
@@ -374,9 +379,18 @@ export class ApplicationService {
         message: valid.message,
       });
     }
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     const oldApplication = await this.prismaService.application.findUnique({
       where: { id },
     });
+    if (!oldApplication) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Application with given id dont exist',
+      });
+    }
     if (
       oldApplication.tenantId !== tenant_id &&
       valid.data.tenantsId !== null
@@ -384,12 +398,6 @@ export class ApplicationService {
       throw new UnauthorizedException({
         success: false,
         message: 'You are not authorized enough',
-      });
-    }
-    if (!oldApplication) {
-      throw new BadRequestException({
-        success: false,
-        message: 'Application with given id dont exist',
       });
     }
     if (hardDelete) {
@@ -410,11 +418,10 @@ export class ApplicationService {
         });
       }
     } else {
-      const application = await this.patchApplication(
-        id,
-        { active: false },
-        headers,
-      );
+      const application = await this.prismaService.application.update({
+        where: { id },
+        data: { active: false },
+      });
       return {
         success: true,
         message: 'Application soft deleted/inactive',
@@ -427,19 +434,20 @@ export class ApplicationService {
     id: string,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenant_id = headers['x-stencil-tenantid'];
-    if (!tenant_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid header missing',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant_id,
       '/application',
       'GET',
     );
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
+      });
+    }
+    const tenant_id = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!id) {
       throw new BadRequestException({
         success: false,
@@ -464,7 +472,41 @@ export class ApplicationService {
     return {
       success: true,
       message: "Application's configurations are as follows",
-      data: JSON.parse(application.data),
+      data: application,
     };
+  }
+
+  private async storePublicKeys(
+    authorizedOriginURLS: string[],
+    applicationId: string,
+  ) {
+    if (authorizedOriginURLS.length <= 0) {
+      return null;
+    }
+    const result = await Promise.all(
+      authorizedOriginURLS.map(async (url) => {
+        try {
+          const hostname = new URL(url).hostname;
+          const pubKey = await this.utilService.getPublicKey(hostname);
+          if (pubKey.success) return { pubKey: pubKey.data, hostname };
+        } catch (error) {
+          this.logger.error(`Error on ${url} while getting public key`);
+        }
+        return null;
+      }),
+    );
+    const filterResults = result.filter((i) => i);
+    const addPublicKeys = await Promise.all(
+      filterResults.map(async (pubKey) => {
+        return await this.prismaService.publicKeys.create({
+          data: {
+            hostname: pubKey.hostname,
+            publicKey: pubKey.pubKey,
+            applicationId,
+          },
+        });
+      }),
+    );
+    return addPublicKeys;
   }
 }

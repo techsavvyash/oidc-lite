@@ -1,55 +1,151 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import {
+  IsBoolean,
+  IsDate,
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsString,
+  Matches,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
 
-export class UserData {
-  @ApiProperty() username: string;
-  @ApiProperty() firstname?: string;
-  @ApiProperty() lastname?: string;
-  @ApiProperty() email: string;
-  @ApiProperty() password: string;
+export class UserDataDto {
+  @ApiProperty()
+  @MinLength(2, { message: 'Username must be atleast 2 characters' })
+  username: string;
+
+  @ApiProperty()
+  @IsOptional()
+  firstname?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  lastname?: string;
+
+  @ApiProperty()
+  @Matches(
+    new RegExp(
+      '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])(?=.{8,})',
+    ),
+    {
+      message:
+        'Password must be atleast 8 characters, with atleast one lowercase, one uppercase, one number and a special character',
+    },
+  )
+  password: string;
 }
 
 export class CreateUserDto {
-  @ApiProperty() active: boolean;
-  @ApiProperty() additionalData?: object | string;
-  @ApiProperty() applicationId: string;
-  @ApiProperty() membership: string[];
-  @ApiProperty() userData: UserData;
-  @ApiProperty() email: string;
+  @ApiProperty()
+  @IsBoolean()
+  active: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  additionalData?: object | string;
+
+  @ApiProperty()
+  @IsString({ each: true })
+  membership: string[];
+
+  @ApiProperty()
+  @ValidateNested()
+  @Type(() => UserDataDto)
+  userData: UserDataDto;
+
+  @ApiProperty()
+  @IsEmail()
+  email: string;
 }
 export class UpdateUserDto {
-  @ApiProperty() active?: boolean;
-  @ApiProperty() additionalData?: object | string;
-  @ApiProperty() applicationId: string;
-  @ApiProperty() membership?: string[];
-  @ApiProperty() userData: UserData;
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  active?: boolean;
+
+  @ApiProperty()
+  @IsOptional()
+  additionalData?: object | string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString({ each: true })
+  membership?: string[];
+
+  @ApiProperty()
+  userData: UserDataDto;
 }
 
 export class CreateUserRegistrationDto {
-  @ApiProperty() generateAuthenticationToken?: boolean;
-  @ApiProperty() applicationId: string;
-  @ApiProperty() data?: string | JSON | object;
-  @ApiProperty() registrationId?: string;
-  @ApiProperty() roles: string[];
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  generateAuthenticationToken?: boolean;
+
+  @ApiProperty()
+  applicationId: string;
+
+  @ApiProperty()
+  @IsOptional()
+  data?: string | JSON | object;
+
+  @ApiProperty()
+  @IsOptional()
+  registrationId?: string;
+}
+
+export class UserRegistrationData {
+  @ApiProperty() code_challenge: string;
+  @ApiProperty() code_challenge_method: string;
+  @ApiProperty() scope: string;
 }
 
 export class UpdateUserRegistrationDto {
-  @ApiProperty() data?: string | JSON | object;
-  @ApiProperty() roles?: string[];
+  @ApiProperty()
+  @IsOptional()
+  data?: UserRegistrationData;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString({ each: true })
+  roles?: string[];
 }
 
 export class CreateUserAndUserRegistration {
-  @ApiProperty() userInfo: CreateUserDto;
-  @ApiProperty() registrationInfo: CreateUserRegistrationDto;
+  @ApiProperty()
+  userInfo: CreateUserDto;
+
+  @ApiProperty()
+  registrationInfo: CreateUserRegistrationDto;
 }
 
 export class UserDto {
   id: string;
+
+  @IsBoolean()
   active: boolean;
+
+  @IsString()
   data: string;
   expiry: number;
+
+  @IsDate()
   createdAt: Date;
+
+  @IsDate()
   updatedAt: Date;
+
+  @IsString()
   tenantId: string;
-  groupId: string;
+
+  @IsEmail()
   email: string;
+}
+
+export class UserData {
+  @ApiProperty() userData: UserDataDto;
+  @ApiProperty() additionalData?: object | string;
 }

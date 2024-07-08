@@ -6,9 +6,18 @@ import { ApplicationRolesService } from 'src/application/application-roles/appli
 import { ApplicationScopesService } from 'src/application/application-scopes/application-scopes.service';
 import { HeaderAuthService } from 'src/header-auth/header-auth.service';
 import { KeyService } from 'src/key/key.service';
+import { UtilsService } from 'src/utils/utils.service';
 
 @Module({
   controllers: [ApplicationController],
-  providers: [PrismaService, ApplicationService,ApplicationRolesService,ApplicationScopesService,HeaderAuthService,KeyService]
+  providers: [
+    PrismaService,
+    ApplicationService,
+    ApplicationRolesService,
+    ApplicationScopesService,
+    HeaderAuthService,
+    KeyService,
+    UtilsService,
+  ],
 })
 export class ApplicationModule {}

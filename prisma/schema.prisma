@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 generator client {
   provider = "prisma-client-js"
 }
@@ -20,7 +15,7 @@ model ApplicationOauthScope {
   name           String
   description    String
 
-  applications Application @relation(fields: [applicationsId], references: [id])
+  applications Application @relation(fields: [applicationsId], references: [id], onDelete: Cascade)
 
   @@unique([applicationsId, name], name: "application_oauth_scopes_uk_1")
 }
@@ -32,10 +27,10 @@ model ApplicationRole {
   createdAt      DateTime @default(now())
   isDefault      Boolean
   isSuperRole    Boolean
-  updatedAt      DateTime @updatedAt
+  updatedAt      DateTime @default(now())
   name           String
 
-  applications         Application            @relation(fields: [applicationsId], references: [id])
+  applications         Application            @relation(fields: [applicationsId], references: [id], onDelete: Cascade)
   GroupApplicationRole GroupApplicationRole[]
 
   @@unique([name, applicationsId], name: "application_roles_uk_1")
@@ -52,35 +47,37 @@ model Application {
   name                     String
   tenantId                 String
 
-  tenant                Tenant                  @relation(fields: [tenantId], references: [id])
+  tenant                Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   accessTokenSigningKey Key?                    @relation("ApplicationAccessTokenSigningKey", fields: [accessTokenSigningKeysId], references: [id])
   idTokenSigningKey     Key?                    @relation("ApplicationIdTokenSigningKey", fields: [idTokenSigningKeysId], references: [id])
   oauthScopes           ApplicationOauthScope[]
   roles                 ApplicationRole[]
   refreshTokens         RefreshToken[]
   userRegistrations     UserRegistration[]
+  PublicKeys            PublicKeys[]
 
   @@unique([name, tenantId], name: "applications_uk_1")
   @@index([tenantId], name: "applications_i_1")
 }
 
 model GroupApplicationRole {
+  id                 String @id @default(uuid())
   applicationRolesId String
   groupsId           String
 
-  applicationRole ApplicationRole @relation(fields: [applicationRolesId], references: [id])
-  group           Group           @relation(fields: [groupsId], references: [id])
+  applicationRole ApplicationRole @relation(fields: [applicationRolesId], references: [id], onDelete: Cascade)
+  group           Group           @relation(fields: [groupsId], references: [id], onDelete: Cascade)
 
   @@unique([groupsId, applicationRolesId], name: "group_application_roles_uk_1")
 }
 
 model GroupMember {
-  id        String @id @default(uuid())
+  id        String   @id @default(uuid())
   groupId   String
   createdAt DateTime @default(now())
   userId    String
 
-  group Group @relation(fields: [groupId], references: [id])
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
   user  User  @relation(fields: [userId], references: [id])
 
   @@unique([groupId, userId], name: "group_members_uk_1")
@@ -88,19 +85,15 @@ model GroupMember {
 }
 
 model Group {
-  id          String   @id @default(uuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  name        String
-  tenantId    String
-  permissions String?
-  settings    String?
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  tenantId  String
 
-  tenant           Tenant                 @relation(fields: [tenantId], references: [id])
+  tenant           Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   members          GroupMember[]
   applicationRoles GroupApplicationRole[]
-  // users            User[]
-  // users            User[]
 
   @@unique([name, tenantId], name: "groups_uk_1")
 }
@@ -119,6 +112,7 @@ model Key {
   publicKey   String?
   secret      String?
   type        String
+  data        String
 
   applicationsAccessTokenSigningKeys Application[] @relation("ApplicationAccessTokenSigningKey")
   applicationsIdTokenSigningKeys     Application[] @relation("ApplicationIdTokenSigningKey")
@@ -129,20 +123,21 @@ model Key {
 model RefreshToken {
   id             String   @id @default(uuid())
   applicationsId String?
-  expiry         Int
+  expiry         BigInt
   data           String
   createdAt      DateTime @default(now())
-  startInstant   Int
+  startInstant   BigInt
   tenantId       String?
   token          String?  @unique
   tokenHash      String?  @unique
   tokenText      String?
   usersId        String
 
-  application Application? @relation(fields: [applicationsId], references: [id])
-  tenant      Tenant?      @relation(fields: [tenantId], references: [id])
+  application Application? @relation(fields: [applicationsId], references: [id], onDelete: Cascade)
+  tenant      Tenant?      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   user        User         @relation(fields: [usersId], references: [id])
 
+  @@unique([applicationsId, usersId], name: "unique_applications_users_uk_1")
   @@index([startInstant], name: "refresh_tokens_i_1")
   @@index([applicationsId], name: "refresh_tokens_i_2")
   @@index([usersId], name: "refresh_tokens_i_3")
@@ -168,19 +163,17 @@ model Tenant {
 }
 
 model UserRegistration {
-  id                  String   @id @default(uuid())
+  id                  String    @id @default(uuid())
   applicationsId      String
-  authenticationToken String?  @unique
+  authenticationToken String?   @unique
   password            String
   data                String?
-  createdAt           DateTime @default(now())
+  createdAt           DateTime  @default(now())
   lastLoginInstant    DateTime?
-  updatedAt           DateTime @updatedAt
+  updatedAt           DateTime  @updatedAt
   usersId             String
-  // verified            Boolean
-  // verifiedInstant     BigInt?
 
-  application Application @relation(fields: [applicationsId], references: [id])
+  application Application @relation(fields: [applicationsId], references: [id], onDelete: Cascade)
   user        User        @relation(fields: [usersId], references: [id])
 
   @@unique([applicationsId, usersId], name: "user_registrations_uk_1")
@@ -188,18 +181,16 @@ model UserRegistration {
 }
 
 model User {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
   active    Boolean
-  data      String?
+  data      String
   expiry    Int?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   tenantId  String
-  groupId   String?
-  email     String    @unique
-  // group     Group?   @relation(fields: [groupId], references: [id]) // Add the relation
+  email     String   @unique
 
-  tenant            Tenant             @relation(fields: [tenantId], references: [id])
+  tenant            Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   groupMembers      GroupMember[]
   refreshTokens     RefreshToken[]
   userRegistrations UserRegistration[]
@@ -215,5 +206,21 @@ model AuthenticationKey {
   metaData    String?
   tenantsId   String?
 
-  tenant Tenant? @relation(fields: [tenantsId], references: [id])
+  tenant Tenant? @relation(fields: [tenantsId], references: [id], onDelete: Cascade)
+}
+
+model Admin {
+  username String @unique
+  password String @unique
+}
+
+model PublicKeys {
+  id            String @unique @default(uuid())
+  applicationId String
+  hostname      String
+  publicKey     String
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@unique([applicationId, hostname], name: "publicKeys_unique_applicationId_hostname")
 }

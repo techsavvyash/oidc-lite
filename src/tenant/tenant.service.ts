@@ -1,18 +1,14 @@
 import {
   BadRequestException,
-  HttpException,
-  HttpStatus,
   Injectable,
   InternalServerErrorException,
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { randomUUID } from 'crypto';
-import { ResponseTenantDto, ResponseDto } from 'src/dto/response.dto';
+import { ResponseTenantDto, ResponseDto } from '../dto/response.dto';
 import { CreateTenantDto, UpdateTenantDto } from './tenant.dto';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
-import { KeyService } from 'src/key/key.service';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { HeaderAuthService } from '../header-auth/header-auth.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TenantService {
@@ -20,7 +16,6 @@ export class TenantService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly headerAuthService: HeaderAuthService,
-    private readonly keyService: KeyService,
   ) {
     this.logger = new Logger(TenantService.name);
   }
@@ -68,8 +63,8 @@ export class TenantService {
     const jwtConfiguration = data.jwtConfiguration;
     if (
       !jwtConfiguration ||
-      !jwtConfiguration.accessTokenKeyID ||
-      !jwtConfiguration.idTokenKeyID ||
+      !jwtConfiguration.accessTokenSigningKeysID ||
+      !jwtConfiguration.idTokenSigningKeysID ||
       !jwtConfiguration.refreshTokenTimeToLiveInMinutes ||
       !jwtConfiguration.timeToLiveInSeconds
     ) {
@@ -79,8 +74,8 @@ export class TenantService {
       });
     }
 
-    const accessTokenSigningKeysId = jwtConfiguration.accessTokenKeyID;
-    const idTokenSigningKeysId = jwtConfiguration.idTokenKeyID;
+    const accessTokenSigningKeysId = jwtConfiguration.accessTokenSigningKeysID;
+    const idTokenSigningKeysId = jwtConfiguration.idTokenSigningKeysID;
     const idTokenSigningKey = await this.prismaService.key.findUnique({
       where: { id: idTokenSigningKeysId },
     });
@@ -94,7 +89,7 @@ export class TenantService {
       });
     }
     const name = data.name;
-    const additionalData = data.data ? JSON.stringify(data.data) : '';
+    const additionalData = JSON.stringify(data.jwtConfiguration);
     try {
       const tenant = await this.prismaService.tenant.create({
         data: {
@@ -165,11 +160,11 @@ export class TenantService {
     // const jwtConfiguration = data.jwtConfiguration
     //   ? data.jwtConfiguration
     //   : null;
-    // const accessTokenSigningKeysId = jwtConfiguration?.accessTokenKeyID
-    //   ? jwtConfiguration.accessTokenKeyID
+    // const accessTokenSigningKeysId = jwtConfiguration?.accessTokenSigningKeysID
+    //   ? jwtConfiguration.accessTokenSigningKeysID
     //   : oldTenant.accessTokenSigningKeysId;
-    // const idTokenSigningKeysId = jwtConfiguration?.idTokenKeyID
-    //   ? jwtConfiguration.idTokenKeyID
+    // const idTokenSigningKeysId = jwtConfiguration?.idTokenSigningKeysID
+    //   ? jwtConfiguration.idTokenSigningKeysID
     //   : oldTenant.idTokenSigningKeysId;
     const additionalData = data.data
       ? JSON.stringify(data.data)

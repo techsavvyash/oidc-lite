@@ -4,11 +4,10 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { GroupPermissions, UpdateGroupDto, createGroupDTO } from './dtos/groups.dto';
-import { Prisma } from '@prisma/client';
-import { HeaderAuthService } from 'src/header-auth/header-auth.service';
-import { ResponseDto } from 'src/dto/response.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { UpdateGroupDto, createGroupDTO } from './dtos/groups.dto';
+import { HeaderAuthService } from '../header-auth/header-auth.service';
+import { ResponseDto } from '../dto/response.dto';
 
 @Injectable()
 export class GroupsService {
@@ -31,18 +30,8 @@ export class GroupsService {
         message: 'please provide a valid id',
       });
     }
-    const tenant = await this.prismaService.tenant.findUnique({
-      where: { id: data.tenantId },
-    });
-    if (!tenant) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No such tenant exists',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant.id,
       '/group',
       'POST',
     );
@@ -52,39 +41,62 @@ export class GroupsService {
         message: valid.message,
       });
     }
-    const item = await Promise.all(
-      data.roleIDs.map(async (roleId: string) => {
-        const applicationRole =
-          await this.prismaService.applicationRole.findUnique({
-            where: { id: roleId },
-          });
-        if (!applicationRole) return;
-        const application = await this.prismaService.application.findUnique({
-          where: { id: applicationRole.applicationsId },
-        });
-        if (application.tenantId !== tenant.id) return; // not in same tenant so roles cant be assigned
-        return {
-          applicationId: applicationRole.applicationsId,
-          applicationRole,
-        };
-      }),
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
+    if (!tenantId) {
+      throw new BadRequestException({
+        success: false,
+        message:
+          'x-stencil-tenantid header required when using tenant scoped key',
+      });
+    }
+    const tenant = await this.prismaService.tenant.findUnique({
+      where: { id: tenantId },
+    });
+    if (!tenant) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No such tenant exists',
+      });
+    }
+    const finalRoles = await this.extractRolesFromRoleId(
+      data.roleIDs,
+      tenantId,
     );
-    const finalRoles = item.filter((i) => i); // removes null values. this will be added in permissions
+    const existingGroup = await this.prismaService.group.findUnique({
+      where: { groups_uk_1: { name: data.name, tenantId } },
+    });
+    if (existingGroup) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Group with the same name already exists for this tenant',
+      });
+    }
     try {
       const group = await this.prismaService.group.create({
         data: {
+          id: uuid,
           name: data.name,
-          permissions: JSON.stringify(finalRoles),
           tenantId: tenant.id,
         },
       });
-      this.logger.log('A new group created', group);
+      const applicationRoles = await Promise.all(
+        finalRoles?.map(async (role) => {
+          return await this.saveGroupApplicationRole(
+            group.id,
+            role?.applicationRole.id,
+          );
+        }),
+      );
+      this.logger.log('A new group created', group, applicationRoles);
       return {
         success: true,
         message: 'Group created successfully',
         data: group,
       };
     } catch (error) {
+      console.log(error);
       this.logger.log(error);
       throw new BadRequestException({
         success: false,
@@ -94,10 +106,8 @@ export class GroupsService {
   }
 
   async retrieveAllGroups(headers: object): Promise<ResponseDto> {
-    const tenantId = headers['x-stencil-tenantid'];
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenantId,
       '/group',
       'GET',
     );
@@ -107,6 +117,9 @@ export class GroupsService {
         message: valid.message,
       });
     }
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     try {
       if (!tenantId) {
         const gps = await this.prismaService.group.findMany();
@@ -135,25 +148,8 @@ export class GroupsService {
   }
 
   async retrieveGpById(id: string, headers: object): Promise<ResponseDto> {
-    const tenantId = headers['x-stencil-tenantid'];
-    if (!tenantId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const tenant = await this.prismaService.tenant.findUnique({
-      where: { id: tenantId },
-    });
-    if (!tenant) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No such tenant exists',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant.id,
       '/group',
       'GET',
     );
@@ -163,35 +159,43 @@ export class GroupsService {
         message: valid.message,
       });
     }
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!id) {
       throw new BadRequestException({
         success: false,
         message: 'please send group id while sending reqeust',
       });
     }
-    try {
-      const group = await this.prismaService.group.findUnique({
-        where: { id: id, tenantId },
+    const group = await this.prismaService.group.findUnique({
+      where: { id: id },
+    });
+    if (!group) {
+      throw new BadRequestException({
+        success: false,
+        message: 'group not found with given id',
       });
-      if (group) {
+    }
+    try {
+      if (group.tenantId === tenantId || valid.data.tenantsId === null) {
         return {
           success: true,
           message: 'group retrieved by given id',
           data: group,
         };
-      } else {
-        throw new BadRequestException({
-          success: false,
-          message: 'group not found with given id',
-        });
       }
     } catch (error) {
-      this.logger.log(error);
+      this.logger.error(error);
       throw new BadRequestException({
         success: false,
         message: 'error occured while finding the group',
       });
     }
+    return{
+      success: false,
+      message: 'group not found with given id',
+    };
   }
 
   async updateGp(
@@ -199,27 +203,10 @@ export class GroupsService {
     data: UpdateGroupDto,
     headers: object,
   ): Promise<ResponseDto> {
-    const tenantId = headers['x-stencil-tenantid'];
-    if (!tenantId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const tenant = await this.prismaService.tenant.findUnique({
-      where: { id: tenantId },
-    });
-    if (!tenant) {
-      throw new BadRequestException({
-        success: false,
-        message: 'no such tenant exists',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant.id,
       '/group',
-      'POST',
+      'PATCH',
     );
     if (!valid.success) {
       throw new UnauthorizedException({
@@ -227,10 +214,13 @@ export class GroupsService {
         message: valid.message,
       });
     }
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!uuid) {
       throw new BadRequestException({
         success: false,
-        message: 'please send id alogn with request',
+        message: 'please send id along with request',
       });
     }
     const oldGroup = await this.prismaService.group.findUnique({
@@ -242,44 +232,40 @@ export class GroupsService {
         message: 'unable to find group with given id',
       });
     }
-    const item = await Promise.all(
-      data.roleIDs?.map(async (roleId: string) => {
-        const applicationRole =
-          await this.prismaService.applicationRole.findUnique({
-            where: { id: roleId },
-          });
-        if (!applicationRole) return;
-        const application = await this.prismaService.application.findUnique({
-          where: { id: applicationRole.applicationsId },
-        });
-        if (application.tenantId !== tenant.id) return; // not in same tenant so roles cant be assigned
-        return {
-          applicationId: applicationRole.applicationsId,
-          applicationRole,
-        };
+    if (oldGroup.tenantId !== tenantId && valid.data.tenantsId === null) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized enough',
+      });
+    }
+    const finalRoles = await this.extractRolesFromRoleId(
+      data.roleIDs,
+      tenantId,
+    );
+    const applicationRoles = await Promise.all(
+      finalRoles.map(async (role) => {
+        return await this.saveGroupApplicationRole(
+          oldGroup.id,
+          role.applicationRole.id,
+        );
       }),
     );
-    const finalRoles = item.filter((i) => i); // removes null values. this will be added in permissions
-    const updatedRoles =
-      finalRoles.length > 0
-        ? finalRoles
-        : (JSON.parse(oldGroup.permissions) as GroupPermissions);
     const updatedName = data.name ? data.name : oldGroup.name;
     try {
       const updatedGroup = await this.prismaService.group.update({
         where: { id: oldGroup.id },
         data: {
           name: updatedName,
-          permissions: JSON.stringify(updatedRoles),
         },
       });
+      this.logger.log('Group updated', updatedGroup, applicationRoles);
       return {
         success: true,
         message: 'Group updated',
         data: updatedGroup,
       };
     } catch (error) {
-      this.logger.log(error);
+      this.logger.error(error);
       throw new BadRequestException({
         success: false,
         message: 'error while finding a gp',
@@ -288,25 +274,8 @@ export class GroupsService {
   }
 
   async deleteGroup(uuid: string, headers: object): Promise<ResponseDto> {
-    const tenantId = headers['x-stencil-tenantid'];
-    if (!tenantId) {
-      throw new BadRequestException({
-        success: false,
-        message: 'x-stencil-tenantid missing',
-      });
-    }
-    const tenant = await this.prismaService.tenant.findUnique({
-      where: { id: tenantId },
-    });
-    if (!tenant) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No such tenant exists',
-      });
-    }
-    const valid = await this.headerAuthService.authorizationHeaderVerifier(
+    const valid = await this.headerAuthService.validateRoute(
       headers,
-      tenant.id,
       '/group',
       'GET',
     );
@@ -316,19 +285,28 @@ export class GroupsService {
         message: valid.message,
       });
     }
+    const tenantId = valid.data.tenantsId
+      ? valid.data.tenantsId
+      : headers['x-stencil-tenantid'];
     if (!uuid) {
       throw new BadRequestException({
         success: false,
-        message: 'please send id alogn with request',
+        message: 'please send id along with request',
       });
     }
     const group = await this.prismaService.group.findUnique({
-      where: { id: uuid, tenantId },
+      where: { id: uuid},
     });
     if (!group) {
       throw new BadRequestException({
         success: false,
         message: 'unable to find group with given id',
+      });
+    }
+    if (group.tenantId !== tenantId && valid.data.tenantsId !== null) {
+      throw new UnauthorizedException({
+        success: false,
+        message: 'You are not authorized enough',
       });
     }
     try {
@@ -347,5 +325,48 @@ export class GroupsService {
         message: 'error occured while searching for a gp id',
       });
     }
+  }
+
+  private async saveGroupApplicationRole(
+    groupId: string,
+    applicationRoleId: string,
+  ) {
+    const findRole = await this.prismaService.groupApplicationRole.findUnique({
+      where: {
+        group_application_roles_uk_1: {
+          applicationRolesId: applicationRoleId,
+          groupsId: groupId,
+        },
+      },
+    });
+    if (findRole) return findRole;
+    return await this.prismaService.groupApplicationRole.create({
+      data: { groupsId: groupId, applicationRolesId: applicationRoleId },
+    });
+  }
+
+  private async extractRolesFromRoleId(roleIDs: string[], tenantId: string) {
+    if (roleIDs === null || roleIDs.length <= 0) {
+      return null;
+    }
+    const item = await Promise.all(
+      roleIDs.map(async (roleId: string) => {
+        const applicationRole =
+          await this.prismaService.applicationRole.findUnique({
+            where: { id: roleId },
+          });
+        if (!applicationRole) return;
+        const application = await this.prismaService.application.findUnique({
+          where: { id: applicationRole.applicationsId },
+        });
+        if (application.tenantId !== tenantId) return; // not in same tenant so roles cant be assigned
+        return {
+          applicationId: applicationRole.applicationsId,
+          applicationRole,
+        };
+      }),
+    );
+    const finalRoles = item.filter((i) => i);
+    return finalRoles;
   }
 }

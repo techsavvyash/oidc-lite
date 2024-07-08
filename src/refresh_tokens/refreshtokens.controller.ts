@@ -121,6 +121,7 @@ export class RefreshTokensController {
     required: true,
     description: 'Tenant ID',
   })
+  // change it properly as per docs and add guard
   async deletereftoken(
     @Body('applicationId') appid: string,
     @Body('usersId') userid: string,
@@ -128,7 +129,11 @@ export class RefreshTokensController {
     @Headers() headers: object,
   ) {
     if (appid && userid) {
-      return await this.refreshService.deleteViaUserAndAppID(userid, appid, headers);
+      return await this.refreshService.deleteViaUserAndAppID(
+        userid,
+        appid,
+        headers,
+      );
     } else if (appid) {
       return await this.refreshService.deleteViaAppID(appid, headers);
     } else if (userid) {
