@@ -2,9 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [main, feat-final, feat-test, test-Ashu]
+    branches: 
+      - '*'
   pull_request:
-    branches: [main, feat-final, feat-test, test-Ashu]
+    branches: 
+      - '*'
 
 jobs:
   build:
@@ -14,7 +16,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
 
