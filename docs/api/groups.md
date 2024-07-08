@@ -1,9 +1,10 @@
 # Group API
-
 - A Group is a named object that optionally contains one to many Application Roles.
 - This service provides endpoints for managing groups within a multi-tenant system. It uses NestJS and Prisma for database operations.
 
+## Sequence Diagram
 
+![Groups Sequence Diagram](../assets/sequence-diagrams/groups.png)
 
 ## Endpoints
 

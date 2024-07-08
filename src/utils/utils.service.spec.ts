@@ -610,11 +610,12 @@ describe('UtilsService', () => {
       (prismaService.application.findUnique as jest.Mock).mockResolvedValue({
         tenantId,
       });
-      jest.spyOn(prismaService.user,'findUnique').mockResolvedValue(null);
+      jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(null);
       jest
         .spyOn(service, 'returnRolesForAGivenUserIdAndTenantId')
         .mockResolvedValue(rolesInTenant);
-      (prismaService.applicationRole.findUnique as jest.Mock
+      (
+        prismaService.applicationRole.findUnique as jest.Mock
       ).mockImplementation(({ where }) =>
         rolesInTenant.includes(where.id) &&
         where.applicationsId === applicationId
@@ -630,9 +631,9 @@ describe('UtilsService', () => {
         applicationId,
       );
 
-    //   TODO: Fix this test
+      //   TODO: Fix this test
 
-    //   expect(result).toEqual(combinedRoles);
+      //   expect(result).toEqual(combinedRoles);
     });
   });
 

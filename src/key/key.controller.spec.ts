@@ -94,7 +94,11 @@ describe('KeyController', () => {
       const mockId = '1';
       const mockUpdateDto: updateDTO = { name: 'updated name' };
       const mockHeaders = { authorization: 'Bearer token' };
-      const mockResponse = { success: true, message: 'key updated', data: mockResult[0] };
+      const mockResponse = {
+        success: true,
+        message: 'key updated',
+        data: mockResult[0],
+      };
       jest.spyOn(keyService, 'updateKey').mockResolvedValue(mockResponse);
 
       expect(
@@ -112,7 +116,11 @@ describe('KeyController', () => {
     it('should call deleteKey method from KeyService', async () => {
       const mockId = '1';
       const mockHeaders = { authorization: 'Bearer token' };
-      const mockResponse = { success: true, message: 'key deleted', data: mockResult[0] };
+      const mockResponse = {
+        success: true,
+        message: 'key deleted',
+        data: mockResult[0],
+      };
       jest.spyOn(keyService, 'deleteKey').mockResolvedValue(mockResponse);
 
       expect(await keyController.deletingKey(mockId, mockHeaders)).toBe(

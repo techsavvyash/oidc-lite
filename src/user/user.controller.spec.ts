@@ -2,7 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { UserRegistrationService } from './user-registration/user-registration.service';
-import { CreateUserAndUserRegistration, CreateUserDto, CreateUserRegistrationDto, UpdateUserDto, UpdateUserRegistrationDto } from './user.dto';
+import {
+  CreateUserAndUserRegistration,
+  CreateUserDto,
+  CreateUserRegistrationDto,
+  UpdateUserDto,
+  UpdateUserRegistrationDto,
+} from './user.dto';
 import { ResponseDto } from '../dto/response.dto';
 import { randomUUID } from 'crypto';
 import { Prisma } from '@prisma/client';
@@ -60,13 +66,15 @@ describe('UserController', () => {
           useValue: {
             generateRandomUUID: jest.fn(),
           },
-        }
+        },
       ],
     }).compile();
 
     controller = module.get<UserController>(UserController);
     userService = module.get<UserService>(UserService);
-    userRegistrationService = module.get<UserRegistrationService>(UserRegistrationService)
+    userRegistrationService = module.get<UserRegistrationService>(
+      UserRegistrationService,
+    );
     prismaService = module.get<PrismaService>(PrismaService);
   });
 
@@ -230,7 +238,7 @@ describe('UserController', () => {
           applicationId: '123',
           data: { key: 'value' }, // or simply a string "additional info"
           registrationId: '456',
-        }
+        },
       };
       const mockHeaders = {}; // mock headers
       const mockResponseDto: ResponseDto = {
@@ -240,14 +248,18 @@ describe('UserController', () => {
       };
       const mockUUID = randomUUID();
 
-      jest.spyOn(userRegistrationService, 'createAUserAndUserRegistration').mockResolvedValue(mockResponseDto);
+      jest
+        .spyOn(userRegistrationService, 'createAUserAndUserRegistration')
+        .mockResolvedValue(mockResponseDto);
 
       const result = await controller.createAUserAndUserRegistration(
         mockData,
         mockHeaders,
       );
 
-      expect(userRegistrationService.createAUserAndUserRegistration).toHaveBeenCalledWith(
+      expect(
+        userRegistrationService.createAUserAndUserRegistration,
+      ).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining(mockData),
         expect.objectContaining(mockHeaders),
@@ -271,7 +283,9 @@ describe('UserController', () => {
         data: null,
       };
 
-      jest.spyOn(userRegistrationService, 'createAUserRegistration').mockResolvedValue(mockResponseDto);
+      jest
+        .spyOn(userRegistrationService, 'createAUserRegistration')
+        .mockResolvedValue(mockResponseDto);
 
       const result = await controller.createAUserRegistration(
         mockUserId,
@@ -279,7 +293,9 @@ describe('UserController', () => {
         mockHeaders,
       );
 
-      expect(userRegistrationService.createAUserRegistration).toHaveBeenCalledWith(
+      expect(
+        userRegistrationService.createAUserRegistration,
+      ).toHaveBeenCalledWith(
         mockUserId,
         expect.objectContaining(mockData),
         expect.objectContaining(mockHeaders),
@@ -298,7 +314,9 @@ describe('UserController', () => {
         data: null,
       };
 
-      jest.spyOn(userRegistrationService, 'returnAUserRegistration').mockResolvedValue(mockResponseDto);
+      jest
+        .spyOn(userRegistrationService, 'returnAUserRegistration')
+        .mockResolvedValue(mockResponseDto);
 
       const result = await controller.returnAUserRegistration(
         mockUserId,
@@ -306,7 +324,9 @@ describe('UserController', () => {
         mockHeaders,
       );
 
-      expect(userRegistrationService.returnAUserRegistration).toHaveBeenCalledWith(
+      expect(
+        userRegistrationService.returnAUserRegistration,
+      ).toHaveBeenCalledWith(
         mockUserId,
         mockApplicationId,
         expect.objectContaining(mockHeaders),
@@ -333,7 +353,9 @@ describe('UserController', () => {
         data: null,
       };
 
-      jest.spyOn(userRegistrationService, 'updateAUserRegistration').mockResolvedValue(mockResponseDto);
+      jest
+        .spyOn(userRegistrationService, 'updateAUserRegistration')
+        .mockResolvedValue(mockResponseDto);
 
       const result = await controller.updateAUserRegistration(
         mockUserId,
@@ -342,7 +364,9 @@ describe('UserController', () => {
         mockHeaders,
       );
 
-      expect(userRegistrationService.updateAUserRegistration).toHaveBeenCalledWith(
+      expect(
+        userRegistrationService.updateAUserRegistration,
+      ).toHaveBeenCalledWith(
         mockUserId,
         mockApplicationId,
         expect.objectContaining(mockData),
@@ -362,7 +386,9 @@ describe('UserController', () => {
         data: null,
       };
 
-      jest.spyOn(userRegistrationService, 'deleteAUserRegistration').mockResolvedValue(mockResponseDto);
+      jest
+        .spyOn(userRegistrationService, 'deleteAUserRegistration')
+        .mockResolvedValue(mockResponseDto);
 
       const result = await controller.deleteAUserRegistration(
         mockUserId,
@@ -370,7 +396,9 @@ describe('UserController', () => {
         mockHeaders,
       );
 
-      expect(userRegistrationService.deleteAUserRegistration).toHaveBeenCalledWith(
+      expect(
+        userRegistrationService.deleteAUserRegistration,
+      ).toHaveBeenCalledWith(
         mockUserId,
         mockApplicationId,
         expect.objectContaining(mockHeaders),

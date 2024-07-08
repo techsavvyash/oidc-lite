@@ -108,7 +108,9 @@ describe('ApplicationController', () => {
     it('should call applicationService.returnAllApplications with headers', async () => {
       const headers = { authorization: 'Bearer token' };
       await controller.allApplications(headers);
-      expect(applicationService.returnAllApplications).toHaveBeenCalledWith(headers);
+      expect(applicationService.returnAllApplications).toHaveBeenCalledWith(
+        headers,
+      );
     });
 
     it('should return all applications', async () => {
@@ -118,7 +120,9 @@ describe('ApplicationController', () => {
         message: 'All applications found',
         data: [],
       };
-      jest.spyOn(applicationService, 'returnAllApplications').mockResolvedValue(mockResponse);
+      jest
+        .spyOn(applicationService, 'returnAllApplications')
+        .mockResolvedValue(mockResponse);
 
       const result = await controller.allApplications(headers);
       expect(result).toEqual(mockResponse);
@@ -127,10 +131,14 @@ describe('ApplicationController', () => {
     it('should handle errors while fetching applications', async () => {
       const headers = {};
       const error = new Error('Internal Server Error');
-      jest.spyOn(applicationService, 'returnAllApplications').mockRejectedValue(error);
+      jest
+        .spyOn(applicationService, 'returnAllApplications')
+        .mockRejectedValue(error);
 
       await expect(controller.allApplications(headers)).rejects.toThrow(error);
-      expect(applicationService.returnAllApplications).toHaveBeenCalledWith(headers);
+      expect(applicationService.returnAllApplications).toHaveBeenCalledWith(
+        headers,
+      );
     });
 
     it('should handle empty headers', async () => {
@@ -139,11 +147,15 @@ describe('ApplicationController', () => {
         message: 'All applications found',
         data: [],
       };
-      jest.spyOn(applicationService, 'returnAllApplications').mockResolvedValue(mockResponse);
+      jest
+        .spyOn(applicationService, 'returnAllApplications')
+        .mockResolvedValue(mockResponse);
 
       const result = await controller.allApplications(null);
       expect(result).toEqual(mockResponse);
-      expect(applicationService.returnAllApplications).toHaveBeenCalledWith(null);
+      expect(applicationService.returnAllApplications).toHaveBeenCalledWith(
+        null,
+      );
     });
   });
 
@@ -202,11 +214,16 @@ describe('ApplicationController', () => {
         message: 'Application found successfully',
         data: {},
       };
-      jest.spyOn(applicationService, 'returnAnApplication').mockResolvedValue(mockResponse);
+      jest
+        .spyOn(applicationService, 'returnAnApplication')
+        .mockResolvedValue(mockResponse);
 
       const result = await controller.getAnApplication(applicationId, headers);
       expect(result).toEqual(mockResponse);
-      expect(applicationService.returnAnApplication).toHaveBeenCalledWith(applicationId, headers);
+      expect(applicationService.returnAnApplication).toHaveBeenCalledWith(
+        applicationId,
+        headers,
+      );
     });
   });
 
@@ -239,11 +256,21 @@ describe('ApplicationController', () => {
         message: 'Application deleted Successfully!',
         data: {},
       };
-      jest.spyOn(applicationService, 'deleteApplication').mockResolvedValue(mockResponse);
+      jest
+        .spyOn(applicationService, 'deleteApplication')
+        .mockResolvedValue(mockResponse);
 
-      const result = await controller.deleteApplication(applicationId, hardDelete, headers);
+      const result = await controller.deleteApplication(
+        applicationId,
+        hardDelete,
+        headers,
+      );
       expect(result).toEqual(mockResponse);
-      expect(applicationService.deleteApplication).toHaveBeenCalledWith(applicationId, hardDelete, headers);
+      expect(applicationService.deleteApplication).toHaveBeenCalledWith(
+        applicationId,
+        hardDelete,
+        headers,
+      );
     });
   });
 
@@ -264,11 +291,22 @@ describe('ApplicationController', () => {
         message: 'Role created successfully',
         data: {},
       };
-      jest.spyOn(applicationRoleService, 'createRole').mockResolvedValue(mockResponse);
+      jest
+        .spyOn(applicationRoleService, 'createRole')
+        .mockResolvedValue(mockResponse);
 
-      const result = await controller.createRoleWithRandomUUID(applicationId, createDto, headers);
+      const result = await controller.createRoleWithRandomUUID(
+        applicationId,
+        createDto,
+        headers,
+      );
       expect(result).toEqual(mockResponse);
-      expect(applicationRoleService.createRole).toHaveBeenCalledWith(createDto, applicationId, null, headers);
+      expect(applicationRoleService.createRole).toHaveBeenCalledWith(
+        createDto,
+        applicationId,
+        null,
+        headers,
+      );
     });
   });
 
@@ -283,12 +321,24 @@ describe('ApplicationController', () => {
         message: 'Role created successfully',
         data: {},
       };
-      jest.spyOn(applicationRoleService, 'createRole').mockResolvedValue(mockResponse);
+      jest
+        .spyOn(applicationRoleService, 'createRole')
+        .mockResolvedValue(mockResponse);
 
-      const result = await controller.createRole(applicationId, roleId, createDto, headers);
+      const result = await controller.createRole(
+        applicationId,
+        roleId,
+        createDto,
+        headers,
+      );
       expect(result).toEqual(mockResponse);
-      expect(applicationRoleService.createRole).toHaveBeenCalledWith(createDto, applicationId, roleId, headers );
-  });
+      expect(applicationRoleService.createRole).toHaveBeenCalledWith(
+        createDto,
+        applicationId,
+        roleId,
+        headers,
+      );
+    });
   });
 
   describe('PATCH /application/:applicationId/role/:roleId', () => {
@@ -302,11 +352,23 @@ describe('ApplicationController', () => {
         message: 'Role updated successfully',
         data: {},
       };
-      jest.spyOn(applicationRoleService, 'updateRole').mockResolvedValue(mockResponse);
+      jest
+        .spyOn(applicationRoleService, 'updateRole')
+        .mockResolvedValue(mockResponse);
 
-      const result = await controller.updateRole(applicationId, roleId, updateDto, headers);
+      const result = await controller.updateRole(
+        applicationId,
+        roleId,
+        updateDto,
+        headers,
+      );
       expect(result).toEqual(mockResponse);
-      expect(applicationRoleService.updateRole).toHaveBeenCalledWith(applicationId, roleId,updateDto, headers );
+      expect(applicationRoleService.updateRole).toHaveBeenCalledWith(
+        applicationId,
+        roleId,
+        updateDto,
+        headers,
+      );
     });
   });
 
@@ -320,11 +382,21 @@ describe('ApplicationController', () => {
         message: 'Role deleted successfully',
         data: {},
       };
-      jest.spyOn(applicationRoleService, 'deleteRole').mockResolvedValue(mockResponse);
+      jest
+        .spyOn(applicationRoleService, 'deleteRole')
+        .mockResolvedValue(mockResponse);
 
-      const result = await controller.deleteRole(applicationId, roleId, headers);
+      const result = await controller.deleteRole(
+        applicationId,
+        roleId,
+        headers,
+      );
       expect(result).toEqual(mockResponse);
-      expect(applicationRoleService.deleteRole).toHaveBeenCalledWith(applicationId, roleId, headers );
+      expect(applicationRoleService.deleteRole).toHaveBeenCalledWith(
+        applicationId,
+        roleId,
+        headers,
+      );
     });
   });
 
@@ -345,11 +417,22 @@ describe('ApplicationController', () => {
         message: 'Scope created successfully',
         data: {},
       };
-      jest.spyOn(applicationScopeService, 'createScope').mockResolvedValue(mockResponse);
+      jest
+        .spyOn(applicationScopeService, 'createScope')
+        .mockResolvedValue(mockResponse);
 
-      const result = await controller.createScopeWithRandomUUID(applicationId, createDto, headers);
+      const result = await controller.createScopeWithRandomUUID(
+        applicationId,
+        createDto,
+        headers,
+      );
       expect(result).toEqual(mockResponse);
-      expect(applicationScopeService.createScope).toHaveBeenCalledWith(createDto, applicationId, null, headers);
+      expect(applicationScopeService.createScope).toHaveBeenCalledWith(
+        createDto,
+        applicationId,
+        null,
+        headers,
+      );
     });
   });
 
@@ -364,11 +447,23 @@ describe('ApplicationController', () => {
         message: 'Scope created successfully',
         data: {},
       };
-      jest.spyOn(applicationScopeService, 'createScope').mockResolvedValue(mockResponse);
+      jest
+        .spyOn(applicationScopeService, 'createScope')
+        .mockResolvedValue(mockResponse);
 
-      const result = await controller.createScope(applicationId, scopeId, createDto, headers);
+      const result = await controller.createScope(
+        applicationId,
+        scopeId,
+        createDto,
+        headers,
+      );
       expect(result).toEqual(mockResponse);
-      expect(applicationScopeService.createScope).toHaveBeenCalledWith(createDto, applicationId, scopeId, headers);
+      expect(applicationScopeService.createScope).toHaveBeenCalledWith(
+        createDto,
+        applicationId,
+        scopeId,
+        headers,
+      );
     });
   });
 
@@ -383,11 +478,23 @@ describe('ApplicationController', () => {
         message: 'Scope updated successfully',
         data: {},
       };
-      jest.spyOn(applicationScopeService, 'updateScope').mockResolvedValue(mockResponse);
+      jest
+        .spyOn(applicationScopeService, 'updateScope')
+        .mockResolvedValue(mockResponse);
 
-      const result = await controller.updateScope(applicationId, scopeId, updateDto, headers);
+      const result = await controller.updateScope(
+        applicationId,
+        scopeId,
+        updateDto,
+        headers,
+      );
       expect(result).toEqual(mockResponse);
-      expect(applicationScopeService.updateScope).toHaveBeenCalledWith(applicationId, scopeId, updateDto, headers);
+      expect(applicationScopeService.updateScope).toHaveBeenCalledWith(
+        applicationId,
+        scopeId,
+        updateDto,
+        headers,
+      );
     });
   });
 
@@ -401,11 +508,21 @@ describe('ApplicationController', () => {
         message: 'Scope deleted successfully',
         data: {},
       };
-      jest.spyOn(applicationScopeService, 'deleteScope').mockResolvedValue(mockResponse);
+      jest
+        .spyOn(applicationScopeService, 'deleteScope')
+        .mockResolvedValue(mockResponse);
 
-      const result = await controller.deleteScope(applicationId, scopeId, headers);
+      const result = await controller.deleteScope(
+        applicationId,
+        scopeId,
+        headers,
+      );
       expect(result).toEqual(mockResponse);
-      expect(applicationScopeService.deleteScope).toHaveBeenCalledWith(applicationId, scopeId, headers);
+      expect(applicationScopeService.deleteScope).toHaveBeenCalledWith(
+        applicationId,
+        scopeId,
+        headers,
+      );
     });
   });
 
@@ -418,11 +535,19 @@ describe('ApplicationController', () => {
         message: "Application's configurations are as follows",
         data: {},
       };
-      jest.spyOn(applicationService, 'returnOauthConfiguration').mockResolvedValue(mockResponse);
+      jest
+        .spyOn(applicationService, 'returnOauthConfiguration')
+        .mockResolvedValue(mockResponse);
 
-      const result = await controller.returnOauthConfiguration(applicationId, headers);
+      const result = await controller.returnOauthConfiguration(
+        applicationId,
+        headers,
+      );
       expect(result).toEqual(mockResponse);
-      expect(applicationService.returnOauthConfiguration).toHaveBeenCalledWith(applicationId, headers);
+      expect(applicationService.returnOauthConfiguration).toHaveBeenCalledWith(
+        applicationId,
+        headers,
+      );
     });
   });
 

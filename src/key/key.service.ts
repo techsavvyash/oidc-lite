@@ -316,9 +316,7 @@ export class KeyService {
       },
     });
 
-    this.logger.log(
-      `${storedKey.id} key generated successfully`,
-    );
+    this.logger.log(`${storedKey.id} key generated successfully`);
     return { jwks, storedKey };
   }
 

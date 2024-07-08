@@ -311,14 +311,16 @@ describe('UserRegistrationService', () => {
       };
       const headers = {};
 
-      jest.spyOn(mockPrismaService.application, 'findUnique').mockResolvedValue(mockApplication);
+      jest
+        .spyOn(mockPrismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplication);
 
-      jest.spyOn(headerAuthService, 'authorizationHeaderVerifier').mockResolvedValueOnce(
-        { 
+      jest
+        .spyOn(headerAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValueOnce({
           success: true,
           message: 'Authorized',
-        }
-      );
+        });
 
       jest.spyOn(mockPrismaService.user, 'findUnique').mockResolvedValue(null);
 
@@ -343,9 +345,9 @@ describe('UserRegistrationService', () => {
           message: 'Authorized',
         });
 
-        jest
-          .spyOn(mockPrismaService.user, 'findUnique')
-          .mockResolvedValue(mockUser);
+      jest
+        .spyOn(mockPrismaService.user, 'findUnique')
+        .mockResolvedValue(mockUser);
 
       jest
         .spyOn(mockPrismaService.userRegistration, 'create')
@@ -495,7 +497,6 @@ describe('UserRegistrationService', () => {
       });
     });
 
-
     it('should throw BadRequestException if no applicationId is provided', async () => {
       const userId = 'testUserId';
       const applicationId = '';
@@ -542,7 +543,9 @@ describe('UserRegistrationService', () => {
       };
       const headers = {};
 
-      jest.spyOn(mockPrismaService.application, 'findUnique').mockResolvedValue(null);
+      jest
+        .spyOn(mockPrismaService.application, 'findUnique')
+        .mockResolvedValue(null);
 
       await expect(
         service.updateAUserRegistration(userId, applicationId, data, headers),
@@ -586,12 +589,16 @@ describe('UserRegistrationService', () => {
       };
       const headers = {};
 
-      jest.spyOn(mockPrismaService.application, 'findUnique').mockResolvedValue(mockApplication);
+      jest
+        .spyOn(mockPrismaService.application, 'findUnique')
+        .mockResolvedValue(mockApplication);
 
-      jest.spyOn(mockHeaderAuthService, 'authorizationHeaderVerifier').mockResolvedValue({
-        success: true,
-        message: 'Authorized',
-      });
+      jest
+        .spyOn(mockHeaderAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+        });
 
       jest.spyOn(mockPrismaService.user, 'findUnique').mockResolvedValue(null);
 
@@ -730,11 +737,11 @@ describe('UserRegistrationService', () => {
       const headers = {};
 
       jest
-      .spyOn(headerAuthService, 'authorizationHeaderVerifier')
-      .mockResolvedValue({
-        success: true,
-        message: 'Authorized',
-      });
+        .spyOn(headerAuthService, 'authorizationHeaderVerifier')
+        .mockResolvedValue({
+          success: true,
+          message: 'Authorized',
+        });
 
       await expect(
         service.deleteAUserRegistration(usersId, applicationsId, headers),
@@ -843,17 +850,19 @@ describe('UserRegistrationService', () => {
         success: true,
         data: { tenantsId: 'testTenantId2' },
       });
-      jest.spyOn(mockPrismaService.application, 'findUnique').mockResolvedValue({
-        id: 'testAppId',
-        tenantId: 'testTenantId',
-      });
+      jest
+        .spyOn(mockPrismaService.application, 'findUnique')
+        .mockResolvedValue({
+          id: 'testAppId',
+          tenantId: 'testTenantId',
+        });
 
       await expect(
         service.createAUserAndUserRegistration(userId, data, headers),
       ).rejects.toThrow(UnauthorizedException);
     });
 
-    // 
+    //
 
     it('should throw BadRequestException if userInfo is missing required fields', async () => {
       const userId = 'testUserId';
@@ -913,7 +922,9 @@ describe('UserRegistrationService', () => {
         id: 'testAppId',
         tenantId: 'testTenantId',
       });
-      mockUserService.createAUser.mockRejectedValue(new Error('Database error'));
+      mockUserService.createAUser.mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await expect(
         service.createAUserAndUserRegistration(userId, data, headers),
@@ -949,7 +960,9 @@ describe('UserRegistrationService', () => {
         tenantId: 'testTenantId',
       });
       mockUserService.createAUser.mockResolvedValue({ id: 'testUserId' });
-      jest.spyOn(service, 'createAUserRegistration').mockRejectedValue(new Error('Database error'));
+      jest
+        .spyOn(service, 'createAUserRegistration')
+        .mockRejectedValue(new Error('Database error'));
 
       await expect(
         service.createAUserAndUserRegistration(userId, data, headers),
@@ -991,7 +1004,9 @@ describe('UserRegistrationService', () => {
       });
       mockUserService.createAUser.mockResolvedValue({ id: 'testUserId' });
       // jest.spyOn(service, 'createAUserRegistration').mockResolvedValue({ id: 'testRegId' });
-      mockUtilService.createToken.mockRejectedValue(new Error('Token creation error'));
+      mockUtilService.createToken.mockRejectedValue(
+        new Error('Token creation error'),
+      );
 
       await expect(
         service.createAUserAndUserRegistration(userId, data, headers),
@@ -1034,125 +1049,125 @@ describe('UserRegistrationService', () => {
       mockUserService.createAUser.mockResolvedValue({ id: 'testUserId' });
       // jest.spyOn(service, 'createAUserRegistration').mockResolvedValue({ id: 'testRegId' });
       mockUtilService.createToken.mockResolvedValue('refreshToken');
-      mockUtilService.saveOrUpdateRefreshToken.mockRejectedValue(new Error('Database error'));
+      mockUtilService.saveOrUpdateRefreshToken.mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await expect(
         service.createAUserAndUserRegistration(userId, data, headers),
       ).rejects.toThrow(InternalServerErrorException);
     });
 
-     it('should create a user and user registration successfully', async () => {
-       const userId = 'testUserId';
-       const data: CreateUserAndUserRegistration = {
-         userInfo: {
-           active: true,
-           membership: [],
-           userData: {
-             username: 'testUser',
-             password: 'Password@123',
-           },
-           email: 'test@test.com',
-         },
-         registrationInfo: {
-           applicationId: 'testAppId',
-         },
-       };
-       const headers = {};
+    it('should create a user and user registration successfully', async () => {
+      const userId = 'testUserId';
+      const data: CreateUserAndUserRegistration = {
+        userInfo: {
+          active: true,
+          membership: [],
+          userData: {
+            username: 'testUser',
+            password: 'Password@123',
+          },
+          email: 'test@test.com',
+        },
+        registrationInfo: {
+          applicationId: 'testAppId',
+        },
+      };
+      const headers = {};
 
-       const mockApplication = {
-         id: 'testAppId',
-         tenantId: 'testTenantId',
-         data: JSON.stringify({
-           jwtConfiguration: {
-             refreshTokenTimeToLiveInMinutes: 60,
-           },
-         }),
-       };
-       const mockUser = { id: 'testUserId', data: '{}' };
-       const mockUserRegistration = { id: 'testRegId' };
-       const mockRefreshToken = 'refreshToken';
-       const mockSaveToken = { id: 'saveTokenId' };
+      const mockApplication = {
+        id: 'testAppId',
+        tenantId: 'testTenantId',
+        data: JSON.stringify({
+          jwtConfiguration: {
+            refreshTokenTimeToLiveInMinutes: 60,
+          },
+        }),
+      };
+      const mockUser = { id: 'testUserId', data: '{}' };
+      const mockUserRegistration = { id: 'testRegId' };
+      const mockRefreshToken = 'refreshToken';
+      const mockSaveToken = { id: 'saveTokenId' };
 
-       mockHeaderAuthService.validateRoute.mockResolvedValue({
-         success: true,
-         data: { tenantsId: 'testTenantId' },
-       });
-       mockPrismaService.application.findUnique.mockResolvedValue(
-         mockApplication,
-       );
-       mockUserService.createAUser.mockResolvedValue(mockUser);
-       jest.spyOn(service, 'createAUserRegistration').mockResolvedValue({
-         success: true,
-         message: 'A user registered',
-         data: {
-           userRegistration: mockUserRegistration,
-           access_token: 'accessToken',
-         },
-       });
-       mockUtilService.createToken.mockResolvedValue(mockRefreshToken);
-       mockUtilService.saveOrUpdateRefreshToken.mockResolvedValue(
-         mockSaveToken,
-       );
-       try {
-         const result = await service.createAUserAndUserRegistration(
-           userId,
-           data,
-           headers,
-         );
+      mockHeaderAuthService.validateRoute.mockResolvedValue({
+        success: true,
+        data: { tenantsId: 'testTenantId' },
+      });
+      mockPrismaService.application.findUnique.mockResolvedValue(
+        mockApplication,
+      );
+      mockUserService.createAUser.mockResolvedValue(mockUser);
+      jest.spyOn(service, 'createAUserRegistration').mockResolvedValue({
+        success: true,
+        message: 'A user registered',
+        data: {
+          userRegistration: mockUserRegistration,
+          access_token: 'accessToken',
+        },
+      });
+      mockUtilService.createToken.mockResolvedValue(mockRefreshToken);
+      mockUtilService.saveOrUpdateRefreshToken.mockResolvedValue(mockSaveToken);
+      try {
+        const result = await service.createAUserAndUserRegistration(
+          userId,
+          data,
+          headers,
+        );
 
-         expect(result).toEqual({
-           success: true,
-           message: 'User and user registration created successfully!',
-           data: {
-             user: mockUser,
-             userRegistration: mockUserRegistration,
-             refresh_token: mockRefreshToken,
-             refreshTokenId: mockSaveToken.id,
-           },
-         });
-       } catch (e) {
-         console.log(e); //for debugging
-       }
-       expect(mockHeaderAuthService.validateRoute).toHaveBeenCalledWith(
-         headers,
-         '/user/registration',
-         'POST',
-       );
-       expect(mockPrismaService.application.findUnique).toHaveBeenCalledWith({
-         where: { id: data.registrationInfo.applicationId },
-       });
-       expect(mockUserService.createAUser).toHaveBeenCalledWith(
-         userId,
-         data.userInfo,
-         headers,
-       );
-       expect(service.createAUserRegistration).toHaveBeenCalledWith(
-         userId,
-         data.registrationInfo,
-         headers,
-       );
-       expect(mockUtilService.createToken).toHaveBeenCalledWith(
-         {
-           active: true,
-           applicationId: mockApplication.id,
-           iat: expect.any(Number),
-           iss: process.env.ISSUER_URL,
-           exp: expect.any(Number),
-           sub: userId,
-         },
-         mockApplication.id,
-         mockApplication.tenantId,
-         'refresh',
-       );
-       expect(mockUtilService.saveOrUpdateRefreshToken).toHaveBeenCalledWith(
-         mockApplication.id,
-         mockRefreshToken,
-         userId,
-         mockApplication.tenantId,
-         '',
-         expect.any(Number),
-         expect.any(Number),
-       );
-     });
+        expect(result).toEqual({
+          success: true,
+          message: 'User and user registration created successfully!',
+          data: {
+            user: mockUser,
+            userRegistration: mockUserRegistration,
+            refresh_token: mockRefreshToken,
+            refreshTokenId: mockSaveToken.id,
+          },
+        });
+      } catch (e) {
+        console.log(e); //for debugging
+      }
+      expect(mockHeaderAuthService.validateRoute).toHaveBeenCalledWith(
+        headers,
+        '/user/registration',
+        'POST',
+      );
+      expect(mockPrismaService.application.findUnique).toHaveBeenCalledWith({
+        where: { id: data.registrationInfo.applicationId },
+      });
+      expect(mockUserService.createAUser).toHaveBeenCalledWith(
+        userId,
+        data.userInfo,
+        headers,
+      );
+      expect(service.createAUserRegistration).toHaveBeenCalledWith(
+        userId,
+        data.registrationInfo,
+        headers,
+      );
+      expect(mockUtilService.createToken).toHaveBeenCalledWith(
+        {
+          active: true,
+          applicationId: mockApplication.id,
+          iat: expect.any(Number),
+          iss: process.env.ISSUER_URL,
+          exp: expect.any(Number),
+          sub: userId,
+        },
+        mockApplication.id,
+        mockApplication.tenantId,
+        'refresh',
+      );
+      expect(mockUtilService.saveOrUpdateRefreshToken).toHaveBeenCalledWith(
+        mockApplication.id,
+        mockRefreshToken,
+        userId,
+        mockApplication.tenantId,
+        '',
+        expect.any(Number),
+        expect.any(Number),
+      );
+    });
   });
 });

@@ -204,7 +204,7 @@ describe('OidcController', () => {
     client_id: 'client_id',
     client_secret: 'client_secret',
     token: 'token',
-    };
+  };
 
   describe('introspect', () => {
     it('should call oidcService.introspect', async () => {

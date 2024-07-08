@@ -10,7 +10,14 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ApiBody, ApiResponse, ApiTags, ApiParam, ApiQuery, ApiHeader } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiResponse,
+  ApiTags,
+  ApiParam,
+  ApiQuery,
+  ApiHeader,
+} from '@nestjs/swagger';
 import { GroupsService } from './groups.service';
 import { randomUUID } from 'crypto';
 import { createGroupDTO } from './dtos/groups.dto';
@@ -39,7 +46,10 @@ export class GroupsController {
 
   @Post('/member')
   @ApiBody({ type: addUserDTO })
-  @ApiResponse({ status: 201, description: 'User added to group successfully.' })
+  @ApiResponse({
+    status: 201,
+    description: 'User added to group successfully.',
+  })
   @ApiResponse({ status: 400, description: 'Invalid input.' })
   async addUserToGP(
     @Body('members') data: addUserDTO,
@@ -51,7 +61,10 @@ export class GroupsController {
   @Post('/:id')
   @ApiBody({ type: createGroupDTO })
   @ApiParam({ name: 'id', description: 'Group ID' })
-  @ApiResponse({ status: 201, description: 'Group created successfully by ID.' })
+  @ApiResponse({
+    status: 201,
+    description: 'Group created successfully by ID.',
+  })
   @ApiResponse({ status: 400, description: 'Invalid input.' })
   async createGroupByID(
     @Body('group') data: createGroupDTO,
@@ -62,7 +75,10 @@ export class GroupsController {
   }
 
   @Get('/')
-  @ApiResponse({ status: 200, description: 'Retrieved all groups successfully.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved all groups successfully.',
+  })
   @ApiResponse({ status: 400, description: 'Invalid input.' })
   async retrieveAllGroup(@Headers() headers: object) {
     return await this.groupService.retrieveAllGroups(headers);
@@ -70,7 +86,10 @@ export class GroupsController {
 
   @Get('/:id')
   @ApiParam({ name: 'id', description: 'Group ID' })
-  @ApiResponse({ status: 200, description: 'Retrieved group by ID successfully.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved group by ID successfully.',
+  })
   @ApiResponse({ status: 400, description: 'Invalid input.' })
   async retrieveGpById(@Param('id') id: string, @Headers() headers: object) {
     return await this.groupService.retrieveGpById(id, headers);

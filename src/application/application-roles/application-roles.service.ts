@@ -106,7 +106,6 @@ export class ApplicationRolesService {
     }
   }
 
-
   async updateRole(
     id: string,
     roleId: string,

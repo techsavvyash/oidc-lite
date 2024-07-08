@@ -3,12 +3,10 @@
 ## Overview
 The ApplicationService is a crucial component of our NestJS application, responsible for managing application-related operations. It provides functionality for creating, updating, retrieving, and deleting applications, as well as managing their OAuth configurations and associated roles and scopes.
 
-## Key Features
-1. Application CRUD operations
-2. OAuth configuration management
-3. Role and scope management for applications
-4. Tenant-based authorization
-5. Public key storage for authorized origins
+
+## Sequence Diagram
+
+![Applications Sequence Diagram](../assets/sequence-diagrams/application.png)
 
 ## Endpoints
 
@@ -363,12 +361,12 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
 - **Parameters:**
     - `id: string` - Application ID
     - `roleId: string` - Role ID
-- **Sample cURL**:
+- **cURL**:
   ```sh
   curl -X DELETE http://localhost:3000/application/<applicationId>/role/<roleId> \
   -H "Authorization: Bearer <your_access_token>"
 
-- **Sample HTTPie**:
+- **HTTPie**:
   ```sh
   http DELETE http://localhost:3000/application/<applicationId>/role/<roleId> \
   Authorization:"Bearer <your_access_token>"

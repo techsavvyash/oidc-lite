@@ -1,4 +1,16 @@
-# npm test
+#! /bin/bash
+echo "Running Tests"
+npm test
+echo "Tests Ran Successfully"
+
+# echo "Running Linter"
 # npm run lint
+# echo "Linter Ran Successfully"
+
+# echo "Running Prettier"
 # npm run format
+# echo "Prettier Ran Successfully"
+
+# echo "Running Lint Staged"
 # npx lint-staged
+# echo "Lint Staged Ran Successfully"

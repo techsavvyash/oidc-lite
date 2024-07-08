@@ -192,7 +192,7 @@ export class GroupsService {
         message: 'error occured while finding the group',
       });
     }
-    return{
+    return {
       success: false,
       message: 'group not found with given id',
     };
@@ -295,7 +295,7 @@ export class GroupsService {
       });
     }
     const group = await this.prismaService.group.findUnique({
-      where: { id: uuid},
+      where: { id: uuid },
     });
     if (!group) {
       throw new BadRequestException({
