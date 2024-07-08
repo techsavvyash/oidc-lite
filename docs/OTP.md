@@ -7,17 +7,51 @@ The OTP (One-Time Password) Service is part of a NestJS application that handles
 ### 1. SendOtp
 - **Endpoint** : Post `/otp/send`
 - **Description** : Generates and sends an OTP via specified channels.
-
 - **Parameters:**
     - `type`: string[] - An array of delivery methods ('mail', 'sms', 'whatsapp')
     - `to`: string - The recipient's address (email, phone number, etc.)
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/otp/send \
+  -H "Authorization: Bearer dummy_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": ["mail", "sms"],
+    "to": "example@example.com"
+  }'
+
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/otp/send \
+  Authorization:"Bearer dummy_token" \
+  type:='["mail", "sms"]' \
+  to="example@example.com"
+
+
 
 ### 2. ValidateOtp
 - **Endpoint** : Post `/otp/verify`
 - **Description** : Validates a given OTP.
-
 - **Parameters:**
 -   `otp`: string - The OTP to validate
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/otp/verify \
+  -H "Authorization: Bearer dummy_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "otp": "123456"
+  }'
+
+
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/otp/verify \
+  Authorization:"Bearer dummy_token" \
+  otp="123456"
+
+
+
 
 
 ## Response Format

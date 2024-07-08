@@ -27,6 +27,26 @@ The ApplicationService is a crucial component of our NestJS application, respons
 - **Parameters:**
     - `uuid: string` - Unique identifier for the application
     - `data: CreateApplicationDto` - Application data
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/application/<applicationId> \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "name": "<application_name>",
+    "description": "<application_description>"
+  }'
+
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/application/<applicationId> \
+  Authorization:"Bearer <your_access_token>" \
+  data:='{
+    "name": "<application_name>",
+    "description": "<application_description>"
+  }'
+
+
 
 ### 2. Patch Application
 - **Endpoint** : Patch `/application/:applicationId`
@@ -35,6 +55,26 @@ The ApplicationService is a crucial component of our NestJS application, respons
 - **Parameters:**
     - `id: string` - Application ID
     - `newData: UpdateApplicationDto` - Updated application data
+- **Sample cURL**:
+  ```sh
+  curl -X PATCH http://localhost:3000/application/<applicationId> \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "name": "<updated_application_name>",
+    "description": "<updated_application_description>"
+  }'
+
+
+- **Sample HTTPie**:
+  ```sh
+  http PATCH http://localhost:3000/application/<applicationId> \
+  Authorization:"Bearer <your_access_token>" \
+  data:='{
+    "name": "<updated_application_name>",
+    "description": "<updated_application_description>"
+  }'
+
 
 ### 3. Return All Applications
 - **Endpoint** : Get `/application`
@@ -42,6 +82,15 @@ The ApplicationService is a crucial component of our NestJS application, respons
 - **Authorization-Header** : Required
 - **Parameters:**
     - `headers: object` - Request headers
+- **Sample cURL**:
+  ```sh
+  curl -X GET http://localhost:3000/application \
+  -H "Authorization: Bearer <your_access_token>"
+
+- **Sample HTTPie**:
+  ```sh
+  http GET http://localhost:3000/application \
+  Authorization:"Bearer <your_access_token>"
 
 ### 4. Return An Application
 - **Endpoint** : Get `/application/:applicationId`
@@ -49,6 +98,15 @@ The ApplicationService is a crucial component of our NestJS application, respons
 - **Authorization-Header** : Required
 - **Parameters:**
     - `id: string` - Application ID
+- **Sample cURL**:
+  ```sh
+  curl -X GET http://localhost:3000/application/<applicationId> \
+  -H "Authorization: Bearer <your_access_token>"
+
+- **Sample HTTPie**:
+  ```sh
+  http GET http://localhost:3000/application/<applicationId> \
+  Authorization:"Bearer <your_access_token>"
 
 ### 5. Delete Application
 - **Endpoint** : Get `/application/:applicationId`
@@ -57,6 +115,19 @@ The ApplicationService is a crucial component of our NestJS application, respons
 - **Parameters:**
     - `id: string` - Application ID
     - `hardDelete: boolean` - Whether to perform a hard delete
+- **Sample cURL**:
+  ```sh
+  curl -X DELETE http://localhost:3000/application/<applicationId> \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "hardDelete": <true_or_false>
+  }'
+
+- **Sample HTTPie**:
+  ```sh
+  http DELETE http://localhost:3000/application/<applicationId> \
+  Authorization:"Bearer <your_access_token>" \
+  hardDelete=<true_or_false>
 
 ### 6. Return Oauth Configuration
 - **Endpoint** : Get `/application/:applicationId/oauth-configuration`
@@ -64,6 +135,15 @@ The ApplicationService is a crucial component of our NestJS application, respons
 - **Authorization-Header** : Required
 - **Parameters:**
     - `id: string` - Application ID
+- **Sample cURL**:
+  ```sh
+  curl -X GET http://localhost:3000/application/<applicationId>/oauth-configuration \
+  -H "Authorization: Bearer <your_access_token>"
+
+- **Sample HTTPie**:
+  ```sh
+  http GET http://localhost:3000/application/<applicationId>/oauth-configuration \
+  Authorization:"Bearer <your_access_token>"
 
 <br>
 
@@ -88,6 +168,24 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
     - `data: ScopeDto` - Scope data
     - `applicationsId: string` - Application ID
     - `scopeId: string` - Optional scope ID
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/application/<applicationId>/scope \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "name": "<scope_name>",
+    "description": "<scope_description>"
+  }'
+
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/application/<applicationId>/scope \
+  Authorization:"Bearer <your_access_token>" \
+  data:='{
+    "name": "<scope_name>",
+    "description": "<scope_description>"
+  }'
 
 ### 2. Create Scope with given id
 - **Endpoint** : Post `/application/:applicationId/scope/:scopeId`
@@ -97,6 +195,24 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
     - `data: ScopeDto` - Scope data
     - `applicationsId: string` - Application ID
     - `scopeId: string` - Optional scope ID
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/application/<applicationId>/scope/<scopeId> \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "name": "<scope_name>",
+    "description": "<scope_description>"
+  }'
+
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/application/<applicationId>/scope/<scopeId> \
+  Authorization:"Bearer <your_access_token>" \
+  data:='{
+    "name": "<scope_name>",
+    "description": "<scope_description>"
+  }'
 
 ### 3. Update Scope
 - **Endpoint** : Patch `/application/:applicationId/scope/:scopeId`
@@ -106,6 +222,24 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
     - `id: string` - Application ID
     - `scopeId: string` - Scope ID
     - `data: UpdateScopeDto` - Updated scope data
+- **Sample cURL**:
+  ```sh
+  curl -X PATCH http://localhost:3000/application/<applicationId>/scope/<scopeId> \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "name": "<updated_scope_name>",
+    "description": "<updated_scope_description>"
+  }'
+
+- **Sample HTTPie**:
+  ```sh
+  http PATCH http://localhost:3000/application/<applicationId>/scope/<scopeId> \
+  Authorization:"Bearer <your_access_token>" \
+  data:='{
+    "name": "<updated_scope_name>",
+    "description": "<updated_scope_description>"
+  }'
 
 ### 4. Delete Scope
 - **Endpoint** : Delete `/application/:applicationId/scope/:scopeId`
@@ -114,6 +248,15 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
 - **Parameters:**
     - `id: string` - Application ID
     - `scopeId: string` - Scope ID
+- **Sample cURL**:
+  ```sh
+  curl -X DELETE http://localhost:3000/application/<applicationId>/scope/<scopeId> \
+  -H "Authorization: Bearer <your_access_token>"
+
+- **Sample HTTPie**:
+  ```sh
+  http DELETE http://localhost:3000/application/<applicationId>/scope/<scopeId> \
+  Authorization:"Bearer <your_access_token>"
 
 <br>
 
@@ -138,6 +281,24 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
     - `data: RoleDto` - Role data
     - `applicationsId: string` - Application ID
     - `roleId: string` - Optional role ID
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/application/<applicationId>/role \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "name": "<role_name>",
+    "description": "<role_description>"
+  }'
+
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/application/<applicationId>/role \
+  Authorization:"Bearer <your_access_token>" \
+  data:='{
+    "name": "<role_name>",
+    "description": "<role_description>"
+  }'
 
 ### 2. Create Role with given id
 - **Endpoint** : Post `/application/:applicationId/role/:roleId`
@@ -147,13 +308,24 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
     - `data: RoleDto` - Role data
     - `applicationsId: string` - Application ID
     - `roleId: string` - Optional role ID
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/application/<applicationId>/role/<roleId> \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "name": "<role_name>",
+    "description": "<role_description>"
+  }'
 
-<!-- ### 3. Get Role
-- **Descripiton** : Retrieves a specific role for an application.
-- **Authorization-Header** : Required
-- **Parameters:**
-    - `applicationsId: string` - Application ID
-    - `id: string` - Role ID -->
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/application/<applicationId>/role/<roleId> \
+  Authorization:"Bearer <your_access_token>" \
+  data:='{
+    "name": "<role_name>",
+    "description": "<role_description>"
+  }'
 
 
 ### 3. Update Role
@@ -164,6 +336,24 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
     - `id: string` - Application ID
     - `roleId: string` - Role ID
     - `data: UpdateRoleDto` - Updated role data
+- **Sample cURL**:
+  ```sh
+  curl -X PATCH http://localhost:3000/application/<applicationId>/role/<roleId> \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "name": "<updated_role_name>",
+    "description": "<updated_role_description>"
+  }'
+
+- **Sample HTTPie**:
+  ```sh
+  http PATCH http://localhost:3000/application/<applicationId>/role/<roleId> \
+  Authorization:"Bearer <your_access_token>" \
+  data:='{
+    "name": "<updated_role_name>",
+    "description": "<updated_role_description>"
+  }'
 
 
 ### 4. Delete Role
@@ -173,6 +363,15 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
 - **Parameters:**
     - `id: string` - Application ID
     - `roleId: string` - Role ID
+- **Sample cURL**:
+  ```sh
+  curl -X DELETE http://localhost:3000/application/<applicationId>/role/<roleId> \
+  -H "Authorization: Bearer <your_access_token>"
+
+- **Sample HTTPie**:
+  ```sh
+  http DELETE http://localhost:3000/application/<applicationId>/role/<roleId> \
+  Authorization:"Bearer <your_access_token>"
 
 ## Error Handling
 The service implements comprehensive error handling, throwing appropriate exceptions:

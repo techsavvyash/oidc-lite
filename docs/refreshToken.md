@@ -14,11 +14,35 @@ Refresh token is a token assigned to user while registration, and is used to ref
 - **Description**: Refreshes an access token using a refresh token.
 - **Parameters**: 
   - Refresh token and access token (either through cookie or request body)
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/jwt/refresh \
+    Authorization:"Bearer <your_access_token>" \
+    refreshToken="<your_refresh_token>"
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/jwt/refresh \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer <your_access_token>" \
+    -d '{
+      "refreshToken": "<your_refresh_token>"
+    }'
 
 ### 2. Retrieve Refresh Token by ID
 - **Endpoint** : Post `/jwt/refresh/:id`
 - **Description**: Retrieves a refresh token by its ID.
-- **Authorization-Header**: Required
+- **Authorization-Header**: Required- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/jwt/refresh/<id> \
+  Authorization:"Bearer <your_access_token>"
+
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/jwt/refresh/<id> \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>"
+
+
 
 ### 3. Retrieve Refresh Tokens by User ID
 - **Endpoint** : Post `/jwt/refresh`
@@ -26,6 +50,21 @@ Refresh token is a token assigned to user while registration, and is used to ref
 - **Authorization-Header**: Required
 - **Parameters**: 
   - `userId`: User ID
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/jwt/refresh \
+  Authorization:"Bearer <your_access_token>" \
+  userId="<user_id>"
+
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/jwt/refresh \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "userId": "<user_id>"
+  }'
+
 
 ### 4. Delete Refresh Tokens by Application ID
 - **Endpoint** : Post `/jwt/refresh/:tokenId`
@@ -33,6 +72,21 @@ Refresh token is a token assigned to user while registration, and is used to ref
 - **Authorization-Header**: Required
 - **Parameters**: 
   - `applicationsId`: Application ID
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/jwt/refresh/<tokenId> \
+  Authorization:"Bearer <your_access_token>" \
+  applicationsId="<application_id>"
+
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/jwt/refresh/<tokenId> \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "applicationsId": "<application_id>"
+  }'
+
 
 ### 5. Delete Refresh Tokens by User ID
 - **Endpoint** : Post `/jwt/refresh`
@@ -40,6 +94,21 @@ Refresh token is a token assigned to user while registration, and is used to ref
 - **Authorization-Header**: Required
 - **Parameters**: 
   - `userId`: User ID
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/jwt/refresh \
+  Authorization:"Bearer <your_access_token>" \
+  userId="<user_id>"
+
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/jwt/refresh \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "userId": "<user_id>"
+  }'
+
 
 ### 6. Delete Refresh Tokens by User and Application ID
 - **Endpoint** : Post `/jwt/refresh`
@@ -48,6 +117,23 @@ Refresh token is a token assigned to user while registration, and is used to ref
 - **Parameters**: 
   - `userId`: User ID
   - `applicationsId`: Application ID
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/jwt/refresh \
+  Authorization:"Bearer <your_access_token>" \
+  userId="<user_id>" \
+  applicationsId="<application_id>"
+
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/jwt/refresh \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "userId": "<user_id>",
+    "applicationsId": "<application_id>"
+  }'
+
 
 ### 7. Delete Refresh Token by Token ID
 - **Endpoint** : Post `/jwt/refresh`
@@ -55,6 +141,21 @@ Refresh token is a token assigned to user while registration, and is used to ref
 - **Authorization-Header**: Required
 - **Parameters**: 
   - `tokenId`: id
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/jwt/refresh \
+  Authorization:"Bearer <your_access_token>" \
+  tokenId="<token_id>"
+
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/jwt/refresh \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "tokenId": "<token_id>"
+  }'
+
 
 ### 8. Delete Refresh Token by Token String
 - **Endpoint** : Post `/jwt/refresh`
@@ -62,6 +163,21 @@ Refresh token is a token assigned to user while registration, and is used to ref
 - **Authorization-Header**: Required
 - **Parameters**: 
   - `TokenString`: String
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/jwt/refresh \
+  Authorization:"Bearer <your_access_token>" \
+  TokenString="<token_string>"
+
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/jwt/refresh \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "TokenString": "<token_string>"
+  }'
+
 
 ## Authorization
 All endpoints are protected by authorization headers which requires authorization and x-stencil-tenanid values to be passed in headers, which are verified using the `HeaderAuthService`.

@@ -17,6 +17,18 @@ Each key type is stored in the database with its relevant information, including
 - **Endpoint** : Get `/key`
 - **Description**: This API is used to retrieve all of the configured Keys.
 - **Authorization-Header**: Required
+- **Sample cURL**:
+  ```sh
+  curl -X GET http://localhost:3000/key \
+    -H "Authorization: Bearer dummy_token" \
+    -H "x-stencil-tenanid: dummy_tenant_id"
+
+- **Sample HTTPie**:
+  ```sh
+  http GET http://localhost:3000/key \
+  Authorization:"Bearer dummy_token" \
+  x-stencil-tenanid:dummy_tenant_id
+
 
 ### 2. Retrieve Unique Key
 - **Endpoint** : Get `/key/:id`
@@ -24,6 +36,18 @@ Each key type is stored in the database with its relevant information, including
 - **Authorization-Header**: Required
 - **Parameters**: 
   - `uuid`: The unique id of the key
+- **Sample cURL**:
+  ```sh
+  curl -X GET http://localhost:3000/key/unique_key_id \
+  -H "Authorization: Bearer dummy_token" \
+  -H "x-stencil-tenanid: dummy_tenant_id"
+
+- **Sample HTTPie**:
+  ```sh
+  http GET http://localhost:3000/key/unique_key_id \
+  Authorization:"Bearer dummy_token" \
+  x-stencil-tenanid:dummy_tenant_id
+
 
 ### 3. Update Key
 - **Endpoint** : Put `/key/:id`
@@ -33,6 +57,23 @@ Only the name of the Key may be changed; all other fields will remain the same
 - **Parameters**: 
   - `uuid`: The unique id of the key.
   - `name`: The new name for the key.
+- **Sample cURL**:
+  ```sh
+  curl -X PUT http://localhost:3000/key/unique_key_id \
+  -H "Authorization: Bearer dummy_token" \
+  -H "x-stencil-tenanid: dummy_tenant_id" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "new_key_name"
+  }'
+
+- **Sample HTTPie**:
+  ```sh
+  http PUT http://localhost:3000/key/unique_key_id \
+  Authorization:"Bearer dummy_token" \
+  x-stencil-tenanid:dummy_tenant_id \
+  name="new_key_name"
+
 
 ### 4. Delete Key
 - **Endpoint** : Delete `/key/:id`
@@ -40,6 +81,18 @@ Only the name of the Key may be changed; all other fields will remain the same
 - **Authorization-Header**: Required
 - **Parameters**: 
   - `uuid`: The unique id of the key
+- **Sample cURL**:
+  ```sh
+  curl -X DELETE http://localhost:3000/key/unique_key_id \
+  -H "Authorization: Bearer dummy_token" \
+  -H "x-stencil-tenanid: dummy_tenant_id"
+
+- **Sample HTTPie**:
+  ```sh
+  http DELETE http://localhost:3000/key/unique_key_id \
+  Authorization:"Bearer dummy_token" \
+  x-stencil-tenanid:dummy_tenant_id
+
 
 ### 5. Generate Key with random id
 - **Endpoint** : Post `/key/generate`
@@ -51,6 +104,33 @@ Only the name of the Key may be changed; all other fields will remain the same
   - `name`: The name of the key
   - `length`: The key length (for some algorithms)
   - `issuer`: The issuer of the key
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/key/generate \
+  -H "Authorization: Bearer dummy_token" \
+  -H "x-stencil-tenanid: dummy_tenant_id" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "uuid": "random_key_id",
+    "algorithm": "RS256",
+    "name": "new_key",
+    "length": 2048,
+    "issuer": "example_issuer"
+  }'
+
+
+
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/key/generate \
+  Authorization:"Bearer dummy_token" \
+  x-stencil-tenanid:dummy_tenant_id \
+  uuid="random_key_id" \
+  algorithm="RS256" \
+  name="new_key" \
+  length:=2048 \
+  issuer="example_issuer"
+
 
 ### 6. Generate Key with given id
 - **Endpoint** : Post `/key/generate:id`
@@ -62,6 +142,31 @@ Only the name of the Key may be changed; all other fields will remain the same
   - `name`: The name of the key
   - `length`: The key length (for some algorithms)
   - `issuer`: The issuer of the key
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/key/generate/unique_key_id \
+  -H "Authorization: Bearer dummy_token" \
+  -H "x-stencil-tenanid: dummy_tenant_id" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "uuid": "unique_key_id",
+    "algorithm": "RS256",
+    "name": "new_key",
+    "length": 2048,
+    "issuer": "example_issuer"
+  }'
+  
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/key/generate/unique_key_id \
+  Authorization:"Bearer dummy_token" \
+  x-stencil-tenanid:dummy_tenant_id \
+  uuid="unique_key_id" \
+  algorithm="RS256" \
+  name="new_key" \
+  length:=2048 \
+  issuer="example_issuer"
+
 
 ## Authorization
 All endpoints are protected by authorization headers which requires authorization and x-stencil-tenanid values to be passed in headers, which are verified using the `HeaderAuthService`.

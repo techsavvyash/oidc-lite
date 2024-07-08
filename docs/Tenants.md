@@ -15,6 +15,28 @@
     - `id` (string): A unique identifier for the tenant.
     - `data` (CreateTenantDto): An object containing tenant details.
     - `headers` (object): Request headers for authorization.
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/tenant \
+  Authorization:"Bearer <your_access_token>" \
+  id="<tenant_id>" \
+  data:='{
+    "name": "<tenant_name>",
+    "description": "<tenant_description>"
+  }'
+
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/tenant \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer <your_access_token>" \
+    -d '{
+      "id": "<tenant_id>",
+      "data": {
+        "name": "<tenant_name>",
+        "description": "<tenant_description>"
+      }
+    }'
 
 ### 2. Create a Tenant with given id 
 - **Endpoint** : Post `/tenant/:id`
@@ -24,6 +46,27 @@
     - `id` (string): A unique identifier for the tenant.
     - `data` (CreateTenantDto): An object containing tenant details.
     - `headers` (object): Request headers for authorization.
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/tenant/<id> \
+  Authorization:"Bearer <your_access_token>" \
+  data:='{
+    "name": "<tenant_name>",
+    "description": "<tenant_description>"
+  }'
+
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/tenant/<id> \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "data": {
+      "name": "<tenant_name>",
+      "description": "<tenant_description>"
+    }
+  }'
+
 
 ### 3. Update a Tenant 
 - **Endpoint** : Patch `/tenant/:id
@@ -33,6 +76,27 @@
     - `id` (string): The identifier of the tenant to update.
     - `data` (UpdateTenantDto): An object containing updated tenant details.
     - `headers` (object): Request headers for authorization.
+- **Sample HTTPie**:
+  ```sh
+  http PATCH http://localhost:3000/tenant/<id> \
+  Authorization:"Bearer <your_access_token>" \
+  data:='{
+    "name": "<updated_name>",
+    "description": "<updated_description>"
+  }'
+
+- **Sample cURL**:
+  ```sh
+  curl -X PATCH http://localhost:3000/tenant/<id> \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "data": {
+      "name": "<updated_name>",
+      "description": "<updated_description>"
+    }
+  }'
+
 
 ### 4. Delete a Tenant 
 - **Endpoint** : Delete `/tenant/:id
@@ -41,6 +105,16 @@
 - **Parameters**:
     - `id` (string): The identifier of the tenant to delete.
     - `headers` (object): Request headers for authorization.
+- **Sample HTTPie**:
+  ```sh
+  http DELETE http://localhost:3000/tenant/<id> \
+  Authorization:"Bearer <your_access_token>"
+
+- **Sample cURL**:
+  ```sh
+  curl -X DELETE http://localhost:3000/tenant/<id> \
+  -H "Authorization: Bearer <your_access_token>"
+
 
 ### 5. Return a Tenant 
 - **Endpoint** : Get `/tenant/:id
@@ -49,6 +123,16 @@
 - **Parameters**:
     - `id` (string): The identifier of the tenant to retrieve.
     - `headers` (object): Request headers for authorization.
+- **Sample HTTPie**:
+  ```sh
+  http GET http://localhost:3000/tenant/<id> \
+  Authorization:"Bearer <your_access_token>"
+
+- **Sample cURL**:
+  ```sh
+  curl -X GET http://localhost:3000/tenant/<id> \
+  -H "Authorization: Bearer <your_access_token>"
+
 
 ### 6. Return all Tenants
 - **Endpoint** : Get `/tenant`
@@ -56,6 +140,16 @@
 - **Authorization-Header**: Required
 - **Parameters**:
     - `headers` (object): Request headers for authorization.
+- **Sample HTTPie**:
+  ```sh
+  http GET http://localhost:3000/tenant \
+  Authorization:"Bearer <your_access_token>"
+
+- **Sample cURL**:
+  ```sh
+  curl -X GET http://localhost:3000/tenant \
+  -H "Authorization: Bearer <your_access_token>"
+
 
 
 ## Authorization

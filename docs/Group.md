@@ -14,6 +14,24 @@
 - **Parameters**: 
   - `uuid`: The unique id for the new group
   - `data`: Object containing group details (name, tenantId, roleIDs)
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/group \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer <your_access_token>" \
+    -d '{
+      "name": "<group_name>",
+      "tenantId": "<tenant_id>",
+      "roleIDs": ["<role_id1>", "<role_id2>"]
+    }'
+
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/group \
+  Authorization:"Bearer <your_access_token>" \
+  name="<group_name>" \
+  tenantId="<tenant_id>" \
+  roleIDs:='["<role_id1>", "<role_id2>"]'
 
 ### 2. Create Group with given Id 
 - **Endpoint** : Post `/group/:id`
@@ -22,11 +40,41 @@
 - **Parameters**: 
   - `uuid`: The unique id for the new group
   - `data`: Object containing group details (name, tenantId, roleIDs)
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/group/<id> \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "name": "<group_name>",
+    "tenantId": "<tenant_id>",
+    "roleIDs": ["<role_id1>", "<role_id2>"]
+  }'
+
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/group/<id> \
+  Authorization:"Bearer <your_access_token>" \
+  name="<group_name>" \
+  tenantId="<tenant_id>" \
+  roleIDs:='["<role_id1>", "<role_id2>"]'
+
 
 ### 3. Retrieve All Groups
 - **Endpoint** : Get `/group`
 - **Description**: This API is used to retrieve all of the configured Groups.
 - **Authorization-Header**: Required
+- **Sample cURL**:
+  ```sh
+  curl -X GET http://localhost:3000/group \
+  -H "Authorization: Bearer <your_access_token>"
+
+
+- **Sample HTTPie**:
+  ```sh
+  http GET http://localhost:3000/group \
+  Authorization:"Bearer <your_access_token>"
+
 
 ### 4. Retrieve Group by ID
 - **Endpoint** : Get `/group/:id`
@@ -34,6 +82,17 @@
 - **Authorization-Header**: Required
 - **Parameters**: 
   - `id`: The unique id of the group
+- **Sample cURL**:
+  ```sh
+  curl -X GET http://localhost:3000/group/<id> \
+  -H "Authorization: Bearer <your_access_token>"
+
+
+- **Sample HTTPie**:
+  ```sh
+  http GET http://localhost:3000/group/<id> \
+  Authorization:"Bearer <your_access_token>"
+
 
 ### 5. Update Group
 - **Endpoint** : Put `/group/:id`
@@ -42,6 +101,23 @@
 - **Parameters**: 
   - `uuid`: The unique id of the group
   - `data`: Object containing update information (name, roleIDs)
+- **Sample cURL**:
+  ```sh
+  curl -X PUT http://localhost:3000/group/<id> \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "name": "<updated_group_name>",
+    "roleIDs": ["<updated_role_id1>", "<updated_role_id2>"]
+  }'
+
+- **Sample HTTPie**:
+  ```sh
+  http PUT http://localhost:3000/group/<id> \
+  Authorization:"Bearer <your_access_token>" \
+  name="<updated_group_name>" \
+  roleIDs:='["<updated_role_id1>", "<updated_role_id2>"]'
+
 
 ### 6. Delete Group
 - **Endpoint** : Delete `/group/:id`
@@ -49,6 +125,17 @@
 - **Authorization-Header**: Required
 - **Parameters**: 
   - `uuid`: The unique id of the group
+- **Sample cURL**:
+  ```sh
+  curl -X DELETE http://localhost:3000/group/<id> \
+  -H "Authorization: Bearer <your_access_token>"
+
+
+- **Sample HTTPie**:
+  ```sh
+  http DELETE http://localhost:3000/group/<id> \
+  Authorization:"Bearer <your_access_token>"
+
 
 ## Authorization
 All endpoints are protected by authorization headers which requires authorization and x-stencil-tenanid values to be passed in headers, which are verified using the `HeaderAuthService`.
@@ -76,11 +163,61 @@ This service manages the relationship between users and groups within a multi-te
 - **Authorization-Header**: Required
 - **Body**: 
   - `members`: Array of objects containing `groupId` and `userIds`
+- **Sample cURL**:
+  ```sh
+  curl -X POST http://localhost:3000/group/member \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "members": [
+      {
+        "groupId": "<group_id>",
+        "userIds": ["<user_id1>", "<user_id2>"]
+      }
+    ]
+  }'
+- **Sample HTTPie**:
+  ```sh
+  http POST http://localhost:3000/group/member \
+  Authorization:"Bearer <your_access_token>" \
+  members:='[
+    {
+      "groupId": "<group_id>",
+      "userIds": ["<user_id1>", "<user_id2>"]
+    }
+  ]'
+
 
 ### 2. Update User in Group
 - **Endpoint** : Put `/group/member`
 - **Description**: Updates user memberships in groups (Note: Implementation details are not fully provided in the given code).
 - **Authorization-Header**: Required
+- **Sample cURL**:
+  ```sh
+  curl -X PUT http://localhost:3000/group/member \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <your_access_token>" \
+  -d '{
+    "members": [
+      {
+        "groupId": "<group_id>",
+        "userIds": ["<updated_user_id1>", "<updated_user_id2>"]
+      }
+    ]
+  }'
+
+
+- **Sample HTTPie**:
+  ```sh
+  http PUT http://localhost:3000/group/member \
+  Authorization:"Bearer <your_access_token>" \
+  members:='[
+    {
+      "groupId": "<group_id>",
+      "userIds": ["<updated_user_id1>", "<updated_user_id2>"]
+    }
+  ]'
+
 
 ### 3. Delete Member by ID
 - **Endpoint** : Delete `/group/member/:id`
@@ -88,6 +225,21 @@ This service manages the relationship between users and groups within a multi-te
 - **Authorization-Header**: Required
 - **Parameters**: 
   - `uuid`: The unique identifier of the group membership
+- **Sample cURL**:
+  ```sh
+  curl -X DELETE http://localhost:3000/group/member/<id> \
+  -H "Authorization: Bearer <your-token>" \
+  -H "x-stencil-tenanid: <your-tenant-id>"
+
+
+
+- **Sample HTTPie**:
+  ```sh
+  http DELETE http://localhost:3000/group/member/<id> \
+  Authorization:"Bearer <your-token>" \
+  x-stencil-tenanid:<your-tenant-id>
+
+
 
 ### 4. Delete Member by User ID and Group ID
 - **Endpoint** : Delete `/group/member`
@@ -96,6 +248,26 @@ This service manages the relationship between users and groups within a multi-te
 - **Parameters**: 
   - `userId`: The ID of the user
   - `gpId`: The ID of the group
+- **Sample cURL**:
+  ```sh
+  curl -X DELETE http://localhost:3000/group/member \
+    -H "Authorization: Bearer <your-token>" \
+    -H "x-stencil-tenanid: <your-tenant-id>" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "userId": "user-id-1",
+      "gpId": "group-id-1"
+    }'
+
+
+- **Sample HTTPie**:
+  ```sh
+  http DELETE http://localhost:3000/group/member \
+    Authorization:"Bearer <your-token>" \
+    x-stencil-tenanid:<your-tenant-id> \
+    userId=user-id-1 \
+    gpId=group-id-1
+
 
 ### 5. Delete All Users from Group
 - **Endpoint** : Delete `/group/member`
@@ -103,6 +275,23 @@ This service manages the relationship between users and groups within a multi-te
 - **Authorization-Header**: Required
 - **Parameters**: 
   - `gpId`: The ID of the group
+- **Sample cURL**:
+  ```sh
+  curl -X DELETE http://localhost:3000/group/member \
+    -H "Authorization: Bearer <your-token>" \
+    -H "x-stencil-tenanid: <your-tenant-id>" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "gpId": "group-id-1"
+    }'
+
+
+- **Sample HTTPie**:
+  ```sh
+    http DELETE http://localhost:3000/group/member \
+      Authorization:"Bearer <your-token>" \
+      x-stencil-tenanid:<your-tenant-id> \
+      gpId=group-id-1
 
 ### 6. Delete Multiple Members
 - **Endpoint** : Delete `/group/member`
@@ -110,6 +299,24 @@ This service manages the relationship between users and groups within a multi-te
 - **Authorization-Header**: Required
 - **Body**: 
   - `members`: Array of membership IDs to be deleted
+- **Sample cURL**:
+  ```sh
+  curl -X DELETE http://localhost:3000/group/member \
+    -H "Authorization: Bearer <your-token>" \
+    -H "x-stencil-tenanid: <your-tenant-id>" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "members": ["membership-id-1", "membership-id-2"]
+    }'
+
+
+- **Sample HTTPie**:
+  ```sh
+  http DELETE http://localhost:3000/group/member \
+    Authorization:"Bearer <your-token>" \
+    x-stencil-tenanid:<your-tenant-id> \
+    members:='["membership-id-1", "membership-id-2"]'
+
 
 ## Authorization
 All endpoints are protected by authorization headers which requires authorization and x-stencil-tenanid values to be passed in headers, which are verified using the `HeaderAuthService`.

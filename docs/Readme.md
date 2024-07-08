@@ -43,6 +43,21 @@ This auth service is essentially a lightweight version of FusionAuth, providing 
 
 - **OTP** : Used to perform authentication using OTP. For more details, refer to [OTP docs](OTP.md)
 
+## Flow Diagrams of APIs 
+
+
+`Application Diagram`
+
+![](./assests/Application-diagram.png)
+
+`User Diagram`
+
+![](./assests/User-diagram.png)
+
+`Group Diagram`
+
+![](./assests/Groups-diagram.png)
+
 ## Application and Significance
 
 - Comprehensive user management
