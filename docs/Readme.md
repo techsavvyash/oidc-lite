@@ -10,7 +10,7 @@ OIDC lite is a OIDC compliant light weight alternative to FusionAuth supporting 
 ## Features
 
 - OIDC Compliant
-- Negligible memory footprint (uses ~117 MB for registering 100 users).
+- Negligible memory footprint (uses ~117 MB for registering 100 users)
 - Lightweight 
 - Multi-tenant 
 
@@ -24,8 +24,8 @@ The database schema for this service has been borrowed and fine-tuned from Fusio
 
 ### API Documentation
 
-- [Key APIs](./api/keys.md).
-- [Refresh Tokens APIs](./api/refresh-tokens.md).
+- [Key APIs](./api/keys.md)
+- [Refresh Tokens APIs](./api/refresh-tokens.md)
 - [Tenants](./api/tenants.md)
 - [Application](./api/applications.md)
 - [Groups APIs](./api/groups.md) 
