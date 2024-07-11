@@ -4,7 +4,7 @@
 
 1. Install go - `sudo apt install golang-go`
 2. Install oauth2-proxy - `go install github.com/oauth2-proxy/v7@latest`
-3. `echo $GOPATH`, If nothing prints then do `export GOPATH=$HOME`
+3. `echo $GOPATH`, If nothing prints then do `export GOPATH=$HOME/go`
 4. Set path to access installations done by go - `export PATH=$PATH:$GOPATH/bin`
 5. `nano oauth2proxy.cfg`
 6. Paste the following code in the file created
