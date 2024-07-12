@@ -90,7 +90,7 @@ CREATE TABLE "RefreshToken" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "applicationsId" TEXT,
     "expiry" BIGINT NOT NULL,
-    "data" TEXT NOT NULL,
+    "data" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "startInstant" BIGINT NOT NULL,
     "tenantId" TEXT,

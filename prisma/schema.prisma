@@ -124,7 +124,7 @@ model RefreshToken {
   id             String   @id @default(uuid())
   applicationsId String?
   expiry         BigInt
-  data           String
+  data           String?
   createdAt      DateTime @default(now())
   startInstant   BigInt
   tenantId       String?

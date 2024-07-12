@@ -96,7 +96,6 @@ export class GroupsService {
         data: group,
       };
     } catch (error) {
-      console.log(error);
       this.logger.log(error);
       throw new BadRequestException({
         success: false,

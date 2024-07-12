@@ -438,8 +438,6 @@ describe('LoginService', () => {
         cookies: {}, // No refresh token cookie
       } as unknown as Request;
 
-      console.log('Mock request cookies:', req.cookies); // Logging to verify the cookie value
-
       await loginService.logout(res, req);
 
       expect(res.clearCookie).toHaveBeenCalledWith('accessToken', {

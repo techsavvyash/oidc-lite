@@ -17,6 +17,7 @@ import { KickstartModule } from './kickstart/kickstart.module';
 import { OtpModule } from './otp/otp.module';
 import { TenantModule } from './tenant/tenant.module';
 import { ApiKeysModule } from './api-keys/api-keys.module';
+import { UtilsService } from './utils/utils.service';
 
 @Module({
   imports: [
@@ -40,6 +41,6 @@ import { ApiKeysModule } from './api-keys/api-keys.module';
     ApiKeysModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, MemoryMonitorService],
+  providers: [AppService, PrismaService, MemoryMonitorService, UtilsService],
 })
 export class AppModule {}
