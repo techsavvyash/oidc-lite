@@ -158,7 +158,6 @@ describe('UserRegistrationService', () => {
         .spyOn(mockUtilService, 'createToken')
         .mockResolvedValue(mockAccessToken);
 
-      // console.log(userId, data, headers);
       try {
         const result = await service.createAUserRegistration(
           userId,
@@ -175,7 +174,7 @@ describe('UserRegistrationService', () => {
           },
         });
       } catch (e) {
-        console.log(e); //for debugging
+        console.log(e);
       }
       expect(mockPrismaService.application.findUnique).toHaveBeenCalledWith({
         where: { id: data.applicationId },
@@ -1126,7 +1125,7 @@ describe('UserRegistrationService', () => {
           },
         });
       } catch (e) {
-        console.log(e); //for debugging
+        console.log(e);
       }
       expect(mockHeaderAuthService.validateRoute).toHaveBeenCalledWith(
         headers,

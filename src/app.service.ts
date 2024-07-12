@@ -1,11 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Response } from 'express';
 import { PrismaService } from './prisma/prisma.service';
+import { UtilsService } from './utils/utils.service';
 
 @Injectable()
 export class AppService {
   private readonly logger: Logger;
-  constructor(private readonly prismaService: PrismaService) {
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly utilsService: UtilsService,
+  ) {
     this.logger = new Logger(AppService.name);
   }
 
@@ -24,7 +28,10 @@ export class AppService {
       };
     }
     const admin = await this.prismaService.admin.create({
-      data: { username: data.username, password: data.password },
+      data: {
+        username: data.username,
+        password: await this.utilsService.hashPassword(data.password),
+      },
     });
     return {
       success: true,
@@ -40,9 +47,18 @@ export class AppService {
   }) {
     const { username, password, key } = data;
     const admin = await this.prismaService.admin.findUnique({
-      where: { username, password },
+      where: { username },
     });
     if (!admin) {
+      return {
+        success: false,
+        message: 'You are not admin',
+      };
+    }
+    if (
+      (await this.utilsService.comparePasswords(password, admin.password)) ===
+      false
+    ) {
       return {
         success: false,
         message: 'You are not admin',

@@ -12,7 +12,6 @@ export class AppController {
   @ApiOperation({ summary: 'to prove the live status of website' })
   @ApiResponse({ status: 200, description: 'live status confirmed' })
   async getRoutesInfo(@Req() req: Request) {
-    console.log(req.headers);
     return {
       status: 'live',
     };
