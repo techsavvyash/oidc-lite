@@ -8,7 +8,7 @@ description: A guide in my new Starlight docs site.
 
 ## Sequence Diagram
 
-![Groups Sequence Diagram](../assets/sequence-diagrams/groups.png)
+![Groups Sequence Diagram](../../../assets/sequence-diagrams/groups.png)
 
 ## Endpoints
 

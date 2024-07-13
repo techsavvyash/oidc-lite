@@ -6,9 +6,9 @@ description: A guide in my new Starlight docs site.
 ## Overview
 The User Service is a part of a NestJS application that handles user-related operations such as creating, retrieving, updating, and deleting users.
 
-## Sequence Diagrams
+## Sequence Diagrams 
 
-![Users Sequence Diagram](../assets/sequence-diagrams/users.png)
+![User Sequence Diagram](../../../assets/sequence-diagrams/users.png)
 
 ## Endpoints
 

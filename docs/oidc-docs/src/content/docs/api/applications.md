@@ -9,7 +9,7 @@ The ApplicationService is a crucial component of our NestJS application, respons
 
 ## Sequence Diagram
 
-![Applications Sequence Diagram](../assets/sequence-diagrams/application.png)
+![Application Sequence Diagram](../../../assets/sequence-diagrams/application.png)
 
 ## Endpoints
 
