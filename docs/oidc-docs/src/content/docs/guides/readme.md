@@ -7,6 +7,6 @@ This section contains some guides which might help user trying to use this servi
 
 ## Index
 
-1. [Configuring OIDC Lite with OIDC-Proxy](./configure-oidc-proxy.md) *WIP*
-2. [Setup a basic authentication app using OIDC Lite](./) *WIP*
-3. [Setting up OpenID Authentication using OIDC Lite for MinIO](./minio-openid-auth.md) *WIP*
+1. [Configuring OIDC Lite with OIDC-Proxy](./configure-oidc-proxy) *WIP*
+2. [Setup a basic authentication app using OIDC Lite](./setup) *WIP*
+3. [Setting up OpenID Authentication using OIDC Lite for MinIO](./minio-openid-auth) *WIP*

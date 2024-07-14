@@ -24,9 +24,13 @@ export default defineConfig({
 					],
 				},
 				{
-					label : 'Guide Documentation',
+					label : 'Guides',
 					items : [
 						{ label: 'Guide', slug: 'guides/readme' },
+						{ label: 'OIDC Proxy Guide', slug: 'guides/configure-oidc-proxy' },
+						{ label: 'Minio Guide', slug: 'guides/minio-openid-auth' },
+						{ label: 'Setup Guide', slug: 'guides/setup' },
+						{ label: 'Kickstart Guide', slug: 'guides/kickstart' },
 
 					]
 				},

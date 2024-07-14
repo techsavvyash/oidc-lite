@@ -8,9 +8,12 @@ This API provides endpoints for managing cryptographic keys. Cryptographic keys 
 
 ## Key Types
 The service supports generating three types of keys:
-- RSA keys (RS256)
-- Elliptic Curve keys (ES256)
-- HMAC keys (HS256)
+- RS256
+- RS384
+- RS512
+- ES256
+- ES384
+- ES512
 
 Each key type is stored in the database with its relevant information, including public and private keys where applicable.
 
