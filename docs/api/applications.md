@@ -14,6 +14,7 @@ The ApplicationService is a crucial component of our NestJS application, respons
 - **Endpoint** : Post `/application`
 - **Description** : Creates a new application with the provided details.
 - **Authorization-Header** : Required
+- **X-Stencil-Tenantid-Header** : Not-required
 - **Parameters:**
     - `uuid: string` - Unique identifier for the application
     - `data: CreateApplicationDto` - Application data
@@ -22,6 +23,7 @@ The ApplicationService is a crucial component of our NestJS application, respons
 - **Endpoint** : Post `/application/:applicationId`
 - **Description** : Creates a new application with the provided details.
 - **Authorization-Header** : Required
+- **X-Stencil-Tenantid-Header** : Not-required
 - **Parameters:**
     - `uuid: string` - Unique identifier for the application
     - `data: CreateApplicationDto` - Application data
@@ -29,7 +31,8 @@ The ApplicationService is a crucial component of our NestJS application, respons
   ```sh
   curl -X POST http://localhost:3000/application/<applicationId> \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
+  -H "X-Stencil-Tenantid: <your_tenant_id>" \
   -d '{
     "name": "<application_name>",
     "description": "<application_description>"
@@ -39,6 +42,7 @@ The ApplicationService is a crucial component of our NestJS application, respons
   ```sh
   http POST http://localhost:3000/application/<applicationId> \
   Authorization:"Bearer <your_access_token>" \
+  X-Stencil-Tenantid:"<your_tenant_id>" \
   data:='{
     "name": "<application_name>",
     "description": "<application_description>"
@@ -50,6 +54,7 @@ The ApplicationService is a crucial component of our NestJS application, respons
 - **Endpoint** : Patch `/application/:applicationId`
 - **Description** : Updates an existing application.
 - **Authorization-Header** : Required
+- **X-Stencil-Tenantid-Header** : Not-required
 - **Parameters:**
     - `id: string` - Application ID
     - `newData: UpdateApplicationDto` - Updated application data
@@ -57,7 +62,8 @@ The ApplicationService is a crucial component of our NestJS application, respons
   ```sh
   curl -X PATCH http://localhost:3000/application/<applicationId> \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
+  -H "X-Stencil-Tenantid: <your_tenant_id>" \
   -d '{
     "name": "<updated_application_name>",
     "description": "<updated_application_description>"
@@ -68,6 +74,7 @@ The ApplicationService is a crucial component of our NestJS application, respons
   ```sh
   http PATCH http://localhost:3000/application/<applicationId> \
   Authorization:"Bearer <your_access_token>" \
+  X-Stencil-Tenantid:"<your_tenant_id>" \
   data:='{
     "name": "<updated_application_name>",
     "description": "<updated_application_description>"
@@ -76,47 +83,55 @@ The ApplicationService is a crucial component of our NestJS application, respons
 
 ### 3. Return All Applications
 - **Endpoint** : Get `/application`
-- **Description** : Retrieves all applications with their associated roles and scopes.
+- **Description** : Retrieves all applications (either tenant scoped or global, depends on authorization key provided) with their associated roles and scopes.
 - **Authorization-Header** : Required
+- **X-Stencil-Tenantid-Header** : Not-required
 - **Parameters:**
     - `headers: object` - Request headers
 - **Sample cURL**:
   ```sh
   curl -X GET http://localhost:3000/application \
-  -H "Authorization: Bearer <your_access_token>"
+  -H "Authorization: Basic <your_authorization_key>" \
+  -H "X-Stencil-Tenantid: <your_tenant_id>" \
 
 - **Sample HTTPie**:
   ```sh
   http GET http://localhost:3000/application \
-  Authorization:"Bearer <your_access_token>"
+  Authorization:"Bearer <your_access_token>" \
+  X-Stencil-Tenantid:"<your_tenant_id>" \
 
 ### 4. Return An Application
 - **Endpoint** : Get `/application/:applicationId`
 - **Description** : Retrieves a specific application by ID, including its roles and scopes.
 - **Authorization-Header** : Required
+- **X-Stencil-Tenantid-Header** : Not-required
 - **Parameters:**
     - `id: string` - Application ID
 - **Sample cURL**:
   ```sh
   curl -X GET http://localhost:3000/application/<applicationId> \
-  -H "Authorization: Bearer <your_access_token>"
+  -H "Authorization: Basic <your_authorization_key>" \
+  -H "X-Stencil-Tenantid: <your_tenant_id>" \
 
 - **Sample HTTPie**:
   ```sh
   http GET http://localhost:3000/application/<applicationId> \
-  Authorization:"Bearer <your_access_token>"
+  Authorization:"Bearer <your_access_token>" \
+  X-Stencil-Tenantid:"<your_tenant_id>" \
 
 ### 5. Delete Application
-- **Endpoint** : Get `/application/:applicationId`
+- **Endpoint** : DELETE `/application/:applicationId`
 - **Description** : Deletes an application (soft or hard delete).
 - **Authorization-Header** : Required
+- **X-Stencil-Tenantid-Header** : Not-required
 - **Parameters:**
     - `id: string` - Application ID
     - `hardDelete: boolean` - Whether to perform a hard delete
 - **Sample cURL**:
   ```sh
   curl -X DELETE http://localhost:3000/application/<applicationId> \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
+  -H "X-Stencil-Tenantid: <your_tenant_id>" \
   -d '{
     "hardDelete": <true_or_false>
   }'
@@ -125,30 +140,34 @@ The ApplicationService is a crucial component of our NestJS application, respons
   ```sh
   http DELETE http://localhost:3000/application/<applicationId> \
   Authorization:"Bearer <your_access_token>" \
+  X-Stencil-Tenantid:"<your_tenant_id>" \
   hardDelete=<true_or_false>
 
 ### 6. Return Oauth Configuration
 - **Endpoint** : Get `/application/:applicationId/oauth-configuration`
 - **Description** : Retrieves the OAuth configuration for a specific application.
 - **Authorization-Header** : Required
+- **X-Stencil-Tenantid-Header** : Not-required
 - **Parameters:**
     - `id: string` - Application ID
 - **Sample cURL**:
   ```sh
   curl -X GET http://localhost:3000/application/<applicationId>/oauth-configuration \
-  -H "Authorization: Bearer <your_access_token>"
+  -H "Authorization: Basic <your_authorization_key>" \
+  -H "X-Stencil-Tenantid: <your_tenant_id>" \
 
 - **Sample HTTPie**:
   ```sh
   http GET http://localhost:3000/application/<applicationId>/oauth-configuration \
-  Authorization:"Bearer <your_access_token>"
+  Authorization:"Bearer <your_access_token>" \
+  X-Stencil-Tenantid:"<your_tenant_id>" \
 
 <br>
 
 # Application Scopes
 
 ## Overview
-The ApplicationScopesService is a crucial component of our NestJS application, responsible for managing OAuth scopes for applications. It provides functionality for creating, retrieving, updating, and deleting scopes associated with specific applications.
+The ApplicationScopesService is a crucial component of our NestJS application, responsible for managing OAuth scopes for applications. It provides functionality for creating, updating, and deleting scopes associated with specific applications.
 
 ## Key Features
 1. Scope CRUD operations
@@ -162,6 +181,7 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
 - **Endpoint** : Post `/application/:applicationId/scope`
 - **Description** : Creates a new scope for a specific application.
 - **Authorization-Header** : Required
+- **X-Stencil-Tenantid-Header** : Not-required
 - **Parameters:**
     - `data: ScopeDto` - Scope data
     - `applicationsId: string` - Application ID
@@ -170,7 +190,8 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
   ```sh
   curl -X POST http://localhost:3000/application/<applicationId>/scope \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
+  -H "X-Stencil-Tenantid: <your_tenant_id>" \
   -d '{
     "name": "<scope_name>",
     "description": "<scope_description>"
@@ -180,6 +201,7 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
   ```sh
   http POST http://localhost:3000/application/<applicationId>/scope \
   Authorization:"Bearer <your_access_token>" \
+  X-Stencil-Tenantid:"<your_tenant_id>" \
   data:='{
     "name": "<scope_name>",
     "description": "<scope_description>"
@@ -189,6 +211,7 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
 - **Endpoint** : Post `/application/:applicationId/scope/:scopeId`
 - **Description** : Creates a new scope for a specific application.
 - **Authorization-Header** : Required
+- **X-Stencil-Tenantid-Header** : Not-required
 - **Parameters:**
     - `data: ScopeDto` - Scope data
     - `applicationsId: string` - Application ID
@@ -197,7 +220,8 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
   ```sh
   curl -X POST http://localhost:3000/application/<applicationId>/scope/<scopeId> \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
+  -H "X-Stencil-Tenantid: <your_tenant_id>" \
   -d '{
     "name": "<scope_name>",
     "description": "<scope_description>"
@@ -207,6 +231,7 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
   ```sh
   http POST http://localhost:3000/application/<applicationId>/scope/<scopeId> \
   Authorization:"Bearer <your_access_token>" \
+  X-Stencil-Tenantid:"<your_tenant_id>" \
   data:='{
     "name": "<scope_name>",
     "description": "<scope_description>"
@@ -216,6 +241,7 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
 - **Endpoint** : Patch `/application/:applicationId/scope/:scopeId`
 - **Description** : Updates an existing scope for an application.
 - **Authorization-Header** : Required
+- **X-Stencil-Tenantid-Header** : Not-required
 - **Parameters:**
     - `id: string` - Application ID
     - `scopeId: string` - Scope ID
@@ -224,7 +250,8 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
   ```sh
   curl -X PATCH http://localhost:3000/application/<applicationId>/scope/<scopeId> \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
+  -H "X-Stencil-Tenantid: <your_tenant_id>" \
   -d '{
     "name": "<updated_scope_name>",
     "description": "<updated_scope_description>"
@@ -234,6 +261,7 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
   ```sh
   http PATCH http://localhost:3000/application/<applicationId>/scope/<scopeId> \
   Authorization:"Bearer <your_access_token>" \
+  X-Stencil-Tenantid:"<your_tenant_id>" \
   data:='{
     "name": "<updated_scope_name>",
     "description": "<updated_scope_description>"
@@ -243,25 +271,28 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
 - **Endpoint** : Delete `/application/:applicationId/scope/:scopeId`
 - **Description** : Deletes a scope from an application.
 - **Authorization-Header** : Required
+- **X-Stencil-Tenantid-Header** : Not-required
 - **Parameters:**
     - `id: string` - Application ID
     - `scopeId: string` - Scope ID
 - **Sample cURL**:
   ```sh
   curl -X DELETE http://localhost:3000/application/<applicationId>/scope/<scopeId> \
-  -H "Authorization: Bearer <your_access_token>"
+  -H "Authorization: Basic <your_authorization_key>" \
+  -H "X-Stencil-Tenantid: <your_tenant_id>" \
 
 - **Sample HTTPie**:
   ```sh
   http DELETE http://localhost:3000/application/<applicationId>/scope/<scopeId> \
-  Authorization:"Bearer <your_access_token>"
+  Authorization:"Bearer <your_access_token>" \
+  X-Stencil-Tenantid:"<your_tenant_id>" \
 
 <br>
 
 # Application Roles 
 
 ## Overview
-The ApplicationRolesService is a crucial component of our NestJS application, responsible for managing roles for applications. It provides functionality for creating, retrieving, updating, and deleting roles associated with specific applications.
+The ApplicationRolesService is a crucial component of our NestJS application, responsible for managing roles for applications. It provides functionality for creating, updating, and deleting roles associated with specific applications.
 
 ## Key Features
 1. Role CRUD operations
@@ -275,6 +306,7 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
 - **Endpoint** : Post `/application/:applicationId/role`
 - **Descripiton** : Creates a new role for a specific application.
 - **Authorization-Header** : Required
+- **X-Stencil-Tenantid-Header** : Not-required
 - **Parameters:**
     - `data: RoleDto` - Role data
     - `applicationsId: string` - Application ID
@@ -283,7 +315,8 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
   ```sh
   curl -X POST http://localhost:3000/application/<applicationId>/role \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
+  -H "X-Stencil-Tenantid: <your_tenant_id>" \
   -d '{
     "name": "<role_name>",
     "description": "<role_description>"
@@ -293,6 +326,7 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
   ```sh
   http POST http://localhost:3000/application/<applicationId>/role \
   Authorization:"Bearer <your_access_token>" \
+  X-Stencil-Tenantid:"<your_tenant_id>" \
   data:='{
     "name": "<role_name>",
     "description": "<role_description>"
@@ -302,6 +336,7 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
 - **Endpoint** : Post `/application/:applicationId/role/:roleId`
 - **Descripiton** : Creates a new role for a specific application.
 - **Authorization-Header** : Required
+- **X-Stencil-Tenantid-Header** : Not-required
 - **Parameters:**
     - `data: RoleDto` - Role data
     - `applicationsId: string` - Application ID
@@ -310,7 +345,8 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
   ```sh
   curl -X POST http://localhost:3000/application/<applicationId>/role/<roleId> \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
+  -H "X-Stencil-Tenantid: <your_tenant_id>" \
   -d '{
     "name": "<role_name>",
     "description": "<role_description>"
@@ -320,6 +356,7 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
   ```sh
   http POST http://localhost:3000/application/<applicationId>/role/<roleId> \
   Authorization:"Bearer <your_access_token>" \
+  X-Stencil-Tenantid:"<your_tenant_id>" \
   data:='{
     "name": "<role_name>",
     "description": "<role_description>"
@@ -330,6 +367,7 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
 - **Endpoint** : Patch `/application/:applicationId/role/:roleId`
 - **Descripiton** : Updates an existing role for an application.
 - **Authorization-Header** : Required
+- **X-Stencil-Tenantid-Header** : Not-required
 - **Parameters:**
     - `id: string` - Application ID
     - `roleId: string` - Role ID
@@ -337,8 +375,8 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
 - **Sample cURL**:
   ```sh
   curl -X PATCH http://localhost:3000/application/<applicationId>/role/<roleId> \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
+  -H "X-Stencil-Tenantid: <your_tenant_id>" \
   -d '{
     "name": "<updated_role_name>",
     "description": "<updated_role_description>"
@@ -348,6 +386,7 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
   ```sh
   http PATCH http://localhost:3000/application/<applicationId>/role/<roleId> \
   Authorization:"Bearer <your_access_token>" \
+  X-Stencil-Tenantid:"<your_tenant_id>" \
   data:='{
     "name": "<updated_role_name>",
     "description": "<updated_role_description>"
@@ -358,18 +397,21 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
 - **Endpoint** : Delete `/application/:applicationId/role/:roleId`
 - **Descripiton** : Deletes a role from an application.
 - **Authorization-Header** : Required
+- **X-Stencil-Tenantid-Header** : Not-required
 - **Parameters:**
     - `id: string` - Application ID
     - `roleId: string` - Role ID
 - **cURL**:
   ```sh
   curl -X DELETE http://localhost:3000/application/<applicationId>/role/<roleId> \
-  -H "Authorization: Bearer <your_access_token>"
+  -H "Authorization: Basic <your_authorization_key>" \
+  -H "X-Stencil-Tenantid: <your_tenant_id>" \
 
 - **HTTPie**:
   ```sh
   http DELETE http://localhost:3000/application/<applicationId>/role/<roleId> \
-  Authorization:"Bearer <your_access_token>"
+  Authorization:"Bearer <your_access_token>" \
+  X-Stencil-Tenantid:"<your_tenant_id>" \
 
 ## Error Handling
 The service implements comprehensive error handling, throwing appropriate exceptions:
@@ -386,4 +428,3 @@ All endpoints are protected by authorization headers which requires authorizatio
 3. When creating or updating roles, make sure to provide all required fields in the DTO objects.
 4. The service interacts closely with the database using Prisma ORM. Ensure your database schema matches the expected structure for applications and roles.
 5. The `isDefault` and `isSuperRole` flags in the role data can be used to designate special roles within an application.
-

@@ -3,6 +3,8 @@
 ## Overview
 The User Service is a part of a NestJS application that handles user-related operations such as creating, retrieving, updating, and deleting users.
 
+> If th used authorization key is `tenant-scoped` then `X-Stencil-Tenantid` is also required as a header specifying the tenant to be used
+
 ## Sequence Diagrams
 
 ![Users Sequence Diagram](../assets/sequence-diagrams/users.png)
@@ -20,7 +22,7 @@ The User Service is a part of a NestJS application that handles user-related ope
   ```sh
   curl -X POST http://localhost:3000/user \
     -H "Content-Type: application/json" \
-    -H "Authorization: Bearer <your_access_token>" \
+    -H "Authorization: Basic <your_authorization_key>" \
     -d '{
       "name": "<user_name>",
       "email": "<user_email>"
@@ -28,7 +30,7 @@ The User Service is a part of a NestJS application that handles user-related ope
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/user \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>"
   data:='{
     "name": "<user_name>",
     "email": "<user_email>"
@@ -47,7 +49,7 @@ The User Service is a part of a NestJS application that handles user-related ope
   ```sh
   curl -X POST http://localhost:3000/user/<id> \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "name": "<user_name>",
     "email": "<user_email>"
@@ -56,7 +58,7 @@ The User Service is a part of a NestJS application that handles user-related ope
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/user/<id> \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>"
   data:='{
     "name": "<user_name>",
     "email": "<user_email>"
@@ -93,7 +95,7 @@ The User Service is a part of a NestJS application that handles user-related ope
   ```sh
   curl -X POST http://localhost:3000/user/<id> \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "name": "<updated_name>",
     "email": "<updated_email>"
@@ -102,7 +104,7 @@ The User Service is a part of a NestJS application that handles user-related ope
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/user/<id> \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>"
   data:='{
     "name": "<updated_name>",
     "email": "<updated_email>"
@@ -120,7 +122,7 @@ The User Service is a part of a NestJS application that handles user-related ope
 - **Sample cURL**:
   ```sh
   curl -X POST http://localhost:3000/user/<id> \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "hardDelete": "<true_or_false>"
   }'
@@ -128,7 +130,7 @@ The User Service is a part of a NestJS application that handles user-related ope
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/user/<id> \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>"
   hardDelete="<true_or_false>"
 
 
@@ -153,7 +155,7 @@ The User Registration Service is part of a NestJS application that handles user 
   ```sh
   curl -X POST http://localhost:3000/registration/<userId> \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "applicationId": "<application_id>",
     "status": "<status>"
@@ -162,7 +164,7 @@ The User Registration Service is part of a NestJS application that handles user 
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/registration/<userId> \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>"
   data:='{
     "applicationId": "<application_id>",
     "status": "<status>"
@@ -204,7 +206,7 @@ The User Registration Service is part of a NestJS application that handles user 
   ```sh
   curl -X PATCH http://localhost:3000/registration/<userId>/<applicationId> \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "status": "<updated_status>"
   }'
@@ -213,7 +215,7 @@ The User Registration Service is part of a NestJS application that handles user 
 - **Sample HTTPie**:
   ```sh
   http PATCH http://localhost:3000/registration/<userId>/<applicationId> \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>"
   data:='{
     "status": "<updated_status>"
   }'
@@ -253,7 +255,7 @@ The User Registration Service is part of a NestJS application that handles user 
   ```sh
   curl -X POST http://localhost:3000/registration/combined \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "user": {
       "name": "<user_name>",
@@ -269,7 +271,7 @@ The User Registration Service is part of a NestJS application that handles user 
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/registration/combined \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>"
   data:='{
     "user": {
       "name": "<user_name>",

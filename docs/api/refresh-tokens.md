@@ -1,6 +1,7 @@
 # Refresh Token API
+Refresh token is a token assigned to user while registration, and is used to refresh  access tokens.
 
-Refresh token is a token assigned to user while registration, and is used to refresh jwt and access tokens.
+> All the endpoints except `jwt/refresh` requires an additional header `X-Stencil-Tenantid` to specify the tenant which is refrred
 
 ## Key Features
 - JWT-based token refresh mechanism
@@ -17,13 +18,11 @@ Refresh token is a token assigned to user while registration, and is used to ref
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/jwt/refresh \
-    Authorization:"Bearer <your_access_token>" \
-    refreshToken="<your_refresh_token>"
+  refreshToken="<your_refresh_token>"
 - **Sample cURL**:
   ```sh
   curl -X POST http://localhost:3000/jwt/refresh \
     -H "Content-Type: application/json" \
-    -H "Authorization: Bearer <your_access_token>" \
     -d '{
       "refreshToken": "<your_refresh_token>"
     }'
@@ -31,18 +30,18 @@ Refresh token is a token assigned to user while registration, and is used to ref
 ### 2. Retrieve Refresh Token by ID
 - **Endpoint** : Post `/jwt/refresh/:id`
 - **Description**: Retrieves a refresh token by its ID.
-- **Authorization-Header**: Required- **Sample HTTPie**:
+- **Authorization-Header**: Required
+- **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/jwt/refresh/<id> \
-  Authorization:"Bearer <your_access_token>"
+  Authorization:"Basic <your_authorization_key>"
+
 
 - **Sample cURL**:
   ```sh
   curl -X POST http://localhost:3000/jwt/refresh/<id> \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>"
-
-
+  -H "Authorization: Basic <your_authorization_key>" \
 
 ### 3. Retrieve Refresh Tokens by User ID
 - **Endpoint** : Post `/jwt/refresh`
@@ -53,14 +52,14 @@ Refresh token is a token assigned to user while registration, and is used to ref
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/jwt/refresh \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>" \
   userId="<user_id>"
 
 - **Sample cURL**:
   ```sh
   curl -X POST http://localhost:3000/jwt/refresh \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "userId": "<user_id>"
   }'
@@ -75,14 +74,14 @@ Refresh token is a token assigned to user while registration, and is used to ref
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/jwt/refresh/<tokenId> \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>" \
   applicationsId="<application_id>"
 
 - **Sample cURL**:
   ```sh
   curl -X POST http://localhost:3000/jwt/refresh/<tokenId> \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "applicationsId": "<application_id>"
   }'
@@ -97,14 +96,14 @@ Refresh token is a token assigned to user while registration, and is used to ref
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/jwt/refresh \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>" \
   userId="<user_id>"
 
 - **Sample cURL**:
   ```sh
   curl -X POST http://localhost:3000/jwt/refresh \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "userId": "<user_id>"
   }'
@@ -120,7 +119,7 @@ Refresh token is a token assigned to user while registration, and is used to ref
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/jwt/refresh \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>" \
   userId="<user_id>" \
   applicationsId="<application_id>"
 
@@ -128,7 +127,7 @@ Refresh token is a token assigned to user while registration, and is used to ref
   ```sh
   curl -X POST http://localhost:3000/jwt/refresh \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "userId": "<user_id>",
     "applicationsId": "<application_id>"
@@ -144,14 +143,14 @@ Refresh token is a token assigned to user while registration, and is used to ref
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/jwt/refresh \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>" \
   tokenId="<token_id>"
 
 - **Sample cURL**:
   ```sh
   curl -X POST http://localhost:3000/jwt/refresh \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "tokenId": "<token_id>"
   }'
@@ -166,14 +165,14 @@ Refresh token is a token assigned to user while registration, and is used to ref
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/jwt/refresh \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>" \
   TokenString="<token_string>"
 
 - **Sample cURL**:
   ```sh
   curl -X POST http://localhost:3000/jwt/refresh \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "TokenString": "<token_string>"
   }'

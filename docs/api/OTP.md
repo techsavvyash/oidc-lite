@@ -13,7 +13,6 @@ The OTP (One-Time Password) Service is part of a NestJS application that handles
 - **Sample cURL**:
   ```sh
   curl -X POST http://localhost:3000/otp/send \
-  -H "Authorization: Bearer dummy_token" \
   -H "Content-Type: application/json" \
   -d '{
     "type": ["mail", "sms"],
@@ -23,11 +22,8 @@ The OTP (One-Time Password) Service is part of a NestJS application that handles
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/otp/send \
-  Authorization:"Bearer dummy_token" \
   type:='["mail", "sms"]' \
   to="example@example.com"
-
-
 
 ### 2. ValidateOtp
 - **Endpoint** : Post `/otp/verify`
@@ -37,22 +33,15 @@ The OTP (One-Time Password) Service is part of a NestJS application that handles
 - **Sample cURL**:
   ```sh
   curl -X POST http://localhost:3000/otp/verify \
-  -H "Authorization: Bearer dummy_token" \
   -H "Content-Type: application/json" \
   -d '{
     "otp": "123456"
   }'
 
-
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/otp/verify \
-  Authorization:"Bearer dummy_token" \
   otp="123456"
-
-
-
-
 
 ## Response Format
 All endpoints return a standardized response object containing:
