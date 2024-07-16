@@ -8,25 +8,38 @@ The ApplicationService is a crucial component of our NestJS application, respons
 
 ![Applications Sequence Diagram](../assets/sequence-diagrams/application.png)
 
-## Endpoints
+<!-- ## Endpoints -->
 
-### 1. Create Application with random id 
-- **Endpoint** : Post `/application`
-- **Description** : Creates a new application with the provided details.
-- **Authorization-Header** : Required
-- **X-Stencil-Tenantid-Header** : Not-required
-- **Parameters:**
-    - `uuid: string` - Unique identifier for the application
-    - `data: CreateApplicationDto` - Application data
+## Create Application  
+### Request 
+#### Creates a new application with random ID.
+`POST /api/application`
 
-### 1. Create Application with given id 
-- **Endpoint** : Post `/application/:applicationId`
-- **Description** : Creates a new application with the provided details.
-- **Authorization-Header** : Required
-- **X-Stencil-Tenantid-Header** : Not-required
-- **Parameters:**
-    - `uuid: string` - Unique identifier for the application
-    - `data: CreateApplicationDto` - Application data
+#### Creates a new application with given ID.
+`POST /api/application/:applicationId`
+
+### Request Parameters
+- applicationID : `string`
+
+### Request Headers
+- x-stencil-tenantid : `string` *Not Required*
+
+- authorization : `string` *Required*
+
+### Request Body
+- applicationData : `data (CreateApplicationDTO)`
+
+### Response 
+
+#### Response Codes
+
+| Code | Description |
+|------|-------------|
+| 200  | The request was successful. The response will contain a JSON body. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty. 
+| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+
 - **Sample cURL**:
   ```sh
   curl -X POST http://localhost:3000/application/<applicationId> \
@@ -49,15 +62,34 @@ The ApplicationService is a crucial component of our NestJS application, respons
   }'
 
 
+## Update An Application 
+### Request 
+#### Updates an existing Application
+`PATCH /application/:applicationId`
 
-### 2. Patch Application
-- **Endpoint** : Patch `/application/:applicationId`
-- **Description** : Updates an existing application.
-- **Authorization-Header** : Required
-- **X-Stencil-Tenantid-Header** : Not-required
-- **Parameters:**
-    - `id: string` - Application ID
-    - `newData: UpdateApplicationDto` - Updated application data
+#### Request Parameters
+- applicationID : `String`
+
+### Request Headers
+- x-stencil-tenantid : `string` *Not Required*
+
+- authorization : `string` *Required*
+
+### Request Body
+- applicationData : `data (UpdateApplicationDto)`
+
+### Response
+
+#### Response Codes
+
+| Code | Description |
+|------|-------------|
+| 200  | The request was successful. The response will contain a JSON body. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
+| 404  | The object you are trying to update doesn't exist. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+
 - **Sample cURL**:
   ```sh
   curl -X PATCH http://localhost:3000/application/<applicationId> \
@@ -80,14 +112,33 @@ The ApplicationService is a crucial component of our NestJS application, respons
     "description": "<updated_application_description>"
   }'
 
+## Return Application 
+### Request 
+####  Return All Applications
+`GET /application`
+#### Return An Application 
+`GET /application/:applicationId`
 
-### 3. Return All Applications
-- **Endpoint** : Get `/application`
-- **Description** : Retrieves all applications (either tenant scoped or global, depends on authorization key provided) with their associated roles and scopes.
-- **Authorization-Header** : Required
-- **X-Stencil-Tenantid-Header** : Not-required
-- **Parameters:**
-    - `headers: object` - Request headers
+#### Request Headers 
+- x-stencil-tenantid : `string` *not required*
+
+- authorization : `string`
+
+#### Request Parameters 
+- applicationID : `string` *required to return an application*
+
+### Response
+
+#### Response Codes
+
+| Code | Description |
+|------|-------------|
+| 200  | The request was successful. The response will contain a JSON body. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
+| 404  | The object you are trying to update doesn't exist. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+
 - **Sample cURL**:
   ```sh
   curl -X GET http://localhost:3000/application \
@@ -100,33 +151,35 @@ The ApplicationService is a crucial component of our NestJS application, respons
   Authorization:"Bearer <your_access_token>" \
   X-Stencil-Tenantid:"<your_tenant_id>" \
 
-### 4. Return An Application
-- **Endpoint** : Get `/application/:applicationId`
-- **Description** : Retrieves a specific application by ID, including its roles and scopes.
-- **Authorization-Header** : Required
-- **X-Stencil-Tenantid-Header** : Not-required
-- **Parameters:**
-    - `id: string` - Application ID
-- **Sample cURL**:
-  ```sh
-  curl -X GET http://localhost:3000/application/<applicationId> \
-  -H "Authorization: Basic <your_authorization_key>" \
-  -H "X-Stencil-Tenantid: <your_tenant_id>" \
 
-- **Sample HTTPie**:
-  ```sh
-  http GET http://localhost:3000/application/<applicationId> \
-  Authorization:"Bearer <your_access_token>" \
-  X-Stencil-Tenantid:"<your_tenant_id>" \
 
-### 5. Delete Application
-- **Endpoint** : DELETE `/application/:applicationId`
-- **Description** : Deletes an application (soft or hard delete).
-- **Authorization-Header** : Required
-- **X-Stencil-Tenantid-Header** : Not-required
-- **Parameters:**
-    - `id: string` - Application ID
-    - `hardDelete: boolean` - Whether to perform a hard delete
+
+## Delete Application
+### Request 
+#### Deletes an application (soft or hard delete).
+`DELETE /application/:applicationId`
+
+#### Request Headers 
+- x-stencil-tenantid : `string` *not required*
+
+- authorization : `string`
+
+#### Request Parameters 
+- applicationID : `string`
+- hardDelete : `boolean`
+
+### Response
+
+#### Response Codes
+
+| Code | Description |
+|------|-------------|
+| 200  | The request was successful. The response will contain a JSON body. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
+| 404  | The object you are trying to update doesn't exist. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+
 - **Sample cURL**:
   ```sh
   curl -X DELETE http://localhost:3000/application/<applicationId> \
@@ -143,13 +196,32 @@ The ApplicationService is a crucial component of our NestJS application, respons
   X-Stencil-Tenantid:"<your_tenant_id>" \
   hardDelete=<true_or_false>
 
-### 6. Return Oauth Configuration
-- **Endpoint** : Get `/application/:applicationId/oauth-configuration`
-- **Description** : Retrieves the OAuth configuration for a specific application.
-- **Authorization-Header** : Required
-- **X-Stencil-Tenantid-Header** : Not-required
-- **Parameters:**
-    - `id: string` - Application ID
+## Return Oauth Configuration
+### Request 
+##### Retrieves the OAuth configuration for a specific application.
+
+`GET /application/:applicationId/oauth-configuration`
+
+#### Request Headers 
+- x-stencil-tenantid : `string` *not required*
+
+- authorization : `string`
+
+#### Request Parameters 
+- applicationID : `string`
+
+### Response
+
+#### Response Codes
+
+| Code | Description |
+|------|-------------|
+| 200  | The request was successful. The response will contain a JSON body. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
+| 404  | The object you are trying to update doesn't exist. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+
 - **Sample cURL**:
   ```sh
   curl -X GET http://localhost:3000/application/<applicationId>/oauth-configuration \
@@ -175,17 +247,37 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
 3. Application-specific scope management
 4. Detailed error handling and logging
 
-## Endpoints
+## Create Scope 
 
-### 1. Create Scope with random id
-- **Endpoint** : Post `/application/:applicationId/scope`
-- **Description** : Creates a new scope for a specific application.
-- **Authorization-Header** : Required
-- **X-Stencil-Tenantid-Header** : Not-required
-- **Parameters:**
-    - `data: ScopeDto` - Scope data
-    - `applicationsId: string` - Application ID
-    - `scopeId: string` - Optional scope ID
+### Request
+#### Create Scope with random id
+`POST /application/:applicationId/scope`
+
+#### Create Scope with given id
+`POST /application/:applicationId/scope/:scopeId`
+
+#### Request Parameters 
+- `data: ScopeDto` - Scope data
+- `applicationsId: string` - Application ID
+- `scopeId: string` - Optional scope ID 
+
+#### Request Headers 
+- x-stencil-tenantid : `string` *not required*
+
+- authorization : `string`
+
+### Response
+
+#### Response Codes
+
+| Code | Description |
+|------|-------------|
+| 200  | The request was successful. The response will contain a JSON body. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
+| 404  | The object you are trying to update doesn't exist. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+    
 - **Sample cURL**:
   ```sh
   curl -X POST http://localhost:3000/application/<applicationId>/scope \
@@ -207,45 +299,36 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
     "description": "<scope_description>"
   }'
 
-### 2. Create Scope with given id
-- **Endpoint** : Post `/application/:applicationId/scope/:scopeId`
-- **Description** : Creates a new scope for a specific application.
-- **Authorization-Header** : Required
-- **X-Stencil-Tenantid-Header** : Not-required
-- **Parameters:**
-    - `data: ScopeDto` - Scope data
-    - `applicationsId: string` - Application ID
-    - `scopeId: string` - Optional scope ID
-- **Sample cURL**:
-  ```sh
-  curl -X POST http://localhost:3000/application/<applicationId>/scope/<scopeId> \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Basic <your_authorization_key>" \
-  -H "X-Stencil-Tenantid: <your_tenant_id>" \
-  -d '{
-    "name": "<scope_name>",
-    "description": "<scope_description>"
-  }'
 
-- **Sample HTTPie**:
-  ```sh
-  http POST http://localhost:3000/application/<applicationId>/scope/<scopeId> \
-  Authorization:"Bearer <your_access_token>" \
-  X-Stencil-Tenantid:"<your_tenant_id>" \
-  data:='{
-    "name": "<scope_name>",
-    "description": "<scope_description>"
-  }'
+## Update Scope
+### Request 
+#### Updates an existing scope for an application.
+`PATCH /application/:applicationId/scope/:scopeId`
 
-### 3. Update Scope
-- **Endpoint** : Patch `/application/:applicationId/scope/:scopeId`
-- **Description** : Updates an existing scope for an application.
-- **Authorization-Header** : Required
-- **X-Stencil-Tenantid-Header** : Not-required
-- **Parameters:**
-    - `id: string` - Application ID
-    - `scopeId: string` - Scope ID
-    - `data: UpdateScopeDto` - Updated scope data
+#### Request Parameters 
+- `scopeId: string` - Scope ID 
+- `applicationsId: string` - Application ID
+
+#### Request Headers 
+- x-stencil-tenantid : `string` *not required*
+
+- authorization : `string`
+
+#### Request Body 
+- `data: UpdateScopeDto` - Scope data
+
+### Response
+
+#### Response Codes
+
+| Code | Description |
+|------|-------------|
+| 200  | The request was successful. The response will contain a JSON body. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
+| 404  | The object you are trying to update doesn't exist. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+
 - **Sample cURL**:
   ```sh
   curl -X PATCH http://localhost:3000/application/<applicationId>/scope/<scopeId> \
@@ -267,14 +350,33 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
     "description": "<updated_scope_description>"
   }'
 
-### 4. Delete Scope
-- **Endpoint** : Delete `/application/:applicationId/scope/:scopeId`
-- **Description** : Deletes a scope from an application.
-- **Authorization-Header** : Required
-- **X-Stencil-Tenantid-Header** : Not-required
-- **Parameters:**
-    - `id: string` - Application ID
-    - `scopeId: string` - Scope ID
+
+## Delete Scope
+### Request 
+#### Deletes a scope from an application.
+`DELETE /application/:applicationId/scope/:scopeId`
+
+#### Request Parameters 
+- `scopeId: string` - Scope ID 
+- `applicationsId: string` - Application ID
+
+#### Request Headers 
+- x-stencil-tenantid : `string` *not required*
+
+- authorization : `string`
+
+### Response
+
+#### Response Codes
+
+| Code | Description |
+|------|-------------|
+| 200  | The request was successful. The response will contain a JSON body. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
+| 404  | The object you are trying to update doesn't exist. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+
 - **Sample cURL**:
   ```sh
   curl -X DELETE http://localhost:3000/application/<applicationId>/scope/<scopeId> \
@@ -300,17 +402,40 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
 3. Application-specific role management
 4. Detailed error handling and logging
 
-## Endpoints
+## Create Role 
 
-### 1. Create Role with random id
-- **Endpoint** : Post `/application/:applicationId/role`
-- **Descripiton** : Creates a new role for a specific application.
-- **Authorization-Header** : Required
-- **X-Stencil-Tenantid-Header** : Not-required
-- **Parameters:**
-    - `data: RoleDto` - Role data
-    - `applicationsId: string` - Application ID
-    - `roleId: string` - Optional role ID
+### Request
+#### Creates a new role with random ID. 
+`POST /application/:applicationId/role`
+
+#### Create Role with given id
+`POST /application/:applicationId/role/:roleId`
+
+#### Request Parameters 
+- `applicationsId: string` - Application ID
+- `roleId: string` - Role ID *required when creating role with given ID*
+
+#### Request Headers 
+- x-stencil-tenantid : `string` *not required*
+
+- authorization : `string`
+
+#### Request Body
+- `data: RoleDto` - Role data
+
+### Response
+
+#### Response Codes
+
+| Code | Description |
+|------|-------------|
+| 200  | The request was successful. The response will contain a JSON body. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
+| 404  | The object you are trying to update doesn't exist. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+
+
 - **Sample cURL**:
   ```sh
   curl -X POST http://localhost:3000/application/<applicationId>/role \
@@ -332,46 +457,36 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
     "description": "<role_description>"
   }'
 
-### 2. Create Role with given id
-- **Endpoint** : Post `/application/:applicationId/role/:roleId`
-- **Descripiton** : Creates a new role for a specific application.
-- **Authorization-Header** : Required
-- **X-Stencil-Tenantid-Header** : Not-required
-- **Parameters:**
-    - `data: RoleDto` - Role data
-    - `applicationsId: string` - Application ID
-    - `roleId: string` - Optional role ID
-- **Sample cURL**:
-  ```sh
-  curl -X POST http://localhost:3000/application/<applicationId>/role/<roleId> \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Basic <your_authorization_key>" \
-  -H "X-Stencil-Tenantid: <your_tenant_id>" \
-  -d '{
-    "name": "<role_name>",
-    "description": "<role_description>"
-  }'
+## Update Role
+### Request 
+####  Updates an existing role for an application.
+`PATCH /application/:applicationId/role/:roleId`
 
-- **Sample HTTPie**:
-  ```sh
-  http POST http://localhost:3000/application/<applicationId>/role/<roleId> \
-  Authorization:"Bearer <your_access_token>" \
-  X-Stencil-Tenantid:"<your_tenant_id>" \
-  data:='{
-    "name": "<role_name>",
-    "description": "<role_description>"
-  }'
+#### Request Parameters 
+- `id: string` - Application ID
+- `roleId: string` - Role ID
+
+#### Request Headers 
+- x-stencil-tenantid : `string` *not required*
+
+- authorization : `string`
+
+#### Request Body
+- `data: UpdateRoleDto` - Updated role data
+
+### Response
+
+#### Response Codes
+
+| Code | Description |
+|------|-------------|
+| 200  | The request was successful. The response will contain a JSON body. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
+| 404  | The object you are trying to update doesn't exist. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
 
 
-### 3. Update Role
-- **Endpoint** : Patch `/application/:applicationId/role/:roleId`
-- **Descripiton** : Updates an existing role for an application.
-- **Authorization-Header** : Required
-- **X-Stencil-Tenantid-Header** : Not-required
-- **Parameters:**
-    - `id: string` - Application ID
-    - `roleId: string` - Role ID
-    - `data: UpdateRoleDto` - Updated role data
 - **Sample cURL**:
   ```sh
   curl -X PATCH http://localhost:3000/application/<applicationId>/role/<roleId> \
@@ -393,21 +508,40 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
   }'
 
 
-### 4. Delete Role
-- **Endpoint** : Delete `/application/:applicationId/role/:roleId`
-- **Descripiton** : Deletes a role from an application.
-- **Authorization-Header** : Required
-- **X-Stencil-Tenantid-Header** : Not-required
-- **Parameters:**
-    - `id: string` - Application ID
-    - `roleId: string` - Role ID
-- **cURL**:
+## Delete Role
+### Request 
+#### Deletes a role from an application.
+`DELETE /application/:applicationId/role/:roleId`    
+
+#### Request Parameters 
+- `id: string` - Application ID
+- `roleId: string` - Role ID
+
+#### Request Headers 
+- x-stencil-tenantid : `string` *not required*
+
+- authorization : `string`
+
+### Response
+
+#### Response Codes
+
+| Code | Description |
+|------|-------------|
+| 200  | The request was successful. The response will contain a JSON body. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
+| 404  | The object you are trying to update doesn't exist. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+
+
+- **Sample cURL**:
   ```sh
   curl -X DELETE http://localhost:3000/application/<applicationId>/role/<roleId> \
   -H "Authorization: Basic <your_authorization_key>" \
   -H "X-Stencil-Tenantid: <your_tenant_id>" \
 
-- **HTTPie**:
+- **Sample HTTPie**:
   ```sh
   http DELETE http://localhost:3000/application/<applicationId>/role/<roleId> \
   Authorization:"Bearer <your_access_token>" \
