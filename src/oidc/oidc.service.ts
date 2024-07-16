@@ -31,6 +31,7 @@ import {
 } from 'src/user/user.dto';
 import { UtilsService } from '../utils/utils.service';
 import { ResponseDto } from '../dto/response.dto';
+import { OtpService } from 'src/otp/otp.service';
 
 @Injectable()
 export class OidcService {
@@ -38,6 +39,7 @@ export class OidcService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly utilService: UtilsService,
+    private readonly otpService: OtpService,
   ) {
     this.logger = new Logger(OidcService.name);
   }
@@ -156,6 +158,174 @@ export class OidcService {
       throw new UnauthorizedException({
         success: false,
         message: 'Invalid user credentials',
+      });
+    }
+    try {
+      const alreadyRegisterd =
+        await this.prismaService.userRegistration.findUnique({
+          where: {
+            user_registrations_uk_1: {
+              usersId: user.id,
+              applicationsId: application.id,
+            },
+          },
+        });
+      if (!alreadyRegisterd) {
+        const userRegistration =
+          await this.prismaService.userRegistration.create({
+            data: {
+              applicationsId: application.id,
+              authenticationToken,
+              password: userData.userData.password,
+              usersId: user.id,
+              data: JSON.stringify({
+                code_challenge: code_challenge === '' ? null : code_challenge,
+                code_challenge_method:
+                  code_challenge_method === '' ? null : code_challenge_method,
+                scope,
+              }),
+            },
+          });
+        this.logger.log('A user authenticated', user);
+        return res.redirect(
+          `${redirect_uri}?code=${userRegistration.authenticationToken}&state=${state}`,
+        );
+      }
+      const updateRegistration =
+        await this.prismaService.userRegistration.update({
+          where: { id: alreadyRegisterd.id },
+          data: {
+            authenticationToken,
+            data: JSON.stringify({
+              code_challenge: code_challenge === '' ? null : code_challenge,
+              code_challenge_method:
+                code_challenge_method === '' ? null : code_challenge_method,
+              scope,
+            }),
+          },
+        });
+
+      this.logger.log('A user authenticated', user);
+      res.redirect(
+        `${redirect_uri}?code=${updateRegistration.authenticationToken}&state=${state}`,
+      );
+    } catch (error) {
+      this.logger.log('Error from postAuthorize', error);
+      throw new InternalServerErrorException({
+        success: false,
+        message: 'Error occured while registering',
+      });
+    }
+  }
+
+  async passwordless_otp(
+    req: Request,
+    res: Response,
+    query: OIDCAuthQuery,
+    headers: object,
+  ) {
+    const {
+      client_id,
+      tenantId,
+      redirect_uri,
+      response_type,
+      scope,
+      state,
+      code_challenge,
+      code_challenge_method,
+    } = query;
+    if (!client_id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No client/application id given',
+      });
+    }
+    if (!redirect_uri) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No redirect uri given',
+      });
+    }
+    if (!scope) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Scopes not given',
+      });
+    }
+    if (!response_type) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No response type given',
+      });
+    }
+    res.render('passwordless-otp', {
+      host: `${process.env.FULL_URL}`,
+      applicationId: client_id,
+      redirect_uri,
+      state,
+      scope,
+      response_type,
+      code_challenge,
+      code_challenge_method,
+    });
+  }
+
+  async postPasswordless_otp(
+    data: LoginDto & { otp: string },
+    query: OIDCAuthQuery,
+    headers: object,
+    res: Response,
+  ) {
+    if (!data || !data.loginId) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No data given',
+      });
+    }
+    const {
+      loginId,
+      state,
+      scope,
+      code_challenge,
+      code_challenge_method,
+      redirect_uri,
+    } = data;
+    const { client_id } = query;
+    const application = await this.prismaService.application.findUnique({
+      where: { id: client_id },
+    });
+    if (!application) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No such application exists',
+      });
+    }
+    const applicationData: ApplicationDataDto = JSON.parse(application.data);
+    const redirectUrls =
+      applicationData.oauthConfiguration.authorizedRedirectURLs;
+    if (!redirectUrls.includes(redirect_uri)) {
+      throw new UnauthorizedException({
+        success: false,
+        message:
+          'The given redirect_uri doesnt match with the registered redirect uris',
+      });
+    }
+    const user = await this.prismaService.user.findUnique({
+      where: { email: loginId },
+    });
+    if (!user) {
+      throw new BadRequestException({
+        success: false,
+        message: 'No such user exists',
+      });
+    }
+    const authenticationToken = randomUUID();
+    const userData: UserData = JSON.parse(user.data);
+    const valid = await this.otpService.validateOtp(data.otp, loginId);
+    if (!valid.success) {
+      throw new UnauthorizedException({
+        success: valid.success,
+        message: valid.message,
       });
     }
     try {

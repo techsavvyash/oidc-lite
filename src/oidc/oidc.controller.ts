@@ -100,6 +100,28 @@ export class OidcController {
     return await this.oidcService.postRegisterAUser(data, query, headers, res);
   }
 
+  @Get('/passwordless-otp')
+  async passwordless_otp(
+    @Query() query: OIDCAuthQuery,
+    @Req() req: Request,
+    @Res() res: Response,
+    @Headers() headers: object,
+  ) {
+    return await this.oidcService.passwordless_otp(req, res, query, headers);
+  }
+
+  @Post('/passwordless-otp')
+  @ApiOperation({ summary: 'Post registration' })
+  @ApiBody({ type: RegisterDto })
+  async postPasswordless_otp(
+    @Body() data: LoginDto & {otp: string},
+    @Query() query: OIDCAuthQuery,
+    @Headers() headers: object,
+    @Res() res: Response,
+  ) {
+    return await this.oidcService.postPasswordless_otp(data, query, headers, res);
+  }
+
   @ApiOperation({ summary: 'OIDC Token Endpoint' })
   @ApiBody({ type: TokenDto })
   @ApiResponse({
