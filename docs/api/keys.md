@@ -1,13 +1,12 @@
 # Key API
-
 This API provides endpoints for managing cryptographic keys. Cryptographic keys are used in signing and verifying JWTs and verifying responses for third party identity providers
 
+> Only a `tenant scoped` authorization key can access these routes
 
 ## Key Types
 The service supports generating three types of keys:
-- RSA keys (RS256)
-- Elliptic Curve keys (ES256)
-- HMAC keys (HS256)
+- RSA keys (RS256, RS384, RS512)
+- Elliptic Curve keys (ES256, ES384, ES512)
 
 Each key type is stored in the database with its relevant information, including public and private keys where applicable.
 
@@ -20,14 +19,14 @@ Each key type is stored in the database with its relevant information, including
 - **Sample cURL**:
   ```sh
   curl -X GET http://localhost:3000/key \
-    -H "Authorization: Bearer dummy_token" \
-    -H "x-stencil-tenanid: dummy_tenant_id"
+       -H "Authorization: Basic <your_authorization_key>" \
+
 
 - **Sample HTTPie**:
   ```sh
   http GET http://localhost:3000/key \
-  Authorization:"Bearer dummy_token" \
-  x-stencil-tenanid:dummy_tenant_id
+  Authorization:"Basic <your_authorization_key>"
+
 
 
 ### 2. Retrieve Unique Key
@@ -39,14 +38,12 @@ Each key type is stored in the database with its relevant information, including
 - **Sample cURL**:
   ```sh
   curl -X GET http://localhost:3000/key/unique_key_id \
-  -H "Authorization: Bearer dummy_token" \
-  -H "x-stencil-tenanid: dummy_tenant_id"
+       -H "Authorization: Basic <your_authorization_key>" \
 
 - **Sample HTTPie**:
   ```sh
   http GET http://localhost:3000/key/unique_key_id \
-  Authorization:"Bearer dummy_token" \
-  x-stencil-tenanid:dummy_tenant_id
+  Authorization:"Basic <your_authorization_key>"
 
 
 ### 3. Update Key
@@ -60,8 +57,7 @@ Only the name of the Key may be changed; all other fields will remain the same
 - **Sample cURL**:
   ```sh
   curl -X PUT http://localhost:3000/key/unique_key_id \
-  -H "Authorization: Bearer dummy_token" \
-  -H "x-stencil-tenanid: dummy_tenant_id" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "new_key_name"
@@ -70,8 +66,7 @@ Only the name of the Key may be changed; all other fields will remain the same
 - **Sample HTTPie**:
   ```sh
   http PUT http://localhost:3000/key/unique_key_id \
-  Authorization:"Bearer dummy_token" \
-  x-stencil-tenanid:dummy_tenant_id \
+  Authorization:"Basic <your_authorization_key>"
   name="new_key_name"
 
 
@@ -84,15 +79,12 @@ Only the name of the Key may be changed; all other fields will remain the same
 - **Sample cURL**:
   ```sh
   curl -X DELETE http://localhost:3000/key/unique_key_id \
-  -H "Authorization: Bearer dummy_token" \
-  -H "x-stencil-tenanid: dummy_tenant_id"
+       -H "Authorization: Basic <your_authorization_key>" \
 
 - **Sample HTTPie**:
   ```sh
   http DELETE http://localhost:3000/key/unique_key_id \
-  Authorization:"Bearer dummy_token" \
-  x-stencil-tenanid:dummy_tenant_id
-
+  Authorization:"Basic <your_authorization_key>"
 
 ### 5. Generate Key with random id
 - **Endpoint** : Post `/key/generate`
@@ -100,35 +92,28 @@ Only the name of the Key may be changed; all other fields will remain the same
 - **Authorization-Header**: Required
 - **Parameters**: 
   - `uuid`: The unique id for the new key
-  - `algorithm`: The algorithm to use (RS256, ES256, or HS256)
+  - `algorithm`: The algorithm to use (RS or ES)
   - `name`: The name of the key
-  - `length`: The key length (for some algorithms)
   - `issuer`: The issuer of the key
 - **Sample cURL**:
   ```sh
   curl -X POST http://localhost:3000/key/generate \
-  -H "Authorization: Bearer dummy_token" \
-  -H "x-stencil-tenanid: dummy_tenant_id" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -H "Content-Type: application/json" \
   -d '{
     "uuid": "random_key_id",
     "algorithm": "RS256",
     "name": "new_key",
-    "length": 2048,
     "issuer": "example_issuer"
   }'
-
-
 
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/key/generate \
-  Authorization:"Bearer dummy_token" \
-  x-stencil-tenanid:dummy_tenant_id \
+  Authorization:"Basic <your_authorization_key>"
   uuid="random_key_id" \
   algorithm="RS256" \
   name="new_key" \
-  length:=2048 \
   issuer="example_issuer"
 
 
@@ -138,33 +123,28 @@ Only the name of the Key may be changed; all other fields will remain the same
 - **Authorization-Header**: Required
 - **Parameters**: 
   - `uuid`: The unique id for the new key
-  - `algorithm`: The algorithm to use (RS256, ES256, or HS256)
+  - `algorithm`: The algorithm to use (RS or ES)
   - `name`: The name of the key
-  - `length`: The key length (for some algorithms)
   - `issuer`: The issuer of the key
 - **Sample cURL**:
   ```sh
   curl -X POST http://localhost:3000/key/generate/unique_key_id \
-  -H "Authorization: Bearer dummy_token" \
-  -H "x-stencil-tenanid: dummy_tenant_id" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -H "Content-Type: application/json" \
   -d '{
     "uuid": "unique_key_id",
     "algorithm": "RS256",
     "name": "new_key",
-    "length": 2048,
     "issuer": "example_issuer"
   }'
   
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/key/generate/unique_key_id \
-  Authorization:"Bearer dummy_token" \
-  x-stencil-tenanid:dummy_tenant_id \
+  Authorization:"Basic <your_authorization_key>"
   uuid="unique_key_id" \
   algorithm="RS256" \
   name="new_key" \
-  length:=2048 \
   issuer="example_issuer"
 
 

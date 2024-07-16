@@ -1,106 +1,146 @@
 ## Schema of Service 
-The proposed schema which will act as skeleton for the service.
+
+The proposed schema which will act as the skeleton for the service.
+
 - [DB Diagram](https://dbdiagram.io/d/OIDC-Wrapper-DB-Schema-665d7a3bb65d933879567dd2)
 
 ### 1. `application_oauth_scopes`
 
 | Field             | Description                           |
 | ----------------- | ------------------------------------- |
-| `applications_id` | Application to which the scope belong |
+| `applications_id` | Application to which the scope belongs|
 | `name`            | Name of the scope                     |
+| `description`     | Description of the scope              |
+| `created_at`      | Time when the scope was created       |
+| `updated_at`      | Time when the scope was last updated  |
 
 ### 2. `application_roles`
 
-| Field                         | Description                             |
-| ----------------------------- | --------------------------------------- |
-| `applications_id`             | application to which the scope belong   |
-| `description`                 | description of the role                 |
-| `is_default`                  | whether the role is default or not      |
-| `is_super_role`               | whether it is admin role                |
-| `name`                        | name of the role                        |
-| `description`                 | about the role                          |
-| `application_oauth_scopes_id` | the scopes allowed to a particular role |
+| Field                 | Description                            |
+| --------------------- | -------------------------------------- |
+| `applications_id`     | Application to which the role belongs  |
+| `description`         | Description of the role                |
+| `is_default`          | Whether the role is default or not     |
+| `is_super_role`       | Whether it is an admin role            |
+| `name`                | Name of the role                       |
+| `created_at`          | Time when the role was created         |
+| `updated_at`          | Time when the role was last updated    |
 
 ### 3. `applications`
 
-| Field                 | Description                                           |
-| --------------------- | ----------------------------------------------------- |
-| `active`              | in service or not                                     |
-| `data`                | configurations of application                         |
-| `name`                | name of application                                   |
-| `tenants_id`          | tenant it is using                                    |
-| `templates_link_json` | contains the link of various templates in json format |
+| Field                         | Description                                |
+| ----------------------------- | ------------------------------------------ |
+| `active`                      | Whether the application is in service or not |
+| `data`                        | Configurations of the application          |
+| `name`                        | Name of the application                    |
+| `tenants_id`                  | Tenant to which the application belongs    |
+| `created_at`                  | Time when the application was created      |
+| `updated_at`                  | Time when the application was last updated |
 
 ### 4. `tenants`
 
-| Field                          | Description                                 |
-| ------------------------------ | ------------------------------------------- |
-| `access_token_signing_keys_id` | id of key used to sign the access tokens    |
-| `id_token_signing_keys_id`     | id of key used to sign identity tokens      |
-| `name`                         | name of tenant                              |
-| `data`                         | configurations and extra settings of tenant |
+| Field                          | Description                                |
+| ------------------------------ | ------------------------------------------ |
+| `access_token_signing_keys_id` | ID of the key used to sign access tokens   |
+| `id_token_signing_keys_id`     | ID of the key used to sign identity tokens |
+| `name`                         | Name of the tenant                         |
+| `data`                         | Configurations and extra settings of the tenant |
+| `created_at`                   | Time when the tenant was created           |
+| `updated_at`                   | Time when the tenant was last updated      |
+
 ### 5. `user_registration`
 
 | Field                  | Description                                     |
 | ---------------------- | ----------------------------------------------- |
-| `applications_id`      | application id                                  |
-| `authentication_token` | the token created while authenticating the user |
-| `data`                 | stores tokens and preferred languages           |
+| `applications_id`      | ID of the application                           |
+| `authentication_token` | Token created while authenticating the user     |
+| `password`             | Password of the user                            |
+| `data`                 | Stores tokens and preferred languages           |
+| `created_at`           | Time when the user was registered               |
+| `last_login_instant`   | Last login time of the user                     |
+| `updated_at`           | Time when the user registration was last updated|
 
 ### 6. `users`
 
-| Field        | Description                   |
-| ------------ | ----------------------------- |
-| `tenants_id` | tenant to which it belongs to |
-| `groups_id`  | groups to which it belongs to |
-  
-### 7.`keys/JWKS`
+| Field         | Description                        |
+| ------------- | ---------------------------------- |
+| `tenant_id`   | Tenant to which the user belongs   |
+| `active`      | Whether the user is active or not  |
+| `data`        | Extra data of the user             |
+| `expiry`      | Expiry time of the user            |
+| `created_at`  | Time when the user was created     |
+| `updated_at`  | Time when the user was last updated|
+| `email`       | Email of the user                  |
+
+### 7. `keys/JWKS`
 
 | Field         | Description                              |
-| ------------- | ---------------------                    |
-| `algorithm`   | algorithm used                           |
-| `certificate` | certificate of key                       |
-| `issuer`      | the issuer(we) of key                    |
-| `kid`         | key identifier for JWKS                  |
-| `private_key` | private key used to sign the JWT/JWKS    |
-| `public_key`  | private key used to sign the JWT/JWKS    |
-| `secret`      | secret for the public/private key pair   |
+| ------------- | ---------------------------------------- |
+| `algorithm`   | Algorithm used                           |
+| `certificate` | Certificate of the key                   |
+| `issuer`      | The issuer of the key                    |
+| `kid`         | Key identifier for JWKS                  |
+| `private_key` | Private key used to sign the JWT/JWKS    |
+| `public_key`  | Public key used to sign the JWT/JWKS     |
+| `secret`      | Secret for the public/private key pair   |
+| `created_at`  | Time when the key was created            |
+| `updated_at`  | Time when the key was last updated       |
 
 ### 8. `groups`
 
-| Field        | Description        |
-| ------------ | ------------------ |
-| `tenants_id` | tenant it is using |
+| Field         | Description                        |
+| ------------- | ---------------------------------- |
+| `tenant_id`   | Tenant to which the group belongs  |
+| `name`        | Name of the group                  |
+| `created_at`  | Time when the group was created    |
+| `updated_at`  | Time when the group was last updated|
 
 ### 9. `group_members`
 
-| Field       | Description                                         |
-| ----------- | --------------------------------------------------- |
-| `users_id`  | id of user                                          |
-| `groups_id` | id of group to which the particular user belongs to |
-
+| Field         | Description                                         |
+| ------------- | --------------------------------------------------- |
+| `user_id`     | ID of the user                                      |
+| `group_id`    | ID of the group to which the user belongs           |
+| `created_at`  | Time when the user joined the group                 |
 
 ### 10. `group_application_roles`
 
 | Field                  | Description                                     |
 | ---------------------- | ----------------------------------------------- |
-| `application_roles_id` | the role which is placed in a group             |
-| `groups_id`            | the group to which a particular role belongs to |
-
+| `application_roles_id` | ID of the role which is assigned to a group     |
+| `group_id`             | ID of the group to which a particular role belongs|
 
 ### 11. `refresh_tokens`
 
 | Field             | Description                                            |
-| ----------------- | -------------------------------------------------------|
-| `id`              |      id of the entry                                   |
-| `applications_id` |      application of the id to which this belongs       |
-| `expiry`          |      time when the refresh token expires               |
-| `data`            |      self explanatory                                  |
-| `created_at`      |      self explanatory                                  |
-| `start_instant`   |      instant when the token was last refreshed/renewed |
-| `tenants_id`      |      id of the tenant this token belongs to            |
-| `token`           |      actual token                                      |
-| `token_hash`      |                                                        |
-| `token_text`      |                                                        |
-| `users_id`        |                                                        |
+| ----------------- | ------------------------------------------------------ |
+| `id`              | ID of the entry                                        |
+| `applications_id` | Application to which the token belongs                 |
+| `expiry`          | Time when the refresh token expires                    |
+| `data`            | Extra data of the refresh token                        |
+| `created_at`      | Time when the refresh token was created                |
+| `start_instant`   | Instant when the token was last refreshed/renewed      |
+| `tenant_id`       | ID of the tenant to which this token belongs           |
+| `token`           | Actual refresh token                                   |
+| `token_hash`      | Hash of the token (currently not used)                 |
+| `token_text`      | Text representation of the token (currently not used)  |
+| `user_id`         | User to whom this refresh token belongs                |
 
+### Additional Tables
+
+#### `public_keys`
+
+| Field         | Description                        |
+| ------------- | ---------------------------------- |
+| `application_id` | ID of the application              |
+| `hostname`    | Hostname for the public key         |
+| `public_key`  | Public key value                    |
+| `created_at`  | Time when the public key was created|
+| `updated_at`  | Time when the public key was updated|
+
+#### `admin`
+
+| Field         | Description                         |
+| ------------- | ----------------------------------- |
+| `username`    | Username of the admin               |
+| `password`    | Password of the admin               |

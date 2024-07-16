@@ -1,6 +1,7 @@
 # Group API
 - A Group is a named object that optionally contains one to many Application Roles.
-- This service provides endpoints for managing groups within a multi-tenant system. It uses NestJS and Prisma for database operations.
+- This service provides endpoints for managing groups within a multi-application system. It uses NestJS and Prisma for database operations.
+- A Group can have roles from different applications as long as those applications are in the same tenant.
 
 ## Sequence Diagram
 
@@ -19,7 +20,7 @@
   ```sh
   curl -X POST http://localhost:3000/group \
     -H "Content-Type: application/json" \
-    -H "Authorization: Bearer <your_access_token>" \
+    -H "Authorization: Basic <your_authorization_key>" \
     -d '{
       "name": "<group_name>",
       "tenantId": "<tenant_id>",
@@ -29,7 +30,7 @@
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/group \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>"
   name="<group_name>" \
   tenantId="<tenant_id>" \
   roleIDs:='["<role_id1>", "<role_id2>"]'
@@ -45,7 +46,7 @@
   ```sh
   curl -X POST http://localhost:3000/group/<id> \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "name": "<group_name>",
     "tenantId": "<tenant_id>",
@@ -55,7 +56,7 @@
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/group/<id> \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>"
   name="<group_name>" \
   tenantId="<tenant_id>" \
   roleIDs:='["<role_id1>", "<role_id2>"]'
@@ -106,7 +107,7 @@
   ```sh
   curl -X PUT http://localhost:3000/group/<id> \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "name": "<updated_group_name>",
     "roleIDs": ["<updated_role_id1>", "<updated_role_id2>"]
@@ -115,7 +116,7 @@
 - **Sample HTTPie**:
   ```sh
   http PUT http://localhost:3000/group/<id> \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>"
   name="<updated_group_name>" \
   roleIDs:='["<updated_role_id1>", "<updated_role_id2>"]'
 
@@ -154,9 +155,10 @@ All endpoints return a standardized `ResponseDto` object containing:
 
 # Group User API
 
-This service manages the relationship between users and groups within a multi-tenant system. It uses NestJS and Prisma for database operations.
+This service manages the relationship between users and groups within a multi-application system. It uses NestJS and Prisma for database operations.
 
 ## Endpoints
+> If the authorization key provided in Authorization header is tenant scoped, then an additional header `X-Stencil-Tenantid` is required to specify the tenant to be used. `-H "X-Stencil-Tenantid: <your_tenant_id>"` or `X-Stencil-Tenantid: <your_tenant_id>`
 
 ### 1. Add User to Group
 - **Endpoint** : Post `/group/member`
@@ -168,7 +170,7 @@ This service manages the relationship between users and groups within a multi-te
   ```sh
   curl -X POST http://localhost:3000/group/member \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "members": [
       {
@@ -180,7 +182,7 @@ This service manages the relationship between users and groups within a multi-te
 - **Sample HTTPie**:
   ```sh
   http POST http://localhost:3000/group/member \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>"
   members:='[
     {
       "groupId": "<group_id>",
@@ -197,7 +199,7 @@ This service manages the relationship between users and groups within a multi-te
   ```sh
   curl -X PUT http://localhost:3000/group/member \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_access_token>" \
+  -H "Authorization: Basic <your_authorization_key>" \
   -d '{
     "members": [
       {
@@ -211,7 +213,7 @@ This service manages the relationship between users and groups within a multi-te
 - **Sample HTTPie**:
   ```sh
   http PUT http://localhost:3000/group/member \
-  Authorization:"Bearer <your_access_token>" \
+  Authorization:"Basic <your_authorization_key>"
   members:='[
     {
       "groupId": "<group_id>",

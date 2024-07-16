@@ -1,9 +1,10 @@
 # Tenant API
 
 ## Overview
+- A Tenant is a named object that represents a discrete namespace for Users, Applications and Groups. A user is unique by email address.
 
-- A Tenant is a named object that represents a discrete namespace for Users, Applications and Groups. A user is unique by email address or username within a tenant.
-- Tenants may also be useful in a test or staging environment to allow multiple users to call APIs and create and modify users without possibility of collision.
+> `GET /tenant, DEL /tenant, PATCH /tenant` requires `X-Stencil-Tenanid` as a header also.
+> `POST /tenant` can only be accessed by a `tenant-scoped` authorization key
 
 ## Endpoints
 
