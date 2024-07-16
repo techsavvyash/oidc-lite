@@ -31,7 +31,7 @@ import {
 } from 'src/user/user.dto';
 import { UtilsService } from '../utils/utils.service';
 import { ResponseDto } from '../dto/response.dto';
-import { OtpService } from 'src/otp/otp.service';
+import { OtpService } from '../otp/otp.service';
 
 @Injectable()
 export class OidcService {
