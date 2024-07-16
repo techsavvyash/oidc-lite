@@ -29,6 +29,7 @@
     ]
   },
   "dependencies": {
+    "@astrojs/starlight": "^0.25.1",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.6.0",
     "@nestjs/axios": "^3.0.2",
@@ -43,6 +44,7 @@
     "@types/bcrypt": "^5.0.2",
     "@types/jwk-to-pem": "^2.0.3",
     "@types/oidc-provider": "^8.4.4",
+    "astro": "^4.11.5",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
