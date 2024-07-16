@@ -13,7 +13,6 @@ chmod +x $HOME/minio-binaries/mc
 export PATH=$PATH:$HOME/minio-binaries/
 
 mc --help
-
 ```
 If you have already installed `mc` but it is not showing in terminal, do: `export PATH=$PATH:$HOME/minio-binaries/`
 
