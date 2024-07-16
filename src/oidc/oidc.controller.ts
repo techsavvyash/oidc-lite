@@ -101,6 +101,13 @@ export class OidcController {
   }
 
   @Get('/passwordless-otp')
+  @ApiOperation({ summary: 'Get HTML for passwordless OTP' })
+  @ApiQuery({ name: 'client_id', required: false, type: String })
+  @ApiQuery({ name: 'redirect_uri', required: false, type: String })
+  @ApiResponse({
+    status: 200,
+    description: 'HTML form for entering email and getting OTP',
+  })
   async passwordless_otp(
     @Query() query: OIDCAuthQuery,
     @Req() req: Request,
@@ -111,15 +118,23 @@ export class OidcController {
   }
 
   @Post('/passwordless-otp')
-  @ApiOperation({ summary: 'Post registration' })
-  @ApiBody({ type: RegisterDto })
+  @ApiOperation({ summary: 'Verify OTP and login user without password' })
+  @ApiQuery({ name: 'client_id', required: false, type: String })
+  @ApiQuery({ name: 'redirect_uri', required: false, type: String })
+  @ApiBody({ type: LoginDto })
+  @ApiResponse({ status: 200, description: 'User logged in successfully' })
   async postPasswordless_otp(
-    @Body() data: LoginDto & {otp: string},
+    @Body() data: LoginDto & { otp: string },
     @Query() query: OIDCAuthQuery,
     @Headers() headers: object,
     @Res() res: Response,
   ) {
-    return await this.oidcService.postPasswordless_otp(data, query, headers, res);
+    return await this.oidcService.postPasswordless_otp(
+      data,
+      query,
+      headers,
+      res,
+    );
   }
 
   @ApiOperation({ summary: 'OIDC Token Endpoint' })
