@@ -19,7 +19,10 @@ import {
   TokenDto,
 } from './dto/oidc.token.dto';
 import * as jwt from 'jsonwebtoken';
-import { ApplicationDataDto } from '../application/application.dto';
+import {
+  ApplicationDataDto,
+  ApplicationDto,
+} from '../application/application.dto';
 import {
   UserData,
   UserDataDto,
@@ -385,7 +388,8 @@ export class OidcService {
         message: 'No data given',
       });
     }
-    const { code, grant_type, redirect_uri, loginId, password } = data;
+    const { code, grant_type, redirect_uri, loginId, password, refresh_token } =
+      data;
     if (!code || !grant_type || !redirect_uri) {
       throw new BadRequestException({
         success: false,
@@ -544,6 +548,21 @@ export class OidcService {
         success: false,
         message: 'you reached a part of server that is not yet implemented',
       });
+    } else if (grant_type === 'refresh_token') {
+      if (
+        !applicationData.oauthConfiguration.enabledGrants.includes(
+          'refresh_token',
+        )
+      ) {
+        throw new BadRequestException({
+          success: false,
+          message: 'refresh_token grant type not supported by your application',
+        });
+      }
+      return await this.returnAccessTokenForRefreshToken(
+        application,
+        refresh_token,
+      );
     }
     const scopes: string[] | null = scope?.split(' ');
     const validScopes =
@@ -652,6 +671,85 @@ export class OidcService {
       refreshTokenId: offline_accessAllowed ? newRefreshToken.id : null,
       userId: user.id,
       token_type: 'Bearer',
+    };
+  }
+
+  private async returnAccessTokenForRefreshToken(
+    application: ApplicationDto,
+    refresh_token: string,
+  ) {
+    const applicationData: ApplicationDataDto = JSON.parse(application.data);
+    const accessTokenSigningKeyId =
+      applicationData.jwtConfiguration.accessTokenSigningKeysID;
+    const accessTokenSigningKey = await this.prismaService.key.findUnique({
+      where: { id: accessTokenSigningKeyId },
+    });
+    const refreshToken = await this.utilService.checkValidityOfToken(
+      refresh_token,
+      accessTokenSigningKey.publicKey,
+      'refresh',
+    );
+    if (refreshToken.active === false) {
+      return {
+        active: false,
+      };
+    }
+    const userId = (refreshToken as jwt.JwtPayload).sub; // sub has userid
+    const userRegistration =
+      await this.prismaService.userRegistration.findUnique({
+        where: {
+          user_registrations_uk_1: {
+            applicationsId: application.id,
+            usersId: userId,
+          },
+        },
+      });
+    if (!userRegistration) {
+      return {
+        active: false,
+      };
+    }
+    const userRegistrationData: UserRegistrationData = JSON.parse(
+      userRegistration.data,
+    );
+    const now = Math.floor(Date.now() / 1000);
+    const accessTokenSeconds =
+      applicationData.jwtConfiguration.timeToLiveInSeconds;
+    const rolesIds =
+      await this.utilService.returnRolesForAGivenUserIdAndApplicationId(
+        userId,
+        application.id,
+      );
+    const roles = await Promise.all(
+      rolesIds.map(async (roleId) => {
+        const role = await this.prismaService.applicationRole.findUnique({
+          where: { id: roleId },
+        });
+        return role.name;
+      }),
+    );
+    const accessTokenPayload: AccessTokenDto = {
+      active: true,
+      roles,
+      iat: now,
+      exp: now + accessTokenSeconds,
+      iss: process.env.ISSUER_URL,
+      sub: userId,
+      aud: application.id,
+      applicationId: application.id,
+      scope: userRegistrationData.scope,
+    };
+    const accessToken = await this.utilService.createToken(
+      accessTokenPayload,
+      application.id,
+      application.tenantId,
+      'access',
+    );
+    return {
+      refresh_token,
+      access_token: accessToken,
+      token_type: 'Bearer',
+      expires_in: now + accessTokenSeconds,
     };
   }
 

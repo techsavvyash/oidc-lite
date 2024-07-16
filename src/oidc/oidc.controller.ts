@@ -162,7 +162,11 @@ export class OidcController {
       jwks_uri: `${process.env.FULL_URL}/oidc/.well-known/jwks.json`,
       scopes_supported: ['openid', 'profile', 'email', 'offline_access'],
       response_types_supported: ['code'],
-      grant_types_supported: ['authorization_code', 'password'],
+      grant_types_supported: [
+        'authorization_code',
+        'password',
+        'refresh_token',
+      ],
       id_token_signing_alg_values_supported: [
         'RS256',
         'RS384',
