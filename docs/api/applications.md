@@ -36,9 +36,9 @@ The ApplicationService is a crucial component of our NestJS application, respons
 | Code | Description |
 |------|-------------|
 | 200  | The request was successful. The response will contain a JSON body. |
-| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid Auth Service license is required and is not present. |
 | 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty. 
-| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the Auth Service log files. The response will be empty. |
 
 - **Sample cURL**:
   ```sh
@@ -85,10 +85,10 @@ The ApplicationService is a crucial component of our NestJS application, respons
 | Code | Description |
 |------|-------------|
 | 200  | The request was successful. The response will contain a JSON body. |
-| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid Auth Service license is required and is not present. |
 | 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
 | 404  | The object you are trying to update doesn't exist. The response will be empty. |
-| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the Auth Service log files. The response will be empty. |
 
 - **Sample cURL**:
   ```sh
@@ -134,10 +134,10 @@ The ApplicationService is a crucial component of our NestJS application, respons
 | Code | Description |
 |------|-------------|
 | 200  | The request was successful. The response will contain a JSON body. |
-| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid Auth Service license is required and is not present. |
 | 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
 | 404  | The object you are trying to update doesn't exist. The response will be empty. |
-| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the Auth Service log files. The response will be empty. |
 
 - **Sample cURL**:
   ```sh
@@ -175,10 +175,10 @@ The ApplicationService is a crucial component of our NestJS application, respons
 | Code | Description |
 |------|-------------|
 | 200  | The request was successful. The response will contain a JSON body. |
-| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid Auth Service license is required and is not present. |
 | 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
 | 404  | The object you are trying to update doesn't exist. The response will be empty. |
-| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the Auth Service log files. The response will be empty. |
 
 - **Sample cURL**:
   ```sh
@@ -217,10 +217,10 @@ The ApplicationService is a crucial component of our NestJS application, respons
 | Code | Description |
 |------|-------------|
 | 200  | The request was successful. The response will contain a JSON body. |
-| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid Auth Service license is required and is not present. |
 | 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
 | 404  | The object you are trying to update doesn't exist. The response will be empty. |
-| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the Auth Service log files. The response will be empty. |
 
 - **Sample cURL**:
   ```sh
@@ -273,10 +273,10 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
 | Code | Description |
 |------|-------------|
 | 200  | The request was successful. The response will contain a JSON body. |
-| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid Auth Service license is required and is not present. |
 | 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
 | 404  | The object you are trying to update doesn't exist. The response will be empty. |
-| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the Auth Service log files. The response will be empty. |
     
 - **Sample cURL**:
   ```sh
@@ -324,10 +324,10 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
 | Code | Description |
 |------|-------------|
 | 200  | The request was successful. The response will contain a JSON body. |
-| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid Auth Service license is required and is not present. |
 | 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
 | 404  | The object you are trying to update doesn't exist. The response will be empty. |
-| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the Auth Service log files. The response will be empty. |
 
 - **Sample cURL**:
   ```sh
@@ -372,10 +372,10 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
 | Code | Description |
 |------|-------------|
 | 200  | The request was successful. The response will contain a JSON body. |
-| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid Auth Service license is required and is not present. |
 | 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
 | 404  | The object you are trying to update doesn't exist. The response will be empty. |
-| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the Auth Service log files. The response will be empty. |
 
 - **Sample cURL**:
   ```sh
@@ -430,10 +430,10 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
 | Code | Description |
 |------|-------------|
 | 200  | The request was successful. The response will contain a JSON body. |
-| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid Auth Service license is required and is not present. |
 | 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
 | 404  | The object you are trying to update doesn't exist. The response will be empty. |
-| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the Auth Service log files. The response will be empty. |
 
 
 - **Sample cURL**:
@@ -481,10 +481,10 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
 | Code | Description |
 |------|-------------|
 | 200  | The request was successful. The response will contain a JSON body. |
-| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid Auth Service license is required and is not present. |
 | 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
 | 404  | The object you are trying to update doesn't exist. The response will be empty. |
-| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the Auth Service log files. The response will be empty. |
 
 
 - **Sample cURL**:
@@ -529,10 +529,10 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
 | Code | Description |
 |------|-------------|
 | 200  | The request was successful. The response will contain a JSON body. |
-| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid FusionAuth license is required and is not present. |
+| 400  | The request was invalid and/or malformed. The response will contain an Errors JSON Object with the specific errors. This status will also be returned if a paid Auth Service license is required and is not present. |
 | 401  | You did not supply a valid Authorization header. The header was omitted or your API key was not valid. The response will be empty
 | 404  | The object you are trying to update doesn't exist. The response will be empty. |
-| 500  | There was an internal error. A stack trace is provided and logged in the FusionAuth log files. The response will be empty. |
+| 500  | There was an internal error. A stack trace is provided and logged in the Auth Service log files. The response will be empty. |
 
 
 - **Sample cURL**:
