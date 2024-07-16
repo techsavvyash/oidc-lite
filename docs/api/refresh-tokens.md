@@ -8,6 +8,10 @@ Refresh token is a token assigned to user while registration, and is used to ref
 - Comprehensive token retrieval and deletion options
 - Secure token handling and validation
 
+## Sequence Diagram
+
+![Groups Sequence Diagram](../assets/sequence-diagrams/refresh-token.png)
+
 ## Refresh Token
 
 ### Request

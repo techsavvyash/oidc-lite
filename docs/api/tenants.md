@@ -6,6 +6,10 @@
 > `GET /tenant, DEL /tenant, PATCH /tenant` requires `X-Stencil-Tenanid` as a header also.
 > `POST /tenant` can only be accessed by a `tenant-scoped` authorization key
 
+## Sequence Diagram
+
+![Groups Sequence Diagram](../assets/sequence-diagrams/tenants.png)
+
 ## Create a Tenant 
 ### Request 
 #### Create a Tenant with random id 

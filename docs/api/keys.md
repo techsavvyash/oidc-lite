@@ -10,6 +10,10 @@ The service supports generating three types of keys:
 
 Each key type is stored in the database with its relevant information, including public and private keys where applicable.
 
+## Sequence Diagram
+
+![Groups Sequence Diagram](../assets/sequence-diagrams/keys.png)
+
 ## Retrieve Keys
 
 ### Request

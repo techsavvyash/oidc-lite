@@ -2,9 +2,12 @@
 
 The OTP (One-Time Password) Service is part of a NestJS application that handles the generation, sending, and validation of one-time passwords. It supports multiple delivery methods including email, SMS, and WhatsApp.
 
+## Sequence Diagram
+
+![Groups Sequence Diagram](../assets/sequence-diagrams/otp.jpeg)
+
 ## Send OTP 
 ### Request
-
 #### Generates and sends an OTP via specified channels.
 `POST /otp/send`
 - **Description** : Generates and sends an OTP via specified channels.
