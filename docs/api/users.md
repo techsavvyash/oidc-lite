@@ -21,7 +21,7 @@ The User Service is a part of a NestJS application that handles user-related ope
 - authorization : `string`
 
 #### Request body
-- data: `CreateUserDto`
+- data: `{"active" : boolean, "additionalData" ?: "string", "membership" : string[], "userData" : UserDataDto, "email" : "string"}`
 
 ### Response
 
@@ -101,7 +101,7 @@ The User Service is a part of a NestJS application that handles user-related ope
 - authorization : `string`
 
 #### Request body
-- data: `UpdateUserDto`
+- data: `{"active" : boolean, "additionalData" ?: "string", "membership" : string[], "userData" : UserDataDto}`
 
 #### Request Parameter
 - id: `string`
@@ -195,7 +195,7 @@ The User Registration Service is part of a NestJS application that handles user 
 - authorization : `string`
 
 #### Request body
-- data: `CreateUserRegistrationDto`
+- data: `{"generateAuthenticationToken" ?: boolean, "applicationId" : string, "data" ?: string, "registrationId" ?: string}`
 
 #### Request Parameter
 - userId: `string`
@@ -279,7 +279,7 @@ The User Registration Service is part of a NestJS application that handles user 
 - authorization : `string`
 
 #### Request Body 
-- data : `UpdateUserRegistrationDto`
+- data : `{"data" ?: UserRegistrationData, "roles" : string[]}`
 
 #### Request Parameter
 - userId: `string`

@@ -19,7 +19,7 @@
 - authorization : `string`
 
 #### Request Body 
-- data : `UpdateUserRegistrationDto`
+- data : `{"roleIDs" : string[], "name" : string}`
 
 #### Request Parameter
 - id : `string`
@@ -65,9 +65,6 @@
 
 #### Request Headers 
 - authorization : `string`
-
-#### Request Body 
-- data : `UpdateUserRegistrationDto`
 
 #### Request Parameter
 - id : `string` *required when retreival needed for a particular group*

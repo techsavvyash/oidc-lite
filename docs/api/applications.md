@@ -27,7 +27,7 @@ The ApplicationService is a crucial component of our NestJS application, respons
 - authorization : `string` *Required*
 
 ### Request Body
-- applicationData : `data (CreateApplicationDTO)`
+- applicationData : `{"active" : boolean, "name" : string, "scopes" : string[], "roles" : string[], "oauthConfiguration" : OauthConfiguration }`
 
 ### Response 
 
@@ -76,7 +76,7 @@ The ApplicationService is a crucial component of our NestJS application, respons
 - authorization : `string` *Required*
 
 ### Request Body
-- applicationData : `data (UpdateApplicationDto)`
+- applicationData : `{"active" ?: boolean, "name" ?: string,  "oauthConfiguration" ?: OauthConfiguration, "jwtConfiguration" : JwtConfiguration }`
 
 ### Response
 
@@ -257,7 +257,7 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
 `POST /application/:applicationId/scope/:scopeId`
 
 #### Request Parameters 
-- `data: ScopeDto` - Scope data
+- data : `{"defaultConsentDetail": string, "defaultConsentMessage": string, "name" : string, "required" : boolean}`
 - `applicationsId: string` - Application ID
 - `scopeId: string` - Optional scope ID 
 
@@ -315,7 +315,7 @@ The ApplicationScopesService is a crucial component of our NestJS application, r
 - authorization : `string`
 
 #### Request Body 
-- `data: UpdateScopeDto` - Scope data
+- data : `{"defaultConsentDetail"?: string, "defaultConsentMessage" ?: string, "name" ?: string, "required" ?: boolean}`
 
 ### Response
 
@@ -421,7 +421,7 @@ The ApplicationRolesService is a crucial component of our NestJS application, re
 - authorization : `string`
 
 #### Request Body
-- `data: RoleDto` - Role data
+- data : `{"description" : string, "isDefault" : boolean, "isSuperRole" : boolean, "name" : string}`
 
 ### Response
 

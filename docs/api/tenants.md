@@ -21,7 +21,7 @@
 - id: `string`
 
 #### Request Body 
-- data : `CreateTenantDto`
+- data : `{"name" : string, "jwtConfiguration" : JwtConfiguration}`
 
 ### Response
 
@@ -70,7 +70,7 @@
 - id: `string`
 
 #### Request Body 
-- data : `UpdateTenantDto`
+- data : `{"name" ?: string, "jwtConfiguration" ?: JwtConfiguration, "data" ?: string | JSON }`
 
 ### Response
 
