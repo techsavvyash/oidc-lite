@@ -122,7 +122,6 @@
               "http://192.168.233.157:9001/oauth_callback",
               "http://localhost:4180/oauth2/callback",
               "http://localhost:3000",
-              "/"
             ],
             "clientSecret": "#{clientSecret}",
             "enabledGrants": ["authorization_code", "refresh_token"],
