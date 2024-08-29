@@ -43,7 +43,7 @@
     "@samagra-x/uci-adapters-factory": "^1.1.6",
     "@types/bcrypt": "^5.0.2",
     "@types/jwk-to-pem": "^2.0.3",
-    "@types/oidc-provider": "^8.4.4",
+    "@types/oidc-provider": "^8.5.2",
     "astro": "^4.11.5",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",

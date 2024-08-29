@@ -84,6 +84,12 @@
               "required": false
             },
             {
+              "name": "openid",
+              "defaultConsentDetail": "Openid",
+              "defaultConsentMessage": "Access to your profile data",
+              "required": false
+            },
+            {
               "name": "email",
               "defaultConsentDetail": "Your email will be shared",
               "defaultConsentMessage": "Access to your email",
@@ -114,10 +120,12 @@
             "authorizedRedirectURLs": [
               "http://localhost:9001/oauth_callback",
               "http://192.168.233.157:9001/oauth_callback",
-              "http://localhost:4180/oauth2/callback"
+              "http://localhost:4180/oauth2/callback",
+              "http://localhost:3000",
+              "/"
             ],
             "clientSecret": "#{clientSecret}",
-            "enabledGrants": ["authorization_code", "password"],
+            "enabledGrants": ["authorization_code", "refresh_token"],
             "logoutURL": "http://localhost:3000/logout"
           }
         }

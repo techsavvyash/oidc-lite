@@ -9,23 +9,15 @@ import {
   UnauthorizedException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { randomUUID } from 'crypto';
-import { ResponseDto } from '../../dto/response.dto';
 import {
   CreateUserAndUserRegistration,
   CreateUserRegistrationDto,
   UpdateUserRegistrationDto,
 } from '../user.dto';
-import { AccessTokenDto, RefreshTokenDto } from '../../oidc/dto/oidc.token.dto';
-import { ApplicationDataDto } from '../../application/application.dto';
-import { access } from 'fs';
 
 describe('UserRegistrationService', () => {
   let service: UserRegistrationService;
-  let prismaService: PrismaService;
   let headerAuthService: HeaderAuthService;
-  let userService: UserService;
-  let utilService: UtilsService;
 
   const mockPrismaService = {
     application: {
@@ -56,8 +48,6 @@ describe('UserRegistrationService', () => {
 
   const mockUtilService = {
     returnRolesForAGivenUserIdAndApplicationId: jest.fn(),
-    createToken: jest.fn(),
-    saveOrUpdateRefreshToken: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -72,10 +62,7 @@ describe('UserRegistrationService', () => {
     }).compile();
 
     service = module.get<UserRegistrationService>(UserRegistrationService);
-    prismaService = module.get<PrismaService>(PrismaService);
     headerAuthService = module.get<HeaderAuthService>(HeaderAuthService);
-    userService = module.get<UserService>(UserService);
-    utilService = module.get<UtilsService>(UtilsService);
   });
 
   afterEach(() => {
@@ -113,15 +100,12 @@ describe('UserRegistrationService', () => {
     id: 'testRegId',
     applicationsId: 'testAppId',
     usersId: 'testUserId',
-    authenticationToken: 'testToken',
     password: 'Password@123',
     data: {},
     createdAt: new Date(),
     lastLoginInstant: null,
     updatedAt: new Date(),
   };
-  const mockRoles = ['role1', 'role2'];
-  const mockAccessToken = 'accessToken';
   const data: CreateUserRegistrationDto = {
     applicationId: 'testAppId',
     registrationId: 'testRegId',
@@ -154,9 +138,6 @@ describe('UserRegistrationService', () => {
         .spyOn(mockPrismaService.applicationRole, 'findUnique')
         .mockResolvedValueOnce({ name: 'role1' })
         .mockResolvedValueOnce({ name: 'role2' });
-      jest
-        .spyOn(mockUtilService, 'createToken')
-        .mockResolvedValue(mockAccessToken);
 
       try {
         const result = await service.createAUserRegistration(
@@ -170,7 +151,6 @@ describe('UserRegistrationService', () => {
           message: 'A user registered',
           data: {
             userRegistration: mockUserRegistration,
-            access_token: mockAccessToken,
           },
         });
       } catch (e) {
@@ -193,7 +173,6 @@ describe('UserRegistrationService', () => {
       expect(mockPrismaService.userRegistration.create).toHaveBeenCalledWith({
         data: {
           id: data.registrationId,
-          authenticationToken: expect.any(String),
           usersId: userId,
           applicationsId: mockApplication.id,
           password: undefined,
@@ -205,22 +184,6 @@ describe('UserRegistrationService', () => {
       expect(
         mockPrismaService.applicationRole.findUnique,
       ).toHaveBeenCalledTimes(2);
-      expect(mockUtilService.createToken).toHaveBeenCalledWith(
-        {
-          active: true,
-          applicationId: mockApplication.id,
-          iat: expect.any(Number),
-          iss: process.env.ISSUER_URL,
-          exp: expect.any(Number),
-          roles: mockRoles,
-          sub: mockUser.id,
-          aud: mockApplication.id,
-          scope: 'openid',
-        },
-        mockApplication.id,
-        mockApplication.tenantId,
-        'access',
-      );
     });
 
     it('should throw BadRequestException if no data is provided', async () => {
@@ -1002,10 +965,6 @@ describe('UserRegistrationService', () => {
         }),
       });
       mockUserService.createAUser.mockResolvedValue({ id: 'testUserId' });
-      // jest.spyOn(service, 'createAUserRegistration').mockResolvedValue({ id: 'testRegId' });
-      mockUtilService.createToken.mockRejectedValue(
-        new Error('Token creation error'),
-      );
 
       await expect(
         service.createAUserAndUserRegistration(userId, data, headers),
@@ -1046,11 +1005,6 @@ describe('UserRegistrationService', () => {
         }),
       });
       mockUserService.createAUser.mockResolvedValue({ id: 'testUserId' });
-      // jest.spyOn(service, 'createAUserRegistration').mockResolvedValue({ id: 'testRegId' });
-      mockUtilService.createToken.mockResolvedValue('refreshToken');
-      mockUtilService.saveOrUpdateRefreshToken.mockRejectedValue(
-        new Error('Database error'),
-      );
 
       await expect(
         service.createAUserAndUserRegistration(userId, data, headers),
@@ -1086,8 +1040,6 @@ describe('UserRegistrationService', () => {
       };
       const mockUser = { id: 'testUserId', data: '{}' };
       const mockUserRegistration = { id: 'testRegId' };
-      const mockRefreshToken = 'refreshToken';
-      const mockSaveToken = { id: 'saveTokenId' };
 
       mockHeaderAuthService.validateRoute.mockResolvedValue({
         success: true,
@@ -1102,11 +1054,8 @@ describe('UserRegistrationService', () => {
         message: 'A user registered',
         data: {
           userRegistration: mockUserRegistration,
-          access_token: 'accessToken',
         },
       });
-      mockUtilService.createToken.mockResolvedValue(mockRefreshToken);
-      mockUtilService.saveOrUpdateRefreshToken.mockResolvedValue(mockSaveToken);
       try {
         const result = await service.createAUserAndUserRegistration(
           userId,
@@ -1120,8 +1069,6 @@ describe('UserRegistrationService', () => {
           data: {
             user: mockUser,
             userRegistration: mockUserRegistration,
-            refresh_token: mockRefreshToken,
-            refreshTokenId: mockSaveToken.id,
           },
         });
       } catch (e) {
@@ -1144,28 +1091,6 @@ describe('UserRegistrationService', () => {
         userId,
         data.registrationInfo,
         headers,
-      );
-      expect(mockUtilService.createToken).toHaveBeenCalledWith(
-        {
-          active: true,
-          applicationId: mockApplication.id,
-          iat: expect.any(Number),
-          iss: process.env.ISSUER_URL,
-          exp: expect.any(Number),
-          sub: userId,
-        },
-        mockApplication.id,
-        mockApplication.tenantId,
-        'refresh',
-      );
-      expect(mockUtilService.saveOrUpdateRefreshToken).toHaveBeenCalledWith(
-        mockApplication.id,
-        mockRefreshToken,
-        userId,
-        mockApplication.tenantId,
-        '',
-        expect.any(Number),
-        expect.any(Number),
       );
     });
   });

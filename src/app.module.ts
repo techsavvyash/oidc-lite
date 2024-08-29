@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { OidcModule } from './oidc/oidc.module';
+// import { OidcModule } from './oidc-deprecated/oidc.module';
 import { UserModule } from './user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { PrismaService } from './prisma/prisma.service';
@@ -11,13 +11,14 @@ import { MemoryMonitorService } from './memory-monitor/memory-monitor.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { KeyModule } from './key/key.module';
 import { GroupModule } from './groups/groups.module';
-import { RefreshTokenModule } from './refresh_tokens/refreshtokens.module';
-import { LoginModule } from './login/login.module';
+// import { RefreshTokenModule } from './refresh_tokens/refreshtokens.module';
+// import { LoginModule } from './login/login.module';
 import { KickstartModule } from './kickstart/kickstart.module';
 import { OtpModule } from './otp/otp.module';
 import { TenantModule } from './tenant/tenant.module';
 import { ApiKeysModule } from './api-keys/api-keys.module';
 import { UtilsService } from './utils/utils.service';
+import { OidcModule } from './oidc/oidc.module';
 
 @Module({
   imports: [
@@ -32,8 +33,6 @@ import { UtilsService } from './utils/utils.service';
     ApplicationModule,
     ScheduleModule.forRoot(),
     KeyModule,
-    RefreshTokenModule,
-    LoginModule,
     GroupModule,
     KickstartModule,
     OtpModule,
