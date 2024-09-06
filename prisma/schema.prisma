@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -52,7 +52,6 @@ model Application {
   idTokenSigningKey     Key?                    @relation("ApplicationIdTokenSigningKey", fields: [idTokenSigningKeysId], references: [id])
   oauthScopes           ApplicationOauthScope[]
   roles                 ApplicationRole[]
-  refreshTokens         RefreshToken[]
   userRegistrations     UserRegistration[]
   PublicKeys            PublicKeys[]
 
@@ -120,30 +119,6 @@ model Key {
   tenantsIdTokenSigningKeys          Tenant[]      @relation("TenantIdTokenSigningKey")
 }
 
-model RefreshToken {
-  id             String   @id @default(uuid())
-  applicationsId String?
-  expiry         BigInt
-  data           String?
-  createdAt      DateTime @default(now())
-  startInstant   BigInt
-  tenantId       String?
-  token          String?  @unique
-  tokenHash      String?  @unique
-  tokenText      String?
-  usersId        String
-
-  application Application? @relation(fields: [applicationsId], references: [id], onDelete: Cascade)
-  tenant      Tenant?      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user        User         @relation(fields: [usersId], references: [id])
-
-  @@unique([applicationsId, usersId], name: "unique_applications_users_uk_1")
-  @@index([startInstant], name: "refresh_tokens_i_1")
-  @@index([applicationsId], name: "refresh_tokens_i_2")
-  @@index([usersId], name: "refresh_tokens_i_3")
-  @@index([tenantId], name: "refresh_tokens_i_4")
-}
-
 model Tenant {
   id                       String   @id @default(uuid())
   accessTokenSigningKeysId String
@@ -157,7 +132,6 @@ model Tenant {
   idTokenSigningKey     Key                 @relation("TenantIdTokenSigningKey", fields: [idTokenSigningKeysId], references: [id])
   applications          Application[]
   groups                Group[]
-  refreshTokens         RefreshToken[]
   users                 User[]
   AuthenticationKey     AuthenticationKey[]
 }
@@ -165,7 +139,6 @@ model Tenant {
 model UserRegistration {
   id                  String    @id @default(uuid())
   applicationsId      String
-  authenticationToken String?   @unique
   password            String
   data                String?
   createdAt           DateTime  @default(now())
@@ -189,10 +162,9 @@ model User {
   updatedAt DateTime @updatedAt
   tenantId  String
   email     String   @unique
-
+// claims   JSON    we should add this or not?
   tenant            Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   groupMembers      GroupMember[]
-  refreshTokens     RefreshToken[]
   userRegistrations UserRegistration[]
 }
 
@@ -223,4 +195,20 @@ model PublicKeys {
   application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
   @@unique([applicationId, hostname], name: "publicKeys_unique_applicationId_hostname")
+}
+
+model OidcModel {
+  id         String    @id
+  type       Int // name of the oidc-provider model, change to string
+  payload    Json
+  grantId    String?
+  userCode   String?
+  uid        String?   @unique
+  expiresAt  DateTime?
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([id, type])
+  @@map("oidc_model")
 }

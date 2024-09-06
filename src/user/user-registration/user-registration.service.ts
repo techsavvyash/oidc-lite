@@ -16,7 +16,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { randomUUID } from 'crypto';
 import { HeaderAuthService } from '../../header-auth/header-auth.service';
 import { UserService } from '../user.service';
-import { AccessTokenDto, RefreshTokenDto } from '../../oidc/dto/oidc.token.dto';
+// import { AccessTokenDto, RefreshTokenDto } from '../../oidc-deprecated/dto/oidc.token.dto';
 import { ApplicationDataDto } from '../../application/application.dto';
 import { UtilsService } from '../../utils/utils.service';
 
@@ -89,7 +89,6 @@ export class UserRegistrationService {
         {
           data: {
             id: registrationId,
-            authenticationToken,
             usersId: userId,
             applicationsId: application.id,
             password,
@@ -114,27 +113,10 @@ export class UserRegistrationService {
       const applicationData: ApplicationDataDto = JSON.parse(application.data);
       const accessTokenSeconds =
         applicationData.jwtConfiguration.timeToLiveInSeconds;
-      const accessTokenPayload: AccessTokenDto = {
-        active: true,
-        applicationId: application.id,
-        iat: now,
-        iss: process.env.ISSUER_URL,
-        exp: now + accessTokenSeconds,
-        roles: filteredRoles,
-        sub: user.id,
-        aud: application.id,
-        scope: 'openid',
-      };
-      const access_token = await this.utilService.createToken(
-        accessTokenPayload,
-        application.id,
-        application.tenantId,
-        'access',
-      );
       return {
         success: true,
         message: 'A user registered',
-        data: { userRegistration, access_token },
+        data: { userRegistration },
       };
     } catch (error) {
       this.logger.log('Error from createAUserRegistration', error);
@@ -408,38 +390,13 @@ export class UserRegistrationService {
         );
         const refreshTokenSeconds =
           applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
-        const refreshTokenPayload: RefreshTokenDto = {
-          active: true,
-          applicationId: application.id,
-          iat: now,
-          iss: process.env.ISSUER_URL,
-          exp: now + refreshTokenSeconds,
-          sub: userId,
-        };
-        const refreshToken = await this.utilService.createToken(
-          refreshTokenPayload,
-          application.id,
-          application.tenantId,
-          'refresh',
-        );
-        const saveToken = await this.utilService.saveOrUpdateRefreshToken(
-          application.id,
-          refreshToken,
-          userId,
-          application.tenantId,
-          '',
-          now,
-          now + refreshTokenSeconds,
-        );
-        this.logger.log('A refersh token is saved!', saveToken);
+        this.logger.log('A refersh token is saved!');
         return {
           success: true,
           message: 'User and user registration created successfully!',
           data: {
             user,
             userRegistration,
-            refresh_token: refreshToken,
-            refreshTokenId: saveToken.id,
           },
         };
       } catch (error) {
