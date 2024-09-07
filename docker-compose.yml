@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - sqlite-db:/src/prisma
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    command: yarn start:dev
+
+volumes:
+  sqlite-db:

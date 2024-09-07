@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Configuration, Provider } from 'oidc-provider';
+import { Configuration } from 'oidc-provider';
 import { PrismaAdapter } from './oidc.adapter';
 import Account from './findAccount';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -7,7 +7,7 @@ import { ApplicationDataDto } from 'src/application/application.dto';
 
 @Injectable()
 export class OidcConfigService {
-  private Provider;
+  private provider;
   private client_ttlMap: Map<string, ApplicationDataDto>;
   private configuration: Configuration = {
     interactions: {
@@ -16,7 +16,8 @@ export class OidcConfigService {
       },
     },
     adapter: (modelName: string) => new PrismaAdapter(modelName),
-    findAccount: (ctx, sub, token) => Account.findAccount(ctx, sub, token),
+    findAccount: (ctx, sub, token) =>
+      Account.findAccount(ctx as unknown as any, sub, token),
     claims: {
       address: ['address'],
       email: ['email', 'email_verified'],
@@ -53,6 +54,9 @@ export class OidcConfigService {
       userinfo: { enabled: true },
       // resource Indicators?
       revocation: { enabled: true },
+      devInteractions: {
+        enabled: true,
+      },
     },
     issueRefreshToken: async (ctx, client, code) => {
       return true;
@@ -88,15 +92,6 @@ export class OidcConfigService {
     },
   };
 
-  async returnOidc() {
-    if (typeof this.Provider !== 'undefined') {
-      return this.Provider;
-    }
-    const mod = await eval(`import('oidc-provider')`);
-    this.Provider = mod.default;
-    const oidc = new this.Provider(process.env.FULL_URL, this.configuration);
-    return oidc;
-  }
   constructor(private readonly prismaService: PrismaService) {
     this.client_ttlMap = new Map();
     this.prismaService.application.findMany().then((data) => {
@@ -108,5 +103,16 @@ export class OidcConfigService {
       });
     });
   }
+
+  async returnOidc() {
+    if (typeof this.provider !== 'undefined') {
+      return this.provider;
+    }
+    const mod = await eval(`import('oidc-provider')`);
+    this.provider = mod.default;
+    const oidc = new this.provider(process.env.FULL_URL, this.configuration);
+    return oidc;
+  }
+
   private async returnTTL() {}
 }

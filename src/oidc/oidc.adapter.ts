@@ -27,12 +27,13 @@ const types = [
 );
 
 const prepare = (doc: OidcModel) => {
+  doc.payload = JSON.parse(doc.payload);
   const isPayloadJson =
     doc.payload &&
     typeof doc.payload === 'object' &&
-    !Array.isArray(doc.payload);
+    !Array.isArray(JSON.parse(doc.payload));
 
-  const payload = isPayloadJson ? (doc.payload as Prisma.JsonObject) : {};
+  const payload = isPayloadJson ? JSON.parse(doc.payload) : {};
 
   return {
     ...payload,
@@ -65,7 +66,7 @@ export class PrismaAdapter implements Adapter {
   ): Promise<void> {
     const data = {
       type: this.type,
-      payload: payload as Prisma.JsonObject,
+      payload: JSON.stringify(payload),
       grantId: payload.grantId,
       userCode: payload.userCode,
       uid: payload.uid,
@@ -125,7 +126,7 @@ export class PrismaAdapter implements Adapter {
     if (this.name === 'Session') {
     }
     if (this.name === 'Interaction') {
-      const params = (doc.payload as any).params;
+      const params = (JSON.parse(doc.payload) as any).params;
       const client_id = params.client_id;
       const client = await PrismaAdapter.prismaService.application.findUnique({
         where: { id: client_id },

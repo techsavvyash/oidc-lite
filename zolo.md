@@ -7,21 +7,21 @@ Read the above documentation and then implement the remaining functionalities.
 ## What is achieved till now:
 
 1. Applications(& roles, scopes), Groups(& members), users, tenants, admin, api-keys, jwks, memory-monitory and their crud operations are implemented. Now we need to make `node-oidc-provider` use them to run the user flow.
-2. In `node-oidc-provider` some partial `adapter` and `config.service` is created. The adapter Uses [Prisma Adapter](https://github.com/panva/node-oidc-provider/blob/main/example/adapters/contributed/prisma.ts) to do crud on the application, grant, session, interation etc. (see OidcModel Schema in schema.prisma).
+2. In `node-oidc-provider` some partial `adapter` and `config.service` is created. The adapter Uses [Prisma Adapter](https://github.com/panva/node-oidc-provider/blob/main/example/adapters/contributed/prisma.ts) to do crud on the application, grant, session, interation etc. (see OidcModel Schema in `schema.prisma`).
 3. `Account` class is based on this: [node-oidc-provider account](https://github.com/panva/node-oidc-provider/blob/main/example/support/account.js) this is used to find the users that are already created in our whole service. (Checking for password is not done till now).
 4. Time to live for access token and refresh token is added.
 
 ## What is remaining:
 
-1. Domain pinning or clientBasedCors
-2. Check whether the password is correct while `login`
-3. Jwks in the `oidc.config.service.ts`
-4. Creating our own `interactions` page and removing `devInteractions` along with `renderError`.
-5. Correction kickstart.json
-6. Use sqlite instead of postgresql
-7. Making sure the tests are up to date
-8. Integration with minIO and oauth-2-proxy
-9. Removing any redundant code and cleanup and documentation updation
+- [ ] 1. Domain pinning or clientBasedCors
+- [ ] 2. Check whether the password is correct while `login`
+- [ ] 3. Jwks in the `oidc.config.service.ts`
+- [ ] 4. Creating our own `interactions` page and removing `devInteractions` along with `renderError`.
+- [x] 5. Use sqlite instead of postgresql
+- [ ] 6. Correction kickstart.json
+- [ ] 7. Making sure the tests are up to date
+- [ ] 8. Integration with minIO and oauth-2-proxy
+- [ ] 9. Removing any redundant code and cleanup and documentation updation
 
 
 ----

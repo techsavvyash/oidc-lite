@@ -29,7 +29,9 @@ export class KickstartService {
         'Environment variables KICKSTART_FILE_NAME and HOST_NAME are required',
       );
     }
-    const file = fs.readFileSync(path.resolve(`./${fileName}`), 'utf8').trim();
+    const file = fs.readFileSync(path.resolve(`./${fileName}`), {
+      encoding: 'utf-8',
+    });
     const config = JSON.parse(file);
 
     const variables = config.variables;

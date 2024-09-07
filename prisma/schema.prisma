@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -200,7 +200,7 @@ model PublicKeys {
 model OidcModel {
   id         String    @id
   type       Int // name of the oidc-provider model, change to string
-  payload    Json
+  payload    String // this should be of type stringified JSON
   grantId    String?
   userCode   String?
   uid        String?   @unique

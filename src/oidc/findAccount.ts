@@ -1,11 +1,5 @@
+import Provider from 'oidc-provider';
 import { UUID, randomUUID } from 'crypto';
-import {
-  AccessToken,
-  AuthorizationCode,
-  BackchannelAuthenticationRequest,
-  DeviceCode,
-  KoaContextWithOIDC,
-} from 'oidc-provider';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserDataDto } from 'src/user/user.dto';
 import { UtilsService } from 'src/utils/utils.service';
@@ -36,7 +30,8 @@ class Account {
    *   loading some claims from external resources etc. based on this detail
    *   or not return them in id tokens but only userinfo and so on.
    */
-  async claims(use, scope) { // use: id_token userinfo
+  async claims(use, scope) {
+    // use: id_token userinfo
     if (this.profile) {
       return {
         sub: this.accountId, // it is essential to always return a sub claim
@@ -99,13 +94,9 @@ class Account {
   }
 
   static async findAccount(
-    ctx: KoaContextWithOIDC,
+    ctx: Provider,
     id: string,
-    token: // check this token before using clientId
-    | AuthorizationCode
-      | DeviceCode
-      | AccessToken
-      | BackchannelAuthenticationRequest,
+    token, // check this token before using clientId,
   ) {
     const user = await this.prismaService.user.findUnique({
       where: { email: id },
