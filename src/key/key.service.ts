@@ -274,7 +274,7 @@ export class KeyService {
         keyFields = (key: any) => ({
           privateKey: jwkToPem(key, { private: true }),
           publicKey: jwkToPem(key),
-          data: JSON.stringify(this.removeSensitiveRSAFields(key)),
+          data: JSON.stringify(key),
         });
         break;
       case 'ES256':
@@ -289,7 +289,7 @@ export class KeyService {
         keyFields = (key: any) => ({
           privateKey: jwkToPem(key, { private: true }),
           publicKey: jwkToPem(key),
-          data: JSON.stringify(this.removeSensitiveECFields(key)),
+          data: JSON.stringify(key),
         });
         break;
       default:

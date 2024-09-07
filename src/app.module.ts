@@ -19,6 +19,7 @@ import { TenantModule } from './tenant/tenant.module';
 import { ApiKeysModule } from './api-keys/api-keys.module';
 import { UtilsService } from './utils/utils.service';
 import { OidcModule } from './oidc/oidc.module';
+import { InteractionController } from './oidc/interaction/interaction.controller';
 
 @Module({
   imports: [
@@ -39,7 +40,7 @@ import { OidcModule } from './oidc/oidc.module';
     TenantModule,
     ApiKeysModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, InteractionController],
   providers: [AppService, PrismaService, MemoryMonitorService, UtilsService],
 })
 export class AppModule {}

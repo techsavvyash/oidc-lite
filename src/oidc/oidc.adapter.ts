@@ -29,11 +29,11 @@ const types = [
 const prepare = (doc: OidcModel) => {
   doc.payload = JSON.parse(doc.payload);
   const isPayloadJson =
-    doc.payload &&
-    typeof doc.payload === 'object' &&
-    !Array.isArray(JSON.parse(doc.payload));
-
-  const payload = isPayloadJson ? JSON.parse(doc.payload) : {};
+  doc.payload &&
+  typeof doc.payload === 'object' &&
+  !Array.isArray(doc.payload);
+  
+  const payload = isPayloadJson ? doc.payload : {};
 
   return {
     ...payload,
@@ -56,7 +56,7 @@ export class PrismaAdapter implements Adapter {
   constructor(name: string) {
     this.type = types[name];
     this.name = name;
-    //console.log('Constructor', name);
+    // console.log('Constructor', name);
   }
 
   async upsert(
@@ -72,7 +72,7 @@ export class PrismaAdapter implements Adapter {
       uid: payload.uid,
       expiresAt: expiresAt(expiresIn),
     };
-    //console.log('upsert', id, this.name, payload);
+    // console.log('upsert', id, this.name, payload);
     await prisma.oidcModel.upsert({
       where: {
         id_type: {
@@ -91,7 +91,7 @@ export class PrismaAdapter implements Adapter {
   }
 
   async find(id: string): Promise<AdapterPayload | undefined> {
-    //console.log('find', this.name, id);
+    // console.log('find', this.name, id);
     if (this.name === 'Client') {
       // can do domain pinning here
       const client = await PrismaAdapter.prismaService.application.findUnique({
@@ -134,7 +134,7 @@ export class PrismaAdapter implements Adapter {
       // do domain pinning here or cors?
       if (!client) return undefined;
     }
-
+    
     if (!doc || (doc.expiresAt && doc.expiresAt < new Date())) {
       return undefined;
     }
