@@ -56,6 +56,40 @@
         ]
       }
     },
+    "/login": {
+      "post": {
+        "operationId": "AppController_confirmLogin",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC Wrapper"
+        ]
+      }
+    },
+    "/interaction/{id}": {
+      "get": {
+        "operationId": "InteractionController_serveLoginPage",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/oidc/*": {
       "get": {
         "operationId": "OidcController_mountedOidc_get",

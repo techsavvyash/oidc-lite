@@ -33,4 +33,9 @@ export class AppController {
   async createAdmin(@Body() data: { username: string; password: string }) {
     return await this.appService.createAdmin(data);
   }
+
+  @Post('login')
+  async confirmLogin(@Req() req: Request){
+    console.log(req.body);
+  }
 }
