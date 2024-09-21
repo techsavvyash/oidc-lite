@@ -18,16 +18,13 @@
     },
     "/": {
       "get": {
-        "operationId": "AppController_adminPanel",
+        "operationId": "OIDCController_index",
         "parameters": [],
         "responses": {
           "200": {
             "description": ""
           }
-        },
-        "tags": [
-          "OIDC Wrapper"
-        ]
+        }
       },
       "post": {
         "operationId": "AppController_toggleKeyManager",
@@ -42,7 +39,30 @@
         ]
       }
     },
+    "/callback": {
+      "get": {
+        "operationId": "OIDCController_test",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/admin": {
+      "get": {
+        "operationId": "AppController_adminPanel",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OIDC Wrapper"
+        ]
+      },
       "post": {
         "operationId": "AppController_createAdmin",
         "parameters": [],
@@ -72,18 +92,16 @@
     },
     "/interaction/{uid}": {
       "get": {
-        "operationId": "InteractionController_getInteraction",
+        "operationId": "InteractionController_login",
         "parameters": [],
         "responses": {
           "200": {
             "description": ""
           }
         }
-      }
-    },
-    "/interaction/{uid}/login": {
+      },
       "post": {
-        "operationId": "InteractionController_login",
+        "operationId": "InteractionController_loginCheck",
         "parameters": [],
         "responses": {
           "201": {
@@ -94,7 +112,7 @@
     },
     "/interaction/{uid}/confirm": {
       "post": {
-        "operationId": "InteractionController_confirm",
+        "operationId": "InteractionController_confirmLogin",
         "parameters": [],
         "responses": {
           "201": {
@@ -105,7 +123,7 @@
     },
     "/interaction/{uid}/abort": {
       "get": {
-        "operationId": "InteractionController_abort",
+        "operationId": "InteractionController_abortLogin",
         "parameters": [],
         "responses": {
           "200": {

@@ -18,17 +18,20 @@ export class KickstartService {
     const applicationCount = await this.prismaService.application.count();
     const tenantCount = await this.prismaService.tenant.count();
     const jwksCount = await this.prismaService.key.count();
-    if (applicationCount !== 0 || tenantCount !== 0 || jwksCount !== 0) {
+    if (applicationCount !== 0 && tenantCount !== 0 && jwksCount !== 0) {
       return;
     }
     const fileName = process.env.KICKSTART_FILE_NAME;
     const hostName = `${process.env.FULL_URL}`;
 
+    // TODO: Move to a guard or middleware
     if (!fileName || !hostName) {
       throw new Error(
         'Environment variables KICKSTART_FILE_NAME and HOST_NAME are required',
       );
     }
+
+    // TODO: Read this file in a more robust and secure way
     const file = fs.readFileSync(path.resolve(`./${fileName}`), {
       encoding: 'utf-8',
     });
@@ -67,8 +70,10 @@ export class KickstartService {
       }
       return obj;
     };
+
     const finalResponse = [];
     const keyInfo = replaceObjectPlaceholders(config.apiKey, variables);
+
     try {
       const authorizationKey =
         await this.prismaService.authenticationKey.create({
@@ -80,10 +85,19 @@ export class KickstartService {
         });
       finalResponse.push(authorizationKey);
     } catch (error) {
-      this.logger.error(
-        'Give key in apiKey in kickstart file to create an authorization key with max privileges',
-      );
-      throw new Error('Kickstart file format error');
+      console.log('error: ', error);
+      const authorizationKey =
+        await this.prismaService.authenticationKey.findFirst({
+          where: {
+            keyManager: true,
+          },
+        });
+      finalResponse.push(authorizationKey);
+
+      // this.logger.error(
+      //   'Give key in apiKey in kickstart file to create an authorization key with max privileges',
+      // );
+      // throw new Error('Kickstart file format error');
     }
 
     const requests = config.requests.map((request) => {
@@ -110,7 +124,7 @@ export class KickstartService {
         this.logger.log(
           `Request to ${fullUrl} succeeded with status ${response.status}`,
         );
-      } catch (error) {
+      } catch (error: any) {
         this.logger.error(`Request to ${fullUrl} failed`, error.response?.data);
       }
     }

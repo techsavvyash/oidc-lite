@@ -1,36 +1,120 @@
-import { Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
-import { Request, Response } from 'express';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Post,
+  Res,
+} from '@nestjs/common';
+import { Oidc, InteractionHelper } from 'nest-oidc-provider';
+import { Response } from 'express';
+import Provider from 'oidc-provider';
 
-@Controller('interaction')
+/**
+ * !!! This is just for example, don't use this in any real case !!!
+ */
+@Controller('/interaction')
 export class InteractionController {
-  @Get(':id')
-  serveLoginPage(@Param('id') id: string, @Res() res: Response) {
-    const loginHtml = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login</title>
-        <style>
-          body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-          form { background: #f0f0f0; padding: 20px; border-radius: 5px; }
-          input { display: block; margin: 10px 0; padding: 5px; width: 200px; }
-          button { background: #007bff; color: white; border: none; padding: 10px; cursor: pointer; }
-        </style>
-      </head>
-      <body>
-        <form action="/login" method="POST">
-          <h2>Login</h2>
-          <input type="text" name="username" placeholder="Username" required>
-          <input type="password" name="password" placeholder="Password" required>
-          <input type="hidden" name="interaction_id" value="${id}">
-          <button type="submit">Log In</button>
-        </form>
-      </body>
-      </html>
-    `;
+  private readonly logger = new Logger(InteractionController.name);
+  private readonly provider: Provider;
+  constructor() {}
 
-    res.type('text/html').send(loginHtml);
+  @Get(':uid')
+  async login(
+    @Oidc.Interaction() interaction: InteractionHelper,
+    @Res() res: Response,
+  ) {
+    const { prompt, params, uid } = await interaction.details();
+
+    const client = await this.provider.Client.find(params.client_id as string);
+
+    res.render(prompt.name, {
+      details: prompt.details,
+      client,
+      params,
+      uid,
+    });
+  }
+
+  @Post(':uid')
+  async loginCheck(
+    @Oidc.Interaction() interaction: InteractionHelper,
+    @Body() form: Record<string, string>,
+  ) {
+    const { prompt, params, uid } = await interaction.details();
+
+    if (!form.user || !form.password) {
+      throw new BadRequestException('missing credentials');
+    }
+
+    if (prompt.name !== 'login') {
+      throw new BadRequestException('invalid prompt name');
+    }
+
+    this.logger.debug(`Login UID: ${uid}`);
+    this.logger.debug(`Login user: ${form.user}`);
+    this.logger.debug(`Client ID: ${params.client_id}`);
+
+    await interaction.finished(
+      {
+        login: {
+          accountId: form.user,
+        },
+      },
+      { mergeWithLastSubmission: false },
+    );
+  }
+
+  @Post(':uid/confirm')
+  async confirmLogin(@Oidc.Interaction() interaction: InteractionHelper) {
+    const interactionDetails = await interaction.details();
+    const { prompt, params, session } = interactionDetails;
+    let { grantId } = interactionDetails;
+
+    const grant = grantId
+      ? await this.provider.Grant.find(grantId)
+      : new this.provider.Grant({
+          accountId: session.accountId,
+          clientId: params.client_id as string,
+        });
+
+    if (prompt.details.missingOIDCScope) {
+      const scopes = prompt.details.missingOIDCScope as string[];
+      grant.addOIDCScope(scopes.join(' '));
+    }
+
+    if (prompt.details.missingOIDCClaims) {
+      grant.addOIDCClaims(prompt.details.missingOIDCClaims as string[]);
+    }
+
+    if (prompt.details.missingResourceScopes) {
+      for (const [indicator, scopes] of Object.entries(
+        prompt.details.missingResourceScopes,
+      )) {
+        grant.addResourceScope(indicator, scopes.join(' '));
+      }
+    }
+
+    grantId = await grant.save();
+
+    await interaction.finished(
+      {
+        consent: {
+          grantId,
+        },
+      },
+      { mergeWithLastSubmission: true },
+    );
+  }
+
+  @Get(':uid/abort')
+  async abortLogin(@Oidc.Interaction() interaction: InteractionHelper) {
+    const result = {
+      error: 'access_denied',
+      error_description: 'End-user aborted interaction',
+    };
+
+    await interaction.finished(result, { mergeWithLastSubmission: false });
   }
 }

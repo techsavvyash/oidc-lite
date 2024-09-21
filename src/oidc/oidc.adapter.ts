@@ -1,4 +1,4 @@
-import { PrismaClient, OidcModel, Prisma } from '@prisma/client';
+import { PrismaClient, OidcModel } from '@prisma/client';
 import { Adapter, AdapterPayload } from 'oidc-provider';
 import { ApplicationDataDto } from 'src/application/application.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -29,10 +29,10 @@ const types = [
 const prepare = (doc: OidcModel) => {
   doc.payload = JSON.parse(doc.payload);
   const isPayloadJson =
-  doc.payload &&
-  typeof doc.payload === 'object' &&
-  !Array.isArray(doc.payload);
-  
+    doc.payload &&
+    typeof doc.payload === 'object' &&
+    !Array.isArray(doc.payload);
+
   const payload = isPayloadJson ? doc.payload : {};
 
   return {
@@ -122,11 +122,12 @@ export class PrismaAdapter implements Adapter {
         },
       },
     });
-    //console.log(doc);
+    // doc.payload = JSON.parse(doc.payload);
+    console.log(doc);
     if (this.name === 'Session') {
     }
     if (this.name === 'Interaction') {
-      const params = (JSON.parse(doc.payload) as any).params;
+      const params = JSON.parse(doc.payload).params;
       const client_id = params.client_id;
       const client = await PrismaAdapter.prismaService.application.findUnique({
         where: { id: client_id },
@@ -134,7 +135,7 @@ export class PrismaAdapter implements Adapter {
       // do domain pinning here or cors?
       if (!client) return undefined;
     }
-    
+
     if (!doc || (doc.expiresAt && doc.expiresAt < new Date())) {
       return undefined;
     }
@@ -166,6 +167,7 @@ export class PrismaAdapter implements Adapter {
         userCode,
       },
     });
+    doc.payload = JSON.parse(doc.payload);
 
     if (!doc || (doc.expiresAt && doc.expiresAt < new Date())) {
       return undefined;
