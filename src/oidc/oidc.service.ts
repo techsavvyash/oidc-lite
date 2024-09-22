@@ -140,10 +140,8 @@ export class OIDCService {
     return oidc;
   }
 
+  // Look up the user by their ID in the database using Prisma and returns the user claims, id is required to be email rather than some uuid
   static async findAccount(ctx, id) {
-    // Look up the user by their ID in the database using Prisma
-    // console.log('ctx: ', ctx);
-    console.log('id: ', id);
     const user = await OIDCService.prismaService.user.findUnique({
       where: { email: id },
     });

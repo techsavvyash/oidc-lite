@@ -1,19 +1,36 @@
 import {
+  All,
   Controller,
   Get,
   HttpStatus,
   Logger,
   Query,
   Render,
+  Req,
   Res,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { Oidc } from 'nest-oidc-provider';
 import axios from 'axios';
+import { KoaContextWithOIDC } from 'oidc-provider';
 // import qs from 'query-string';
 
 @Controller()
 export class OIDCController {
+  @All('/*')
+  public mountedOidc(
+    @Oidc.Context() ctx: KoaContextWithOIDC,
+    @Req() req: Request,
+    @Res() res: Response,
+   ) {
+    const {
+      oidc: { provider },
+    } = ctx;
+    req.url = req.originalUrl.replace('/oidc', '');
+    const callback = provider.callback();
+    return callback(req,res);
+  }
+
   private readonly logger = new Logger(OIDCController.name);
 
   @Get('/')
