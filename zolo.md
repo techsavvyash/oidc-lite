@@ -57,3 +57,9 @@ idToken ka ttl?
 domain pinning?
 jwks and jwkuri?
 registration will happen after getting consent
+
+signout reject k baad sigout succes show krna. bhale hi signout na hua ho, frontend issue
+
+username password
+redirect_uri ka panga on ejs index.ejs
+renderError page ki backchodi

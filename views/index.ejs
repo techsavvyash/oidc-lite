@@ -102,16 +102,16 @@
         </div>
       </div>
     </div>
-
+// client id has to be change down in baseUrl
     <script>
       const btn = document.getElementById('signin');
       const scopesInput = document.getElementById('scopes');
       const baseUrl =
-        '/oidc/auth?client_id=test&response_type=code&redirect_uri=https://oidcdebugger.com/debug';
+        '/oidc/auth?client_id=myminioadmin&response_type=code&redirect_uri=<%= origin %>/callback';
 
       btn.onclick = () => {
         const scopes = scopesInput.value.replace(/\s+/, ' ');
-        window.location = `${baseUrl}?scope=${scopes || 'openid email'}`;
+        window.location = `${baseUrl}&scope=${scopes || 'openid email'}`;
       };
     </script>
 

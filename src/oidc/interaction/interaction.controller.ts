@@ -9,7 +9,8 @@ import {
 } from '@nestjs/common';
 import { Oidc, InteractionHelper } from 'nest-oidc-provider';
 import { Response } from 'express';
-import Provider from 'oidc-provider';
+import { Provider } from 'oidc-provider';
+import { OIDCService } from '../oidc.service';
 
 /**
  * !!! This is just for example, don't use this in any real case !!!
@@ -17,7 +18,7 @@ import Provider from 'oidc-provider';
 @Controller('/interaction')
 export class InteractionController {
   private readonly logger = new Logger(InteractionController.name);
-  private readonly provider: Provider;
+  private provider: Provider;
   constructor() {}
 
   @Get(':uid')
@@ -26,7 +27,7 @@ export class InteractionController {
     @Res() res: Response,
   ) {
     const { prompt, params, uid } = await interaction.details();
-
+    this.provider = await OIDCService.getProvider();
     const client = await this.provider.Client.find(params.client_id as string);
 
     res.render(prompt.name, {
@@ -47,7 +48,7 @@ export class InteractionController {
     if (!form.user || !form.password) {
       throw new BadRequestException('missing credentials');
     }
-
+    // password checking to be done here?? or in oidc.service.ts -> findAccount ?
     if (prompt.name !== 'login') {
       throw new BadRequestException('invalid prompt name');
     }
@@ -71,6 +72,7 @@ export class InteractionController {
     const interactionDetails = await interaction.details();
     const { prompt, params, session } = interactionDetails;
     let { grantId } = interactionDetails;
+    this.provider = await OIDCService.getProvider();
 
     const grant = grantId
       ? await this.provider.Grant.find(grantId)

@@ -6,7 +6,7 @@ import { UtilsService } from 'src/utils/utils.service';
 
 const prisma = new PrismaClient();
 
-const types = [
+export const types = [
   'Session', // 1
   'AccessToken', // rem
   'AuthorizationCode', // 3 rem
@@ -41,7 +41,7 @@ const prepare = (doc: OidcModel) => {
   };
 };
 
-const expiresAt = (expiresIn?: number) =>
+export const expiresAt = (expiresIn?: number) =>
   expiresIn ? new Date(Date.now() + expiresIn * 1000) : null;
 
 export class PrismaAdapter implements Adapter {
@@ -56,7 +56,7 @@ export class PrismaAdapter implements Adapter {
   constructor(name: string) {
     this.type = types[name];
     this.name = name;
-    // console.log('Constructor', name);
+    // console.log('Constructor',name);
   }
 
   async upsert(
@@ -72,7 +72,7 @@ export class PrismaAdapter implements Adapter {
       uid: payload.uid,
       expiresAt: expiresAt(expiresIn),
     };
-    // console.log('upsert', id, this.name, payload);
+    
     await prisma.oidcModel.upsert({
       where: {
         id_type: {
@@ -98,9 +98,11 @@ export class PrismaAdapter implements Adapter {
         where: { id },
       });
       if (!client || !client.active) return undefined;
+
       const clientData: ApplicationDataDto = JSON.parse(client.data);
       const scope =
         await PrismaAdapter.utilsService.returnScopesForAGivenApplicationId(id);
+      
       const formattedClientData: AdapterPayload = {
         client_id: id,
         client_secret: clientData.oauthConfiguration.clientSecret,
@@ -111,7 +113,7 @@ export class PrismaAdapter implements Adapter {
         logo_uri: 'http://localhost:3000',
         // jwks, jwks_uri
       };
-      // console.log(formattedClientData);
+
       return formattedClientData;
     }
     const doc = await prisma.oidcModel.findUnique({
@@ -123,7 +125,7 @@ export class PrismaAdapter implements Adapter {
       },
     });
     // doc.payload = JSON.parse(doc.payload);
-    console.log(doc);
+    // console.log(doc);
     if (this.name === 'Session') {
     }
     if (this.name === 'Interaction') {

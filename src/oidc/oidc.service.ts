@@ -6,10 +6,10 @@ import { ApplicationDataDto } from 'src/application/application.dto';
 
 @Injectable()
 export class OIDCService {
-  private provider: any;
-  constructor(private readonly prismaService: PrismaService) {}
-
-  private async returnConfiguration(): Promise<Configuration> {
+  private static provider: any;
+  constructor() {}
+  private static prismaService = new PrismaService();
+  public static async returnConfiguration(): Promise<Configuration> {
     const client_ttlMap: Map<string, ApplicationDataDto> =
       await this.returnTTL();
 
@@ -23,9 +23,9 @@ export class OIDCService {
         },
       },
       adapter: (modelName: string) => new PrismaAdapter(modelName),
-      findAccount: this.findAccount.bind(this),
+      findAccount: OIDCService.findAccount.bind(this),
       cookies: {
-        keys: ['test'],
+        keys: ['test'], // change this
       },
       scopes: [
         'openid',
@@ -57,8 +57,11 @@ export class OIDCService {
         ],
       },
       clientBasedCORS(ctx, origin, client) {
-        console.log('CLORS', ctx, origin, client);
-        return false;
+        // console.log('CLORS', ctx, origin, client);
+        return true;
+      },
+      renderError: (ctx, out, error) => {
+        console.log('Error why not working: ', error);
       },
       pkce: {
         methods: ['S256'],
@@ -76,11 +79,6 @@ export class OIDCService {
       },
       issueRefreshToken: async () => {
         return true;
-      },
-      loadExistingGrant(ctx) {
-        // runs after giving consent
-        console.log(ctx);
-        return undefined;
       },
       ttl: {
         AccessToken: (ctx, token, client) => {
@@ -113,7 +111,7 @@ export class OIDCService {
     return config;
   }
 
-  private async returnTTL() {
+  private static async returnTTL() {
     const client_ttlMap: Map<string, ApplicationDataDto> = new Map();
     const clients = await this.prismaService.application.findMany();
     clients.forEach((client) =>
@@ -125,27 +123,28 @@ export class OIDCService {
     return client_ttlMap;
   }
 
-  async getProvider(): Promise<Provider> {
-    if (this.provider) {
+  public static async getProvider(): Promise<Provider> {
+    if (OIDCService.provider) {
       // console.log('returning from if');
       // console.log('provider: ', this.provider);
-      return this.provider;
+      return OIDCService.provider;
     }
 
     const mod = await eval(`import('oidc-provider')`);
-    this.provider = mod.default;
-    const configuration: Configuration = await this.returnConfiguration();
+    OIDCService.provider = mod.default;
+    const configuration: Configuration =
+      await OIDCService.returnConfiguration();
     // console.log('configuration: ', configuration.jwks);
-    const oidc = new this.provider(process.env.FULL_URL, configuration);
-    this.provider = oidc;
+    const oidc = new OIDCService.provider(process.env.FULL_URL, configuration);
+    OIDCService.provider = oidc;
     return oidc;
   }
 
-  async findAccount(ctx, id) {
+  static async findAccount(ctx, id) {
     // Look up the user by their ID in the database using Prisma
     // console.log('ctx: ', ctx);
     console.log('id: ', id);
-    const user = await this.prismaService.user.findUnique({
+    const user = await OIDCService.prismaService.user.findUnique({
       where: { email: id },
     });
     console.log('user: ', user);

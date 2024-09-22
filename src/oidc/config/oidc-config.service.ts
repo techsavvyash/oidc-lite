@@ -5,9 +5,11 @@ import {
 } from 'nest-oidc-provider';
 import { Injectable } from '@nestjs/common';
 import { AdapterFactory } from 'oidc-provider';
-import { PrismaAdapter } from '../adapters/prisma.adapter';
+// import { PrismaAdapter } from '../adapters/prisma.adapter';
+import { PrismaAdapter } from '../oidc.adapter';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
+import { OIDCService } from '../oidc.service';
 
 @Injectable()
 export class OidcConfigService implements OidcModuleOptionsFactory {
@@ -16,16 +18,17 @@ export class OidcConfigService implements OidcModuleOptionsFactory {
     private readonly configService: ConfigService,
   ) {}
 
-  createModuleOptions(): OidcModuleOptions | Promise<OidcModuleOptions> {
+  async createModuleOptions(): Promise<OidcModuleOptions> {
     return {
       issuer: 'http://localhost:3001',
       path: '/oidc',
-      oidc: this.getConfiguration(),
+      // oidc: this.getConfiguration(),
+      oidc: await OIDCService.returnConfiguration()
     };
   }
 
   createAdapterFactory(): AdapterFactory | Promise<AdapterFactory> {
-    return (modelName: string) => new PrismaAdapter(this.dbService, modelName);
+    return (modelName: string) => new PrismaAdapter(modelName); // now not using nest prisma adapter, instead custom adapter in oidc.adapter.ts
   }
 
   getConfiguration(): OidcConfiguration {
@@ -43,8 +46,8 @@ export class OidcConfigService implements OidcModuleOptionsFactory {
           ],
         },
       ],
-      renderError: (error, req, res) => {
-        console.log(error);
+      renderError: (ctx, out, error) => {
+        console.log("Error from nest-oidc-prisma-adapter: ",error);
       },
       pkce: {
         methods: ['plain', 'S256'],
