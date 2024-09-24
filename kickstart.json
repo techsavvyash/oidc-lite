@@ -132,7 +132,9 @@
             ],
             "clientSecret": "#{clientSecret}",
             "enabledGrants": ["authorization_code", "refresh_token"],
-            "logoutURL": "http://localhost:3001/logout"
+            "logoutURL": "http://localhost:3001/logout",
+            "enablePKCE": false,
+            "skipConsentScreen": true
           }
         }
       }

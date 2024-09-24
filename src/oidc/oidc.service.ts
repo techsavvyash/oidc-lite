@@ -1,5 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import Provider, { Configuration, JWKS, errors } from 'oidc-provider';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import Provider, {
+  AdapterPayload,
+  Client,
+  Configuration,
+  JWKS,
+  errors,
+} from 'oidc-provider';
 import { PrismaAdapter } from './oidc.adapter';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ApplicationDataDto } from 'src/application/application.dto';
@@ -78,29 +84,89 @@ export class OIDCService {
       },
       // this and next function are under progress
       extraClientMetadata: {
-        properties: [corsProp],
+        properties: [corsProp, 'extra'], // don't remove extra, used for skipping consent screen
         validator(ctx, key, value, metadata) {
-          console.log(ctx); // ctx undefined
-          // console.log('Inside validator===', key, value, metadata);
-          return;
+          if (key === corsProp) {
+            // set default (no CORS)
+            if (value === undefined) {
+              metadata[corsProp] = [];
+              return;
+            }
+            // validate an array of Origin strings
+            if (!Array.isArray(value) || !value.every(isOrigin)) {
+              throw new UnauthorizedException(
+                `${corsProp} must be an array of origins`,
+              );
+            }
+          }
         },
       },
       clientBasedCORS(ctx, origin, client) {
-        console.log(ctx);
         // ctx.oidc.route can be used to exclude endpoints from this behaviour, in that case just return
         // true to always allow CORS on them, false to deny
         // you may also allow some known internal origins if you want to
-        console.log(ctx.oidc.route);
-        console.log('THis is origin', origin);
-        return true;
         return (client[corsProp] as any).includes(origin);
+      },
+      loadExistingGrant: async (ctx) => {
+        const clientMacroObject = ctx.oidc.client;
+        const grantId =
+          (ctx.oidc.result &&
+            ctx.oidc.result.consent &&
+            ctx.oidc.result.consent.grantId) ||
+          ctx.oidc.session.grantIdFor(ctx.oidc.client.clientId);
+
+        if (grantId) {
+          // keep grant expiry aligned with session expiry
+          // to prevent consent prompt being requested when grant expires
+          const grant = await ctx.oidc.provider.Grant.find(grantId);
+
+          // this aligns the Grant ttl with that of the current session
+          // if the same Grant is used for multiple sessions, or is set
+          // to never expire, you probably do not want this in your code
+          if (ctx.oidc.account && grant.exp < ctx.oidc.session.exp) {
+            grant.exp = ctx.oidc.session.exp;
+
+            await grant.save();
+          }
+
+          return grant;
+        } else if (OIDCService.skipConsent(clientMacroObject) === true) {
+          console.log("HI");
+          const grant = new ctx.oidc.provider.Grant({
+            clientId: ctx.oidc.client.clientId,
+            accountId: ctx.oidc.session.accountId,
+          });
+          const client = await OIDCService.prismaService.application.findUnique(
+            {
+              where: { id: clientMacroObject.clientId },
+            },
+          );
+          if (!client || !client.active) return undefined;
+
+          const scope =
+            await OIDCService.utilsService.returnScopesForAGivenApplicationId(
+              clientMacroObject.clientId,
+            );
+          
+          grant.addOIDCScope(scope.join(' '));
+          // not needed
+          // grant.addOIDCClaims(['first_name']);
+          // grant.addResourceScope(
+          //   'urn:example:resource-indicator',
+          //   'api:read api:write',
+          // );
+          await grant.save();
+          return grant;
+        }
       },
       renderError: (ctx, out, error) => {
         console.log('Error why not working: ', error);
       },
       pkce: {
         methods: ['S256'],
-        required: () => false,
+        required: (ctx, client) => {
+          return (client.extra as any).enablePKCE === true ? true: false;
+        },
       },
       features: {
         introspection: { enabled: true },
@@ -156,6 +222,11 @@ export class OIDCService {
     return config;
   }
 
+  private static skipConsent(client: Client) {
+    // if enabled skipConsentScreen in the application schema then skip consent
+    return (client.extra as any).skipConsentScreen === true ? true : false;
+  }
+
   private static async returnTTL() {
     const client_ttlMap: Map<string, ApplicationDataDto> = new Map();
     const clients = await this.prismaService.application.findMany();
@@ -190,7 +261,6 @@ export class OIDCService {
     const user = await OIDCService.prismaService.user.findUnique({
       where: { email: id },
     });
-    console.log('user: ', ctx.req.body, ctx.req.params);
 
     if (!user) {
       return undefined;

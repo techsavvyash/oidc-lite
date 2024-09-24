@@ -19,7 +19,7 @@ export const types = [
   'Interaction',
   'ReplayDetection',
   'PushedAuthorizationRequest',
-  'Grant',
+  'Grant', //13
   'BackchannelAuthenticationRequest',
 ].reduce(
   (map, name, i) => ({ ...map, [name]: i + 1 }),
@@ -71,7 +71,7 @@ export class PrismaAdapter implements Adapter {
       uid: payload.uid,
       expiresAt: expiresAt(expiresIn),
     };
-    
+
     await prisma.oidcModel.upsert({
       where: {
         id_type: {
@@ -101,17 +101,22 @@ export class PrismaAdapter implements Adapter {
       const clientData: ApplicationDataDto = JSON.parse(client.data);
       const scope =
         await PrismaAdapter.utilsService.returnScopesForAGivenApplicationId(id);
-      
+
       const formattedClientData: AdapterPayload = {
         client_id: id,
         client_secret: clientData.oauthConfiguration.clientSecret,
         redirect_uris: clientData.oauthConfiguration.authorizedRedirectURLs,
         grant_types: clientData.oauthConfiguration.enabledGrants,
         client_name: client.name,
+        post_logout_redirect_uris: [clientData.oauthConfiguration.logoutURL], // check this, not having any effect
         scope: scope.join(' '),
-        logo_uri: 'http://localhost:3000', // take this in schema of application, this is url to application image to display while login
+        logo_uri: client.logo_uri, // take this in schema of application, this is url to application image to display while login
+        extra: {
+          skipConsentScreen: clientData.oauthConfiguration.skipConsentScreen,
+          enablePKCE: clientData.oauthConfiguration.enablePKCE,
+        },
       };
-
+      // console.log(formattedClientData);
       return formattedClientData;
     }
     const doc = await prisma.oidcModel.findUnique({

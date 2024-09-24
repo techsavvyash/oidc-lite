@@ -19,10 +19,10 @@ Read the above documentation and then implement the remaining functionalities.
 - [x] 4a. Creating our own `interactions` page and removing `devInteractions`
 - [ ] 4b. removing `renderError` with our own
 - [x] 5. Use sqlite instead of postgresql
-- [ ] 6a. Correction kickstart.json
+- [x] 6a. Correction kickstart.json
 - [ ] 6b. Parse payload of oidcModel since prisma using. search on github for the issue ticket
 - [ ] 7. Making sure the tests are up to date
-- [ ] 8a. Integration with minIO
+- [x] 8a. Integration with minIO
 - [x] 8b. Integration with oauth-2-proxy
 - [ ] 9. Removing any redundant code and cleanup and documentation updation
 - [ ] 10. otp integration
@@ -75,3 +75,10 @@ renderError page ki backchodi
 
 
 http://localhost:3001/oidc/auth?client_id=myminioadmin&redirect_uri=http%3A%2F%2F192.168.250.157%3A9001%2Foauth_callback&response_type=code&scope=offline_access+openid&state=eyJzdGF0ZSI6IlIxSkJTakZVUjBaRVNrOUdORUUwU1RGT1NGQllWbE5JVGpwbFJuZzJTRWwyU0VOYVoxUTBVWFV3VURWU1N6WXJNVVpJVnpaS1RWUklVMWhIYTNCc1VVWnBkM1ZuUFE9PSIsImlkcF9uYW1lIjoiXyJ9
+
+domain pinning + non-consent screen + 
+1. oauth + with consent and without consent : DONE
+2. tenant + application crud : DONE
+3. domain pinnig
+4. oauth2 proxy and minio : DONE
+5. pkce : DONE

@@ -2885,6 +2885,18 @@
             "type": "string",
             "description": "Logout URL",
             "example": "https://example.com/logout"
+          },
+          "skipConsentScreen": {
+            "type": "boolean",
+            "default": false,
+            "example": "true",
+            "description": "Whether to ask user's consent for getting user claims or not"
+          },
+          "enablePKCE": {
+            "type": "boolean",
+            "default": false,
+            "example": "false",
+            "description": "enable proof key for code exchange for an application"
           }
         },
         "required": [
@@ -2892,7 +2904,9 @@
           "authorizedRedirectURLs",
           "clientSecret",
           "enabledGrants",
-          "logoutURL"
+          "logoutURL",
+          "skipConsentScreen",
+          "enablePKCE"
         ]
       },
       "CreateApplicationDto": {
