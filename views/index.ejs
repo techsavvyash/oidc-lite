@@ -15,7 +15,7 @@
       crossorigin="anonymous"
     />
 
-    <title>nest-oidc-provider (example)</title>
+    <title>Stencil OID provider</title>
   </head>
   <body>
     <div class="container h-100">
@@ -23,7 +23,7 @@
         <div class="col">
           <div class="row">
             <div class="col text-center">
-              <h4>nest-oidc-provider</h4>
+              <h4>Stencil SSO</h4>
               <p>(example)</p>
             </div>
           </div>
@@ -102,16 +102,16 @@
         </div>
       </div>
     </div>
-
+// client id has to be change down in baseUrl
     <script>
       const btn = document.getElementById('signin');
       const scopesInput = document.getElementById('scopes');
       const baseUrl =
-        '/oidc/auth?client_id=test&response_type=code&redirect_uri=https://oidcdebugger.com/debug';
+        '/oidc/auth?client_id=myminioadmin&response_type=code&redirect_uri=http://localhost:3001/callback';
 
       btn.onclick = () => {
         const scopes = scopesInput.value.replace(/\s+/, ' ');
-        window.location = `${baseUrl}?scope=${scopes || 'openid email'}`;
+        window.location = `${baseUrl}&scope=${scopes || 'openid email'}`;
       };
     </script>
 

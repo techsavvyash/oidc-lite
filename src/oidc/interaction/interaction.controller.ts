@@ -9,7 +9,11 @@ import {
 } from '@nestjs/common';
 import { Oidc, InteractionHelper } from 'nest-oidc-provider';
 import { Response } from 'express';
-import Provider from 'oidc-provider';
+import { Provider } from 'oidc-provider';
+import { OIDCService } from '../oidc.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { UserData, UserDataDto } from 'src/user/user.dto';
+import { UtilsService } from 'src/utils/utils.service';
 
 /**
  * !!! This is just for example, don't use this in any real case !!!
@@ -17,8 +21,11 @@ import Provider from 'oidc-provider';
 @Controller('/interaction')
 export class InteractionController {
   private readonly logger = new Logger(InteractionController.name);
-  private readonly provider: Provider;
-  constructor() {}
+  private provider: Provider;
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly utilsService: UtilsService,
+  ) {}
 
   @Get(':uid')
   async login(
@@ -26,7 +33,7 @@ export class InteractionController {
     @Res() res: Response,
   ) {
     const { prompt, params, uid } = await interaction.details();
-
+    this.provider = await OIDCService.getProvider();
     const client = await this.provider.Client.find(params.client_id as string);
 
     res.render(prompt.name, {
@@ -51,6 +58,48 @@ export class InteractionController {
     if (prompt.name !== 'login') {
       throw new BadRequestException('invalid prompt name');
     }
+    const { client_id } = params;
+
+    const client = await this.prismaService.application.findUnique({
+      where: { id: client_id as string },
+    });
+    if (!client) {
+      return await interaction.finished(
+        {
+          error: 'invalid client_id',
+          error_description: 'client with given client_id not found',
+        },
+        { mergeWithLastSubmission: false },
+      );
+    }
+    const user = await this.prismaService.user.findUnique({
+      where: { email: form.user },
+    });
+    if (!user) {
+      return await interaction.finished(
+        {
+          error: 'invalid_userid',
+          error_description: 'user with given user id not found',
+        },
+        { mergeWithLastSubmission: false },
+      );
+    }
+    const userData: UserData = JSON.parse(user.data);
+    const userPassword = userData.userData.password;
+    if (
+      (await this.utilsService.comparePasswords(
+        form.password,
+        userPassword,
+      )) === false
+    ) {
+      return await interaction.finished(
+        {
+          error: 'invalid authentication',
+          error_description: 'either username or password incorrect',
+        },
+        { mergeWithLastSubmission: false },
+      );
+    }
 
     this.logger.debug(`Login UID: ${uid}`);
     this.logger.debug(`Login user: ${form.user}`);
@@ -71,6 +120,7 @@ export class InteractionController {
     const interactionDetails = await interaction.details();
     const { prompt, params, session } = interactionDetails;
     let { grantId } = interactionDetails;
+    this.provider = await OIDCService.getProvider();
 
     const grant = grantId
       ? await this.provider.Grant.find(grantId)

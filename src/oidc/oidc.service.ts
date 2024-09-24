@@ -1,15 +1,40 @@
-import { Injectable } from '@nestjs/common';
-import Provider, { Configuration, JWKS } from 'oidc-provider';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import Provider, {
+  AdapterPayload,
+  Client,
+  Configuration,
+  JWKS,
+  errors,
+} from 'oidc-provider';
 import { PrismaAdapter } from './oidc.adapter';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ApplicationDataDto } from 'src/application/application.dto';
+import { UtilsService } from 'src/utils/utils.service';
+
+// this part of code is under progress
+const corsProp = 'urn:custom:client:allowed-cors-origins';
+const isOrigin = (value) => {
+  if (typeof value !== 'string') {
+    return false;
+  }
+  try {
+    const { origin } = new URL(value);
+    // Origin: <scheme> "://" <hostname> [ ":" <port> ]
+    return value === origin;
+  } catch (err) {
+    return false;
+  }
+};
 
 @Injectable()
 export class OIDCService {
-  private provider: any;
-  constructor(private readonly prismaService: PrismaService) {}
-
-  private async returnConfiguration(): Promise<Configuration> {
+  private static provider: any;
+  constructor() {}
+  private static readonly prismaService = new PrismaService();
+  private static readonly utilsService = new UtilsService(
+    OIDCService.prismaService,
+  );
+  public static async returnConfiguration(): Promise<Configuration> {
     const client_ttlMap: Map<string, ApplicationDataDto> =
       await this.returnTTL();
 
@@ -23,9 +48,9 @@ export class OIDCService {
         },
       },
       adapter: (modelName: string) => new PrismaAdapter(modelName),
-      findAccount: this.findAccount.bind(this),
+      findAccount: OIDCService.findAccount.bind(this),
       cookies: {
-        keys: ['test'],
+        keys: ['test'], // change this
       },
       scopes: [
         'openid',
@@ -55,14 +80,93 @@ export class OIDCService {
           'website',
           'zoneinfo',
         ],
+        openid: ['policy'],
+      },
+      // this and next function are under progress
+      extraClientMetadata: {
+        properties: [corsProp, 'extra'], // don't remove extra, used for skipping consent screen
+        validator(ctx, key, value, metadata) {
+          if (key === corsProp) {
+            // set default (no CORS)
+            if (value === undefined) {
+              metadata[corsProp] = [];
+              return;
+            }
+            // validate an array of Origin strings
+            if (!Array.isArray(value) || !value.every(isOrigin)) {
+              throw new UnauthorizedException(
+                `${corsProp} must be an array of origins`,
+              );
+            }
+          }
+        },
       },
       clientBasedCORS(ctx, origin, client) {
-        console.log('CLORS', ctx, origin, client);
-        return false;
+        // ctx.oidc.route can be used to exclude endpoints from this behaviour, in that case just return
+        // true to always allow CORS on them, false to deny
+        // you may also allow some known internal origins if you want to
+        return (client[corsProp] as any).includes(origin);
+      },
+      loadExistingGrant: async (ctx) => {
+        const clientMacroObject = ctx.oidc.client;
+        const grantId =
+          (ctx.oidc.result &&
+            ctx.oidc.result.consent &&
+            ctx.oidc.result.consent.grantId) ||
+          ctx.oidc.session.grantIdFor(ctx.oidc.client.clientId);
+
+        if (grantId) {
+          // keep grant expiry aligned with session expiry
+          // to prevent consent prompt being requested when grant expires
+          const grant = await ctx.oidc.provider.Grant.find(grantId);
+
+          // this aligns the Grant ttl with that of the current session
+          // if the same Grant is used for multiple sessions, or is set
+          // to never expire, you probably do not want this in your code
+          if (ctx.oidc.account && grant.exp < ctx.oidc.session.exp) {
+            grant.exp = ctx.oidc.session.exp;
+
+            await grant.save();
+          }
+
+          return grant;
+        } else if (OIDCService.skipConsent(clientMacroObject) === true) {
+          console.log("HI");
+          const grant = new ctx.oidc.provider.Grant({
+            clientId: ctx.oidc.client.clientId,
+            accountId: ctx.oidc.session.accountId,
+          });
+          const client = await OIDCService.prismaService.application.findUnique(
+            {
+              where: { id: clientMacroObject.clientId },
+            },
+          );
+          if (!client || !client.active) return undefined;
+
+          const scope =
+            await OIDCService.utilsService.returnScopesForAGivenApplicationId(
+              clientMacroObject.clientId,
+            );
+          
+          grant.addOIDCScope(scope.join(' '));
+          // not needed
+          // grant.addOIDCClaims(['first_name']);
+          // grant.addResourceScope(
+          //   'urn:example:resource-indicator',
+          //   'api:read api:write',
+          // );
+          await grant.save();
+          return grant;
+        }
+      },
+      renderError: (ctx, out, error) => {
+        console.log('Error why not working: ', error);
       },
       pkce: {
         methods: ['S256'],
-        required: () => false,
+        required: (ctx, client) => {
+          return (client.extra as any).enablePKCE === true ? true: false;
+        },
       },
       features: {
         introspection: { enabled: true },
@@ -76,11 +180,6 @@ export class OIDCService {
       },
       issueRefreshToken: async () => {
         return true;
-      },
-      loadExistingGrant(ctx) {
-        // runs after giving consent
-        console.log(ctx);
-        return undefined;
       },
       ttl: {
         AccessToken: (ctx, token, client) => {
@@ -107,13 +206,28 @@ export class OIDCService {
           return 300000;
         },
       },
+      // can be used for adding extra claims in access token if required
+      // extraTokenClaims(ctx, token) {
+      //   console.log(token);
+      //   return undefined;
+      // },
+      //
+      // can be used in backchannel authorization
+      // extraParams: {
+
+      // },
       jwks,
     };
 
     return config;
   }
 
-  private async returnTTL() {
+  private static skipConsent(client: Client) {
+    // if enabled skipConsentScreen in the application schema then skip consent
+    return (client.extra as any).skipConsentScreen === true ? true : false;
+  }
+
+  private static async returnTTL() {
     const client_ttlMap: Map<string, ApplicationDataDto> = new Map();
     const clients = await this.prismaService.application.findMany();
     clients.forEach((client) =>
@@ -125,49 +239,120 @@ export class OIDCService {
     return client_ttlMap;
   }
 
-  async getProvider(): Promise<Provider> {
-    if (this.provider) {
-      // console.log('returning from if');
-      // console.log('provider: ', this.provider);
-      return this.provider;
+  public static async getProvider(): Promise<Provider> {
+    if (OIDCService.provider) {
+      return OIDCService.provider;
     }
 
     const mod = await eval(`import('oidc-provider')`);
-    this.provider = mod.default;
-    const configuration: Configuration = await this.returnConfiguration();
-    // console.log('configuration: ', configuration.jwks);
-    const oidc = new this.provider(process.env.FULL_URL, configuration);
-    this.provider = oidc;
+    OIDCService.provider = mod.default;
+    const configuration: Configuration =
+      await OIDCService.returnConfiguration();
+    const oidc = new OIDCService.provider(
+      process.env.ISSUER_URL,
+      configuration,
+    );
+    OIDCService.provider = oidc;
     return oidc;
   }
 
-  async findAccount(ctx, id) {
-    // Look up the user by their ID in the database using Prisma
-    // console.log('ctx: ', ctx);
-    console.log('id: ', id);
-    const user = await this.prismaService.user.findUnique({
+  // Look up the user by their ID in the database using Prisma and returns the user claims, id is required to be email rather than some uuid
+  static async findAccount(ctx, id) {
+    const user = await OIDCService.prismaService.user.findUnique({
       where: { email: id },
     });
-    console.log('user: ', user);
 
     if (!user) {
       return undefined;
     }
 
+    // TODO: checking whether user getting claims are from same application id or not, we don't want to give user admin powers in other applictions
+    // roles that are of type urn:applicationId:claim:roles will be put in jwt
+    const roleIds =
+      await OIDCService.utilsService.returnRolesForAGivenUserIdAndTenantId(
+        user.id,
+        user.tenantId,
+      );
+    const rolesObj = await Promise.all(
+      roleIds.map(async (roleId) => {
+        const role = await OIDCService.prismaService.applicationRole.findUnique(
+          { where: { id: roleId } },
+        );
+        return role;
+      }),
+    );
+    const roles = rolesObj.map((roleObj) => roleObj.name);
+    // regex to check if a role matches the urn:example:claim:roles pattern
+    const urnRegex = /^urn:[a-zA-Z0-9]+:[a-zA-Z0-9]+:[\[\]\'\"\,a-zA-Z0-9]+$/;
+
+    // Filter roles that follow the required format
+    const filteredRoles = roles.filter((role) => urnRegex.test(role));
+    // Parse roles into claims and their values
+    const roleClaims = filteredRoles.reduce((acc, role) => {
+      // Extract the parts from the URN role string (urn:namespace:claim:value)
+      const parts = role.split(':');
+      if (parts.length === 4) {
+        const claimName = parts[2]; // This is the 'claim' part of the role
+        let claimValue = parts[3];
+        if (
+          ['openid', 'profile', 'offline_access', 'email', 'address'].includes(
+            claimName,
+          )
+        )
+          return acc;
+
+        // Handle the conversion from single quoted value to unquoted value
+        if (claimValue.startsWith("'") && claimValue.endsWith("'")) {
+          claimValue = claimValue.slice(1, -1); // Remove the surrounding single quotes
+        }
+
+        // Handle the conversion from string representation of an array to actual array
+        if (claimValue.startsWith("['") && claimValue.endsWith("']")) {
+          try {
+            // Convert single quotes to double quotes for valid JSON parsing
+            claimValue = JSON.parse(claimValue.replace(/'/g, '"'));
+          } catch (e) {
+            // If parsing fails, keep it as the original string
+            console.error(
+              'Failed to parse claim value as JSON array:',
+              claimValue,
+            );
+          }
+        }
+
+        // Add the claim to the accumulated object, handle cases where there may be multiple values
+        if (acc[claimName]) {
+          // If the claim already exists, append the new values
+          if (Array.isArray(acc[claimName])) {
+            acc[claimName] = Array.isArray(claimValue)
+              ? [...acc[claimName], ...claimValue]
+              : [...acc[claimName], claimValue];
+          } else {
+            acc[claimName] = [acc[claimName], ...[].concat(claimValue)];
+          }
+        } else {
+          // Otherwise, add it as a new entry
+          acc[claimName] = claimValue;
+        }
+      }
+      return acc;
+    }, {});
+
     return {
       accountId: id,
-      async claims() {
+      async claims(
+        use: 'id_token' | 'userinfo',
+        scope: string,
+        claims: object,
+        rejected: String[],
+      ) {
+        // add whatever u want but only claims supported by AS are returned in id_token, supported claims are above
         return {
           sub: id,
           email: user.email,
           data: user.data,
           tenantId: user.tenantId,
-          // Add any other claims you want to include
-          // For example:
-          // name: user.name,
-          // given_name: user.firstName,
-          // family_name: user.lastName,
-          // You can include any user properties that are relevant for your application
+          ...roleClaims, // Spread the role claims into the return object
         };
       },
     };

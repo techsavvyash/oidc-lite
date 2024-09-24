@@ -46,6 +46,7 @@ model Application {
   updatedAt                DateTime @updatedAt
   name                     String
   tenantId                 String
+  logo_uri                 String?  @default("https://www.flaticon.com/free-icon/application_2833637")
 
   tenant                Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   accessTokenSigningKey Key?                    @relation("ApplicationAccessTokenSigningKey", fields: [accessTokenSigningKeysId], references: [id])
@@ -137,14 +138,14 @@ model Tenant {
 }
 
 model UserRegistration {
-  id                  String    @id @default(uuid())
-  applicationsId      String
-  password            String
-  data                String?
-  createdAt           DateTime  @default(now())
-  lastLoginInstant    DateTime?
-  updatedAt           DateTime  @updatedAt
-  usersId             String
+  id               String    @id @default(uuid())
+  applicationsId   String
+  password         String
+  data             String?
+  createdAt        DateTime  @default(now())
+  lastLoginInstant DateTime?
+  updatedAt        DateTime  @updatedAt
+  usersId          String
 
   application Application @relation(fields: [applicationsId], references: [id], onDelete: Cascade)
   user        User        @relation(fields: [usersId], references: [id])
@@ -154,15 +155,15 @@ model UserRegistration {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  active    Boolean
-  data      String
-  expiry    Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tenantId  String
-  email     String   @unique
-// claims   JSON    we should add this or not?
+  id                String             @id @default(uuid())
+  active            Boolean
+  data              String
+  expiry            Int?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  tenantId          String
+  email             String             @unique
+  // claims   JSON    we should add this or not?
   tenant            Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   groupMembers      GroupMember[]
   userRegistrations UserRegistration[]
@@ -208,6 +209,7 @@ model OidcModel {
   consumedAt DateTime?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
+  consumed   Boolean   @default(false)
 
   @@unique([id, type])
   @@map("oidc_model")

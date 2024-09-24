@@ -5,9 +5,11 @@ import {
 } from 'nest-oidc-provider';
 import { Injectable } from '@nestjs/common';
 import { AdapterFactory } from 'oidc-provider';
-import { PrismaAdapter } from '../adapters/prisma.adapter';
+// import { PrismaAdapter } from '../adapters/prisma.adapter';
+import { PrismaAdapter } from '../oidc.adapter';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
+import { OIDCService } from '../oidc.service';
 
 @Injectable()
 export class OidcConfigService implements OidcModuleOptionsFactory {
@@ -16,18 +18,21 @@ export class OidcConfigService implements OidcModuleOptionsFactory {
     private readonly configService: ConfigService,
   ) {}
 
-  createModuleOptions(): OidcModuleOptions | Promise<OidcModuleOptions> {
+  async createModuleOptions(): Promise<OidcModuleOptions> {
     return {
-      issuer: 'http://localhost:3001',
+      issuer: process.env.ISSUER_URL,
       path: '/oidc',
-      oidc: this.getConfiguration(),
+      // oidc: this.getConfiguration(),
+      oidc: await OIDCService.returnConfiguration()
     };
   }
 
+  // deprecated
   createAdapterFactory(): AdapterFactory | Promise<AdapterFactory> {
-    return (modelName: string) => new PrismaAdapter(this.dbService, modelName);
+    return (modelName: string) => new PrismaAdapter(modelName); // now not using nest prisma adapter, instead custom adapter in oidc.adapter.ts
   }
 
+  // deprecated
   getConfiguration(): OidcConfiguration {
     return {
       clients: [
@@ -39,12 +44,12 @@ export class OidcConfigService implements OidcModuleOptionsFactory {
           application_type: 'web',
           redirect_uris: [
             'https://oidcdebugger.com/debug',
-            'http://localhost:3001/callback',
+            `${process.env.FULL_URL}/callback`,
           ],
         },
       ],
-      renderError: (error, req, res) => {
-        console.log(error);
+      renderError: (ctx, out, error) => {
+        console.log("Error from nest-oidc-prisma-adapter: ",error);
       },
       pkce: {
         methods: ['plain', 'S256'],

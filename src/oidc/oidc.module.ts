@@ -6,6 +6,7 @@ import { OIDCController } from './oidc.controller';
 import { InteractionModule } from './interaction/interaction.module';
 import { OIDCService } from './oidc.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UtilsService } from 'src/utils/utils.service';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
     }),
     InteractionModule,
   ],
-  providers: [OIDCService, PrismaService],
+  providers: [OIDCService, PrismaService,UtilsService],
   controllers: [OIDCController],
 })
 export class OIDCModule {}

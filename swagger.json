@@ -18,13 +18,16 @@
     },
     "/": {
       "get": {
-        "operationId": "OIDCController_index",
+        "operationId": "AppController_index",
         "parameters": [],
         "responses": {
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "OIDC Wrapper"
+        ]
       },
       "post": {
         "operationId": "AppController_toggleKeyManager",
@@ -41,13 +44,16 @@
     },
     "/callback": {
       "get": {
-        "operationId": "OIDCController_test",
+        "operationId": "AppController_test",
         "parameters": [],
         "responses": {
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "OIDC Wrapper"
+        ]
       }
     },
     "/admin": {
@@ -198,6 +204,28 @@
       },
       "search": {
         "operationId": "OidcController_mountedOidc_search",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/oidc": {
+      "get": {
+        "operationId": "OIDCController_index",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/oidc/callback": {
+      "get": {
+        "operationId": "OIDCController_test",
         "parameters": [],
         "responses": {
           "200": {
@@ -2857,6 +2885,18 @@
             "type": "string",
             "description": "Logout URL",
             "example": "https://example.com/logout"
+          },
+          "skipConsentScreen": {
+            "type": "boolean",
+            "default": false,
+            "example": "true",
+            "description": "Whether to ask user's consent for getting user claims or not"
+          },
+          "enablePKCE": {
+            "type": "boolean",
+            "default": false,
+            "example": "false",
+            "description": "enable proof key for code exchange for an application"
           }
         },
         "required": [
@@ -2864,7 +2904,9 @@
           "authorizedRedirectURLs",
           "clientSecret",
           "enabledGrants",
-          "logoutURL"
+          "logoutURL",
+          "skipConsentScreen",
+          "enablePKCE"
         ]
       },
       "CreateApplicationDto": {

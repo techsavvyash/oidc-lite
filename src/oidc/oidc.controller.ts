@@ -1,19 +1,35 @@
 import {
+  All,
   Controller,
   Get,
   HttpStatus,
   Logger,
   Query,
   Render,
+  Req,
   Res,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { Oidc } from 'nest-oidc-provider';
 import axios from 'axios';
-// import qs from 'query-string';
+import { KoaContextWithOIDC } from 'oidc-provider';
 
-@Controller()
+@Controller('oidc')
 export class OIDCController {
+  @All('/*')
+  public mountedOidc(
+    @Oidc.Context() ctx: KoaContextWithOIDC,
+    @Req() req: Request,
+    @Res() res: Response,
+   ) {
+    const {
+      oidc: { provider },
+    } = ctx;
+    req.url = req.originalUrl.replace('/oidc', '');
+    const callback = provider.callback();
+    return callback(req,res);
+  }
+
   private readonly logger = new Logger(OIDCController.name);
 
   @Get('/')
@@ -60,10 +76,10 @@ export class OIDCController {
       const params = new URLSearchParams({
         client_id: 'test',
         grant_type: 'authorization_code',
-        redirect_uri: 'http://localhost:3001/callback',
+        redirect_uri: `${process.env.FULL_URL}/callback`,
         code,
       });
-      await axios.post('http://localhost:3001/oidc/token', params, {
+      await axios.post(`${process.env.ISSUER_URL}/token`, params, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },

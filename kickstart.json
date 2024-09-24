@@ -5,11 +5,14 @@
     "applicationId": "myminioadmin",
     "clientSecret": "minio-secret-key-change-me",
     "tenantId": "minio-tenant",
-    "roleId": "adminRoleId",
-    "groupId": "agroup",
+    "roleId1": "userRoleId",
+    "roleId2": "adminRoleId",
+    "groupId2": "agroup",
+    "groupId1": "ugroup",
     "adminUsername": "admin",
     "adminPassword": "adminPassword12#",
-    "userEmail": "user@email.com",
+    "userEmail2": "adminuser@email.com",
+    "userEmail1": "user@email.com",
     "userPassword": "userPassword12#"
   },
   "apiKey": {
@@ -98,17 +101,18 @@
           ],
           "roles": [
             {
-              "name": "Admin",
-              "description": "This is admin role",
-              "isDefault": false,
-              "isSuperRole": true,
-              "id": "#{roleId}"
-            },
-            {
-              "name": "user",
+              "name": "urn:myminioadmin:policy:'readwrite'",
               "description": "This is user role",
               "isDefault": true,
-              "isSuperRole": false
+              "isSuperRole": false,
+              "id": "#{roleId1}"
+            },
+            {
+              "name": "urn:myminioadmin:policy:['consoleAdmin','readwrite']",
+              "description": "This is special role assigned to admin users",
+              "isDefault": false,
+              "isSuperRole": true,
+              "id": "#{roleId2}"
             }
           ],
           "oauthConfiguration": {
@@ -121,18 +125,23 @@
               "http://localhost:9001/oauth_callback",
               "http://192.168.233.157:9001/oauth_callback",
               "http://localhost:4180/oauth2/callback",
-              "http://localhost:3000"
+              "http://localhost:3001",
+              "http://localhost:9001",
+              "http://localhost:3001/callback",
+              "http://192.168.250.157:9001/oauth_callback"
             ],
             "clientSecret": "#{clientSecret}",
             "enabledGrants": ["authorization_code", "refresh_token"],
-            "logoutURL": "http://localhost:3000/logout"
+            "logoutURL": "http://localhost:3001/logout",
+            "enablePKCE": false,
+            "skipConsentScreen": true
           }
         }
       }
     },
     {
       "method": "POST",
-      "url": "/group/#{groupId}",
+      "url": "/group/#{groupId2}",
       "headers": {
         "authorization": "#{apiKeyValue}",
         "x-stencil-tenantid": "#{tenantId}"
@@ -140,7 +149,21 @@
       "body": {
         "group": {
           "name": "Admin group",
-          "roleIDs": ["#{roleId}"]
+          "roleIDs": ["#{roleId2}"]
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "/group/#{groupId1}",
+      "headers": {
+        "authorization": "#{apiKeyValue}",
+        "x-stencil-tenantid": "#{tenantId}"
+      },
+      "body": {
+        "group": {
+          "name": "user group",
+          "roleIDs": ["#{roleId1}"]
         }
       }
     },
@@ -156,17 +179,42 @@
           "userInfo": {
             "active": true,
             "applicationId": "#{applicationId}",
-            "membership": ["#{groupId}"],
+            "membership": ["#{groupId2}"],
             "userData": {
               "username": "AdminUser",
               "password": "#{userPassword}"
             },
-            "email": "#{userEmail}"
+            "email": "#{userEmail2}"
           },
           "registrationInfo": {
             "generateAuthenticationToken": true,
+            "applicationId": "#{applicationId}"
+          }
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "/user/registration/combined/",
+      "headers": {
+        "x-stencil-tenantid": "#{tenantId}",
+        "authorization": "#{apiKeyValue}"
+      },
+      "body": {
+        "data": {
+          "userInfo": {
+            "active": true,
             "applicationId": "#{applicationId}",
-            "roles": ["user"]
+            "membership": ["#{groupId1}"],
+            "userData": {
+              "username": "normalUser",
+              "password": "#{userPassword}"
+            },
+            "email": "#{userEmail1}"
+          },
+          "registrationInfo": {
+            "generateAuthenticationToken": true,
+            "applicationId": "#{applicationId}"
           }
         }
       }
