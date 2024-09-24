@@ -20,17 +20,19 @@ export class OidcConfigService implements OidcModuleOptionsFactory {
 
   async createModuleOptions(): Promise<OidcModuleOptions> {
     return {
-      issuer: 'http://localhost:3001',
+      issuer: process.env.ISSUER_URL,
       path: '/oidc',
       // oidc: this.getConfiguration(),
       oidc: await OIDCService.returnConfiguration()
     };
   }
 
+  // deprecated
   createAdapterFactory(): AdapterFactory | Promise<AdapterFactory> {
     return (modelName: string) => new PrismaAdapter(modelName); // now not using nest prisma adapter, instead custom adapter in oidc.adapter.ts
   }
 
+  // deprecated
   getConfiguration(): OidcConfiguration {
     return {
       clients: [
@@ -42,7 +44,7 @@ export class OidcConfigService implements OidcModuleOptionsFactory {
           application_type: 'web',
           redirect_uris: [
             'https://oidcdebugger.com/debug',
-            'http://localhost:3001/callback',
+            `${process.env.FULL_URL}/callback`,
           ],
         },
       ],

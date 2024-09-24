@@ -42,7 +42,7 @@ export class AppController {
       oidc: { provider },
     } = ctx;
     const session = await provider.Session.get(ctx);
-
+//HERE
     const res: Record<string, any> = {
       query: ctx.query,
       accountId: null,
@@ -78,11 +78,11 @@ export class AppController {
 
     try {
       await axios.post(
-        'http://localhost:3001/oidc/token',
+        `${process.env.ISSUER_URL}/token`,
         new URLSearchParams({
           client_id: 'test',
           grant_type: 'authorization_code',
-          redirect_uri: 'http://localhost:3001/callback',
+          redirect_uri: `${process.env.FULL_URL}/callback`,
           code,
         }).toString(),
         {

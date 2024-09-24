@@ -56,7 +56,6 @@ export class PrismaAdapter implements Adapter {
   constructor(name: string) {
     this.type = types[name];
     this.name = name;
-    // console.log('Constructor',name);
   }
 
   async upsert(
@@ -110,8 +109,7 @@ export class PrismaAdapter implements Adapter {
         grant_types: clientData.oauthConfiguration.enabledGrants,
         client_name: client.name,
         scope: scope.join(' '),
-        logo_uri: 'http://localhost:3000',
-        // jwks, jwks_uri
+        logo_uri: 'http://localhost:3000', // take this in schema of application, this is url to application image to display while login
       };
 
       return formattedClientData;
@@ -180,7 +178,6 @@ export class PrismaAdapter implements Adapter {
 
   // marked the model consumed but not expired
   async consume(id: string): Promise<void> {
-    //console.log('consume', this.name);
     await prisma.oidcModel.update({
       where: {
         id_type: {
