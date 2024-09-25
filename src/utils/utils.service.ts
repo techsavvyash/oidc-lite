@@ -1,10 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import * as https from 'https';
-import { KeyDto } from '../key/key.dto';
 import { ApplicationDataDto } from '../application/application.dto';
 
 @Injectable()

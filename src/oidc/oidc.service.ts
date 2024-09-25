@@ -18,6 +18,7 @@ const isOrigin = (value) => {
   if (typeof value !== 'string') {
     return false;
   }
+  if (value === '*') return true;
   try {
     const { origin } = new URL(value);
     // Origin: <scheme> "://" <hostname> [ ":" <port> ]
@@ -51,7 +52,7 @@ export class OIDCService {
       adapter: (modelName: string) => new PrismaAdapter(modelName),
       findAccount: OIDCService.findAccount.bind(this),
       cookies: {
-        keys: ['test'], // change this
+        keys: ['test'], // TODO: change this
       },
       scopes: [
         'openid',
@@ -86,7 +87,8 @@ export class OIDCService {
       // this and next function are under progress
       extraClientMetadata: {
         properties: [corsProp, 'extra'], // don't remove extra, used for skipping consent screen
-        validator(ctx, key, value, metadata) {
+        validator: async (ctx, key, value, metadata) => {
+          console.log(ctx);
           if (key === corsProp) {
             // set default (no CORS)
             if (value === undefined) {
@@ -103,11 +105,18 @@ export class OIDCService {
         },
       },
       clientBasedCORS(ctx, origin, client) {
+        console.log('This nigga is not getting called');
         // ctx.oidc.route can be used to exclude endpoints from this behaviour, in that case just return
         // true to always allow CORS on them, false to deny
         // you may also allow some known internal origins if you want to
-        return (client[corsProp] as any).includes(origin);
+        return (
+          (client[corsProp] as any).includes(() =>
+            console.log('Wassup nigga'),
+          ) || (client[corsProp] as any).includes('*')
+        );
       },
+
+      // used to skip consent
       loadExistingGrant: async (ctx) => {
         const clientMacroObject = ctx.oidc.client;
         const grantId =
@@ -132,7 +141,6 @@ export class OIDCService {
 
           return grant;
         } else if (OIDCService.skipConsent(clientMacroObject) === true) {
-          console.log("HI");
           const grant = new ctx.oidc.provider.Grant({
             clientId: ctx.oidc.client.clientId,
             accountId: ctx.oidc.session.accountId,
@@ -148,7 +156,7 @@ export class OIDCService {
             await OIDCService.utilsService.returnScopesForAGivenApplicationId(
               clientMacroObject.clientId,
             );
-          
+
           grant.addOIDCScope(scope.join(' '));
           // not needed
           // grant.addOIDCClaims(['first_name']);
@@ -161,12 +169,12 @@ export class OIDCService {
         }
       },
       renderError: (ctx, out, error) => {
-        console.log('Error why not working: ', error);
+        console.log('Error why oidc not working: ', error);
       },
       pkce: {
         methods: ['S256'],
         required: (ctx, client) => {
-          return (client.extra as any).enablePKCE === true ? true: false;
+          return (client.extra as any).enablePKCE === true ? true : false;
         },
       },
       features: {
@@ -194,17 +202,30 @@ export class OIDCService {
             60000
           );
         },
-        Grant: () => {
-          return 300000;
+        Grant: (ctx, token, client) => {
+          const clientData = client_ttlMap.get(client.clientId);
+          return clientData.oauthConfiguration.grantTimeToLiveInSeconds || 1000;
         },
-        AuthorizationCode: () => {
-          return 300000;
+        AuthorizationCode: (ctx, token, client) => {
+          const clientData = client_ttlMap.get(client.clientId);
+          return (
+            clientData.oauthConfiguration
+              .authorizationCodeTimeToLiveInSeconds || 1000
+          );
         },
-        Session: () => {
-          return 300000;
-        }, // id token ka set kr
-        IdToken: () => {
-          return 300000;
+        Session: (ctx, token, client) => {
+          const clientData = client_ttlMap.get(client.clientId);
+          return (
+            clientData.oauthConfiguration.sessionTimeToLiveInMinutes * 60 ||
+            60000
+          );
+        },
+        IdToken: (ctx, token, client) => {
+          const clientData = client_ttlMap.get(client.clientId);
+          return (
+            clientData.oauthConfiguration.idTokenTimeToLiveInMinutes * 60 ||
+            60000
+          );
         },
       },
       // can be used for adding extra claims in access token if required
@@ -240,6 +261,7 @@ export class OIDCService {
     return client_ttlMap;
   }
 
+  // TODO: figure out how not to use this function, as I want to remove it
   public static async getProvider(): Promise<Provider> {
     if (OIDCService.provider) {
       return OIDCService.provider;
@@ -259,13 +281,13 @@ export class OIDCService {
 
   // Look up the user by their ID in the database using Prisma and returns the user claims, id is required to be email rather than some uuid
   static async findAccount(ctx: KoaContextWithOIDC, id: string) {
-
     const clientId = ctx.oidc.client.clientId;
     const user = await OIDCService.prismaService.user.findUnique({
       where: { email: id },
     });
 
-    if (!user) {
+    if (!user || !user.active) {
+      // if user soft deleted the return undefined as well
       return undefined;
     }
 
@@ -298,15 +320,9 @@ export class OIDCService {
         const clientName = parts[1];
 
         // checks if the role belongs to the corresponding client or not
-        if(clientName !== clientId) return acc;
+        if (clientName !== clientId) return acc;
 
         let claimValue = parts[3];
-        if (
-          ['openid', 'profile', 'offline_access', 'email', 'address'].includes(
-            claimName,
-          )
-        )
-          return acc;
 
         // Handle the conversion from single quoted value to unquoted value
         if (claimValue.startsWith("'") && claimValue.endsWith("'")) {
@@ -357,8 +373,6 @@ export class OIDCService {
         return {
           sub: id,
           email: user.email,
-          data: user.data,
-          tenantId: user.tenantId,
           ...roleClaims, // Spread the role claims into the return object
         };
       },

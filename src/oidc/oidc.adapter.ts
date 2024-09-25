@@ -1,8 +1,8 @@
 import { PrismaClient, OidcModel } from '@prisma/client';
 import { Adapter, AdapterPayload } from 'oidc-provider';
 import { ApplicationDataDto } from 'src/application/application.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { UtilsService } from 'src/utils/utils.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { UtilsService } from '../utils/utils.service';
 
 const prisma = new PrismaClient();
 
@@ -90,9 +90,7 @@ export class PrismaAdapter implements Adapter {
   }
 
   async find(id: string): Promise<AdapterPayload | undefined> {
-    // console.log('find', this.name, id);
     if (this.name === 'Client') {
-      // can do domain pinning here
       const client = await PrismaAdapter.prismaService.application.findUnique({
         where: { id },
       });
@@ -110,11 +108,13 @@ export class PrismaAdapter implements Adapter {
         client_name: client.name,
         post_logout_redirect_uris: [clientData.oauthConfiguration.logoutURL], // check this, not having any effect
         scope: scope.join(' '),
-        logo_uri: client.logo_uri, // take this in schema of application, this is url to application image to display while login
+        logo_uri: client.logo_uri, // this is url to application image to display while login
         extra: {
           skipConsentScreen: clientData.oauthConfiguration.skipConsentScreen,
           enablePKCE: clientData.oauthConfiguration.enablePKCE,
         },
+        'urn:custom:client:allowed-cors-origins':
+          clientData.oauthConfiguration.authorizedOriginURLs, // TODO: might be used in cors else remove
       };
       // console.log(formattedClientData);
       return formattedClientData;
@@ -128,7 +128,6 @@ export class PrismaAdapter implements Adapter {
       },
     });
     // doc.payload = JSON.parse(doc.payload);
-    // console.log(doc);
     if (this.name === 'Session') {
     }
     if (this.name === 'Interaction') {
@@ -137,7 +136,6 @@ export class PrismaAdapter implements Adapter {
       const client = await PrismaAdapter.prismaService.application.findUnique({
         where: { id: client_id },
       });
-      // do domain pinning here or cors?
       if (!client) return undefined;
     }
 
@@ -150,7 +148,6 @@ export class PrismaAdapter implements Adapter {
 
   // to return previous instance of session by its uid
   async findByUid(uid: string): Promise<AdapterPayload | undefined> {
-    //console.log('findByUid', this.name, uid);
     const doc = await prisma.oidcModel.findUnique({
       where: {
         uid,
@@ -166,7 +163,6 @@ export class PrismaAdapter implements Adapter {
 
   // for device code
   async findByUserCode(userCode: string): Promise<AdapterPayload | undefined> {
-    //console.log('findByUsercode');
     const doc = await prisma.oidcModel.findFirst({
       where: {
         userCode,

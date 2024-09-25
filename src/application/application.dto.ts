@@ -3,7 +3,6 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsString,
-  IsUrl,
   ArrayMinSize,
   ArrayMaxSize,
   ValidateNested,
@@ -12,6 +11,7 @@ import {
   Min,
   IsOptional,
   IsBoolean,
+  IsNumber,
 } from 'class-validator';
 
 class OauthConfiguration {
@@ -97,6 +97,42 @@ class OauthConfiguration {
   })
   @IsBoolean()
   enablePKCE: boolean = false;
+
+  @ApiProperty({
+    type: Number,
+    required: true,
+    example: 6000,
+    description: 'ttl for grant to live in secs'
+  })
+  @IsNumber()
+  grantTimeToLiveInSeconds: number;
+
+  @ApiProperty({
+    type: Number,
+    required: true,
+    example: 6000,
+    description: 'ttl for authorization code to live in secs'
+  })
+  @IsNumber()
+  authorizationCodeTimeToLiveInSeconds: number;
+
+  @ApiProperty({
+    type: Number,
+    required: true,
+    example: 600,
+    description: 'ttl for session to live in mins'
+  })
+  @IsNumber()
+  sessionTimeToLiveInMinutes: number;
+
+  @ApiProperty({
+    type: Number,
+    required: true,
+    example: 60,
+    description: 'ttl for id_token to live in mins'
+  })
+  @IsNumber()
+  idTokenTimeToLiveInMinutes: number;
 }
 
 export class JwtConfiguration {

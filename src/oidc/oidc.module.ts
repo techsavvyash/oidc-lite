@@ -5,8 +5,8 @@ import { OidcConfigService } from './config/oidc-config.service';
 import { OIDCController } from './oidc.controller';
 import { InteractionModule } from './interaction/interaction.module';
 import { OIDCService } from './oidc.service';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { UtilsService } from 'src/utils/utils.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { UtilsService } from '../utils/utils.service';
 
 @Module({
   imports: [

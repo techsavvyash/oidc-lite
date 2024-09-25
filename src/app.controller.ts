@@ -42,7 +42,7 @@ export class AppController {
       oidc: { provider },
     } = ctx;
     const session = await provider.Session.get(ctx);
-//HERE
+
     const res: Record<string, any> = {
       query: ctx.query,
       accountId: null,

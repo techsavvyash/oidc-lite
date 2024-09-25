@@ -16,19 +16,22 @@ Read the above documentation and then implement the remaining functionalities.
 - [ ] 1. Domain pinning or clientBasedCors
 - [x] 2. Check whether the password is correct while `login`
 - [x] 3. Jwks in the `oidc.config.service.ts`
-- [x] 4a. Creating our own `interactions` page and removing `devInteractions`
-- [ ] 4b. removing `renderError` with our own
+- [x] 4. Creating our own `interactions` page and removing `devInteractions`
 - [x] 5. Use sqlite instead of postgresql
-- [x] 6a. Correction kickstart.json
-- [ ] 6b. Parse payload of oidcModel since prisma using. search on github for the issue ticket
-- [ ] 7. Making sure the tests are up to date
+- [x] 6. Correction kickstart.json
+- [x] 7. Making sure the tests are up to date
 - [x] 8a. Integration with minIO
 - [x] 8b. Integration with oauth-2-proxy
-- [ ] 9. Removing any redundant code and cleanup and documentation updation
-- [ ] 10. otp integration
+- [x] 9. Removing any redundant code and cleanup and documentation updation
+- [ ] 10. otp integration --> 2nd
 - [ ] 11. remove dynamic imports of oidc-provider
-- [ ] 12. integrating with our custom code
+- [x] 12. User Registration updation, creation after interaction ends
+- [ ] 14. Complete updateUser in user.service.ts
+- [x] 15. 100 users script
+- [ ] 16. Dockerfile and Docker-compose
 
+
+otp, dynamic
 
 ----
 ### These are my notes that I kept while trying to integrate the node-oidc-package
@@ -41,7 +44,7 @@ features.registration
     .registration -> intial and final access tokens, 
     .userinfo
     .resourceIndicators -> to set the scopes
-clientBaseCors -> to check whether a given cors request should be allowed based on request's client (domain pinning)
+clientBaseCors -> to check whether a given cors request should be allowed based on request's client (domain pinning) : this function is not getting called
 extraParams -> `ctx.oidc.params` m available honge ye, will be passed to interaction session details
 extraTokenClaims -> minio ki problem solve kr dega
 adapter -> find -> clients
@@ -55,7 +58,6 @@ add refresh_token and access_token in response body for user_registration. Depre
 
 in findAccount check lastLoginInstant for user registration
 idToken ka ttl?
-domain pinning?
 registration will happen after getting consent - and where will it happen after consetless login
 
 **frontend**
@@ -66,8 +68,8 @@ renderError page ki backchodi
 
 **backend**
 - logout_url??
-- [how to skip these pages??](https://github.com/panva/node-oidc-provider/blob/main/recipes/skip_consent.md)
-- policy claim in minio
+- [how to skip these pages??](https://github.com/panva/node-oidc-provider/blob/main/recipes/skip_consent.md): DONE
+- policy claim in minio : DONE
 
 
 **resource**
@@ -82,3 +84,19 @@ domain pinning + non-consent screen +
 3. domain pinnig
 4. oauth2 proxy and minio : DONE
 5. pkce : DONE
+
+- [x] ttl set krna h
+
+**Presentation points**
+
+fusionAuth kya h - very heavy to setup, show its docker compose, htop etc.
+use case - generically use case on fusionAuth. isse utha k jo dali h humne. oidc compliant
+Alternatives - keycloak and fusionauth both heavy, Auth0
+
+User + UserRegistration updation either in findAccount or interaction end
+
+Dockerfile and docker-compose
+
+oauthproxy+Minio combined working
+
+Multiple configure ho pae toh sorted h else make a simple app that uses google login and shows a page and make a button for oidc login to show consent screen

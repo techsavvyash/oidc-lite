@@ -299,21 +299,21 @@ export class KeyService {
     return { jwks: publicJWKS, storedKey };
   }
 
-  // private getRsaBits(algorithm: string): number {
-  //   switch (algorithm) {
-  //     case 'RS256':
-  //       return 2048;
-  //     case 'RS384':
-  //       return 3072;
-  //     case 'RS512':
-  //       return 4096;
-  //     default:
-  //       throw new BadRequestException({
-  //         success: false,
-  //         message: 'Unknown RSA algorithm provided',
-  //       });
-  //   }
-  // }
+  private getRsaBits(algorithm: string): number {
+    switch (algorithm) {
+      case 'RS256':
+        return 2048;
+      case 'RS384':
+        return 3072;
+      case 'RS512':
+        return 4096;
+      default:
+        throw new BadRequestException({
+          success: false,
+          message: 'Unknown RSA algorithm provided',
+        });
+    }
+  }
 
   private getEcCurve(algorithm: string): string {
     // TODO: Add support for other EC Curve

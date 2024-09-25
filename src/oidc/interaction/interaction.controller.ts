@@ -11,9 +11,10 @@ import { Oidc, InteractionHelper } from 'nest-oidc-provider';
 import { Response } from 'express';
 import { Provider } from 'oidc-provider';
 import { OIDCService } from '../oidc.service';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { UserData, UserDataDto } from 'src/user/user.dto';
-import { UtilsService } from 'src/utils/utils.service';
+import { PrismaService } from '../../prisma/prisma.service';
+import { UserData } from '../../user/user.dto';
+import { UtilsService } from '../../utils/utils.service';
+import { ApplicationDataDto } from '../../application/application.dto';
 
 /**
  * !!! This is just for example, don't use this in any real case !!!
@@ -72,6 +73,7 @@ export class InteractionController {
         { mergeWithLastSubmission: false },
       );
     }
+    const clientData: ApplicationDataDto = JSON.parse(client.data);
     const user = await this.prismaService.user.findUnique({
       where: { email: form.user },
     });
@@ -105,6 +107,9 @@ export class InteractionController {
     this.logger.debug(`Login user: ${form.user}`);
     this.logger.debug(`Client ID: ${params.client_id}`);
 
+    const { skipConsentScreen } = clientData.oauthConfiguration;
+    const loginInstant = new Date();
+
     await interaction.finished(
       {
         login: {
@@ -113,8 +118,36 @@ export class InteractionController {
       },
       { mergeWithLastSubmission: false },
     );
+
+    if (skipConsentScreen) {
+      try {
+        await this.prismaService.userRegistration.upsert({
+          where: {
+            user_registrations_uk_1: {
+              usersId: user.id,
+              applicationsId: client.id,
+            },
+          },
+          update: {
+            lastLoginInstant: loginInstant,
+          },
+          create: {
+            applicationsId: client.id,
+            password: userPassword,
+            lastLoginInstant: loginInstant,
+            usersId: user.id,
+          },
+        });
+      } catch (error) {
+        this.logger.error(
+          'Error while upsert user registration in consent less login',
+          error,
+        );
+      }
+    }
   }
 
+  // Doesn't run in consent less login or when aborted
   @Post(':uid/confirm')
   async confirmLogin(@Oidc.Interaction() interaction: InteractionHelper) {
     const interactionDetails = await interaction.details();
@@ -156,8 +189,42 @@ export class InteractionController {
       },
       { mergeWithLastSubmission: true },
     );
+
+    try {
+      const userEmail = interactionDetails.session.accountId;
+      const client_id = params.client_id as string;
+      const user = await this.prismaService.user.findUnique({
+        where: { email: userEmail },
+      });
+      const userData: UserData = JSON.parse(user.data);
+      const userPassword = userData.userData.password;
+      const loginInstant = new Date();
+      await this.prismaService.userRegistration.upsert({
+        where: {
+          user_registrations_uk_1: {
+            usersId: user.id,
+            applicationsId: client_id,
+          },
+        },
+        update: {
+          lastLoginInstant: loginInstant,
+        },
+        create: {
+          applicationsId: client_id,
+          password: userPassword,
+          lastLoginInstant: loginInstant,
+          usersId: user.id,
+        },
+      });
+    } catch (error) {
+      this.logger.error(
+        'Error while updating/creating user registration in consent login',
+        error,
+      );
+    }
   }
 
+  // runs only when aborted
   @Get(':uid/abort')
   async abortLogin(@Oidc.Interaction() interaction: InteractionHelper) {
     const result = {
