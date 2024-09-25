@@ -3,7 +3,7 @@ import { KeyController } from './key.contoller';
 import { KeyService } from './key.service';
 import { generateKeyDTO, updateDTO } from './key.dto';
 import { randomUUID } from 'crypto';
-import { mock } from 'node:test';
+import { JWK } from 'jose';
 
 describe('KeyController', () => {
   let keyController: KeyController;
@@ -142,7 +142,17 @@ describe('KeyController', () => {
       const mockResponse = {
         success: true,
         message: 'key generated',
-        data: 'jkws', //actually it is jkws: any
+        data: {
+          id: 'some-uuid-value-here',
+          algorithm: 'rsa256',
+          name: 'name of the key',
+          issuer: 'issuer of the key',
+          kid: 'kid of the key',
+          publicKey: "JSON.stringify(publicKeyJWK)",
+          privateKey: "JSON.stringify(privateKeyJWK)",
+          data: "JSON.stringify(privateKeyJWK)",
+          type: 'can be RS or EC',
+        } as any as JWK, //actually it is jkws: any
         key: mockResult[0],
       };
       jest.spyOn(keyService, 'generateKey').mockResolvedValue(mockResponse);
@@ -172,7 +182,17 @@ describe('KeyController', () => {
       const mockResponse = {
         success: true,
         message: 'key generated',
-        data: 'jkws', //actually it is jkws: any
+        data: {
+          id: 'some-uuid-value-here',
+          algorithm: 'rsa256',
+          name: 'name of the key',
+          issuer: 'issuer of the key',
+          kid: 'kid of the key',
+          publicKey: "JSON.stringify(publicKeyJWK)",
+          privateKey: "JSON.stringify(privateKeyJWK)",
+          data: "JSON.stringify(privateKeyJWK)",
+          type: 'can be RS or EC',
+        } as any as JWK, //actually it is jkws: any
         key: mockResult[0],
       };
       jest.spyOn(keyService, 'generateKey').mockResolvedValue(mockResponse);

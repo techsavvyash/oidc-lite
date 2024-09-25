@@ -4,6 +4,7 @@ import Provider, {
   Client,
   Configuration,
   JWKS,
+  KoaContextWithOIDC,
   errors,
 } from 'oidc-provider';
 import { PrismaAdapter } from './oidc.adapter';
@@ -257,7 +258,9 @@ export class OIDCService {
   }
 
   // Look up the user by their ID in the database using Prisma and returns the user claims, id is required to be email rather than some uuid
-  static async findAccount(ctx, id) {
+  static async findAccount(ctx: KoaContextWithOIDC, id: string) {
+
+    const clientId = ctx.oidc.client.clientId;
     const user = await OIDCService.prismaService.user.findUnique({
       where: { email: id },
     });
@@ -266,7 +269,6 @@ export class OIDCService {
       return undefined;
     }
 
-    // TODO: checking whether user getting claims are from same application id or not, we don't want to give user admin powers in other applictions
     // roles that are of type urn:applicationId:claim:roles will be put in jwt
     const roleIds =
       await OIDCService.utilsService.returnRolesForAGivenUserIdAndTenantId(
@@ -282,7 +284,7 @@ export class OIDCService {
       }),
     );
     const roles = rolesObj.map((roleObj) => roleObj.name);
-    // regex to check if a role matches the urn:example:claim:roles pattern
+    // regex to check if a role matches the urn:clientId:claim:roles pattern
     const urnRegex = /^urn:[a-zA-Z0-9]+:[a-zA-Z0-9]+:[\[\]\'\"\,a-zA-Z0-9]+$/;
 
     // Filter roles that follow the required format
@@ -293,6 +295,11 @@ export class OIDCService {
       const parts = role.split(':');
       if (parts.length === 4) {
         const claimName = parts[2]; // This is the 'claim' part of the role
+        const clientName = parts[1];
+
+        // checks if the role belongs to the corresponding client or not
+        if(clientName !== clientId) return acc;
+
         let claimValue = parts[3];
         if (
           ['openid', 'profile', 'offline_access', 'email', 'address'].includes(
