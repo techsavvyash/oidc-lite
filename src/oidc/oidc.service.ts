@@ -15,6 +15,7 @@ import { UtilsService } from 'src/utils/utils.service';
 // this part of code is under progress
 const corsProp = 'urn:custom:client:allowed-cors-origins';
 const isOrigin = (value) => {
+  return true; // for now
   if (typeof value !== 'string') {
     return false;
   }
@@ -192,36 +193,36 @@ export class OIDCService {
       },
       ttl: {
         AccessToken: (ctx, token, client) => {
-          const clientData = client_ttlMap.get(client.clientId);
+          const clientData = client_ttlMap.get(client?.clientId);
           return clientData.jwtConfiguration.timeToLiveInSeconds || 10000;
         },
         RefreshToken: (ctx, token, client) => {
-          const clientData = client_ttlMap.get(client.clientId);
+          const clientData = client_ttlMap.get(client?.clientId);
           return (
             clientData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60 ||
             60000
           );
         },
         Grant: (ctx, token, client) => {
-          const clientData = client_ttlMap.get(client.clientId);
+          const clientData = client_ttlMap.get(client?.clientId);
           return clientData.oauthConfiguration.grantTimeToLiveInSeconds || 1000;
         },
         AuthorizationCode: (ctx, token, client) => {
-          const clientData = client_ttlMap.get(client.clientId);
+          const clientData = client_ttlMap.get(client?.clientId);
           return (
             clientData.oauthConfiguration
               .authorizationCodeTimeToLiveInSeconds || 1000
           );
         },
         Session: (ctx, token, client) => {
-          const clientData = client_ttlMap.get(client.clientId);
+          const clientData = client_ttlMap.get(client?.clientId);
           return (
             clientData.oauthConfiguration.sessionTimeToLiveInMinutes * 60 ||
             60000
           );
         },
         IdToken: (ctx, token, client) => {
-          const clientData = client_ttlMap.get(client.clientId);
+          const clientData = client_ttlMap.get(client?.clientId);
           return (
             clientData.oauthConfiguration.idTokenTimeToLiveInMinutes * 60 ||
             60000
