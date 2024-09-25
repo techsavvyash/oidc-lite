@@ -184,6 +184,8 @@ describe('ApplicationController', () => {
       clientSecret: 'supersecret',
       enabledGrants: ['authorization_code'],
       logoutURL: 'https://example.com/logout',
+      enablePKCE: false,
+      skipConsentScreen: true,
     },
   };
 

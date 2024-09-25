@@ -11,8 +11,6 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
-import * as jose from 'node-jose';
-import * as jwkToPem from 'jwk-to-pem';
 
 describe('KeyService', () => {
   let service: KeyService;

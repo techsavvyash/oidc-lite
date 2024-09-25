@@ -45,6 +45,7 @@ describe('ParamApplicationIdGuard', () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     name: 'name',
+    logo_uri: "https://application-image-url",
     tenantId: 'tenant-id',
   };
 

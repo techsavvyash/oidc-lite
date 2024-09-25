@@ -70,6 +70,7 @@ describe('ApplicationScopesService', () => {
     const mockScopeId = 'scope-id';
     const mockApplicationRes = {
       id: mockApplicationId,
+      logo_uri: 'https://application-logo-uri',
       accessTokenSigningKeysId: 'accessTokenSignkeyId',
       active: true,
       data: 'data',
@@ -424,6 +425,7 @@ describe('ApplicationScopesService', () => {
     const mockId = 'mock-id';
     const mockApplicationRes = {
       id: mockApplicationId,
+      logo_uri: 'https://application-logo-uri',
       accessTokenSigningKeysId: 'accessTokenSignkeyId',
       active: true,
       data: 'data',
@@ -779,6 +781,7 @@ describe('ApplicationScopesService', () => {
       accessTokenSigningKeysId: 'accessTokenSignkeyId',
       active: true,
       data: 'data',
+      logo_uri: 'https://application-logo-uri',
       idTokenSigningKeysId: 'signTokenId',
       createdAt: new Date(),
       updatedAt: new Date(),
