@@ -53,7 +53,7 @@ user flows -> can be used after interactions are completed so that we can add us
 
 add refresh_token and access_token in response body for user_registration. Deprecated was removed
 
-in findAccount check lastLoginInstant
+in findAccount check lastLoginInstant for user registration
 idToken ka ttl?
 domain pinning?
 registration will happen after getting consent - and where will it happen after consetless login
