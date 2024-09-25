@@ -1,11 +1,22 @@
 import { Module } from '@nestjs/common';
-import { OidcService } from './oidc.service';
-import { OidcController } from './oidc.controller';
+import { OidcModule } from 'nest-oidc-provider';
+import { OidcConfigModule } from './config/oidc-config.module';
+import { OidcConfigService } from './config/oidc-config.service';
+import { OIDCController } from './oidc.controller';
+import { InteractionModule } from './interaction/interaction.module';
+import { OIDCService } from './oidc.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UtilsService } from 'src/utils/utils.service';
 
 @Module({
-  providers: [OidcService, PrismaService, UtilsService],
-  controllers: [OidcController],
+  imports: [
+    OidcModule.forRootAsync({
+      imports: [OidcConfigModule],
+      useExisting: OidcConfigService,
+    }),
+    InteractionModule,
+  ],
+  providers: [OIDCService, PrismaService,UtilsService],
+  controllers: [OIDCController],
 })
-export class OidcModule {}
+export class OIDCModule {}

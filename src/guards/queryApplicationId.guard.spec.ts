@@ -38,6 +38,7 @@ describe('QueryApplicationIdGuard', () => {
 
   const mockApplication = {
     id: 'app-id',
+    logo_uri: 'https://application-logo-uri',
     accessTokenSigningKeysId: 'key-id',
     active: true,
     data: 'data',

@@ -56,477 +56,9 @@
         ]
       }
     },
-    "/oidc/auth": {
-      "get": {
-        "operationId": "OidcController_authorize",
-        "summary": "OIDC Authorization Endpoint",
-        "parameters": [
-          {
-            "name": "client_id",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "redirect_uri",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "response_type",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "tenantId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "scope",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "state",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code_challenge",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code_challenge_method",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Redirects to login page or authorizes the user"
-          }
-        },
-        "tags": [
-          "OIDC"
-        ]
-      },
+    "/login": {
       "post": {
-        "operationId": "OidcController_postAuthorize",
-        "summary": "OIDC Post Authorization Endpoint",
-        "parameters": [
-          {
-            "name": "client_id",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "redirect_uri",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "response_type",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "tenantId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "scope",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "state",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code_challenge",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code_challenge_method",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Returns authentication token"
-          }
-        },
-        "tags": [
-          "OIDC"
-        ]
-      }
-    },
-    "/oidc/register": {
-      "get": {
-        "operationId": "OidcController_registerAUser",
-        "summary": "Register a new user",
-        "parameters": [
-          {
-            "name": "client_id",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "redirect_uri",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "response_type",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "tenantId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "scope",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "state",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code_challenge",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code_challenge_method",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "OIDC"
-        ]
-      },
-      "post": {
-        "operationId": "OidcController_postRegisterAUser",
-        "summary": "Post registration",
-        "parameters": [
-          {
-            "name": "client_id",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "redirect_uri",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "response_type",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "tenantId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "scope",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "state",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code_challenge",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code_challenge_method",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "OIDC"
-        ]
-      }
-    },
-    "/oidc/token": {
-      "post": {
-        "operationId": "OidcController_returnToken",
-        "summary": "OIDC Token Endpoint",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TokenDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Returns tokens (idToken, accessToken, refreshToken)"
-          }
-        },
-        "tags": [
-          "OIDC"
-        ]
-      }
-    },
-    "/oidc/.well-known/jwks.json": {
-      "get": {
-        "operationId": "OidcController_returnAllPublicJwks",
-        "summary": "Return all public JWKS",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Returns all public JWKS"
-          }
-        },
-        "tags": [
-          "OIDC"
-        ]
-      }
-    },
-    "/oidc/{tenantId}/.well-known/jwks.json": {
-      "get": {
-        "operationId": "OidcController_returnAPublicJwks",
-        "summary": "Return public JWKS for a tenant",
-        "parameters": [
-          {
-            "name": "tenantId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns public JWKS for a tenant"
-          }
-        },
-        "tags": [
-          "OIDC"
-        ]
-      }
-    },
-    "/oidc/introspect": {
-      "post": {
-        "operationId": "OidcController_introspect",
-        "summary": "Introspect a token",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "content-type",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IntrospectDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Returns token introspection result"
-          }
-        },
-        "tags": [
-          "OIDC"
-        ]
-      }
-    },
-    "/oidc/userinfo": {
-      "post": {
-        "operationId": "OidcController_returnClaimsOfEndUser",
-        "summary": "Return claims of end user",
+        "operationId": "AppController_confirmLogin",
         "parameters": [],
         "responses": {
           "201": {
@@ -534,35 +66,126 @@
           }
         },
         "tags": [
-          "OIDC"
-        ]
-      },
-      "get": {
-        "operationId": "OidcController_returnClaimsOfEndUserGet",
-        "summary": "Return claims of end user via GET",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "OIDC"
+          "OIDC Wrapper"
         ]
       }
     },
-    "/oidc/.well-known/openid-configuration": {
+    "/interaction/{uid}": {
       "get": {
-        "operationId": "OidcController_returnConfigs",
+        "operationId": "InteractionController_getInteraction",
         "parameters": [],
         "responses": {
           "200": {
             "description": ""
           }
-        },
-        "tags": [
-          "OIDC"
-        ]
+        }
+      }
+    },
+    "/interaction/{uid}/login": {
+      "post": {
+        "operationId": "InteractionController_login",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/interaction/{uid}/confirm": {
+      "post": {
+        "operationId": "InteractionController_confirm",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/interaction/{uid}/abort": {
+      "get": {
+        "operationId": "InteractionController_abort",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/oidc/*": {
+      "get": {
+        "operationId": "OidcController_mountedOidc_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "operationId": "OidcController_mountedOidc_post",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "operationId": "OidcController_mountedOidc_put",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "OidcController_mountedOidc_delete",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "patch": {
+        "operationId": "OidcController_mountedOidc_patch",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "options": {
+        "operationId": "OidcController_mountedOidc_options",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "head": {
+        "operationId": "OidcController_mountedOidc_head",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "search": {
+        "operationId": "OidcController_mountedOidc_search",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
       }
     },
     "/user": {
@@ -2039,248 +1662,6 @@
         ]
       }
     },
-    "/jwt/refresh": {
-      "post": {
-        "operationId": "RefreshTokensController_refreshToken",
-        "summary": "Refresh the access token using the refresh token",
-        "parameters": [
-          {
-            "name": "refreshToken",
-            "required": true,
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "token",
-            "required": true,
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/refreshDTO"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Token refreshed successfully"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "502": {
-            "description": "Bad Gateway"
-          }
-        },
-        "tags": [
-          "jwt"
-        ]
-      },
-      "get": {
-        "operationId": "RefreshTokensController_retrieveByUserID",
-        "summary": "Retrieve refresh tokens by user ID",
-        "parameters": [
-          {
-            "name": "userId",
-            "required": true,
-            "in": "header",
-            "description": "User ID",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-stencil-tenantid",
-            "in": "header",
-            "description": "Tenant ID",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Refresh tokens retrieved successfully"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "tags": [
-          "jwt"
-        ]
-      },
-      "delete": {
-        "operationId": "RefreshTokensController_deletereftoken",
-        "summary": "Delete refresh token",
-        "parameters": [
-          {
-            "name": "x-stencil-tenantid",
-            "in": "header",
-            "description": "Tenant ID",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "applicationId": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "usersId": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "token": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                },
-                "required": []
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Refresh token deleted successfully"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "tags": [
-          "jwt"
-        ]
-      }
-    },
-    "/jwt/refresh/{id}": {
-      "get": {
-        "operationId": "RefreshTokensController_retrieve",
-        "summary": "Retrieve refresh token by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "UUID of the refresh token",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-stencil-tenantid",
-            "in": "header",
-            "description": "Tenant ID",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Refresh token retrieved successfully"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "tags": [
-          "jwt"
-        ]
-      }
-    },
-    "/jwt/refresh/{tokenId}": {
-      "delete": {
-        "operationId": "RefreshTokensController_deleteViaTokenID",
-        "summary": "Delete refresh token by token ID",
-        "parameters": [
-          {
-            "name": "tokenId",
-            "required": true,
-            "in": "path",
-            "description": "Token ID",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-stencil-tenantid",
-            "in": "header",
-            "description": "Tenant ID",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Refresh token deleted successfully"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "tags": [
-          "jwt"
-        ]
-      }
-    },
-    "/login": {
-      "post": {
-        "operationId": "LoginController_login",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/logout": {
-      "get": {
-        "operationId": "LoginController_logout",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
     "/group": {
       "post": {
         "operationId": "GroupsController_createGroup",
@@ -3183,154 +2564,6 @@
   "servers": [],
   "components": {
     "schemas": {
-      "LoginDto": {
-        "type": "object",
-        "properties": {
-          "loginId": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "applicationId": {
-            "type": "string"
-          },
-          "redirect_uri": {
-            "type": "string"
-          },
-          "scope": {
-            "type": "string"
-          },
-          "state": {
-            "type": "string"
-          },
-          "code_challenge": {
-            "type": "string"
-          },
-          "code_challenge_method": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "loginId",
-          "password",
-          "applicationId",
-          "redirect_uri",
-          "scope",
-          "state",
-          "code_challenge",
-          "code_challenge_method"
-        ]
-      },
-      "RegisterDto": {
-        "type": "object",
-        "properties": {
-          "firstname": {
-            "type": "string"
-          },
-          "lastname": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          },
-          "loginId": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "redirect_uri": {
-            "type": "string"
-          },
-          "state": {
-            "type": "string"
-          },
-          "code_challenge": {
-            "type": "string"
-          },
-          "code_challenge_method": {
-            "type": "string"
-          },
-          "response_type": {
-            "type": "string"
-          },
-          "scope": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "firstname",
-          "lastname",
-          "username",
-          "loginId",
-          "password",
-          "redirect_uri",
-          "state",
-          "code_challenge",
-          "code_challenge_method",
-          "response_type",
-          "scope"
-        ]
-      },
-      "TokenDto": {
-        "type": "object",
-        "properties": {
-          "client_id": {
-            "type": "string"
-          },
-          "client_secret": {
-            "type": "string"
-          },
-          "code": {
-            "type": "string"
-          },
-          "loginId": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "code_verifier": {
-            "type": "string"
-          },
-          "grant_type": {
-            "type": "string"
-          },
-          "redirect_uri": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "client_id",
-          "client_secret",
-          "code",
-          "loginId",
-          "password",
-          "code_verifier",
-          "grant_type",
-          "redirect_uri"
-        ]
-      },
-      "IntrospectDto": {
-        "type": "object",
-        "properties": {
-          "client_id": {
-            "type": "string"
-          },
-          "client_secret": {
-            "type": "string"
-          },
-          "token": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "client_id",
-          "client_secret",
-          "token"
-        ]
-      },
       "UserDataDto": {
         "type": "object",
         "properties": {
@@ -3814,21 +3047,6 @@
           "issuer",
           "name",
           "length"
-        ]
-      },
-      "refreshDTO": {
-        "type": "object",
-        "properties": {
-          "refreshToken": {
-            "type": "string"
-          },
-          "token": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "refreshToken",
-          "token"
         ]
       },
       "createGroupDTO": {

@@ -1,880 +1,367 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotImplementedException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
-import { PrismaService } from '../prisma/prisma.service';
-import { OIDCAuthQuery } from './dto/oidc.auth.dto';
-import { LoginDto, RegisterDto } from '../login/login.dto';
-import { randomUUID } from 'crypto';
-import {
-  AccessTokenDto,
-  IdTokenDto,
-  IntrospectDto,
-  RefreshTokenDto,
-  TokenDto,
-} from './dto/oidc.token.dto';
-import * as jwt from 'jsonwebtoken';
-import { ApplicationDataDto } from '../application/application.dto';
-import {
-  UserData,
-  UserDataDto,
-  UserDto,
-  UserRegistrationData,
-} from 'src/user/user.dto';
-import { UtilsService } from '../utils/utils.service';
-import { ResponseDto } from '../dto/response.dto';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import Provider, {
+  AdapterPayload,
+  Client,
+  Configuration,
+  JWKS,
+  KoaContextWithOIDC,
+  errors,
+} from 'oidc-provider';
+import { PrismaAdapter } from './oidc.adapter';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { ApplicationDataDto } from 'src/application/application.dto';
+import { UtilsService } from 'src/utils/utils.service';
+
+// this part of code is under progress
+const corsProp = 'urn:custom:client:allowed-cors-origins';
+const isOrigin = (value) => {
+  if (typeof value !== 'string') {
+    return false;
+  }
+  try {
+    const { origin } = new URL(value);
+    // Origin: <scheme> "://" <hostname> [ ":" <port> ]
+    return value === origin;
+  } catch (err) {
+    return false;
+  }
+};
 
 @Injectable()
-export class OidcService {
-  private readonly logger: Logger;
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly utilService: UtilsService,
-  ) {
-    this.logger = new Logger(OidcService.name);
-  }
+export class OIDCService {
+  private static provider: any;
+  constructor() {}
+  private static readonly prismaService = new PrismaService();
+  private static readonly utilsService = new UtilsService(
+    OIDCService.prismaService,
+  );
+  public static async returnConfiguration(): Promise<Configuration> {
+    const client_ttlMap: Map<string, ApplicationDataDto> =
+      await this.returnTTL();
 
-  async authorize(
-    req: Request,
-    res: Response,
-    query: OIDCAuthQuery,
-    headers: object,
-  ) {
-    const {
-      client_id,
-      tenantId,
-      redirect_uri,
-      response_type,
-      scope,
-      state,
-      code_challenge,
-      code_challenge_method,
-    } = query;
-    if (!client_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No client/application id given',
-      });
-    }
-    if (!redirect_uri) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No redirect uri given',
-      });
-    }
-    if (!scope) {
-      // verify scopes in application, give only those scopes that are registered for the application
-      throw new BadRequestException({
-        success: false,
-        message: 'Scopes not given',
-      });
-    }
-    if (!response_type) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No response type given',
-      });
-    }
-    res.render('login', {
-      host: `${process.env.FULL_URL}`,
-      applicationId: client_id,
-      redirect_uri,
-      state,
-      scope,
-      response_type,
-      code_challenge,
-      code_challenge_method,
-    });
-  }
+    const jwksArray = await this.prismaService.key.findMany();
+    const jwksFinal = jwksArray.map((jwk) => JSON.parse(jwk.data));
+    const jwks: JWKS = jwksFinal.length > 0 ? { keys: jwksFinal } : undefined;
+    const config: Configuration = {
+      interactions: {
+        url(ctx, interaction) {
+          return `/interaction/${interaction.uid}`;
+        },
+      },
+      adapter: (modelName: string) => new PrismaAdapter(modelName),
+      findAccount: OIDCService.findAccount.bind(this),
+      cookies: {
+        keys: ['test'], // change this
+      },
+      scopes: [
+        'openid',
+        'offline_access',
+        'profile',
+        'email',
+        'phone',
+        'address',
+      ],
+      claims: {
+        address: ['address'],
+        email: ['email', 'email_verified'],
+        phone: ['phone_number', 'phone_number_verified'],
+        profile: [
+          'birthdate',
+          'family_name',
+          'gender',
+          'given_name',
+          'locale',
+          'middle_name',
+          'name',
+          'nickname',
+          'picture',
+          'preferred_username',
+          'profile',
+          'updated_at',
+          'website',
+          'zoneinfo',
+        ],
+        openid: ['policy'],
+      },
+      // this and next function are under progress
+      extraClientMetadata: {
+        properties: [corsProp, 'extra'], // don't remove extra, used for skipping consent screen
+        validator(ctx, key, value, metadata) {
+          if (key === corsProp) {
+            // set default (no CORS)
+            if (value === undefined) {
+              metadata[corsProp] = [];
+              return;
+            }
+            // validate an array of Origin strings
+            if (!Array.isArray(value) || !value.every(isOrigin)) {
+              throw new UnauthorizedException(
+                `${corsProp} must be an array of origins`,
+              );
+            }
+          }
+        },
+      },
+      clientBasedCORS(ctx, origin, client) {
+        // ctx.oidc.route can be used to exclude endpoints from this behaviour, in that case just return
+        // true to always allow CORS on them, false to deny
+        // you may also allow some known internal origins if you want to
+        return (client[corsProp] as any).includes(origin);
+      },
+      loadExistingGrant: async (ctx) => {
+        const clientMacroObject = ctx.oidc.client;
+        const grantId =
+          (ctx.oidc.result &&
+            ctx.oidc.result.consent &&
+            ctx.oidc.result.consent.grantId) ||
+          ctx.oidc.session.grantIdFor(ctx.oidc.client.clientId);
 
-  async postAuthorize(
-    data: LoginDto,
-    query: OIDCAuthQuery,
-    headers: object,
-    res: Response,
-  ) {
-    if (!data || !data.loginId || !data.password) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No data given',
-      });
-    }
-    const {
-      loginId,
-      password,
-      state,
-      scope,
-      code_challenge,
-      code_challenge_method,
-      redirect_uri,
-    } = data;
-    const { client_id } = query;
-    const application = await this.prismaService.application.findUnique({
-      where: { id: client_id },
-    });
-    if (!application) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No such application exists',
-      });
-    }
-    const applicationData: ApplicationDataDto = JSON.parse(application.data);
-    const redirectUrls =
-      applicationData.oauthConfiguration.authorizedRedirectURLs;
-    if (!redirectUrls.includes(redirect_uri)) {
-      throw new UnauthorizedException({
-        success: false,
-        message:
-          'The given redirect_uri doesnt match with the registered redirect uris',
-      });
-    }
-    const user = await this.prismaService.user.findUnique({
-      where: { email: loginId },
-    });
-    if (!user) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No such user exists',
-      });
-    }
-    const authenticationToken = randomUUID();
-    const userData: UserData = JSON.parse(user.data);
-    if (
-      (await this.utilService.comparePasswords(
-        password,
-        userData.userData?.password,
-      )) === false
-    ) {
-      throw new UnauthorizedException({
-        success: false,
-        message: 'Invalid user credentials',
-      });
-    }
-    try {
-      const alreadyRegisterd =
-        await this.prismaService.userRegistration.findUnique({
-          where: {
-            user_registrations_uk_1: {
-              usersId: user.id,
-              applicationsId: application.id,
-            },
-          },
-        });
-      if (!alreadyRegisterd) {
-        const userRegistration =
-          await this.prismaService.userRegistration.create({
-            data: {
-              applicationsId: application.id,
-              authenticationToken,
-              password: userData.userData.password,
-              usersId: user.id,
-              data: JSON.stringify({
-                code_challenge: code_challenge === '' ? null : code_challenge,
-                code_challenge_method:
-                  code_challenge_method === '' ? null : code_challenge_method,
-                scope,
-              }),
-            },
+        if (grantId) {
+          // keep grant expiry aligned with session expiry
+          // to prevent consent prompt being requested when grant expires
+          const grant = await ctx.oidc.provider.Grant.find(grantId);
+
+          // this aligns the Grant ttl with that of the current session
+          // if the same Grant is used for multiple sessions, or is set
+          // to never expire, you probably do not want this in your code
+          if (ctx.oidc.account && grant.exp < ctx.oidc.session.exp) {
+            grant.exp = ctx.oidc.session.exp;
+
+            await grant.save();
+          }
+
+          return grant;
+        } else if (OIDCService.skipConsent(clientMacroObject) === true) {
+          console.log("HI");
+          const grant = new ctx.oidc.provider.Grant({
+            clientId: ctx.oidc.client.clientId,
+            accountId: ctx.oidc.session.accountId,
           });
-        this.logger.log('A user authenticated', user);
-        return res.redirect(
-          `${redirect_uri}?code=${userRegistration.authenticationToken}&state=${state}`,
-        );
-      }
-      const updateRegistration =
-        await this.prismaService.userRegistration.update({
-          where: { id: alreadyRegisterd.id },
-          data: {
-            authenticationToken,
-            data: JSON.stringify({
-              code_challenge: code_challenge === '' ? null : code_challenge,
-              code_challenge_method:
-                code_challenge_method === '' ? null : code_challenge_method,
-              scope,
-            }),
-          },
-        });
-
-      this.logger.log('A user authenticated', user);
-      res.redirect(
-        `${redirect_uri}?code=${updateRegistration.authenticationToken}&state=${state}`,
-      );
-    } catch (error) {
-      this.logger.log('Error from postAuthorize', error);
-      throw new InternalServerErrorException({
-        success: false,
-        message: 'Error occured while registering',
-      });
-    }
-  }
-
-  async registerAUser(
-    req: Request,
-    res: Response,
-    query: OIDCAuthQuery,
-    headers: object,
-  ) {
-    const {
-      client_id,
-      tenantId,
-      redirect_uri,
-      response_type,
-      scope,
-      state,
-      code_challenge,
-      code_challenge_method,
-    } = query;
-    if (!client_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No client/application id given',
-      });
-    }
-    if (!redirect_uri) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No redirect uri given',
-      });
-    }
-    if (!scope) {
-      // verify scopes in application, give only those scopes that are registered for the application
-      throw new BadRequestException({
-        success: false,
-        message: 'Scopes not given',
-      });
-    }
-    if (!response_type) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No response type given',
-      });
-    }
-    res.render('signup', {
-      host: `${process.env.FULL_URL}`,
-      applicationId: client_id,
-      tenantId,
-      redirect_uri,
-      state,
-      scope,
-      response_type,
-      code_challenge,
-      code_challenge_method,
-    });
-  }
-
-  async postRegisterAUser(
-    data: RegisterDto,
-    query: OIDCAuthQuery,
-    headers: object,
-    res: Response,
-  ) {
-    if (!data || !data.loginId || !data.password) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No data given',
-      });
-    }
-    const {
-      redirect_uri,
-      response_type,
-      scope,
-      state,
-      code_challenge,
-      code_challenge_method,
-      password,
-      loginId,
-      firstname,
-      lastname,
-      username,
-    } = data;
-    const { client_id } = query;
-    if (!client_id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No application id given',
-      });
-    }
-    const application = await this.prismaService.application.findUnique({
-      where: { id: client_id },
-    });
-    if (!application) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No such application exists',
-      });
-    }
-    const applicationData: ApplicationDataDto = JSON.parse(application.data);
-    const redirectUrls =
-      applicationData.oauthConfiguration.authorizedRedirectURLs;
-    if (!redirectUrls.includes(redirect_uri)) {
-      throw new UnauthorizedException({
-        success: false,
-        message:
-          'The given redirect_uri doesnt match with the registered redirect uris',
-      });
-    }
-    const oldUser = await this.prismaService.user.findUnique({
-      where: { email: loginId },
-    });
-    if (oldUser) {
-      throw new BadRequestException({
-        success: false,
-        message: 'such user already exists',
-      });
-    }
-    const authenticationToken = randomUUID();
-    const userData: UserDataDto = {
-      username,
-      firstname,
-      lastname,
-      password: await this.utilService.hashPassword(password),
-    };
-    const userInfo = { userData };
-    const user = await this.prismaService.user.create({
-      data: {
-        email: loginId,
-        tenantId: application.tenantId,
-        active: true,
-        data: JSON.stringify(userInfo),
-      },
-    });
-    const userRegistration = await this.prismaService.userRegistration.create({
-      data: {
-        applicationsId: application.id,
-        authenticationToken,
-        password: userData.password,
-        usersId: user.id,
-        data: JSON.stringify({
-          code_challenge: code_challenge === '' ? null : code_challenge,
-          code_challenge_method:
-            code_challenge_method === '' ? null : code_challenge_method,
-          scope,
-        }),
-      },
-    });
-    this.logger.log('A user authenticated', user);
-    return res.redirect(
-      `${redirect_uri}?code=${userRegistration.authenticationToken}&state=${state}`,
-    );
-  }
-
-  async returnToken(data: TokenDto, headers: object) {
-    if (headers['content-type'] !== 'application/x-www-form-urlencoded') {
-      throw new BadRequestException({
-        success: false,
-        message: 'content-type should be application/x-www-form-urlencoded',
-      });
-    }
-    const authorization = headers['authorization']?.split('Basic ')[1];
-    let client_id: string | null = null,
-      client_secret: string | null = null;
-    if (authorization) {
-      const credentials = Buffer.from(authorization, 'base64').toString(
-        'utf-8',
-      );
-      [client_id, client_secret] = credentials.split(':');
-    }
-    if (!data) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No data given',
-      });
-    }
-    const { code, grant_type, redirect_uri, loginId, password } = data;
-    if (!code || !grant_type || !redirect_uri) {
-      throw new BadRequestException({
-        success: false,
-        message: 'either of code,grant_type,redirect_uri missing',
-      });
-    }
-    const clientId = client_id ? client_id : data?.client_id;
-    const clientSecret = client_secret ? client_secret : data?.client_secret;
-    if (!clientId) {
-      throw new BadRequestException({
-        success: false,
-        message:
-          'Client id should be provided either via authorization header or data.client_id',
-      });
-    }
-    const application = await this.prismaService.application.findUnique({
-      where: { id: clientId },
-    });
-    if (!application) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No such application exists',
-      });
-    }
-    const applicationData: ApplicationDataDto = JSON.parse(application.data);
-    const actualSecret = applicationData?.oauthConfiguration.clientSecret;
-    if (clientSecret !== actualSecret) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No such client with given id and secret exists',
-      });
-    }
-    const refreshTokenSeconds =
-      applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
-    const accessTokenSeconds =
-      applicationData.jwtConfiguration.timeToLiveInSeconds;
-    let user: UserDto = null;
-    let scope: string | null = null;
-    if (grant_type === 'authorization_code') {
-      if (
-        !applicationData.oauthConfiguration.enabledGrants.includes(
-          'authorization_code',
-        )
-      ) {
-        throw new BadRequestException({
-          success: false,
-          message:
-            'Your application does not support grant_type authorization_code',
-        });
-      }
-      if (!code) {
-        throw new BadRequestException({
-          success: false,
-          message: 'No authorizationToken passed as code',
-        });
-      }
-      const userRegistration =
-        await this.prismaService.userRegistration.findUnique({
-          where: { authenticationToken: code },
-        });
-      if (!userRegistration) {
-        throw new BadRequestException({
-          success: false,
-          message: 'No such authorization code exists',
-        });
-      }
-
-      const userRegistrationData: UserRegistrationData = JSON.parse(
-        userRegistration.data,
-      );
-      const verify = await this.verify_code_challenge(
-        userRegistrationData.code_challenge,
-        userRegistrationData.code_challenge_method,
-        data.code_verifier,
-      );
-      if (!verify.success) {
-        throw new BadRequestException({
-          success: verify.success,
-          message: verify.message,
-        });
-      }
-      const foundUser = await this.prismaService.user.findUnique({
-        where: { id: userRegistration.usersId },
-      });
-      scope = scope === null ? userRegistrationData.scope : null;
-      user = user === null ? foundUser : null;
-    } else if (grant_type === 'password') {
-      if (
-        !applicationData.oauthConfiguration.enabledGrants.includes('password')
-      ) {
-        throw new BadRequestException({
-          success: false,
-          message: 'Your application does not support grant_type password',
-        });
-      }
-      if (!loginId || !password) {
-        throw new BadRequestException({
-          success: false,
-          message: 'No loginId or password given',
-        });
-      }
-      const foundUser = await this.prismaService.user.findUnique({
-        where: { email: loginId },
-      });
-      if (!foundUser) {
-        throw new BadRequestException({
-          success: false,
-          message: 'No such user exists',
-        });
-      }
-      const foundUserRegistration =
-        await this.prismaService.userRegistration.findUnique({
-          where: {
-            user_registrations_uk_1: {
-              applicationsId: application.id,
-              usersId: foundUser.id,
+          const client = await OIDCService.prismaService.application.findUnique(
+            {
+              where: { id: clientMacroObject.clientId },
             },
-          },
-        });
-      if (!foundUserRegistration) {
-        throw new BadRequestException({
-          success: false,
-          message: 'Not registered with the application',
-        });
-      }
-      const foundUserRegistrationData: UserRegistrationData = JSON.parse(
-        foundUserRegistration.data,
-      );
-      if (
-        (await this.utilService.comparePasswords(
-          password,
-          foundUserRegistration.password,
-        )) === false
-      ) {
-        throw new UnauthorizedException({
-          success: false,
-          message: 'You are not authorized',
-        });
-      }
-      scope = scope === null ? foundUserRegistrationData.scope : null;
-      user = user === null ? foundUser : null;
-    } else if (grant_type === 'client_credentials') {
-      if (
-        !applicationData.oauthConfiguration.enabledGrants.includes(
-          'client_credentials',
-        )
-      ) {
-        throw new BadRequestException({
-          success: false,
-          message:
-            'Your application does not support grant_type client_credentials',
-        });
-      }
-      // implementation remaining, this is used by application to retrieve its own access rights
-      throw new NotImplementedException({
-        success: false,
-        message: 'you reached a part of server that is not yet implemented',
-      });
+          );
+          if (!client || !client.active) return undefined;
+
+          const scope =
+            await OIDCService.utilsService.returnScopesForAGivenApplicationId(
+              clientMacroObject.clientId,
+            );
+          
+          grant.addOIDCScope(scope.join(' '));
+          // not needed
+          // grant.addOIDCClaims(['first_name']);
+          // grant.addResourceScope(
+          //   'urn:example:resource-indicator',
+          //   'api:read api:write',
+          // );
+          await grant.save();
+          return grant;
+        }
+      },
+      renderError: (ctx, out, error) => {
+        console.log('Error why not working: ', error);
+      },
+      pkce: {
+        methods: ['S256'],
+        required: (ctx, client) => {
+          return (client.extra as any).enablePKCE === true ? true: false;
+        },
+      },
+      features: {
+        introspection: { enabled: true },
+        jwtIntrospection: { enabled: true },
+        userinfo: { enabled: true },
+        // resource Indicators?
+        revocation: { enabled: true },
+        devInteractions: {
+          enabled: false,
+        },
+      },
+      issueRefreshToken: async () => {
+        return true;
+      },
+      ttl: {
+        AccessToken: (ctx, token, client) => {
+          const clientData = client_ttlMap.get(client.clientId);
+          return clientData.jwtConfiguration.timeToLiveInSeconds || 10000;
+        },
+        RefreshToken: (ctx, token, client) => {
+          const clientData = client_ttlMap.get(client.clientId);
+          return (
+            clientData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60 ||
+            60000
+          );
+        },
+        Grant: () => {
+          return 300000;
+        },
+        AuthorizationCode: () => {
+          return 300000;
+        },
+        Session: () => {
+          return 300000;
+        }, // id token ka set kr
+        IdToken: () => {
+          return 300000;
+        },
+      },
+      // can be used for adding extra claims in access token if required
+      // extraTokenClaims(ctx, token) {
+      //   console.log(token);
+      //   return undefined;
+      // },
+      //
+      // can be used in backchannel authorization
+      // extraParams: {
+
+      // },
+      jwks,
+    };
+
+    return config;
+  }
+
+  private static skipConsent(client: Client) {
+    // if enabled skipConsentScreen in the application schema then skip consent
+    return (client.extra as any).skipConsentScreen === true ? true : false;
+  }
+
+  private static async returnTTL() {
+    const client_ttlMap: Map<string, ApplicationDataDto> = new Map();
+    const clients = await this.prismaService.application.findMany();
+    clients.forEach((client) =>
+      client_ttlMap.set(
+        client.id,
+        JSON.parse(client.data) as ApplicationDataDto,
+      ),
+    );
+    return client_ttlMap;
+  }
+
+  public static async getProvider(): Promise<Provider> {
+    if (OIDCService.provider) {
+      return OIDCService.provider;
     }
-    const scopes: string[] | null = scope?.split(' ');
-    const validScopes =
-      await this.utilService.returnScopesForAGivenApplicationId(application.id);
-    if (!scopes.includes('openid')) {
-      throw new BadRequestException({
-        success: false,
-        message: 'openid scope required',
-      });
-    }
+
+    const mod = await eval(`import('oidc-provider')`);
+    OIDCService.provider = mod.default;
+    const configuration: Configuration =
+      await OIDCService.returnConfiguration();
+    const oidc = new OIDCService.provider(
+      process.env.ISSUER_URL,
+      configuration,
+    );
+    OIDCService.provider = oidc;
+    return oidc;
+  }
+
+  // Look up the user by their ID in the database using Prisma and returns the user claims, id is required to be email rather than some uuid
+  static async findAccount(ctx: KoaContextWithOIDC, id: string) {
+
+    const clientId = ctx.oidc.client.clientId;
+    const user = await OIDCService.prismaService.user.findUnique({
+      where: { email: id },
+    });
+
     if (!user) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No user found!',
-      });
+      return undefined;
     }
 
-    const profileAllowed =
-      validScopes.includes('profile') && scopes.includes('profile');
-    const emailAllowed =
-      validScopes.includes('email') && scopes.includes('email');
-    const offline_accessAllowed =
-      validScopes.includes('offline_access') &&
-      scopes.includes('offline_access');
-    const now = Math.floor(Date.now() / 1000);
-    const userData: UserData = JSON.parse(user.data);
-    const { username, firstname, lastname } = userData.userData;
-    const idTokenPayload = {
-      policy: ['consoleAdmin'],
-      active: true,
-      iat: now,
-      exp: now + refreshTokenSeconds,
-      iss: process.env.ISSUER_URL,
-      aud: clientId,
-      sub: user.id,
-      userData: profileAllowed
-        ? { username: username, firstname: firstname, lastname: lastname }
-        : null,
-      email: emailAllowed ? user.email : null,
-    };
-    const idToken = await this.utilService.createToken(
-      idTokenPayload,
-      application.id,
-      application.tenantId,
-      'id',
-    );
-    const refreshTokenPayload: RefreshTokenDto = {
-      active: true,
-      iat: now,
-      applicationId: application.id,
-      iss: process.env.ISSUER_URL,
-      exp: now + refreshTokenSeconds,
-      sub: user.id,
-    };
-    const refreshToken = await this.utilService.createToken(
-      refreshTokenPayload,
-      application.id,
-      application.tenantId,
-      'refresh',
-    );
-
-    const newRefreshToken = await this.utilService.saveOrUpdateRefreshToken(
-      application.id,
-      refreshToken,
-      user.id,
-      application.tenantId,
-      '',
-      now,
-      now + refreshTokenSeconds,
-    );
-
-    const rolesIds =
-      await this.utilService.returnRolesForAGivenUserIdAndApplicationId(
+    // roles that are of type urn:applicationId:claim:roles will be put in jwt
+    const roleIds =
+      await OIDCService.utilsService.returnRolesForAGivenUserIdAndTenantId(
         user.id,
-        application.id,
+        user.tenantId,
       );
-    const roles = await Promise.all(
-      rolesIds.map(async (roleId) => {
-        const role = await this.prismaService.applicationRole.findUnique({
-          where: { id: roleId },
-        });
-        return role.name;
+    const rolesObj = await Promise.all(
+      roleIds.map(async (roleId) => {
+        const role = await OIDCService.prismaService.applicationRole.findUnique(
+          { where: { id: roleId } },
+        );
+        return role;
       }),
     );
-    const accessTokenPayload: AccessTokenDto = {
-      active: true,
-      roles,
-      iat: now,
-      exp: now + accessTokenSeconds,
-      iss: process.env.ISSUER_URL,
-      sub: user.id,
-      aud: clientId,
-      applicationId: application.id,
-      scope: `openid ${profileAllowed ? 'profile' : ''} ${emailAllowed ? 'email' : ''} ${offline_accessAllowed ? 'offline_access' : ''}`,
-    };
-    const accessToken = await this.utilService.createToken(
-      accessTokenPayload,
-      application.id,
-      application.tenantId,
-      'access',
-    );
-    return {
-      id_token: idToken,
-      access_token: accessToken,
-      refresh_token: offline_accessAllowed ? refreshToken : null,
-      refreshTokenId: offline_accessAllowed ? newRefreshToken.id : null,
-      userId: user.id,
-      token_type: 'Bearer',
-    };
-  }
+    const roles = rolesObj.map((roleObj) => roleObj.name);
+    // regex to check if a role matches the urn:clientId:claim:roles pattern
+    const urnRegex = /^urn:[a-zA-Z0-9]+:[a-zA-Z0-9]+:[\[\]\'\"\,a-zA-Z0-9]+$/;
 
-  async returnAllPublicJwks() {
-    const results = await this.prismaService.key.findMany();
-    const filteredResults = results.map((result, i) => {
-      return JSON.parse(result.data);
-    });
-    return {
-      keys: filteredResults,
-    };
-  }
+    // Filter roles that follow the required format
+    const filteredRoles = roles.filter((role) => urnRegex.test(role));
+    // Parse roles into claims and their values
+    const roleClaims = filteredRoles.reduce((acc, role) => {
+      // Extract the parts from the URN role string (urn:namespace:claim:value)
+      const parts = role.split(':');
+      if (parts.length === 4) {
+        const claimName = parts[2]; // This is the 'claim' part of the role
+        const clientName = parts[1];
 
-  async returnAPublicJwks(tenantId: string) {
-    const tenant = await this.prismaService.tenant.findUnique({
-      where: { id: tenantId },
-    });
-    if (!tenant) {
-      throw new BadRequestException({
-        success: false,
-        message: 'no such tenant exists',
-      });
-    }
-    const accessTokenSigningKey = await this.prismaService.key.findUnique({
-      where: { id: tenant.accessTokenSigningKeysId },
-    });
-    const idTokenSigningKey = await this.prismaService.key.findUnique({
-      where: { id: tenant.idTokenSigningKeysId },
-    });
-    const keys = [];
-    keys.push(JSON.parse(accessTokenSigningKey.data));
-    keys.push(JSON.parse(idTokenSigningKey.data));
+        // checks if the role belongs to the corresponding client or not
+        if(clientName !== clientId) return acc;
 
-    // Ensure each key object contains a "key" field directly
-    const parsedKeys = keys.map((key) => JSON.parse(key.data));
+        let claimValue = parts[3];
+        if (
+          ['openid', 'profile', 'offline_access', 'email', 'address'].includes(
+            claimName,
+          )
+        )
+          return acc;
 
-    return {
-      keys: parsedKeys,
-    };
-  }
+        // Handle the conversion from single quoted value to unquoted value
+        if (claimValue.startsWith("'") && claimValue.endsWith("'")) {
+          claimValue = claimValue.slice(1, -1); // Remove the surrounding single quotes
+        }
 
-  async introspect(data: IntrospectDto, headers: object) {
-    const contentType = headers['content-type'];
-    if (contentType !== 'application/x-www-form-urlencoded') {
-      throw new BadRequestException({
-        success: false,
-        message:
-          'content-type header should be application/x-www-form-urlencoded',
-      });
-    }
-    const authorization = headers['authorization']?.split('Basic ')[1];
-    let client_id: string | null = null,
-      client_secret: string | null = null;
-    if (authorization) {
-      const credentials = Buffer.from(authorization, 'base64').toString(
-        'utf-8',
-      );
-      [client_id, client_secret] = credentials.split(':');
-    }
-    if (!data) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No data given',
-      });
-    }
-    const clientId = client_id ? client_id : data?.client_id;
-    const clientSecret = client_secret ? client_secret : data?.client_secret;
-    if (!clientId) {
-      throw new BadRequestException({
-        success: false,
-        message:
-          'Client id should be provided either via authorization header or data.client_id',
-      });
-    }
-    const application = await this.prismaService.application.findUnique({
-      where: { id: clientId },
-    });
-    if (!application) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No such application exists',
-      });
-    }
-    const applicationData: ApplicationDataDto = JSON.parse(application.data);
-    const actualSecret = applicationData?.oauthConfiguration.clientSecret;
-    if (clientSecret !== actualSecret) {
-      throw new BadRequestException({
-        success: false,
-        message: 'No such client with given id and secret exists',
-      });
-    }
-    if (!data.token) {
-      throw new BadRequestException({
-        success: false,
-        message: 'token not given',
-      });
-    }
-    const accessTokenSigningKey = await this.prismaService.key.findUnique({
-      where: { id: application.accessTokenSigningKeysId },
-    });
-    const accessTokenSecret = accessTokenSigningKey.publicKey
-      ? accessTokenSigningKey.publicKey
-      : accessTokenSigningKey.secret;
-    return await this.utilService.checkValidityOfToken(
-      data.token,
-      accessTokenSecret,
-      'access',
-    );
-  }
+        // Handle the conversion from string representation of an array to actual array
+        if (claimValue.startsWith("['") && claimValue.endsWith("']")) {
+          try {
+            // Convert single quotes to double quotes for valid JSON parsing
+            claimValue = JSON.parse(claimValue.replace(/'/g, '"'));
+          } catch (e) {
+            // If parsing fails, keep it as the original string
+            console.error(
+              'Failed to parse claim value as JSON array:',
+              claimValue,
+            );
+          }
+        }
 
-  async returnClaimsOfEndUser(headers: object) {
-    const authorization = headers['authorization']?.split('Bearer ')[1];
-    if (!authorization) {
-      throw new BadRequestException({
-        success: false,
-        message: 'Bearer Authorization header required',
-      });
-    }
-    try {
-      const payload = jwt.decode(authorization);
-      const accessPayload = payload as AccessTokenDto;
-      const scopes = accessPayload.scope.split(' ');
-      if (!scopes.includes('openid')) {
-        return {
-          success: false,
-          message: 'openid scope missing in token',
-        };
+        // Add the claim to the accumulated object, handle cases where there may be multiple values
+        if (acc[claimName]) {
+          // If the claim already exists, append the new values
+          if (Array.isArray(acc[claimName])) {
+            acc[claimName] = Array.isArray(claimValue)
+              ? [...acc[claimName], ...claimValue]
+              : [...acc[claimName], claimValue];
+          } else {
+            acc[claimName] = [acc[claimName], ...[].concat(claimValue)];
+          }
+        } else {
+          // Otherwise, add it as a new entry
+          acc[claimName] = claimValue;
+        }
       }
-      const userid = accessPayload.sub;
-      const user = await this.prismaService.user.findUnique({
-        where: { id: userid as string },
-      });
-      const userData: UserData = JSON.parse(user.data);
-      const actualUserData: UserDataDto = userData.userData;
-      delete actualUserData.password;
-      const emailClaim = scopes.includes('email') ? user.email : null;
-      const userDataClaim: UserDataDto | null = scopes.includes('profile')
-        ? actualUserData
-        : null;
-      const roleIds =
-        await this.utilService.returnRolesForAGivenUserIdAndApplicationId(
-          user.id,
-          accessPayload.applicationId,
-        );
-      const allRoles = await Promise.all(
-        roleIds.map(async (roleId) => {
-          const role = await this.prismaService.applicationRole.findUnique({
-            where: { id: roleId },
-          });
-          return role?.name;
-        }),
-      );
-      const roles = allRoles.filter((i) => i);
-      return {
-        applicationId: accessPayload.applicationId,
-        email: emailClaim,
-        sub: accessPayload.sub,
-        roles,
-        firstname: userDataClaim?.firstname,
-        lastname: userDataClaim?.lastname,
-        username: userDataClaim?.username,
-      };
-    } catch (error) {
-      this.logger.log('Error occured in returnClaimsOfEndUser', error);
-      throw new InternalServerErrorException({
-        success: false,
-        message: 'Error occured while processing end user info',
-      });
-    }
-  }
+      return acc;
+    }, {});
 
-  private async verify_code_challenge(
-    code_challenge: string,
-    code_challenge_method: string,
-    code_verifier: string,
-  ): Promise<ResponseDto> {
-    if (!code_challenge || !code_challenge_method) {
-      return {
-        success: true,
-        message: 'Pkce was not set',
-      };
-    }
-    // apply code_challenge_method on code_verifier === code_challenge
-    if (!code_verifier) {
-      return {
-        success: false,
-        message: 'no code_verifier given',
-      };
-    }
-    if (code_challenge_method === 'plain') {
-      const valid = code_verifier === code_challenge;
-      return {
-        success: valid,
-        message: valid ? 'Success' : 'Failed',
-      };
-    } else if (code_challenge_method === 'S256') {
-      const encoder = new TextEncoder();
-      const data = encoder.encode(code_verifier);
-      return crypto.subtle
-        .digest('SHA-256', data)
-        .then((digest) => {
-          const hashArray = Array.from(new Uint8Array(digest));
-          const base64url = btoa(String.fromCharCode.apply(null, hashArray))
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_')
-            .replace(/=+$/, '');
-          const valid = base64url === code_challenge;
-          return {
-            success: valid,
-            message: valid ? 'Success' : 'Failed',
-          };
-        })
-        .catch((error) => {
-          return {
-            success: false,
-            message: `Error processing code_verifier: ${error.message}`,
-          };
-        });
-    } else {
-      return {
-        success: false,
-        message: 'unknown code_challenge_method',
-      };
-    }
+    return {
+      accountId: id,
+      async claims(
+        use: 'id_token' | 'userinfo',
+        scope: string,
+        claims: object,
+        rejected: String[],
+      ) {
+        // add whatever u want but only claims supported by AS are returned in id_token, supported claims are above
+        return {
+          sub: id,
+          email: user.email,
+          data: user.data,
+          tenantId: user.tenantId,
+          ...roleClaims, // Spread the role claims into the return object
+        };
+      },
+    };
   }
 }

@@ -79,6 +79,24 @@ class OauthConfiguration {
   // @IsUrl({}, { message: 'Logout URL must be a valid URL' })
   @IsNotEmpty({ message: 'Logout URL must not be empty' })
   logoutURL: string;
+
+  @ApiProperty({
+    default: false,
+    type: Boolean,
+    example: 'true',
+    description: "Whether to ask user's consent for getting user claims or not",
+  })
+  @IsBoolean()
+  skipConsentScreen: boolean = false;
+
+  @ApiProperty({
+    default: false,
+    type: Boolean,
+    example: 'false',
+    description: 'enable proof key for code exchange for an application',
+  })
+  @IsBoolean()
+  enablePKCE: boolean = false;
 }
 
 export class JwtConfiguration {

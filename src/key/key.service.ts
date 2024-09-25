@@ -10,10 +10,9 @@ import {
 } from '@nestjs/common';
 import { generateKeyDTO, updateDTO } from './key.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import * as jose from 'node-jose';
-import * as jwkToPem from 'jwk-to-pem';
+import * as jose from 'jose';
 import { HeaderAuthService } from '../header-auth/header-auth.service';
-
+import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class KeyService {
   private readonly logger: Logger;
@@ -197,19 +196,21 @@ export class KeyService {
   }
 
   async generateKey(uuid: string, key: generateKeyDTO, headers: object) {
+    // TODO: Turn this into a middleware
     const valid = await this.headerAuthService.authorizationHeaderVerifier(
       headers,
       null,
       '/key',
       'GET',
     );
+
     if (!valid.success) {
       throw new UnauthorizedException({
         success: valid.success,
         message: valid.message,
       });
     }
-
+    // TODO: Move to a DTO and Middleware based validator
     if (!uuid) {
       throw new BadRequestException({
         success: false,
@@ -217,7 +218,8 @@ export class KeyService {
       });
     }
 
-    const { algorithm, name, length, issuer } = key;
+    const { algorithm, name, issuer } = key;
+    // TODO: Move to a DTO and Middleware based validator
     if (!algorithm || !name) {
       throw new BadRequestException({
         success: false,
@@ -225,11 +227,10 @@ export class KeyService {
       });
     }
 
-    const keyStore = jose.JWK.createKeyStore();
+    // const keyStore = await jose
 
     try {
       const keyData = await this.generateAndStoreKey(
-        keyStore,
         algorithm,
         uuid,
         name,
@@ -242,6 +243,7 @@ export class KeyService {
         key: keyData.storedKey,
       };
     } catch (error) {
+      console.log(error);
       this.logger.log('Error from generateKey', error);
       throw new BadRequestException({
         success: false,
@@ -251,92 +253,70 @@ export class KeyService {
   }
 
   private async generateAndStoreKey(
-    keyStore: jose.JWK.KeyStore,
     algorithm: string,
     uuid: string,
     name: string,
     issuer: string,
   ) {
-    let keyGenPromise;
-    let keyType: string;
-    let keyFields: any;
-
-    switch (algorithm) {
-      case 'RS256':
-      case 'RS384':
-      case 'RS512':
-        const rsaBits = this.getRsaBits(algorithm);
-        keyGenPromise = keyStore.generate('RSA', rsaBits, {
-          alg: algorithm,
-          use: 'sig',
-        });
-        keyType = 'RS';
-        keyFields = (key: any) => ({
-          privateKey: jwkToPem(key, { private: true }),
-          publicKey: jwkToPem(key),
-          data: JSON.stringify(this.removeSensitiveRSAFields(key)),
-        });
-        break;
-      case 'ES256':
-      case 'ES384':
-      case 'ES512':
-        const ecCurve = this.getEcCurve(algorithm);
-        keyGenPromise = keyStore.generate('EC', ecCurve, {
-          alg: algorithm,
-          use: 'sig',
-        });
-        keyType = 'EC';
-        keyFields = (key: any) => ({
-          privateKey: jwkToPem(key, { private: true }),
-          publicKey: jwkToPem(key),
-          data: JSON.stringify(this.removeSensitiveECFields(key)),
-        });
-        break;
-      default:
-        throw new BadRequestException({
-          success: false,
-          message: 'Unknown algorithm provided',
-        });
+    // TODO: Move to a constants file
+    const SUPPORTED_ALGORITHMS = [
+      'RS256',
+      'RS384',
+      'RS512',
+      'ES256',
+      'ES384',
+      'ES512',
+    ];
+    // TODO: Move to middleware
+    if (!SUPPORTED_ALGORITHMS.includes(algorithm)) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Unknown algorithm provided',
+      });
     }
 
-    await keyGenPromise;
-    const jwks = keyStore.toJSON(true);
-    const key = jwks.keys[0];
-    const fields = keyFields(key);
-
+    const { publicKey, privateKey } = await jose.generateKeyPair(algorithm);
+    const publicKeyJWK = await jose.exportJWK(publicKey);
+    const privateKeyJWK = await jose.exportJWK(privateKey);
+    console.log('private key JWK: ', privateKeyJWK);
+    console.log('public key JWK: ', publicKeyJWK);
     const storedKey = await this.prismaService.key.create({
       data: {
         id: uuid,
         algorithm,
         name,
         issuer,
-        kid: key.kid,
-        ...fields,
-        type: keyType,
+        kid: uuidv4(),
+        publicKey: JSON.stringify(publicKeyJWK),
+        privateKey: JSON.stringify(privateKeyJWK),
+        data: JSON.stringify(privateKeyJWK),
+        type: algorithm.startsWith('RS') ? 'RS' : 'EC',
       },
     });
 
     this.logger.log(`${storedKey.id} key generated successfully`);
-    return { jwks, storedKey };
+    const publicJWKS = await jose.exportJWK(publicKey);
+    return { jwks: publicJWKS, storedKey };
   }
 
-  private getRsaBits(algorithm: string): number {
-    switch (algorithm) {
-      case 'RS256':
-        return 2048;
-      case 'RS384':
-        return 3072;
-      case 'RS512':
-        return 4096;
-      default:
-        throw new BadRequestException({
-          success: false,
-          message: 'Unknown RSA algorithm provided',
-        });
-    }
-  }
+  // private getRsaBits(algorithm: string): number {
+  //   switch (algorithm) {
+  //     case 'RS256':
+  //       return 2048;
+  //     case 'RS384':
+  //       return 3072;
+  //     case 'RS512':
+  //       return 4096;
+  //     default:
+  //       throw new BadRequestException({
+  //         success: false,
+  //         message: 'Unknown RSA algorithm provided',
+  //       });
+  //   }
+  // }
 
   private getEcCurve(algorithm: string): string {
+    // TODO: Add support for other EC Curve
     switch (algorithm) {
       case 'ES256':
         return 'P-256';

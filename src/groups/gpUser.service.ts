@@ -279,7 +279,7 @@ export class GroupUserService {
         message: `All users removed from group`,
         data: count,
       };
-    } catch (error) {
+    } catch (error: any) {
       this.logger.log(error);
       throw new BadRequestException({
         success: false,
