@@ -220,7 +220,10 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "OIDC Provider"
+        ]
       }
     },
     "/oidc/callback": {
@@ -231,7 +234,10 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "OIDC Provider"
+        ]
       }
     },
     "/user": {
@@ -2897,6 +2903,26 @@
             "default": false,
             "example": "false",
             "description": "enable proof key for code exchange for an application"
+          },
+          "grantTimeToLiveInSeconds": {
+            "type": "number",
+            "example": 6000,
+            "description": "ttl for grant to live in secs"
+          },
+          "authorizationCodeTimeToLiveInSeconds": {
+            "type": "number",
+            "example": 6000,
+            "description": "ttl for authorization code to live in secs"
+          },
+          "sessionTimeToLiveInMinutes": {
+            "type": "number",
+            "example": 600,
+            "description": "ttl for session to live in mins"
+          },
+          "idTokenTimeToLiveInMinutes": {
+            "type": "number",
+            "example": 60,
+            "description": "ttl for id_token to live in mins"
           }
         },
         "required": [
@@ -2906,7 +2932,11 @@
           "enabledGrants",
           "logoutURL",
           "skipConsentScreen",
-          "enablePKCE"
+          "enablePKCE",
+          "grantTimeToLiveInSeconds",
+          "authorizationCodeTimeToLiveInSeconds",
+          "sessionTimeToLiveInMinutes",
+          "idTokenTimeToLiveInMinutes"
         ]
       },
       "CreateApplicationDto": {

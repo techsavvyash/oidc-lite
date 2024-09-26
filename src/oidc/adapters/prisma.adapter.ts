@@ -3,6 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { expiresAt, types } from '../oidc.adapter';
 
+// TODO: DEPRECATED might be removed in future commits
 @Injectable()
 export class PrismaAdapter implements Adapter {
   constructor(

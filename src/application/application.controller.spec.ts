@@ -159,35 +159,35 @@ describe('ApplicationController', () => {
     });
   });
 
-  const createApplicationDtoMock: CreateApplicationDto = {
-    active: true,
-    name: 'Test Application',
-    scopes: [
-      {
-        defaultConsentDetail: 'Default consent detail',
-        defaultConsentMessage: 'Default consent message',
-        name: 'Scope Name',
-        required: true,
-      },
-    ],
-    roles: [
-      {
-        description: 'Role description',
-        isDefault: true,
-        isSuperRole: false,
-        name: 'Role Name',
-      },
-    ],
-    oauthConfiguration: {
-      authorizedOriginURLs: ['https://example.com'],
-      authorizedRedirectURLs: ['https://example.com/callback'],
-      clientSecret: 'supersecret',
-      enabledGrants: ['authorization_code'],
-      logoutURL: 'https://example.com/logout',
-      enablePKCE: false,
-      skipConsentScreen: true,
-    },
-  };
+  // const createApplicationDtoMock: CreateApplicationDto = {
+  //   active: true,
+  //   name: 'Test Application',
+  //   scopes: [
+  //     {
+  //       defaultConsentDetail: 'Default consent detail',
+  //       defaultConsentMessage: 'Default consent message',
+  //       name: 'Scope Name',
+  //       required: true,
+  //     },
+  //   ],
+  //   roles: [
+  //     {
+  //       description: 'Role description',
+  //       isDefault: true,
+  //       isSuperRole: false,
+  //       name: 'Role Name',
+  //     },
+  //   ],
+  //   oauthConfiguration: {
+  //     authorizedOriginURLs: ['https://example.com'],
+  //     authorizedRedirectURLs: ['https://example.com/callback'],
+  //     clientSecret: 'supersecret',
+  //     enabledGrants: ['authorization_code'],
+  //     logoutURL: 'https://example.com/logout',
+  //     enablePKCE: false,
+  //     skipConsentScreen: true,
+  //   },
+  // };
 
   // describe('POST /application', () => {
   //   it('should create an application with random UUID', async () => {

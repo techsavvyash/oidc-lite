@@ -16,8 +16,6 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { randomUUID } from 'crypto';
 import { HeaderAuthService } from '../../header-auth/header-auth.service';
 import { UserService } from '../user.service';
-// import { AccessTokenDto, RefreshTokenDto } from '../../oidc-deprecated/dto/oidc.token.dto';
-import { ApplicationDataDto } from '../../application/application.dto';
 import { UtilsService } from '../../utils/utils.service';
 
 @Injectable()
@@ -77,9 +75,6 @@ export class UserRegistrationService {
     const registrationId = data.registrationId
       ? data.registrationId
       : randomUUID();
-    const authenticationToken = data.generateAuthenticationToken
-      ? randomUUID()
-      : null;
     const userData: UserData = await JSON.parse(user.data);
     const password: string | null = userData?.userData?.password;
     // const verified = false; //for now
@@ -96,23 +91,6 @@ export class UserRegistrationService {
         },
       );
       this.logger.log('A new user registration is made!', userRegistration);
-      const roleIds =
-        await this.utilService.returnRolesForAGivenUserIdAndApplicationId(
-          user.id,
-          application.id,
-        );
-      const filteredRoles = await Promise.all(
-        roleIds.map(async (roleId) => {
-          const role = await this.prismaService.applicationRole.findUnique({
-            where: { id: roleId },
-          });
-          return role.name;
-        }),
-      );
-      const now = Math.floor(Date.now() / 1000);
-      const applicationData: ApplicationDataDto = JSON.parse(application.data);
-      const accessTokenSeconds =
-        applicationData.jwtConfiguration.timeToLiveInSeconds;
       return {
         success: true,
         message: 'A user registered',
@@ -162,8 +140,8 @@ export class UserRegistrationService {
     }
     let userRegistration;
     try {
-      userRegistration = await this.prismaService.userRegistration.findFirst({
-        where: { usersId: userId, applicationsId: applicationId },
+      userRegistration = await this.prismaService.userRegistration.findUnique({
+        where: { user_registrations_uk_1: {usersId: userId,applicationsId: applicationId} },
       });
     } catch (error) {
       this.logger.log('Error from returnAUserRegistration', error);
@@ -380,17 +358,6 @@ export class UserRegistrationService {
           registrationInfo,
           headers,
         );
-        const applicationId = registrationInfo.applicationId;
-        const application = await this.prismaService.application.findUnique({
-          where: { id: applicationId },
-        });
-        const now = Math.floor(Date.now() / 1000);
-        const applicationData: ApplicationDataDto = JSON.parse(
-          application.data,
-        );
-        const refreshTokenSeconds =
-          applicationData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60;
-        this.logger.log('A refersh token is saved!');
         return {
           success: true,
           message: 'User and user registration created successfully!',

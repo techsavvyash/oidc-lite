@@ -39,6 +39,5 @@ display_name="Stencil SSO"
 
 8. This occurs because minIO requires an additional property in `id_token` i.e. `policy`. `Policies` are maintained by MinIO and are required in `id_token`. Default policies are: `['consoleAdmin', 'diagnostics','readonly','readwrite','writeonly']`.
 
-8a. To solve this, a mapper is required. However for now just go to `line 575` of `oidc.service.ts` and uncomment the line `policy: ['consoleAdmin']`
-
 9. Refresh the error page on MinIO.
+

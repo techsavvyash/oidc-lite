@@ -12,9 +12,9 @@
 ```
 provider = "oidc"
 redirect_url = "http://localhost:4180/oauth2/callback"
-oidc_issuer_url = "http://localhost:3000/oidc"
+oidc_issuer_url = "http://localhost:3001/oidc"
 upstreams = [
-    "http://localhost:3000/health"
+    "http://localhost:3001/health","http://localhost:3001/admin","http://localhost:9001/"
 ]
 email_domains = [
     "*"
@@ -25,7 +25,7 @@ pass_access_token = true
 pass_authorization_header = true
 pass_user_headers = true
 set_xauthrequest = true
-cookie_secret = "This is one ass long secret key "
+cookie_secret = "This is one 333 long secret key "
 cookie_secure = false
 skip_provider_button = true
 ```

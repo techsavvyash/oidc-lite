@@ -13,7 +13,9 @@ import { Response, Request } from 'express';
 import { Oidc } from 'nest-oidc-provider';
 import axios from 'axios';
 import { KoaContextWithOIDC } from 'oidc-provider';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('OIDC Provider')
 @Controller('oidc')
 export class OIDCController {
   @All('/*')

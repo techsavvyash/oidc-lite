@@ -46,7 +46,7 @@ model Application {
   updatedAt                DateTime @updatedAt
   name                     String
   tenantId                 String
-  logo_uri                 String?  @default("https://www.flaticon.com/free-icon/application_2833637")
+  logo_uri                 String?  @default("https://www.flaticon.com/free-icon/application_2833637") // please change this default value to ur suitable thing
 
   tenant                Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   accessTokenSigningKey Key?                    @relation("ApplicationAccessTokenSigningKey", fields: [accessTokenSigningKeysId], references: [id])

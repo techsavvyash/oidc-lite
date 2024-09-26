@@ -28,9 +28,10 @@ describe('UserRegistrationService', () => {
     },
     userRegistration: {
       create: jest.fn(),
-      findFirst: jest.fn(),
+      findUnique: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      findFirst: jest.fn(),
     },
     applicationRole: {
       findUnique: jest.fn(),
@@ -178,12 +179,6 @@ describe('UserRegistrationService', () => {
           password: undefined,
         },
       });
-      expect(
-        mockUtilService.returnRolesForAGivenUserIdAndApplicationId,
-      ).toHaveBeenCalledWith(mockUser.id, mockApplication.id);
-      expect(
-        mockPrismaService.applicationRole.findUnique,
-      ).toHaveBeenCalledTimes(2);
     });
 
     it('should throw BadRequestException if no data is provided', async () => {
@@ -333,7 +328,7 @@ describe('UserRegistrationService', () => {
       mockHeaderAuthService.authorizationHeaderVerifier.mockResolvedValue({
         success: true,
       });
-      mockPrismaService.userRegistration.findFirst.mockResolvedValue(
+      mockPrismaService.userRegistration.findUnique.mockResolvedValue(
         mockUserRegistration,
       );
 
@@ -359,11 +354,16 @@ describe('UserRegistrationService', () => {
         '/user/registration',
         'GET',
       );
-      expect(mockPrismaService.userRegistration.findFirst).toHaveBeenCalledWith(
-        {
-          where: { usersId: userId, applicationsId: applicationId },
+      expect(
+        mockPrismaService.userRegistration.findUnique,
+      ).toHaveBeenCalledWith({
+        where: {
+          user_registrations_uk_1: {
+            usersId: userId,
+            applicationsId: applicationId,
+          },
         },
-      );
+      });
     });
     // Naming mismatch
     it('should throw UnauthorizedException if user registration is not found', async () => {
@@ -379,7 +379,7 @@ describe('UserRegistrationService', () => {
       mockHeaderAuthService.authorizationHeaderVerifier.mockResolvedValue({
         success: true,
       });
-      mockPrismaService.userRegistration.findFirst.mockResolvedValue(null);
+      mockPrismaService.userRegistration.findUnique.mockResolvedValue(null);
       // TODO : Unauthorized Exception is not thrown
       await expect(
         service.returnAUserRegistration(userId, applicationId, headers),
