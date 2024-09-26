@@ -2,18 +2,43 @@
   "variables": {
     "apiKeyValue": "master",
     "jwksKeyId": "#{UUID()}",
-    "applicationId": "myminioadmin",
-    "clientSecret": "minio-secret-key-change-me",
-    "tenantId": "minio-tenant",
-    "roleId1": "userRoleId",
-    "roleId2": "adminRoleId",
-    "groupId2": "agroup",
-    "groupId1": "ugroup",
+
+    "minio-applicationId": "myminioadmin",
+    "minio-clientSecret": "minio-secret-key-change-me",
+    "minio-tenantId": "minio-tenant",
+
+    "oauth2-applicationId": "myoauth2admin",
+    "oauth2-clientSecret": "oauth2-secret-key",
+    "oauth2-tenantId": "oauth2-tenantId",
+
+    "sample-application12-tenantId": "sampleApplicationI-tenantId",
+    "sample-application1": "sampleApplicationI",
+    "sample-application1-clientSecret": "sampleApplicationI-secret-key",
+    "sample-application2": "sampleApplicationII",
+    "sample-application2-clientSecret": "sampleApplicationII-secret-key",
+
+    "sample-application3-tenantId": "sampleApplicationIII-tenantId",
+    "sample-application3": "sampleApplicationIII",
+    "sample-application3-clientSecret": "sampleApplicationIII-secret-key",
+
+    "sample-application4-tenantId": "sampleApplicationIV-tenantId",
+    "sample-application4": "sampleApplicationIV",
+    "sample-application4-clientSecret": "sampleApplicationIV-secret-key",
+
+    "minio-user-roleId": "userRoleId",
+    "minio-admin-roleId": "adminRoleId",
+
+    "normal-groupId": "ugroup",
+    "admin-groupId": "agroup",
+
     "adminUsername": "admin",
-    "adminPassword": "adminPassword12#",
-    "userEmail2": "adminuser@email.com",
-    "userEmail1": "user@email.com",
-    "userPassword": "userPassword12#"
+    "adminPassword": "admin",
+
+    "admin-Email": "adminuser@email.com",
+    "user1-Email": "user@email.com",
+    "user2-Email": "user2@email.com",
+
+    "password": "pass"
   },
   "apiKey": {
     "key": "#{apiKeyValue}",
@@ -43,11 +68,12 @@
         }
       }
     },
+
     {
       "method": "POST",
-      "url": "/tenant/#{tenantId}",
+      "url": "/tenant/#{minio-tenantId}",
       "headers": {
-        "x-stencil-tenantid": "#{tenantId}",
+        "x-stencil-tenantid": "#{minio-tenantId}",
         "authorization": "#{apiKeyValue}"
       },
       "body": {
@@ -64,9 +90,86 @@
     },
     {
       "method": "POST",
-      "url": "/application/#{applicationId}",
+      "url": "/tenant/#{oauth2-tenantId}",
       "headers": {
-        "x-stencil-tenantid": "#{tenantId}",
+        "x-stencil-tenantid": "#{oauth2-tenantId}",
+        "authorization": "#{apiKeyValue}"
+      },
+      "body": {
+        "data": {
+          "name": "Second tenant",
+          "jwtConfiguration": {
+            "accessTokenSigningKeysID": "#{jwksKeyId}",
+            "refreshTokenTimeToLiveInMinutes": 3600,
+            "timeToLiveInSeconds": 60,
+            "idTokenSigningKeysID": "#{jwksKeyId}"
+          }
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "/tenant/#{sample-application12-tenantId}",
+      "headers": {
+        "x-stencil-tenantid": "#{sample-application12-tenantId}",
+        "authorization": "#{apiKeyValue}"
+      },
+      "body": {
+        "data": {
+          "name": "Third tenant",
+          "jwtConfiguration": {
+            "accessTokenSigningKeysID": "#{jwksKeyId}",
+            "refreshTokenTimeToLiveInMinutes": 3600,
+            "timeToLiveInSeconds": 60,
+            "idTokenSigningKeysID": "#{jwksKeyId}"
+          }
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "/tenant/#{sample-application3-tenantId}",
+      "headers": {
+        "x-stencil-tenantid": "#{sample-application3-tenantId}",
+        "authorization": "#{apiKeyValue}"
+      },
+      "body": {
+        "data": {
+          "name": "Fourth tenant",
+          "jwtConfiguration": {
+            "accessTokenSigningKeysID": "#{jwksKeyId}",
+            "refreshTokenTimeToLiveInMinutes": 3600,
+            "timeToLiveInSeconds": 60,
+            "idTokenSigningKeysID": "#{jwksKeyId}"
+          }
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "/tenant/#{sample-application4-tenantId}",
+      "headers": {
+        "x-stencil-tenantid": "#{sample-application4-tenantId}",
+        "authorization": "#{apiKeyValue}"
+      },
+      "body": {
+        "data": {
+          "name": "Fifth tenant",
+          "jwtConfiguration": {
+            "accessTokenSigningKeysID": "#{jwksKeyId}",
+            "refreshTokenTimeToLiveInMinutes": 3600,
+            "timeToLiveInSeconds": 60,
+            "idTokenSigningKeysID": "#{jwksKeyId}"
+          }
+        }
+      }
+    },
+
+    {
+      "method": "POST",
+      "url": "/application/#{minio-applicationId}",
+      "headers": {
+        "x-stencil-tenantid": "#{minio-tenantId}",
         "authorization": "#{apiKeyValue}"
       },
       "body": {
@@ -101,18 +204,18 @@
           ],
           "roles": [
             {
-              "name": "urn:myminioadmin:policy:'readwrite'",
+              "name": "urn:myminioadmin:policy:readwrite",
               "description": "This is user role",
               "isDefault": true,
               "isSuperRole": false,
-              "id": "#{roleId1}"
+              "id": "#{minio-user-roleId}"
             },
             {
               "name": "urn:myminioadmin:policy:['consoleAdmin','readwrite']",
               "description": "This is special role assigned to admin users",
               "isDefault": false,
               "isSuperRole": true,
-              "id": "#{roleId2}"
+              "id": "#{minio-admin-roleId}"
             }
           ],
           "oauthConfiguration": {
@@ -130,40 +233,405 @@
               "http://localhost:3001/callback",
               "http://192.168.250.157:9001/oauth_callback"
             ],
-            "clientSecret": "#{clientSecret}",
+            "clientSecret": "#{minio-clientSecret}",
             "enabledGrants": ["authorization_code", "refresh_token"],
             "logoutURL": "http://localhost:3001/logout",
             "enablePKCE": false,
-            "skipConsentScreen": true
+            "skipConsentScreen": false,
+            "grantTimeToLiveInSeconds": 600,
+            "authorizationCodeTimeToLiveInSeconds": 600,
+            "sessionTimeToLiveInMinutes": 10,
+            "idTokenTimeToLiveInMinutes": 100
           }
         }
       }
     },
     {
       "method": "POST",
-      "url": "/group/#{groupId2}",
+      "url": "/application/#{oauth2-applicationId}",
+      "headers": {
+        "x-stencil-tenantid": "#{oauth2-tenantId}",
+        "authorization": "#{apiKeyValue}"
+      },
+      "body": {
+        "data": {
+          "active": true,
+          "name": "oAuth2-proxy application",
+          "scopes": [
+            {
+              "name": "offline_access",
+              "defaultConsentDetail": "Required for getting access token",
+              "defaultConsentMessage": "Perform actions from your behalf",
+              "required": false
+            },
+            {
+              "name": "profile",
+              "defaultConsentDetail": "Your username, firstname and lastname will be shared",
+              "defaultConsentMessage": "Access to your profile data",
+              "required": false
+            },
+            {
+              "name": "openid",
+              "defaultConsentDetail": "Openid",
+              "defaultConsentMessage": "Access to your profile data",
+              "required": false
+            },
+            {
+              "name": "email",
+              "defaultConsentDetail": "Your email will be shared",
+              "defaultConsentMessage": "Access to your email",
+              "required": false
+            }
+          ],
+          "roles": [
+            {
+              "name": "role-in-oauth2",
+              "description": "This is just a role",
+              "isDefault": true,
+              "isSuperRole": false
+            }
+          ],
+          "oauthConfiguration": {
+            "authorizedOriginURLs": [
+              "https://strong-chairs-fall.loca.lt",
+              "https://jl4spt7t-3000.inc1.devtunnels.ms/"
+            ],
+            "authorizedRedirectURLs": [
+              "http://localhost:9001/oauth_callback",
+              "http://192.168.233.157:9001/oauth_callback",
+              "http://localhost:4180/oauth2/callback",
+              "http://localhost:3001",
+              "http://localhost:9001",
+              "http://localhost:3001/callback",
+              "http://192.168.250.157:9001/oauth_callback"
+            ],
+            "clientSecret": "#{oauth2-clientSecret}",
+            "enabledGrants": ["authorization_code", "refresh_token"],
+            "logoutURL": "http://localhost:3001/logout",
+            "enablePKCE": false,
+            "skipConsentScreen": false,
+            "grantTimeToLiveInSeconds": 600,
+            "authorizationCodeTimeToLiveInSeconds": 600,
+            "sessionTimeToLiveInMinutes": 10,
+            "idTokenTimeToLiveInMinutes": 100
+          }
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "/application/#{sample-application1}",
+      "headers": {
+        "x-stencil-tenantid": "#{sample-application12-tenantId}",
+        "authorization": "#{apiKeyValue}"
+      },
+      "body": {
+        "data": {
+          "active": true,
+          "name": "First Sample application",
+          "scopes": [
+            {
+              "name": "offline_access",
+              "defaultConsentDetail": "Required for getting access token",
+              "defaultConsentMessage": "Perform actions from your behalf",
+              "required": false
+            },
+            {
+              "name": "profile",
+              "defaultConsentDetail": "Your username, firstname and lastname will be shared",
+              "defaultConsentMessage": "Access to your profile data",
+              "required": false
+            },
+            {
+              "name": "openid",
+              "defaultConsentDetail": "Openid",
+              "defaultConsentMessage": "Access to your profile data",
+              "required": false
+            },
+            {
+              "name": "email",
+              "defaultConsentDetail": "Your email will be shared",
+              "defaultConsentMessage": "Access to your email",
+              "required": false
+            }
+          ],
+          "roles": [
+            {
+              "name": "role-in-sample1",
+              "description": "This is just a role",
+              "isDefault": true,
+              "isSuperRole": false
+            }
+          ],
+          "oauthConfiguration": {
+            "authorizedOriginURLs": [
+              "*",
+              "https://strong-chairs-fall.loca.lt",
+              "https://jl4spt7t-3000.inc1.devtunnels.ms/"
+            ],
+            "authorizedRedirectURLs": [
+              "http://localhost:9001/oauth_callback",
+              "http://192.168.233.157:9001/oauth_callback",
+              "http://localhost:4180/oauth2/callback",
+              "http://localhost:3001",
+              "http://localhost:9001",
+              "http://localhost:3001/callback",
+              "http://192.168.250.157:9001/oauth_callback"
+            ],
+            "clientSecret": "#{sample-application1-clientSecret}",
+            "enabledGrants": ["authorization_code", "refresh_token"],
+            "logoutURL": "http://localhost:3001/logout",
+            "enablePKCE": false,
+            "skipConsentScreen": false,
+            "grantTimeToLiveInSeconds": 600,
+            "authorizationCodeTimeToLiveInSeconds": 600,
+            "sessionTimeToLiveInMinutes": 10,
+            "idTokenTimeToLiveInMinutes": 100
+          }
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "/application/#{sample-application2}",
+      "headers": {
+        "x-stencil-tenantid": "#{sample-application12-tenantId}",
+        "authorization": "#{apiKeyValue}"
+      },
+      "body": {
+        "data": {
+          "active": true,
+          "name": "Second Sample application",
+          "scopes": [
+            {
+              "name": "offline_access",
+              "defaultConsentDetail": "Required for getting access token",
+              "defaultConsentMessage": "Perform actions from your behalf",
+              "required": false
+            },
+            {
+              "name": "profile",
+              "defaultConsentDetail": "Your username, firstname and lastname will be shared",
+              "defaultConsentMessage": "Access to your profile data",
+              "required": false
+            },
+            {
+              "name": "openid",
+              "defaultConsentDetail": "Openid",
+              "defaultConsentMessage": "Access to your profile data",
+              "required": false
+            },
+            {
+              "name": "email",
+              "defaultConsentDetail": "Your email will be shared",
+              "defaultConsentMessage": "Access to your email",
+              "required": false
+            }
+          ],
+          "roles": [
+            {
+              "name": "role-in-sample2",
+              "description": "This is just a role",
+              "isDefault": true,
+              "isSuperRole": false
+            }
+          ],
+          "oauthConfiguration": {
+            "authorizedOriginURLs": [
+              "https://strong-chairs-fall.loca.lt",
+              "https://jl4spt7t-3000.inc1.devtunnels.ms/"
+            ],
+            "authorizedRedirectURLs": [
+              "http://localhost:9001/oauth_callback",
+              "http://192.168.233.157:9001/oauth_callback",
+              "http://localhost:4180/oauth2/callback",
+              "http://localhost:3001",
+              "http://localhost:9001",
+              "http://localhost:3001/callback",
+              "http://192.168.250.157:9001/oauth_callback"
+            ],
+            "clientSecret": "#{sample-application2-clientSecret}",
+            "enabledGrants": ["authorization_code", "refresh_token"],
+            "logoutURL": "http://localhost:3001/logout",
+            "enablePKCE": false,
+            "skipConsentScreen": false,
+            "grantTimeToLiveInSeconds": 600,
+            "authorizationCodeTimeToLiveInSeconds": 600,
+            "sessionTimeToLiveInMinutes": 10,
+            "idTokenTimeToLiveInMinutes": 100
+          }
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "/application/#{sample-application3}",
+      "headers": {
+        "x-stencil-tenantid": "#{sample-application3-tenantId}",
+        "authorization": "#{apiKeyValue}"
+      },
+      "body": {
+        "data": {
+          "active": true,
+          "name": "Third Sample application with pkce enabled",
+          "scopes": [
+            {
+              "name": "offline_access",
+              "defaultConsentDetail": "Required for getting access token",
+              "defaultConsentMessage": "Perform actions from your behalf",
+              "required": false
+            },
+            {
+              "name": "profile",
+              "defaultConsentDetail": "Your username, firstname and lastname will be shared",
+              "defaultConsentMessage": "Access to your profile data",
+              "required": false
+            },
+            {
+              "name": "openid",
+              "defaultConsentDetail": "Openid",
+              "defaultConsentMessage": "Access to your profile data",
+              "required": false
+            },
+            {
+              "name": "email",
+              "defaultConsentDetail": "Your email will be shared",
+              "defaultConsentMessage": "Access to your email",
+              "required": false
+            }
+          ],
+          "roles": [
+            {
+              "name": "role-in-sample3",
+              "description": "This is just a role",
+              "isDefault": true,
+              "isSuperRole": false
+            }
+          ],
+          "oauthConfiguration": {
+            "authorizedOriginURLs": [
+              "https://strong-chairs-fall.loca.lt",
+              "https://jl4spt7t-3000.inc1.devtunnels.ms/"
+            ],
+            "authorizedRedirectURLs": [
+              "http://localhost:9001/oauth_callback",
+              "http://192.168.233.157:9001/oauth_callback",
+              "http://localhost:4180/oauth2/callback",
+              "http://localhost:3001",
+              "http://localhost:9001",
+              "http://localhost:3001/callback",
+              "http://192.168.250.157:9001/oauth_callback"
+            ],
+            "clientSecret": "#{sample-application3-clientSecret}",
+            "enabledGrants": ["authorization_code", "refresh_token"],
+            "logoutURL": "http://localhost:3001/logout",
+            "enablePKCE": true,
+            "skipConsentScreen": false,
+            "grantTimeToLiveInSeconds": 600,
+            "authorizationCodeTimeToLiveInSeconds": 600,
+            "sessionTimeToLiveInMinutes": 10,
+            "idTokenTimeToLiveInMinutes": 100
+          }
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "/application/#{sample-application4}",
+      "headers": {
+        "x-stencil-tenantid": "#{sample-application4-tenantId}",
+        "authorization": "#{apiKeyValue}"
+      },
+      "body": {
+        "data": {
+          "active": true,
+          "name": "Fourth Sample application with consentless login",
+          "scopes": [
+            {
+              "name": "offline_access",
+              "defaultConsentDetail": "Required for getting access token",
+              "defaultConsentMessage": "Perform actions from your behalf",
+              "required": false
+            },
+            {
+              "name": "profile",
+              "defaultConsentDetail": "Your username, firstname and lastname will be shared",
+              "defaultConsentMessage": "Access to your profile data",
+              "required": false
+            },
+            {
+              "name": "openid",
+              "defaultConsentDetail": "Openid",
+              "defaultConsentMessage": "Access to your profile data",
+              "required": false
+            },
+            {
+              "name": "email",
+              "defaultConsentDetail": "Your email will be shared",
+              "defaultConsentMessage": "Access to your email",
+              "required": false
+            }
+          ],
+          "roles": [
+            {
+              "name": "role-in-sample4",
+              "description": "This is just a role",
+              "isDefault": true,
+              "isSuperRole": false
+            }
+          ],
+          "oauthConfiguration": {
+            "authorizedOriginURLs": [
+              "https://strong-chairs-fall.loca.lt",
+              "https://jl4spt7t-3000.inc1.devtunnels.ms/"
+            ],
+            "authorizedRedirectURLs": [
+              "http://localhost:9001/oauth_callback",
+              "http://192.168.233.157:9001/oauth_callback",
+              "http://localhost:4180/oauth2/callback",
+              "http://localhost:3001",
+              "http://localhost:9001",
+              "http://localhost:3001/callback",
+              "http://192.168.250.157:9001/oauth_callback"
+            ],
+            "clientSecret": "#{sample-application4-clientSecret}",
+            "enabledGrants": ["authorization_code", "refresh_token"],
+            "logoutURL": "http://localhost:3001/logout",
+            "enablePKCE": false,
+            "skipConsentScreen": true,
+            "grantTimeToLiveInSeconds": 600,
+            "authorizationCodeTimeToLiveInSeconds": 600,
+            "sessionTimeToLiveInMinutes": 10,
+            "idTokenTimeToLiveInMinutes": 100
+          }
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "url": "/group/#{admin-groupId}",
       "headers": {
         "authorization": "#{apiKeyValue}",
-        "x-stencil-tenantid": "#{tenantId}"
+        "x-stencil-tenantid": "#{minio-tenantId}"
       },
       "body": {
         "group": {
           "name": "Admin group",
-          "roleIDs": ["#{roleId2}"]
+          "roleIDs": ["#{minio-admin-roleId}"]
         }
       }
     },
     {
       "method": "POST",
-      "url": "/group/#{groupId1}",
+      "url": "/group/#{normal-groupId}",
       "headers": {
         "authorization": "#{apiKeyValue}",
-        "x-stencil-tenantid": "#{tenantId}"
+        "x-stencil-tenantid": "#{minio-tenantId}"
       },
       "body": {
         "group": {
           "name": "user group",
-          "roleIDs": ["#{roleId1}"]
+          "roleIDs": ["#{minio-user-roleId}"]
         }
       }
     },
@@ -171,24 +639,24 @@
       "method": "POST",
       "url": "/user/registration/combined/",
       "headers": {
-        "x-stencil-tenantid": "#{tenantId}",
+        "x-stencil-tenantid": "#{minio-tenantId}",
         "authorization": "#{apiKeyValue}"
       },
       "body": {
         "data": {
           "userInfo": {
             "active": true,
-            "applicationId": "#{applicationId}",
-            "membership": ["#{groupId2}"],
+            "applicationId": "#{minio-applicationId}",
+            "membership": ["#{admin-groupId}"],
             "userData": {
-              "username": "AdminUser",
-              "password": "#{userPassword}"
+              "username": "adminUser",
+              "password": "#{password}"
             },
-            "email": "#{userEmail2}"
+            "email": "#{user1-Email}"
           },
           "registrationInfo": {
             "generateAuthenticationToken": true,
-            "applicationId": "#{applicationId}"
+            "applicationId": "#{minio-applicationId}"
           }
         }
       }
@@ -197,24 +665,24 @@
       "method": "POST",
       "url": "/user/registration/combined/",
       "headers": {
-        "x-stencil-tenantid": "#{tenantId}",
+        "x-stencil-tenantid": "#{minio-tenantId}",
         "authorization": "#{apiKeyValue}"
       },
       "body": {
         "data": {
           "userInfo": {
             "active": true,
-            "applicationId": "#{applicationId}",
-            "membership": ["#{groupId1}"],
+            "applicationId": "#{minio-applicationId}",
+            "membership": ["#{normal-groupId}"],
             "userData": {
               "username": "normalUser",
-              "password": "#{userPassword}"
+              "password": "#{password}"
             },
-            "email": "#{userEmail1}"
+            "email": "#{user2-Email}"
           },
           "registrationInfo": {
             "generateAuthenticationToken": true,
-            "applicationId": "#{applicationId}"
+            "applicationId": "#{minio-applicationId}"
           }
         }
       }

@@ -204,8 +204,7 @@ export class OIDCService {
           );
         },
         Grant: (ctx, token, client) => {
-          const clientData = client_ttlMap.get(client?.clientId);
-          return clientData.oauthConfiguration.grantTimeToLiveInSeconds || 1000;
+          return 1000;
         },
         AuthorizationCode: (ctx, token, client) => {
           const clientData = client_ttlMap.get(client?.clientId);
@@ -215,11 +214,7 @@ export class OIDCService {
           );
         },
         Session: (ctx, token, client) => {
-          const clientData = client_ttlMap.get(client?.clientId);
-          return (
-            clientData.oauthConfiguration.sessionTimeToLiveInMinutes * 60 ||
-            60000
-          );
+          return 30000;
         },
         IdToken: (ctx, token, client) => {
           const clientData = client_ttlMap.get(client?.clientId);
