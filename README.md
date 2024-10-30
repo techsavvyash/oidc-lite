@@ -39,9 +39,16 @@ $ yarn install
 cp .env.example .env
 ```
 
-### Run Migrations
+### Create the database file
+
 ```bash
-npx prisma migrate dev
+touch /path/to/sqlitedb/as/per/env
+```
+
+### Run Migrations
+
+```bash
+npx prisma migrate deploy
 ```
 
 ### Running the app
@@ -55,6 +62,9 @@ $ yarn run start:dev
 
 # production mode
 $ yarn run start:prod
+
+# production mode with migrations
+$ yarn run start:migrate:prod
 ```
 
 ### Test
@@ -71,9 +81,11 @@ $ yarn run test:cov
 ```
 
 ## License
+
 OIDC Lite is [MIT licensed](LICENSE).
 
 ## Acknowledgements 
+
 ### Authors 
 - [Utkarsh](https://github.com/Zolo-Ryan)
 - [Aashutosh](https://github.com/Ashu463) 
