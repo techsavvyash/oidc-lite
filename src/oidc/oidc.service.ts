@@ -194,12 +194,12 @@ export class OIDCService {
       ttl: {
         AccessToken: (ctx, token, client) => {
           const clientData = client_ttlMap.get(client?.clientId);
-          return clientData.jwtConfiguration.timeToLiveInSeconds || 10000;
+          return clientData?.jwtConfiguration.timeToLiveInSeconds || 10000;
         },
         RefreshToken: (ctx, token, client) => {
           const clientData = client_ttlMap.get(client?.clientId);
           return (
-            clientData.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60 ||
+            clientData?.jwtConfiguration.refreshTokenTimeToLiveInMinutes * 60 ||
             60000
           );
         },
@@ -209,7 +209,7 @@ export class OIDCService {
         AuthorizationCode: (ctx, token, client) => {
           const clientData = client_ttlMap.get(client?.clientId);
           return (
-            clientData.oauthConfiguration
+            clientData?.oauthConfiguration
               .authorizationCodeTimeToLiveInSeconds || 1000
           );
         },
@@ -219,7 +219,7 @@ export class OIDCService {
         IdToken: (ctx, token, client) => {
           const clientData = client_ttlMap.get(client?.clientId);
           return (
-            clientData.oauthConfiguration.idTokenTimeToLiveInMinutes * 60 ||
+            clientData?.oauthConfiguration.idTokenTimeToLiveInMinutes * 60 ||
             60000
           );
         },

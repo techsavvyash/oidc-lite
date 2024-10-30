@@ -41,3 +41,15 @@ display_name="Stencil SSO"
 
 9. Refresh the error page on MinIO.
 
+
+
+mc admin config set myminio identity_openid \
+   config_url="http://localhost:3001/oidc/.well-known/openid-configuration" \
+client_id="myminioadmin" \
+client_secret="minio-secret-key-change-me" \
+display_name="Stencil SSO"
+
+
+mc alias set myminio http://localhost:9001 myminioadmin minio-secret-key-change-me
+
+mc alias set myminio http://localhost:9000 minioadminuser minioadminpassword  

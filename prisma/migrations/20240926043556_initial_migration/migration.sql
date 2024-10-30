@@ -33,6 +33,7 @@ CREATE TABLE "Application" (
     "updatedAt" DATETIME NOT NULL,
     "name" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
+    "logo_uri" TEXT DEFAULT 'https://www.flaticon.com/free-icon/application_2833637',
     CONSTRAINT "Application_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "Application_accessTokenSigningKeysId_fkey" FOREIGN KEY ("accessTokenSigningKeysId") REFERENCES "Key" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "Application_idTokenSigningKeysId_fkey" FOREIGN KEY ("idTokenSigningKeysId") REFERENCES "Key" ("id") ON DELETE SET NULL ON UPDATE CASCADE
@@ -164,7 +165,8 @@ CREATE TABLE "oidc_model" (
     "expiresAt" DATETIME,
     "consumedAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "updatedAt" DATETIME NOT NULL,
+    "consumed" BOOLEAN NOT NULL DEFAULT false
 );
 
 -- CreateIndex

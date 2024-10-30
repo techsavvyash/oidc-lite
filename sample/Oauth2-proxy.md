@@ -33,5 +33,7 @@ skip_provider_button = true
 7. Run the following command - `oauth2-proxy --config oauth2proxy.cfg --code-challenge-method "S256" --logging-filename ""
 `
 
+oauth2-proxy --config oauth2proxy.cfg --logging-filename
+
 8. Go to `localhost:4180`
 9. Enter credentials. After entering credentials, you will see 404 page. However, go to `cookies`, there you will find `_oauth2_proxy` cookie and `X-Auth-Request-[user,Access,Id]`

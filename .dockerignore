@@ -4,4 +4,6 @@ dist
 .vscode
 npm-debug.log
 yarn.lock
-
+*.db
+dev.db
+**/*.db*

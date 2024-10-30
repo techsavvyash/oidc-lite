@@ -2,42 +2,32 @@
   "variables": {
     "apiKeyValue": "master",
     "jwksKeyId": "#{UUID()}",
-
     "minio-applicationId": "myminioadmin",
     "minio-clientSecret": "minio-secret-key-change-me",
     "minio-tenantId": "minio-tenant",
-
     "oauth2-applicationId": "myoauth2admin",
     "oauth2-clientSecret": "oauth2-secret-key",
     "oauth2-tenantId": "oauth2-tenantId",
-
     "sample-application12-tenantId": "sampleApplicationI-tenantId",
     "sample-application1": "sampleApplicationI",
     "sample-application1-clientSecret": "sampleApplicationI-secret-key",
     "sample-application2": "sampleApplicationII",
     "sample-application2-clientSecret": "sampleApplicationII-secret-key",
-
     "sample-application3-tenantId": "sampleApplicationIII-tenantId",
     "sample-application3": "sampleApplicationIII",
     "sample-application3-clientSecret": "sampleApplicationIII-secret-key",
-
     "sample-application4-tenantId": "sampleApplicationIV-tenantId",
     "sample-application4": "sampleApplicationIV",
     "sample-application4-clientSecret": "sampleApplicationIV-secret-key",
-
     "minio-user-roleId": "userRoleId",
     "minio-admin-roleId": "adminRoleId",
-
     "normal-groupId": "ugroup",
     "admin-groupId": "agroup",
-
     "adminUsername": "admin",
     "adminPassword": "admin",
-
     "admin-Email": "adminuser@email.com",
     "user1-Email": "user@email.com",
     "user2-Email": "user2@email.com",
-
     "password": "pass"
   },
   "apiKey": {
@@ -68,7 +58,6 @@
         }
       }
     },
-
     {
       "method": "POST",
       "url": "/tenant/#{minio-tenantId}",
@@ -164,7 +153,6 @@
         }
       }
     },
-
     {
       "method": "POST",
       "url": "/application/#{minio-applicationId}",
@@ -231,10 +219,14 @@
               "http://localhost:3001",
               "http://localhost:9001",
               "http://localhost:3001/callback",
-              "http://192.168.250.157:9001/oauth_callback"
+              "http://192.168.250.157:9001/oauth_callback",
+              "http://localhost:3000/auth/callback"
             ],
             "clientSecret": "#{minio-clientSecret}",
-            "enabledGrants": ["authorization_code", "refresh_token"],
+            "enabledGrants": [
+              "authorization_code",
+              "refresh_token"
+            ],
             "logoutURL": "http://localhost:3001/logout",
             "enablePKCE": false,
             "skipConsentScreen": false,
@@ -303,10 +295,14 @@
               "http://localhost:3001",
               "http://localhost:9001",
               "http://localhost:3001/callback",
-              "http://192.168.250.157:9001/oauth_callback"
+              "http://192.168.250.157:9001/oauth_callback",
+              "http://localhost:3000/auth/callback"
             ],
             "clientSecret": "#{oauth2-clientSecret}",
-            "enabledGrants": ["authorization_code", "refresh_token"],
+            "enabledGrants": [
+              "authorization_code",
+              "refresh_token"
+            ],
             "logoutURL": "http://localhost:3001/logout",
             "enablePKCE": false,
             "skipConsentScreen": false,
@@ -376,10 +372,14 @@
               "http://localhost:3001",
               "http://localhost:9001",
               "http://localhost:3001/callback",
-              "http://192.168.250.157:9001/oauth_callback"
+              "http://192.168.250.157:9001/oauth_callback",
+              "http://localhost:3000/auth/callback"
             ],
             "clientSecret": "#{sample-application1-clientSecret}",
-            "enabledGrants": ["authorization_code", "refresh_token"],
+            "enabledGrants": [
+              "authorization_code",
+              "refresh_token"
+            ],
             "logoutURL": "http://localhost:3001/logout",
             "enablePKCE": false,
             "skipConsentScreen": false,
@@ -448,10 +448,14 @@
               "http://localhost:3001",
               "http://localhost:9001",
               "http://localhost:3001/callback",
-              "http://192.168.250.157:9001/oauth_callback"
+              "http://192.168.250.157:9001/oauth_callback",
+              "http://localhost:3000/auth/callback"
             ],
             "clientSecret": "#{sample-application2-clientSecret}",
-            "enabledGrants": ["authorization_code", "refresh_token"],
+            "enabledGrants": [
+              "authorization_code",
+              "refresh_token"
+            ],
             "logoutURL": "http://localhost:3001/logout",
             "enablePKCE": false,
             "skipConsentScreen": false,
@@ -520,10 +524,14 @@
               "http://localhost:3001",
               "http://localhost:9001",
               "http://localhost:3001/callback",
-              "http://192.168.250.157:9001/oauth_callback"
+              "http://192.168.250.157:9001/oauth_callback",
+              "http://localhost:3000/auth/callback"
             ],
             "clientSecret": "#{sample-application3-clientSecret}",
-            "enabledGrants": ["authorization_code", "refresh_token"],
+            "enabledGrants": [
+              "authorization_code",
+              "refresh_token"
+            ],
             "logoutURL": "http://localhost:3001/logout",
             "enablePKCE": true,
             "skipConsentScreen": false,
@@ -592,10 +600,14 @@
               "http://localhost:3001",
               "http://localhost:9001",
               "http://localhost:3001/callback",
-              "http://192.168.250.157:9001/oauth_callback"
+              "http://192.168.250.157:9001/oauth_callback",
+              "http://localhost:3000/auth/callback"
             ],
             "clientSecret": "#{sample-application4-clientSecret}",
-            "enabledGrants": ["authorization_code", "refresh_token"],
+            "enabledGrants": [
+              "authorization_code",
+              "refresh_token"
+            ],
             "logoutURL": "http://localhost:3001/logout",
             "enablePKCE": false,
             "skipConsentScreen": true,
@@ -617,7 +629,9 @@
       "body": {
         "group": {
           "name": "Admin group",
-          "roleIDs": ["#{minio-admin-roleId}"]
+          "roleIDs": [
+            "#{minio-admin-roleId}"
+          ]
         }
       }
     },
@@ -631,7 +645,9 @@
       "body": {
         "group": {
           "name": "user group",
-          "roleIDs": ["#{minio-user-roleId}"]
+          "roleIDs": [
+            "#{minio-user-roleId}"
+          ]
         }
       }
     },
@@ -647,7 +663,9 @@
           "userInfo": {
             "active": true,
             "applicationId": "#{minio-applicationId}",
-            "membership": ["#{admin-groupId}"],
+            "membership": [
+              "#{admin-groupId}"
+            ],
             "userData": {
               "username": "adminUser",
               "password": "#{password}"
@@ -673,7 +691,9 @@
           "userInfo": {
             "active": true,
             "applicationId": "#{minio-applicationId}",
-            "membership": ["#{normal-groupId}"],
+            "membership": [
+              "#{normal-groupId}"
+            ],
             "userData": {
               "username": "normalUser",
               "password": "#{password}"

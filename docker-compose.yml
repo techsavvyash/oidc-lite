@@ -1,12 +1,33 @@
+# version: '3.8'
+
+# services:
+#   app:
+#     build: 
+#       context: .
+#       dockerfile: Dockerfile
+#       args:
+#         DATABASE_URL: ${DATABASE_URL:-./prisma/dev.db}
+#     ports:
+#       - "3001:3001"
+#     env_file:
+#       - .env
+#     volumes:
+#       - .:/src
+#       - ./prisma/dev.db:/src/prisma/dev.db
+#     command: >
+#       sh -c "yarn prisma migrate dev --name init && yarn start:prod --app oidc-lite"
+
+
+version: '3.8'
+
 services:
   app:
     build: .
     ports:
-      - "3001:3001"  # Mapping internal port 3000 to external port 3001
-    env_file:
-      - .env  # Load environment variables from the .env file
+      - "3001:3001"
     volumes:
-      - .:/src  # Mount the current directory to /src inside the container
-      - ./prisma/dev.db:/src/prisma/dev.db  # Mount the SQLite database file directly
-    command: >
-      sh -c "yarn prisma migrate dev --name init && yarn start:dev"
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run start:dev
